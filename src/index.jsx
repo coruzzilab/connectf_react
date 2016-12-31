@@ -1,9 +1,9 @@
 /**
- * Created by zacharyjuang on 11/23/16.
+ * @author zachary juang
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {createStore, applyMiddleware} from 'redux';
+import {createStore, applyMiddleware, compose} from 'redux';
 import {Provider} from 'react-redux';
 import {Router, Route, browserHistory} from 'react-router';
 import {syncHistoryWithStore, routerMiddleware} from 'react-router-redux';
@@ -21,10 +21,16 @@ import tgdbApp from './reducers';
 import App from './components/app';
 import Datagrid from './components/datagrid';
 
+const composeEnhancers = process.env.NODE_ENV !== 'production' &&
+typeof window === 'object' &&
+window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
+  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : compose;
+
 const store = createStore(tgdbApp,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
-  applyMiddleware(
-    routerMiddleware(browserHistory)
+  composeEnhancers(
+    applyMiddleware(
+      routerMiddleware(browserHistory)
+    )
   )
 );
 
