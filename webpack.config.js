@@ -26,6 +26,10 @@ const config = {
         loader: 'style!css'
       },
       {
+        test: /\.less$/,
+        loader: 'style-loader!css-loader!less-loader'
+      },
+      {
         test: /\.(ttf|eot|svg|woff(2)?)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: 'file-loader',
       }
