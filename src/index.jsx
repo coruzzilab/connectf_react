@@ -8,7 +8,7 @@ import {Provider} from 'react-redux';
 import {Router, Route, browserHistory} from 'react-router';
 import {syncHistoryWithStore, routerMiddleware} from 'react-router-redux';
 
-import 'file?name=[name].[ext]!./index.html';
+import 'file-loader?name=[name].[ext]!./index.html';
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/css/bootstrap-theme.css';
