@@ -38,7 +38,12 @@ class TFBody extends React.Component {
   }
 
   render() {
-    return <Query {...this.props} title={<h5>TFs</h5>} tree={<TFTree addFile={true} valueOptions={VALUE_OPTS}/>}
+    return <Query {...this.props}
+                  title={<h2>TFs</h2>}
+                  tree={
+                    <TFTree addFile={true}
+                            valueOptions={VALUE_OPTS}
+                            autoCompleteUrl={"http://coruzzilab-macpro.bio.nyu.edu/api/tfs/searchName/nodename"}/>}
                   createQuery={this.createQuery.bind(this)}/>;
   }
 }

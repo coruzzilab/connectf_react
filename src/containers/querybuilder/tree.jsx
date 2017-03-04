@@ -3,30 +3,87 @@
  * 12/5/16
  */
 import React from 'react';
-import {Tabs} from 'antd';
+import {Tabs, AutoComplete} from 'antd';
 const TabPane = Tabs.TabPane;
 
 import {OPERANDS} from '../../actions';
 import {GROUP_NODE, VALUE_NODE} from '../../reducers';
 
 import _ from 'lodash';
+import $ from 'jquery';
+
+function caseInsensitiveCompare(input, option) {
+  // a cumbersome way to search case insensitively
+  return option.key.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+}
+
+function idCompare(s, o) {
+  return s.id === o;
+}
+
+function filterNodeType(nodeType = VALUE_NODE) {
+  return function (n) {
+    return n.nodeType === nodeType;
+  }
+}
 
 class Value extends React.Component {
-  componentWillMount() {
-    let {node, valueOptions, updateKeyRaw} = this.props;
-    updateKeyRaw(node.id, _.get(valueOptions, '0.0', ''))
+  constructor(props) {
+    super(props);
+    this.state = {
+      dataSource: []
+    };
+
+  }
+
+  componentDidMount() {
+    // @todo: improve its location this is only POC
+    let {autoCompleteUrl, node} = this.props;
+    if (_.isString(autoCompleteUrl) || _.isFunction(autoCompleteUrl)) {
+      let url;
+      if (_.isFunction(autoCompleteUrl)) {
+        url = autoCompleteUrl(node);
+      } else {
+        url = autoCompleteUrl;
+      }
+      $.ajax({
+        url,
+        contentType: false,
+        data: {
+          format: 'json',
+          uinput: ''
+        }
+      }).done((data) => {
+        this.setState({
+          dataSource: _.map(data, 'text')
+        });
+      });
+    }
   }
 
   handleFile() {
     let {node, updateValueRaw} = this.props;
-    updateValueRaw(node.id, `[${this.refs.oper.value} {${_.get(this.refs.file, 'files.0.name', '')}}]`);
+    let {oper, file} = this.refs;
+    updateValueRaw(node.id, {
+      oper: oper.value,
+      file: _.get(file, 'files.0')
+    });
+  }
+
+  handleChange(value) {
+    let {node, updateValueRaw} = this.props;
+    updateValueRaw(node.id, value);
   }
 
   render() {
-    let {addFile, node, updateValue, updateKey, removeNode, valueOptions} = this.props;
-    let valueInput = <input type="text" id="input" className="form-control"
-                            value={node.value}
-                            onChange={updateValue.bind(this, node.id)}/>;
+    let {addFile, node, updateKey, removeNode, valueOptions} = this.props;
+    let {dataSource} = this.state;
+    let valueInput = <AutoComplete value={node.value}
+                                   onChange={this.handleChange.bind(this)}
+                                   style={{width: '30em'}} // @todo: better CSS styling
+                                   size="large"
+                                   dataSource={dataSource}
+                                   filterOption={caseInsensitiveCompare}/>;
     return <div className="form-inline condition">
       <select className="form-control" style={{float: 'left'}} ref="keyName"
               onChange={updateKey.bind(undefined, node.id)} value={node.key}>
@@ -60,26 +117,29 @@ class Value extends React.Component {
 }
 
 Value.propTypes = {
+  addFile: React.PropTypes.bool,
+  autoCompleteUrl: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.func]),
   node: React.PropTypes.object.isRequired,
+  removeNode: React.PropTypes.func.isRequired,
   updateValue: React.PropTypes.func.isRequired,
   updateValueRaw: React.PropTypes.func,
   updateKey: React.PropTypes.func,
   updateKeyRaw: React.PropTypes.func,
-  removeNode: React.PropTypes.func.isRequired,
-  addFile: React.PropTypes.bool,
   valueOptions: React.PropTypes.arrayOf(React.PropTypes.arrayOf(React.PropTypes.string)).isRequired
 };
 
 class Node extends React.Component {
   render() {
-    let {tree, node, addValue, addGroup, operChange, removeNode, removable} = this.props;
+    let {tree, node, addValue, addGroup, operChange, removeNode, removable, valueOptions} = this.props;
+    let _tree = _(tree);
+
     return <div className="alert form-inline alert-warning alert-group group">
       <select className="form-control" value={node.oper}
               onChange={operChange.bind(undefined, node.id)}>
         {OPERANDS.map((o) => <option value={o} key={o}>{o}</option>)}
       </select>
       <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
-              onClick={addValue.bind(undefined, node.id)}>
+              onClick={addValue.bind(undefined, node.id, _.get(valueOptions, '0.0', ''))}>
         <span className="glyphicon glyphicon-plus-sign"/> Add Condition
       </button>
       <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
@@ -92,20 +152,20 @@ class Node extends React.Component {
           <span className="glyphicon glyphicon-minus-sign"/> Remove Group
         </button> :
         null}
-      {_(tree)
-        .filter((n) => n.nodeType === VALUE_NODE)
+      {_tree
+        .filter(filterNodeType(VALUE_NODE))
         .intersectionWith(
           node.children,
-          (s, o) => s.id === o)
+          idCompare)
         .map((n) => {
           return <Value {...this.props} key={n.id} node={n}/>
         })
         .value()}
-      {_(tree)
-        .filter((n) => n.nodeType === GROUP_NODE)
+      {_tree
+        .filter(filterNodeType(GROUP_NODE))
         .intersectionWith(
           node.children,
-          (s, o) => s.id === o)
+          idCompare)
         .map((n) => {
           return <Node {...this.props} key={n.id} node={n} removable={true}/>
         })
@@ -115,6 +175,7 @@ class Node extends React.Component {
 }
 
 Node.propTypes = {
+  autoCompleteUrl: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.func]),
   removable: React.PropTypes.bool,
   addFile: React.PropTypes.bool,
   node: React.PropTypes.object.isRequired,
@@ -142,6 +203,7 @@ class TreeBody extends React.Component {
 }
 
 TreeBody.propTypes = {
+  autoCompleteUrl: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.func]),
   root: React.PropTypes.arrayOf(React.PropTypes.object),
   tree: React.PropTypes.arrayOf(React.PropTypes.object),
   operChange: React.PropTypes.func,

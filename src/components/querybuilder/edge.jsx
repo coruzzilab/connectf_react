@@ -41,8 +41,8 @@ class EdgeBody extends React.Component {
   }
 
   render() {
-    return <Query {...this.props} title={<h5>Edges</h5>} tree={<EdgeTree valueOptions={VALUE_OPTS}/>}
-                  createQuery={this.createQuery.bind(this)}/>;
+    return <Query {...this.props} title={<h2>Edges</h2>} tree={<EdgeTree valueOptions={VALUE_OPTS}/>}
+                                  createQuery={this.createQuery.bind(this)}/>;
   }
 }
 

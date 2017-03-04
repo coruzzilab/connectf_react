@@ -20,8 +20,8 @@ export const getRoot = (tree) => {
 };
 
 export const getChildQuery = (tree, node, includeKeys = false) => {
-  let _tree = _(tree);
-  return "[" + _tree
+  return "[" +
+    _(tree)
       .intersectionWith(
         node.children,
         (s, o) => s.id === o
@@ -31,13 +31,17 @@ export const getChildQuery = (tree, node, includeKeys = false) => {
         if (n.nodeType === VALUE_NODE) {
           if (includeKeys) {
             return `${n.key}=${n.value}`;
+          } else if (_.isObject(n.value)) {
+            let {oper, file} = n.value;
+            return `[${oper} {${_.get(file, 'name', '')}}]`
           } else {
             return n.value;
           }
         } else if (n.nodeType === GROUP_NODE) {
-          return getChildQuery(tree, n);
+          return getChildQuery(tree, n, includeKeys);
         }
-      }).join(` ${node.oper} `) + "]";
+      }).join(` ${node.oper} `) +
+    "]";
 };
 
 function mapStateToPropsFactory(name) {
@@ -55,8 +59,8 @@ function mapDispatchToPropsFactory(name) {
       operChange: (id, e) => {
         dispatch(updateGroup(name, id, e.target.value));
       },
-      addValue: (parent) => {
-        dispatch(addValue(name, '', parent));
+      addValue: (parent, key = '') => {
+        dispatch(addValue(name, '', parent, key));
       },
       updateValue: (id, e) => {
         dispatch(updateValue(name, id, e.target.value));

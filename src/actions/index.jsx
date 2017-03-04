@@ -2,6 +2,8 @@
  * Created by zacharyjuang on 11/26/16.
  */
 import {VALUE_NODE, GROUP_NODE} from '../reducers';
+import {push} from 'react-router-redux';
+import $ from 'jquery';
 
 export const OPERANDS = ['And', 'Or', 'AndNot'];
 
@@ -33,13 +35,14 @@ export const clearQuery = (name) => {
 
 let id = 1;
 
-export const addValue = (name, value, parent) => {
+export const addValue = (name, value, parent, key = '') => {
   return {
     type: `ADD_TREE_NODE_${name}`,
     id: id++,
     nodeType: VALUE_NODE,
     value,
-    parent
+    parent,
+    key
   }
 };
 
@@ -90,15 +93,82 @@ export const resetTree = (name) => {
   };
 };
 
-export const addFiles = (files) => {
+export const setRequestId = (requestId) => {
   return {
-    type: 'ADD_FILES',
-    files
+    type: 'SET_REQUEST_ID',
+    requestId
+  };
+};
+
+export const clearRequestId = () => {
+  return {
+    type: 'CLEAR_REQUEST_ID'
+  };
+};
+
+export const clearResult = () => {
+  return {
+    type: 'CLEAR_RESULT'
   }
 };
 
-export const clearFiles = () => {
+export const setResult = (data) => {
   return {
-    type: 'CLEAR_FILES'
+    type: 'SET_RESULT',
+    data
+  };
+};
+
+export const setError = (message) => {
+  return {
+    type: 'SET_ERROR',
+    message
+  }
+};
+
+export const clearError = () => {
+  return {
+    type: 'CLEAR_ERROR'
+  };
+};
+
+export const setCytoscape = (data) => {
+  return {
+    type: 'SET_CYTOSCAPE',
+    data
+  }
+};
+
+export const getCytoscape = (requestId) => {
+  return (dispatch) => {
+    return $.ajax({
+      url: `http://coruzzilab-macpro.bio.nyu.edu/static/queryBuilder/${requestId}_cy.json`,
+      contentType: false
+    }).done((data) => dispatch(setCytoscape(data)));
+  };
+};
+
+export const postQuery = (data) => {
+  return (dispatch) => {
+    let requestId = (new Date().toISOString() + Math.floor(Math.random() * 1000)).replace(/:|\./g, "");
+
+    data.append('requestId', requestId);
+
+    return $.ajax({
+      url: 'http://coruzzilab-macpro.bio.nyu.edu/queryapp/',
+      type: 'POST',
+      cache: false,
+      contentType: false,
+      processData: false,
+      data
+    })
+      .done((result) => {
+        dispatch(setRequestId(requestId));
+        dispatch(setResult(result));
+        dispatch(push('/datagrid'));
+      })
+      .fail(() => {
+        dispatch(setError("An error has occurred!"));
+      });
   };
 };

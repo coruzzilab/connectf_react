@@ -62,7 +62,7 @@ class MetaBody extends React.Component {
   }
 
   render() {
-    return <Query {...this.props} title={<h5>Meta</h5>} tree={<MetaTree valueOptions={VALUE_OPTS}/>}
+    return <Query {...this.props} title={<h2>Meta</h2>} tree={<MetaTree valueOptions={VALUE_OPTS}/>}
                   createQuery={this.createQuery.bind(this)}/>;
   }
 }

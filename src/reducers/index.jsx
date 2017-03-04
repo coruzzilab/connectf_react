@@ -35,11 +35,11 @@ function createQueryWithName(queryName = '') {
 }
 
 
-function findDescendents(arr, id) {
+function findDescendants(arr, id) {
   let l = _(_(arr).find((n) => n.id === id)).get('children', []);
   return l.concat(
     _(l)
-      .map(findDescendents.bind(undefined, arr))
+      .map(findDescendants.bind(undefined, arr))
       .flattenDeep()
       .value()
   )
@@ -64,7 +64,7 @@ function createTreeWithName(treeName = '') {
       nodeType: action.nodeType || VALUE_NODE,
       children: []
     };
-    let descendants = findDescendents(state, action.id);
+    let descendants = findDescendants(state, action.id);
     switch (action.type) {
     case `ADD_TREE_NODE_${treeName}`:
       return [...state, newNode].map((n) => {
@@ -119,17 +119,49 @@ function createTreeWithName(treeName = '') {
   }
 }
 
-
-const files = (state = [], action) => {
+function requestId(state = "", action) {
   switch (action.type) {
-  case 'ADD_FILES':
-    return [...state, ...action.files];
-  case 'CLEAR_FILES':
+  case 'SET_REQUEST_ID':
+    return action.requestId;
+  case 'CLEAR_REQUEST_ID':
+    return "";
+  default:
+    return state;
+  }
+}
+
+function result(state = [], action) {
+  switch (action.type) {
+  case 'SET_RESULT':
+    return action.data;
+  case 'CLEAR_RESULT':
     return [];
   default:
     return state;
   }
-};
+}
+
+function cytoscape(state = {}, action) {
+  switch (action.type) {
+  case 'SET_CYTOSCAPE':
+    return action.data;
+  case 'CLEAR_CYTOSCAPE':
+    return {};
+  default:
+    return state;
+  }
+}
+
+function error(state = '', action) {
+  switch (action.type) {
+  case 'SET_ERROR':
+    return action.message;
+  case 'CLEAR_ERROR':
+    return '';
+  default:
+    return state;
+  }
+}
 
 const tgdbApp = combineReducers({
   busy,
@@ -139,7 +171,10 @@ const tgdbApp = combineReducers({
   tfQuery: createQueryWithName('TF'),
   edgeQuery: createQueryWithName('EDGE'),
   metaQuery: createQueryWithName('META'),
-  files,
+  result,
+  cytoscape,
+  requestId,
+  error,
   routing: routerReducer
 });
 
