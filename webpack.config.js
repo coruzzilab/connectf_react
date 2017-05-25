@@ -4,6 +4,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const Visualizer = require('webpack-visualizer-plugin');
 
 const APP_DIR = path.join(__dirname, 'src');
 
@@ -26,14 +27,17 @@ const config = {
         test: /\.css(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         use: ExtractTextPlugin.extract({
           fallback: "style-loader",
-          use: "css-loader"
+          use: [{loader: "css-loader", options: {minimize: true}}]
         })
       },
       {
         test: /\.less$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
-          use: ['css-loader', 'less-loader']
+          use: [
+            {loader: "css-loader", options: {minimize: true}},
+            'less-loader'
+          ]
         })
       },
       {
@@ -52,7 +56,8 @@ const config = {
       }
     }),
     new webpack.optimize.UglifyJsPlugin(),
-    new ExtractTextPlugin('style.css')
+    new ExtractTextPlugin('style.css'),
+    new Visualizer()
   ]
 };
 
