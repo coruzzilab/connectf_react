@@ -1,9 +1,10 @@
 {
   "presets": [
     [
-      "latest",
+      "env",
       {
-        "modules": false
+        "modules": false,
+        "useBuiltIns": true
       }
     ],
     "react"
@@ -14,6 +15,12 @@
       {
         "libraryName": "antd",
         "style": true
+      }
+    ],
+    [
+      "transform-object-rest-spread",
+      {
+        "useBuiltIns": true
       }
     ]
   ]
