@@ -3,10 +3,10 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {createStore, applyMiddleware, compose} from 'redux';
+import {createStore, applyMiddleware, compose, combineReducers} from 'redux';
 import {Provider} from 'react-redux';
 import {Router, Route, IndexRoute, browserHistory} from 'react-router';
-import {syncHistoryWithStore, routerMiddleware} from 'react-router-redux';
+import {syncHistoryWithStore, routerMiddleware, routerReducer} from 'react-router-redux';
 import thunk from 'redux-thunk';
 
 import 'file-loader?name=[name].[ext]!./index.html';
@@ -27,7 +27,11 @@ typeof window === 'object' &&
 window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
   window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : compose;
 
-const store = createStore(tgdbApp,
+const store = createStore(
+  combineReducers({
+    ...tgdbApp,
+    routing: routerReducer
+  }),
   composeEnhancers(
     applyMiddleware(
       thunk,

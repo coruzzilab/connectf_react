@@ -1,15 +1,16 @@
 /**
  * Created by zacharyjuang on 11/24/16.
  */
-import React from 'react';
-import {connect} from 'react-redux';
-import _ from 'lodash';
+import React from "react";
+import {connect} from "react-redux";
+import _ from "lodash";
+import PropTypes from "prop-types";
 
-import {postQuery} from '../../actions';
+import {postQuery} from "../../actions";
 
-import TF from './tf';
-import Edge from './edge';
-import Meta from './meta';
+import TF from "./tf";
+import Edge from "./edge";
+import Meta from "./meta";
 
 const mapStateToProps = (state) => {
   return {
@@ -48,7 +49,7 @@ class QuerybuilderBody extends React.Component {
 
   buildForm() {
     let {tfQuery, edgeQuery, metaQuery, tfTree, edgeTree, metaTree} = this.props;
-    let {targetGenes} = this.refs;
+    let {targetGenes} = this;
     let formData = new FormData();
     let i = 0;
     let findFile = (node) => {
@@ -81,7 +82,7 @@ class QuerybuilderBody extends React.Component {
         <Meta/>
 
         <label className="col-sm-2">TargetGenes</label>
-        <input type="file" className="form-control" ref="targetGenes"/>
+        <input type="file" className="form-control" ref={(c) => {this.targetGenes = c}}/>
       </div>
 
       <div style={{flex: 20}}>
@@ -96,14 +97,14 @@ class QuerybuilderBody extends React.Component {
  * @type {{busy: *, submit: (*)}}
  */
 QuerybuilderBody.propTypes = {
-  busy: React.PropTypes.bool,
-  submit: React.PropTypes.func.isRequired,
-  tfQuery: React.PropTypes.string,
-  edgeQuery: React.PropTypes.string,
-  metaQuery: React.PropTypes.string,
-  tfTree: React.PropTypes.array,
-  edgeTree: React.PropTypes.array,
-  metaTree: React.PropTypes.array
+  busy: PropTypes.bool,
+  submit: PropTypes.func.isRequired,
+  tfQuery: PropTypes.string,
+  edgeQuery: PropTypes.string,
+  metaQuery: PropTypes.string,
+  tfTree: PropTypes.array,
+  edgeTree: PropTypes.array,
+  metaTree: PropTypes.array
 };
 
 const Querybuilder = connect(mapStateToProps, mapDispatchToProps)(QuerybuilderBody);

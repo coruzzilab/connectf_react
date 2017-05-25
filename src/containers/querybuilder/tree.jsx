@@ -3,6 +3,7 @@
  * 12/5/16
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import {Tabs, AutoComplete} from 'antd';
 const TabPane = Tabs.TabPane;
 
@@ -63,7 +64,7 @@ class Value extends React.Component {
 
   handleFile() {
     let {node, updateValueRaw} = this.props;
-    let {oper, file} = this.refs;
+    let {oper, file} = this;
     updateValueRaw(node.id, {
       oper: oper.value,
       file: _.get(file, 'files.0')
@@ -85,7 +86,7 @@ class Value extends React.Component {
                                    dataSource={dataSource}
                                    filterOption={caseInsensitiveCompare}/>;
     return <div className="form-inline condition">
-      <select className="form-control" style={{float: 'left'}} ref="keyName"
+      <select className="form-control" style={{float: 'left'}} ref={(c) => {this.keyName = c}}
               onChange={updateKey.bind(undefined, node.id)} value={node.key}>
         {_.map(valueOptions, (o) => {
           return <option key={o[0]} value={o[0]}>{o[1]}</option>
@@ -98,11 +99,11 @@ class Value extends React.Component {
               {valueInput}
             </TabPane>
             <TabPane tab="File" key="2">
-              <select className="form-control" ref="oper" onChange={this.handleFile.bind(this)}>
+              <select className="form-control" ref={(c) => {this.oper = c}} onChange={this.handleFile.bind(this)}>
                 <option value="And">And</option>
                 <option value="Or">Or</option>
               </select>
-              <input ref="file" type="file" className="form-control" onChange={this.handleFile.bind(this)}/>
+              <input ref={(c) => {this.file = c}} type="file" className="form-control" onChange={this.handleFile.bind(this)}/>
             </TabPane>
           </Tabs> :
           valueInput
@@ -117,15 +118,15 @@ class Value extends React.Component {
 }
 
 Value.propTypes = {
-  addFile: React.PropTypes.bool,
-  autoCompleteUrl: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.func]),
-  node: React.PropTypes.object.isRequired,
-  removeNode: React.PropTypes.func.isRequired,
-  updateValue: React.PropTypes.func.isRequired,
-  updateValueRaw: React.PropTypes.func,
-  updateKey: React.PropTypes.func,
-  updateKeyRaw: React.PropTypes.func,
-  valueOptions: React.PropTypes.arrayOf(React.PropTypes.arrayOf(React.PropTypes.string)).isRequired
+  addFile: PropTypes.bool,
+  autoCompleteUrl: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  node: PropTypes.object.isRequired,
+  removeNode: PropTypes.func.isRequired,
+  updateValue: PropTypes.func.isRequired,
+  updateValueRaw: PropTypes.func,
+  updateKey: PropTypes.func,
+  updateKeyRaw: PropTypes.func,
+  valueOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired
 };
 
 class Node extends React.Component {
@@ -175,20 +176,20 @@ class Node extends React.Component {
 }
 
 Node.propTypes = {
-  autoCompleteUrl: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.func]),
-  removable: React.PropTypes.bool,
-  addFile: React.PropTypes.bool,
-  node: React.PropTypes.object.isRequired,
-  operChange: React.PropTypes.func.isRequired,
-  addValue: React.PropTypes.func.isRequired,
-  updateValue: React.PropTypes.func.isRequired,
-  updateValueRaw: React.PropTypes.func,
-  updateKey: React.PropTypes.func,
-  updateKeyRaw: React.PropTypes.func,
-  addGroup: React.PropTypes.func.isRequired,
-  removeNode: React.PropTypes.func.isRequired,
-  tree: React.PropTypes.arrayOf(React.PropTypes.object),
-  valueOptions: React.PropTypes.arrayOf(React.PropTypes.arrayOf(React.PropTypes.string))
+  autoCompleteUrl: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  removable: PropTypes.bool,
+  addFile: PropTypes.bool,
+  node: PropTypes.object.isRequired,
+  operChange: PropTypes.func.isRequired,
+  addValue: PropTypes.func.isRequired,
+  updateValue: PropTypes.func.isRequired,
+  updateValueRaw: PropTypes.func,
+  updateKey: PropTypes.func,
+  updateKeyRaw: PropTypes.func,
+  addGroup: PropTypes.func.isRequired,
+  removeNode: PropTypes.func.isRequired,
+  tree: PropTypes.arrayOf(PropTypes.object),
+  valueOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string))
 };
 
 class TreeBody extends React.Component {
@@ -203,19 +204,19 @@ class TreeBody extends React.Component {
 }
 
 TreeBody.propTypes = {
-  autoCompleteUrl: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.func]),
-  root: React.PropTypes.arrayOf(React.PropTypes.object),
-  tree: React.PropTypes.arrayOf(React.PropTypes.object),
-  operChange: React.PropTypes.func,
-  addValue: React.PropTypes.func,
-  updateValue: React.PropTypes.func,
-  updateValueRaw: React.PropTypes.func,
-  updateKey: React.PropTypes.func,
-  updateKeyRaw: React.PropTypes.func,
-  addGroup: React.PropTypes.func,
-  removeNode: React.PropTypes.func,
-  addFile: React.PropTypes.bool,
-  valueOptions: React.PropTypes.arrayOf(React.PropTypes.arrayOf(React.PropTypes.string)).isRequired
+  autoCompleteUrl: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  root: PropTypes.arrayOf(PropTypes.object),
+  tree: PropTypes.arrayOf(PropTypes.object),
+  operChange: PropTypes.func,
+  addValue: PropTypes.func,
+  updateValue: PropTypes.func,
+  updateValueRaw: PropTypes.func,
+  updateKey: PropTypes.func,
+  updateKeyRaw: PropTypes.func,
+  addGroup: PropTypes.func,
+  removeNode: PropTypes.func,
+  addFile: PropTypes.bool,
+  valueOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired
 };
 
 export default TreeBody;

@@ -150,7 +150,7 @@ export const getCytoscape = (requestId) => {
 
 export const postQuery = (data) => {
   return (dispatch) => {
-    let requestId = (new Date().toISOString() + Math.floor(Math.random() * 1000)).replace(/:|\./g, "");
+    let requestId = (new Date().toISOString() + Math.floor(Math.random() * 1000)).replace(/[:.]/g, "");
 
     data.append('requestId', requestId);
 

@@ -5,6 +5,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 
 import Query from '../../containers/querybuilder/query';
 import {MetaTree, getRoot, getChildQuery} from './tree';
@@ -51,8 +52,12 @@ const mapDispatchToProps = (dispatch) => {
     setQueryRaw: (value) => {
       dispatch(setQuery('META', value));
     }
-  }
+  };
 };
+
+function buildMetaAutoComplete(node) {
+  return `http://coruzzilab-macpro.bio.nyu.edu/api/metas/searchType/${node.key}`;
+}
 
 class MetaBody extends React.Component {
   createQuery() {
@@ -62,16 +67,19 @@ class MetaBody extends React.Component {
   }
 
   render() {
-    return <Query {...this.props} title={<h2>Meta</h2>} tree={<MetaTree valueOptions={VALUE_OPTS}/>}
+    return <Query {...this.props}
+                  title={<h2>Meta</h2>}
+                  tree={<MetaTree valueOptions={VALUE_OPTS}
+                                  autoCompleteUrl={buildMetaAutoComplete}/>}
                   createQuery={this.createQuery.bind(this)}/>;
   }
 }
 
 MetaBody.propTypes = {
-  tree: React.PropTypes.arrayOf(React.PropTypes.object),
-  query: React.PropTypes.string,
-  setQuery: React.PropTypes.func.isRequired,
-  setQueryRaw: React.PropTypes.func
+  tree: PropTypes.arrayOf(PropTypes.object),
+  query: PropTypes.string,
+  setQuery: PropTypes.func.isRequired,
+  setQueryRaw: PropTypes.func
 };
 
 const Meta = connect(mapStateToProps, mapDispatchToProps)(MetaBody);

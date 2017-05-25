@@ -3,6 +3,7 @@
  * 12/6/16
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 
 class Query extends React.Component {
   render() {
@@ -24,11 +25,11 @@ class Query extends React.Component {
 }
 
 Query.propTypes = {
-  tree: React.PropTypes.node,
-  title: React.PropTypes.node,
-  query: React.PropTypes.string.isRequired,
-  setQuery: React.PropTypes.func.isRequired,
-  createQuery: React.PropTypes.func
+  tree: PropTypes.node,
+  title: PropTypes.node,
+  query: PropTypes.string.isRequired,
+  setQuery: PropTypes.func.isRequired,
+  createQuery: PropTypes.func
 };
 
 export default Query;

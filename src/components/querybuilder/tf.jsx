@@ -4,6 +4,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 
 import {setQuery} from '../../actions';
 
@@ -27,7 +28,7 @@ const mapDispatchToProps = (dispatch) => {
     setQueryRaw: (value) => {
       dispatch(setQuery('TF', value));
     }
-  }
+  };
 };
 
 class TFBody extends React.Component {
@@ -49,10 +50,10 @@ class TFBody extends React.Component {
 }
 
 TFBody.propTypes = {
-  tree: React.PropTypes.arrayOf(React.PropTypes.object),
-  query: React.PropTypes.string,
-  setQuery: React.PropTypes.func.isRequired,
-  setQueryRaw: React.PropTypes.func
+  tree: PropTypes.arrayOf(PropTypes.object),
+  query: PropTypes.string,
+  setQuery: PropTypes.func.isRequired,
+  setQueryRaw: PropTypes.func
 };
 
 const TF = connect(mapStateToProps, mapDispatchToProps)(TFBody);

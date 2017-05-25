@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import {connect} from 'react-redux';
+import PropTypes from 'prop-types';
 
 const mapStateToProps = (state) => {
   return {
@@ -24,7 +25,7 @@ class ExtraBody extends React.Component {
 }
 
 ExtraBody.propTypes = {
-  requestId: React.PropTypes.string
+  requestId: PropTypes.string
 };
 
 const Extra = connect(mapStateToProps)(ExtraBody);

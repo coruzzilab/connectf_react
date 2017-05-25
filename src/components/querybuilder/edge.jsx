@@ -5,6 +5,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 
 import Query from '../../containers/querybuilder/query';
 import {EdgeTree, getRoot, getChildQuery} from './tree';
@@ -30,8 +31,12 @@ const mapDispatchToProps = (dispatch) => {
     setQueryRaw: (value) => {
       dispatch(setQuery('EDGE', value));
     }
-  }
+  };
 };
+
+function buildEdgeAutoComplete(node) {
+  return `http://coruzzilab-macpro.bio.nyu.edu/api/edges/searchName/${node.key}`;
+}
 
 class EdgeBody extends React.Component {
   createQuery() {
@@ -41,16 +46,19 @@ class EdgeBody extends React.Component {
   }
 
   render() {
-    return <Query {...this.props} title={<h2>Edges</h2>} tree={<EdgeTree valueOptions={VALUE_OPTS}/>}
-                                  createQuery={this.createQuery.bind(this)}/>;
+    return <Query {...this.props}
+                  title={<h2>Edges</h2>}
+                  tree={<EdgeTree valueOptions={VALUE_OPTS}
+                                  autoCompleteUrl={buildEdgeAutoComplete}/>}
+                  createQuery={this.createQuery.bind(this)}/>;
   }
 }
 
 EdgeBody.propTypes = {
-  tree: React.PropTypes.arrayOf(React.PropTypes.object),
-  query: React.PropTypes.string,
-  setQuery: React.PropTypes.func.isRequired,
-  setQueryRaw: React.PropTypes.func
+  tree: PropTypes.arrayOf(PropTypes.object),
+  query: PropTypes.string,
+  setQuery: PropTypes.func.isRequired,
+  setQueryRaw: PropTypes.func
 };
 
 const Edge = connect(mapStateToProps, mapDispatchToProps)(EdgeBody);

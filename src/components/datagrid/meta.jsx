@@ -6,6 +6,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import Handsontable from 'handsontable/dist/handsontable.full';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 
 let mapStateToProps = (state) => {
   return {
@@ -17,7 +18,7 @@ export class MetaBody extends React.Component {
   componentDidMount() {
     let {result} = this.props;
 
-    let hot = new Handsontable(this.refs.grid, {
+    let hot = new Handsontable(this.grid, {
       rowHeaders: true,
       manualColumnResize: true,
       colHeaders: _.map(result[1].columns, 'name'),
@@ -33,7 +34,7 @@ export class MetaBody extends React.Component {
       search: true
     });
 
-    Handsontable.Dom.addEvent(this.refs.search, 'keyup', function (event) {
+    Handsontable.Dom.addEvent(this.search, 'keyup', function (event) {
       hot.search.query(this.value);
       hot.render();
     });
@@ -41,14 +42,14 @@ export class MetaBody extends React.Component {
 
   render() {
     return <div>
-      <input type="text" ref="search" placeholder="Search"/>
-      <div ref="grid" style={{height: '100vh', width: '100vw'}}/>
+      <input type="text" ref={(c) => {this.search = c}} placeholder="Search"/>
+      <div ref={(c) => {this.grid = c}} style={{height: '100vh', width: '100vw'}}/>
     </div>;
   }
 }
 
 MetaBody.propTypes = {
-  result: React.PropTypes.arrayOf(React.PropTypes.object)
+  result: PropTypes.arrayOf(PropTypes.object)
 };
 
 const Meta = connect(mapStateToProps)(MetaBody);

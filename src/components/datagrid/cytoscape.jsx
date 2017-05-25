@@ -7,6 +7,7 @@ import {connect} from 'react-redux';
 import cytoscape from 'cytoscape';
 import {getCytoscape, setCytoscape} from '../../actions';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 
 const mapStateToProps = (state) => {
   return {
@@ -28,7 +29,7 @@ class CytoscapeBody extends React.Component {
   componentDidMount() {
     let {requestId, getCytoscape, cytoscapeData} = this.props;
     this.cy = cytoscape({
-      container: this.refs.cy,
+      container: this.cyRef,
       boxSelectionEnabled: false,
       autounselectify: true,
       style: [
@@ -111,16 +112,16 @@ class CytoscapeBody extends React.Component {
 
   render() {
     return <div>
-      <div ref="cy" style={{height: '100vh', width: '100vw'}}/>
+      <div ref={(c) => {this.cyRef = c}} style={{height: '100vh', width: '100vw'}}/>
     </div>;
   }
 }
 
 CytoscapeBody.propTypes = {
-  requestId: React.PropTypes.string,
-  cytoscapeData: React.PropTypes.object,
-  getCytoscape: React.PropTypes.func,
-  setCytoscape: React.PropTypes.func
+  requestId: PropTypes.string,
+  cytoscapeData: PropTypes.object,
+  getCytoscape: PropTypes.func,
+  setCytoscape: PropTypes.func
 };
 
 const Cytoscape = connect(mapStateToProps, mapDispatchToProps)(CytoscapeBody);

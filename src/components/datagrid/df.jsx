@@ -6,6 +6,7 @@ import React from 'react';
 import Handsontable from 'handsontable/dist/handsontable.full';
 import {connect} from 'react-redux';
 import _ from 'lodash';
+import PropTypes from 'prop-types';
 
 const NON_ALPHANUMERIC = /^\W*|\W*$/g;
 
@@ -29,8 +30,9 @@ function renderInduced(instance, td, row, col, prop, value, cellProperties) {
 class DFBody extends React.Component {
   componentDidMount() {
     let {result} = this.props;
+    let data = this.data = _.values(JSON.parse(result[0].data));
 
-    let hot = this.hot = new Handsontable(this.refs.grid, {
+    let hot = this.hot = new Handsontable(this.grid, {
       rowHeaders: true,
       manualColumnResize: true,
       colHeaders: _.map(result[0].columns, 'name'),
@@ -42,10 +44,15 @@ class DFBody extends React.Component {
       }),
       columnSorting: true,
       fixedRowsTop: 3,
+      wordWrap: false,
       cells: function (row, col, prop) {
-        let cellProperties = {};
+        let cellProperties = {...prop};
         if (col > 8 && row > 2) {
           cellProperties.renderer = renderInduced;
+        }
+
+        if (col < 2) {
+          cellProperties.colWidths = 200;
         }
 
         return cellProperties;
@@ -75,25 +82,30 @@ class DFBody extends React.Component {
       }
     });
 
-    Handsontable.Dom.addEvent(this.refs.search, 'keyup', function (event) {
-      hot.search.query(this.value);
+    Handsontable.Dom.addEvent(this.search, 'keyup', function (event) {
+      let queryResult = hot.search.query(this.value);
+      console.log(queryResult);
       hot.render();
     });
 
-    hot.loadData(_.values(JSON.parse(result[0].data)));
+    hot.loadData(data);
   }
 
   render() {
     // @todo: find someone who actually knows CSS
     return <div>
-      <input type="text" placeholder="Search" ref="search"/>
-      <div id="grid" ref="grid" style={{height: '100vh'}}/>
+      <input type="text" placeholder="Search" ref={(c) => {
+        this.search = c;
+      }}/>
+      <div id="grid" ref={(c) => {
+        this.grid = c;
+      }} style={{height: '80vh'}}/>
     </div>;
   }
 }
 
 DFBody.propTypes = {
-  result: React.PropTypes.arrayOf(React.PropTypes.object)
+  result: PropTypes.arrayOf(PropTypes.object)
 };
 
 const DF = connect(mapStateToProps)(DFBody);

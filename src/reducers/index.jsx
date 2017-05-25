@@ -1,8 +1,6 @@
 /**
  * Created by zacharyjuang on 11/24/16.
  */
-import {combineReducers} from 'redux';
-import {routerReducer} from 'react-router-redux';
 import _ from 'lodash';
 
 import {OPERANDS} from '../actions';
@@ -163,7 +161,7 @@ function error(state = '', action) {
   }
 }
 
-const tgdbApp = combineReducers({
+const tgdbApp = {
   busy,
   tfTree: createTreeWithName('TF'),
   edgeTree: createTreeWithName('EDGE'),
@@ -174,8 +172,7 @@ const tgdbApp = combineReducers({
   result,
   cytoscape,
   requestId,
-  error,
-  routing: routerReducer
-});
+  error
+};
 
 export default tgdbApp;
