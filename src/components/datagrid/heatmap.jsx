@@ -21,14 +21,6 @@ class HeatMapBody extends React.Component {
     };
   }
 
-  componentDidMount() {
-    this.img.onerror = () => {
-      this.setState({
-        success: false
-      });
-    };
-  }
-
   render() {
     let {requestId} = this.props;
     let {success} = this.state;
@@ -36,8 +28,10 @@ class HeatMapBody extends React.Component {
       {success ?
         <img src={`${BASE_URL}/queryapp/heatmap/${requestId}.svg`}
              alt="heatmap"
-             ref={(c) => {
-               this.img = c;
+             onError={() => {
+               this.setState({
+                 success: false
+               });
              }}/> :
         <div>Heatmap is not available for this query.</div>}
     </div>;
