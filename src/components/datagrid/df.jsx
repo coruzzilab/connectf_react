@@ -30,6 +30,12 @@ function renderInduced(instance, td, row, col, prop, value, cellProperties) {
   }
 }
 
+function renderBold(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  td.style.fontWeight = 'bold';
+  td.style.border = '1px solid black';
+}
+
 let queryString = Handsontable.plugins.Search.DEFAULT_QUERY_METHOD;
 
 class DFBody extends React.Component {
@@ -51,6 +57,10 @@ class DFBody extends React.Component {
           cellProperties.renderer = renderInduced;
         }
 
+        if (row < 6 || col === 7 || col === 8) {
+          cellProperties.renderer = renderBold;
+        }
+
         if (col > 8 && row < 6) {
           cellProperties.className = "htCenter";
         }
@@ -59,7 +69,7 @@ class DFBody extends React.Component {
           cellProperties.type = 'text';
         }
 
-        if (col < 5) {
+        if (col > 0 && col < 5) {
           cellProperties.colWidths = 200;
         }
 
