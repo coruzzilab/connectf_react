@@ -3,30 +3,51 @@
  */
 import React from 'react';
 import {Tabs} from 'antd';
+import {Link} from 'react-router';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
 const {TabPane} = Tabs;
 
 import 'handsontable/dist/handsontable.full.css';
 
 import DF from './df';
 import Meta from './meta';
-import Cytoscape from './cytoscape';
 import Extra from './extra';
+import HeatMap from './heatmap';
 
-export default class Datagrid extends React.Component {
+class Datagrid extends React.Component {
   render() {
-    return <Tabs defaultActiveKey="1">
-      <TabPane tab="DF" key="1">
+    let {location} = this.props;
+
+    return <Tabs defaultActiveKey={_.get(location, 'query.tab') || "1"}>
+      <TabPane tab="Query" key="1">
         <DF/>
       </TabPane>
       <TabPane tab="Meta" key="2">
         <Meta/>
       </TabPane>
       <TabPane tab="Cytoscape" key="3">
-        <Cytoscape/>
+        <div>
+          <ul className="list-group">
+            <li className="list-group-item"><Link to="/cytoscape/query">Query TFs</Link></li>
+            <li className="list-group-item"><Link to="/cytoscape/target">TargetDB TFs</Link></li>
+            <li className="list-group-item"><Link to="/cytoscape/genome">Whole Genome TFs</Link></li>
+          </ul>
+        </div>
       </TabPane>
-      <TabPane tab="Extras" key="4">
+      <TabPane tab="Heatmap" key="4">
+        <HeatMap/>
+      </TabPane>
+      <TabPane tab="Extras" key="5">
         <Extra/>
       </TabPane>
-    </Tabs>
+    </Tabs>;
   }
 }
+
+Datagrid.propTypes = {
+  params: PropTypes.object,
+  location: PropTypes.object
+};
+
+export default Datagrid;

@@ -22,7 +22,10 @@ class App extends React.Component {
         <div className="container-fluid">
           <ul className="nav navbar-nav">
             <li className={classNames({active: pathname === "/"})}>
-              <IndexLink to="/">Home</IndexLink>
+              <IndexLink to="/">About</IndexLink>
+            </li>
+            <li className={classNames({active: pathname === "/query"})}>
+              <Link to="/query">Query</Link>
             </li>
             <li className={classNames({active: pathname === "/upload"})}>
               <a href="http://coruzzilab-macpro.bio.nyu.edu/upload/">Upload</a>

@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import Query from '../../containers/querybuilder/query';
 import {EdgeTree, getRoot, getChildQuery} from './tree';
 
-import {setQuery} from '../../actions';
+import {setQuery, BASE_URL} from '../../actions';
 
 const VALUE_OPTS = [
   ['EdgeName', 'EdgeName']
@@ -35,7 +35,7 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 function buildEdgeAutoComplete(node) {
-  return `http://coruzzilab-macpro.bio.nyu.edu/api/edges/searchName/${node.key}`;
+  return `${BASE_URL}/api/edges/searchName/${node.key}`;
 }
 
 class EdgeBody extends React.Component {
@@ -49,6 +49,7 @@ class EdgeBody extends React.Component {
     return <Query {...this.props}
                   title={<h2>Edges</h2>}
                   tree={<EdgeTree valueOptions={VALUE_OPTS}
+                                  autoCompleteKey="edge_name"
                                   autoCompleteUrl={buildEdgeAutoComplete}/>}
                   createQuery={this.createQuery.bind(this)}/>;
   }

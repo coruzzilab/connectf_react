@@ -43,7 +43,7 @@ export const addValue = (name, value, parent, key = '') => {
     value,
     parent,
     key
-  }
+  };
 };
 
 export const updateValue = (name, id, value) => {
@@ -51,7 +51,7 @@ export const updateValue = (name, id, value) => {
     type: `UPDATE_TREE_NODE_VALUE_${name}`,
     id,
     value
-  }
+  };
 };
 
 export const updateKey = (name, id, key) => {
@@ -76,7 +76,7 @@ export const addGroup = (name, oper, parent) => {
     nodeType: GROUP_NODE,
     oper,
     parent
-  }
+  };
 };
 
 export const updateGroup = (name, id, oper) => {
@@ -84,7 +84,7 @@ export const updateGroup = (name, id, oper) => {
     type: `UPDATE_TREE_NODE_VALUE_${name}`,
     id,
     oper
-  }
+  };
 };
 
 export const resetTree = (name) => {
@@ -109,7 +109,7 @@ export const clearRequestId = () => {
 export const clearResult = () => {
   return {
     type: 'CLEAR_RESULT'
-  }
+  };
 };
 
 export const setResult = (data) => {
@@ -123,7 +123,7 @@ export const setError = (message) => {
   return {
     type: 'SET_ERROR',
     message
-  }
+  };
 };
 
 export const clearError = () => {
@@ -136,13 +136,13 @@ export const setCytoscape = (data) => {
   return {
     type: 'SET_CYTOSCAPE',
     data
-  }
+  };
 };
 
-export const getCytoscape = (requestId) => {
+export const getCytoscape = (requestId, type = 'dbase_view1_cy') => {
   return (dispatch) => {
     return $.ajax({
-      url: `http://coruzzilab-macpro.bio.nyu.edu/static/queryBuilder/${requestId}_cy.json`,
+      url: `${BASE_URL}/queryapp/cytoscape/${requestId}/${type}/`,
       contentType: false
     }).done((data) => dispatch(setCytoscape(data)));
   };
@@ -155,7 +155,7 @@ export const postQuery = (data) => {
     data.append('requestId', requestId);
 
     return $.ajax({
-      url: 'http://coruzzilab-macpro.bio.nyu.edu/queryapp/',
+      url: `${BASE_URL}/queryapp/`,
       type: 'POST',
       cache: false,
       contentType: false,
@@ -167,8 +167,8 @@ export const postQuery = (data) => {
         dispatch(setResult(result));
         dispatch(push('/datagrid'));
       })
-      .fail(() => {
-        dispatch(setError("An error has occurred!"));
+      .fail((xhr, textStatus, err) => {
+        dispatch(setError(textStatus));
       });
   };
 };

@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 import Query from '../../containers/querybuilder/query';
 import {MetaTree, getRoot, getChildQuery} from './tree';
 
-import {setQuery} from '../../actions';
+import {setQuery, BASE_URL} from '../../actions';
 
 const VALUE_OPTS = [
   ["Experiment_ID", "Experiment_ID"],
@@ -18,7 +18,6 @@ const VALUE_OPTS = [
   ["Transcription_Factor_NAME", "Transcription_Factor_NAME"],
   ["Experiment", "Experiment"],
   ["Experiment_Type", "Experiment_Type"],
-  ["pression_Type", "Expression_Type"],
   ["Binding_Type", "Binding_Type"],
   ["Direction", "Direction"],
   ["Genotype", "Genotype"],
@@ -56,7 +55,7 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 function buildMetaAutoComplete(node) {
-  return `http://coruzzilab-macpro.bio.nyu.edu/api/metas/searchType/${node.key}`;
+  return `${BASE_URL}/api/metas/searchType/${node.key}`;
 }
 
 class MetaBody extends React.Component {
@@ -70,6 +69,7 @@ class MetaBody extends React.Component {
     return <Query {...this.props}
                   title={<h2>Meta</h2>}
                   tree={<MetaTree valueOptions={VALUE_OPTS}
+                                  autoCompleteKey="meta_value"
                                   autoCompleteUrl={buildMetaAutoComplete}/>}
                   createQuery={this.createQuery.bind(this)}/>;
   }

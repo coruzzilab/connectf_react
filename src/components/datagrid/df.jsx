@@ -24,34 +24,42 @@ function renderInduced(instance, td, row, col, prop, value, cellProperties) {
     } else if (value.startsWith('REPRESSED')) {
       td.style.background = 'lightcoral';
     }
+    if (value === 'Present') {
+      td.style.background = '#F6DB77';
+    }
   }
 }
+
+let queryString = Handsontable.plugins.Search.DEFAULT_QUERY_METHOD;
 
 class DFBody extends React.Component {
   componentDidMount() {
     let {result} = this.props;
-    let data = this.data = _.values(JSON.parse(result[0].data));
+    let data = this.data = _.get(result, '0.data', []);
 
     let hot = this.hot = new Handsontable(this.grid, {
       rowHeaders: true,
       manualColumnResize: true,
-      colHeaders: _.map(result[0].columns, 'name'),
-      columns: _.map(result[0].columns, (c) => {
-        return {
-          data: c.id,
-          editor: false
-        };
-      }),
       columnSorting: true,
-      fixedRowsTop: 3,
+      colHeaders: true,
+      fixedRowsTop: 6,
       wordWrap: false,
+      mergeCells: _.get(result, '0.mergeCells', []),
       cells: function (row, col, prop) {
         let cellProperties = {...prop};
-        if (col > 8 && row > 2) {
+        if (col > 8 && row > 5) {
           cellProperties.renderer = renderInduced;
         }
 
-        if (col < 2) {
+        if (col > 8 && row < 6) {
+          cellProperties.className = "htCenter";
+        }
+
+        if (row < 7) {
+          cellProperties.type = 'text';
+        }
+
+        if (col < 5) {
           cellProperties.colWidths = 200;
         }
 
@@ -60,32 +68,44 @@ class DFBody extends React.Component {
       search: true,
       sortIndicator: true,
       sortFunction: function (sortOrder, columnMeta) {
+        let skippedRows = 6;
+
         return function (a, b) {
           let plugin = hot.getPlugin('columnSorting');
 
-          if (a[0] < 3) {
+          if (a[0] < skippedRows) {
             if (a[0] > b[0]) {
               return 1;
             }
             return -1;
           }
-          if (b[0] < 3) {
+          if (b[0] < skippedRows) {
             if (a[0] < b[0]) {
               return -1;
             }
             return 1;
           }
 
-          return plugin.defaultSort(sortOrder, columnMeta)([a[0], a[1].replace(NON_ALPHANUMERIC, '')],
-            [b[0], b[1].replace(NON_ALPHANUMERIC, '')]);
+          return plugin.defaultSort(sortOrder, columnMeta)(
+            [a[0], _.isString(a[1]) ? a[1].replace(NON_ALPHANUMERIC, '') : a[1]],
+            [b[0], _.isString(b[1]) ? b[1].replace(NON_ALPHANUMERIC, '') : b[1]]);
         };
       }
     });
 
-    Handsontable.Dom.addEvent(this.search, 'keyup', function (event) {
-      let queryResult = hot.search.query(this.value);
-      console.log(queryResult);
-      hot.render();
+    Handsontable.dom.addEvent(this.search, 'keyup', function (event) {
+      if (this.value.length > 0) {
+        hot.loadData([
+          ...data.slice(0, 6),
+          ..._(data.slice(6))
+            .filter((row) => {
+              return _(row).filter(queryString.bind(undefined, this.value)).some();
+            })
+            .value()
+        ]);
+      } else {
+        hot.loadData(data);
+      }
     });
 
     hot.loadData(data);

@@ -20,7 +20,9 @@ import tgdbApp from './reducers';
 import App from './components/app';
 import Datagrid from './components/datagrid';
 import QueryBuilder from './components/querybuilder';
-import Upload from './components/upload';
+import About from './components/about';
+import CytoscapeFrame from './components/cytoscape';
+import Cytoscape from './components/cytoscape/cytoscape';
 
 const composeEnhancers = process.env.NODE_ENV !== 'production' &&
 typeof window === 'object' &&
@@ -43,14 +45,21 @@ const store = createStore(
 const history = syncHistoryWithStore(browserHistory, store);
 
 ReactDOM.render(
-  <Provider store={store}>
-    <Router history={history}>
-      <Route path="/" component={App}>
-        <IndexRoute component={QueryBuilder}/>
-        <Route path="datagrid" component={Datagrid}/>
-        <Route path="upload" component={Upload}/>
-      </Route>
-    </Router>
-  </Provider>,
+  <div className="container-fluid">
+    <Provider store={store}>
+      <Router history={history}>
+        <Route path="/" component={App}>
+          <IndexRoute component={About}/>
+          <Route path="query" component={QueryBuilder}/>
+          <Route path="datagrid" component={Datagrid}/>
+          <Route path="cytoscape" component={CytoscapeFrame}>
+            <Route path="query" component={() => <Cytoscape type="dbase_view1_cy"/>}/>
+            <Route path="target" component={() => <Cytoscape type="targets_cy"/>}/>
+            <Route path="genome" component={() => <Cytoscape type="genome_cy"/>}/>
+          </Route>
+        </Route>
+      </Router>
+    </Provider>
+  </div>,
   document.getElementById('app')
 );

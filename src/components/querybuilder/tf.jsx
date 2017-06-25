@@ -6,7 +6,7 @@ import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 
-import {setQuery} from '../../actions';
+import {setQuery, BASE_URL} from '../../actions';
 
 import Query from '../../containers/querybuilder/query';
 import {TFTree, getRoot, getChildQuery} from './tree';
@@ -44,7 +44,8 @@ class TFBody extends React.Component {
                   tree={
                     <TFTree addFile={true}
                             valueOptions={VALUE_OPTS}
-                            autoCompleteUrl={"http://coruzzilab-macpro.bio.nyu.edu/api/tfs/searchName/nodename"}/>}
+                            autoCompleteKey="db_tf_agi"
+                            autoCompleteUrl={`${BASE_URL}/api/tfs/searchName/nodename`}/>}
                   createQuery={this.createQuery.bind(this)}/>;
   }
 }

@@ -21,20 +21,20 @@ export class MetaBody extends React.Component {
     let hot = new Handsontable(this.grid, {
       rowHeaders: true,
       manualColumnResize: true,
-      colHeaders: _.map(result[1].columns, 'name'),
-      columns: _.map(result[1].columns, (c) => {
+      colHeaders: _.map(_.get(result, '1.columns', []), 'name'),
+      columns: _.map(_.get(result, '1.columns', []), (c) => {
         return {
           data: c.id,
           editor: false
         };
       }),
       columnSorting: true,
-      data: _.values(JSON.parse(result[1].data)),
+      data: _.values(JSON.parse(_.get(result, '1.data', "{}"))),
       sortIndicator: true,
       search: true
     });
 
-    Handsontable.Dom.addEvent(this.search, 'keyup', function (event) {
+    Handsontable.dom.addEvent(this.search, 'keyup', function (event) {
       hot.search.query(this.value);
       hot.render();
     });
@@ -43,7 +43,7 @@ export class MetaBody extends React.Component {
   render() {
     return <div>
       <input type="text" ref={(c) => {this.search = c}} placeholder="Search"/>
-      <div ref={(c) => {this.grid = c}} style={{height: '100vh', width: '100vw'}}/>
+      <div ref={(c) => {this.grid = c}} style={{height: '80vh', width: '100vw'}}/>
     </div>;
   }
 }

@@ -38,8 +38,18 @@ class Value extends React.Component {
   }
 
   componentDidMount() {
-    // @todo: improve its location this is only POC
-    let {autoCompleteUrl, node} = this.props;
+    this.getAutoCompleteList();
+  }
+
+  componentDidUpdate(prevProps) {
+    let {node} = this.props;
+    if (node.key !== prevProps.node.key) {
+      this.getAutoCompleteList();
+    }
+  }
+
+  getAutoCompleteList() {
+    let {autoCompleteUrl, autoCompleteKey, node} = this.props;
     if (_.isString(autoCompleteUrl) || _.isFunction(autoCompleteUrl)) {
       let url;
       if (_.isFunction(autoCompleteUrl)) {
@@ -56,7 +66,7 @@ class Value extends React.Component {
         }
       }).done((data) => {
         this.setState({
-          dataSource: _.map(data, 'text')
+          dataSource: _.map(data, autoCompleteKey)
         });
       });
     }
@@ -81,7 +91,7 @@ class Value extends React.Component {
     let {dataSource} = this.state;
     let valueInput = <AutoComplete value={node.value}
                                    onChange={this.handleChange.bind(this)}
-                                   style={{width: '30em'}} // @todo: better CSS styling
+                                   style={{width: '30em', height: '34px'}} // @todo: better CSS styling
                                    size="large"
                                    dataSource={dataSource}
                                    filterOption={caseInsensitiveCompare}/>;
@@ -119,6 +129,7 @@ class Value extends React.Component {
 
 Value.propTypes = {
   addFile: PropTypes.bool,
+  autoCompleteKey: PropTypes.string,
   autoCompleteUrl: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   node: PropTypes.object.isRequired,
   removeNode: PropTypes.func.isRequired,
@@ -127,6 +138,10 @@ Value.propTypes = {
   updateKey: PropTypes.func,
   updateKeyRaw: PropTypes.func,
   valueOptions: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)).isRequired
+};
+
+Value.defaultProps = {
+  autoCompleteKey: 'text'
 };
 
 class Node extends React.Component {
@@ -204,6 +219,7 @@ class TreeBody extends React.Component {
 }
 
 TreeBody.propTypes = {
+  autoCompleteKey: PropTypes.string,
   autoCompleteUrl: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   root: PropTypes.arrayOf(PropTypes.object),
   tree: PropTypes.arrayOf(PropTypes.object),

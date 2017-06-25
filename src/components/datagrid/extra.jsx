@@ -5,6 +5,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
+import {BASE_URL} from '../../actions';
 
 const mapStateToProps = (state) => {
   return {
@@ -18,8 +19,9 @@ class ExtraBody extends React.Component {
 
     // @todo: use proper urls later
     return <div>
-      <a href={`http://coruzzilab-macpro.bio.nyu.edu/static/queryBuilder/${requestId}.zip`}
-         className="btn btn-default">Download</a>
+      <a href={`${BASE_URL}/queryapp/excel/${requestId}.zip`}
+         className="btn btn-default"
+         download="query.zip">Download Query as ZIP file</a>
     </div>;
   }
 }

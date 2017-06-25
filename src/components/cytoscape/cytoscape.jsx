@@ -1,33 +1,35 @@
 /**
  * @author zacharyjuang
- * 2/5/17
+ * 6/23/17
  */
 import React from 'react';
-import {connect} from 'react-redux';
-import cytoscape from 'cytoscape';
-import {getCytoscape, setCytoscape} from '../../actions';
-import _ from 'lodash';
 import PropTypes from 'prop-types';
+import {Link} from 'react-router';
+import cytoscape from 'cytoscape';
+import _ from 'lodash';
+import {connect} from 'react-redux';
+
+import {getCytoscape, setCytoscape} from '../../actions/index';
 
 const mapStateToProps = (state) => {
   return {
     requestId: state.requestId,
     cytoscapeData: state.cytoscape
-  }
+  };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    getCytoscape: (requestId) => {
-      dispatch(getCytoscape(requestId));
+    getCytoscape: (requestId, type = 'dbase_view1_cy') => {
+      dispatch(getCytoscape(requestId, type));
     },
     setCytoscape: (data) => dispatch(setCytoscape(data))
-  }
+  };
 };
 
 class CytoscapeBody extends React.Component {
   componentDidMount() {
-    let {requestId, getCytoscape, cytoscapeData} = this.props;
+    let {requestId, getCytoscape, type} = this.props;
     this.cy = cytoscape({
       container: this.cyRef,
       boxSelectionEnabled: false,
@@ -45,10 +47,10 @@ class CytoscapeBody extends React.Component {
             'text-valign': 'center',
             'color': '#000000',
             'shape': function (ele) {
-              return ele.data('shape')
+              return ele.data('shape');
             },
             'background-color': function (ele) {
-              return ele.data('color')
+              return ele.data('color');
             }
           }
         },
@@ -60,12 +62,11 @@ class CytoscapeBody extends React.Component {
             'target-arrow-shape': 'triangle',
             //'target-arrow-color': function( ele ){ return ele.data('color')},
             'curve-style': 'bezier',
-            'arrow-resize': 15,
+            // 'arrow-resize': 15,
             'control-point-distance': 500
           }
         }
       ],
-      // @todo: move url to outer scope
       layout: {
         name: 'breadthfirst',
         fit: true, // whether to fit the viewport to the graph
@@ -85,20 +86,18 @@ class CytoscapeBody extends React.Component {
       }
     });
 
-    if (_.isEmpty(cytoscapeData)) {
-      getCytoscape(requestId);
-    } else {
-      this.updateCytoscapeData();
-    }
+    getCytoscape(requestId, type);
+    // this.updateCytoscapeData();
   }
 
   updateCytoscapeData() {
     let {cytoscapeData} = this.props;
     this.cy.batch(() => {
       this.cy.add(cytoscapeData.elements);
-      this.cy.layout({
+      let layout = this.cy.layout({
         name: 'breadthfirst'
       });
+      layout.run();
     });
   }
 
@@ -106,19 +105,18 @@ class CytoscapeBody extends React.Component {
     this.updateCytoscapeData();
   }
 
-  componentWillUnmount() {
-    this.props.setCytoscape({});
-  }
-
   render() {
     return <div>
-      <div ref={(c) => {this.cyRef = c}} style={{height: '100vh', width: '100vw'}}/>
+      <div ref={(c) => {
+        this.cyRef = c;
+      }} style={{height: '80vh', width: '100vw'}}/>
     </div>;
   }
 }
 
 CytoscapeBody.propTypes = {
   requestId: PropTypes.string,
+  type: PropTypes.string,
   cytoscapeData: PropTypes.object,
   getCytoscape: PropTypes.func,
   setCytoscape: PropTypes.func
