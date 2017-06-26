@@ -12,7 +12,8 @@ const NON_ALPHANUMERIC = /^\W*|\W*$/g;
 
 let mapStateToProps = (state) => {
   return {
-    result: state.result
+    result: state.result,
+    busy: state.busy
   };
 };
 
@@ -34,15 +35,14 @@ function renderBold(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
   td.style.fontWeight = 'bold';
   td.style.border = '1px solid black';
+  td.style.borderCollapse = 'collapse';
 }
 
 let queryString = Handsontable.plugins.Search.DEFAULT_QUERY_METHOD;
 
 class DFBody extends React.Component {
   componentDidMount() {
-    let {result} = this.props;
-    let data = this.data = _.get(result, '0.data', []);
-
+    let self = this;
     let hot = this.hot = new Handsontable(this.grid, {
       rowHeaders: true,
       manualColumnResize: true,
@@ -50,7 +50,7 @@ class DFBody extends React.Component {
       colHeaders: true,
       fixedRowsTop: 6,
       wordWrap: false,
-      mergeCells: _.get(result, '0.mergeCells', []),
+      rowHeights: 24,
       cells: function (row, col, prop) {
         let cellProperties = {...prop};
         if (col > 8 && row > 5) {
@@ -103,7 +103,8 @@ class DFBody extends React.Component {
       }
     });
 
-    Handsontable.dom.addEvent(this.search, 'keyup', function (event) {
+    Handsontable.dom.addEvent(this.search, 'keyup', function () {
+      let data = self.data;
       if (this.value.length > 0) {
         hot.loadData([
           ...data.slice(0, 6),
@@ -118,15 +119,32 @@ class DFBody extends React.Component {
       }
     });
 
-    hot.loadData(data);
+    this.updateData();
+  }
+
+  componentDidUpdate() {
+    this.updateData();
+  }
+
+  updateData() {
+    let {result} = this.props;
+    let data = this.data = _.get(result, '0.data', []);
+    this.hot.updateSettings({
+      mergeCells: _.get(result, '0.mergeCells', [])
+    });
+    this.hot.loadData(data);
   }
 
   render() {
+    let {busy} = this.props;
     // @todo: find someone who actually knows CSS
     return <div>
-      <input type="text" placeholder="Search" ref={(c) => {
-        this.search = c;
-      }}/>
+      <div>
+        <input type="text" placeholder="Search" ref={(c) => {
+          this.search = c;
+        }}/>
+        {busy ? <span className="fa fa-circle-o-notch fa-spin" style={{fontSize: '21px'}}/> : null}
+      </div>
       <div id="grid" ref={(c) => {
         this.grid = c;
       }} style={{height: '80vh'}}/>
@@ -135,7 +153,8 @@ class DFBody extends React.Component {
 }
 
 DFBody.propTypes = {
-  result: PropTypes.arrayOf(PropTypes.object)
+  result: PropTypes.arrayOf(PropTypes.object),
+  busy: PropTypes.bool
 };
 
 const DF = connect(mapStateToProps)(DFBody);
