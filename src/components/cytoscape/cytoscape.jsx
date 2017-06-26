@@ -109,7 +109,7 @@ class CytoscapeBody extends React.Component {
     return <div>
       <div ref={(c) => {
         this.cyRef = c;
-      }} style={{height: '80vh', width: '100vw'}}/>
+      }} style={{height: '85%', width: '100%'}}/>
     </div>;
   }
 }

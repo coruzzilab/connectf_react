@@ -8,8 +8,7 @@ import {Link} from 'react-router';
 
 class CytoscapeFrame extends React.Component {
   render() {
-    return <div>
-      <div><Link to={{pathname: "/datagrid", query: {tab: "3"}}} className="btn btn-default">Back</Link></div>
+    return <div style={{height: '100%'}}>
       {this.props.children}
     </div>;
   }

@@ -13,7 +13,9 @@ import 'file-loader?name=[name].[ext]!./index.html';
 
 import 'bootstrap/less/bootstrap.less';
 import 'bootstrap/less/theme.less';
-// import './css/style.css';
+import './css/style.css';
+
+import 'font-awesome/less/font-awesome.less';
 
 import tgdbApp from './reducers';
 
@@ -45,21 +47,19 @@ const store = createStore(
 const history = syncHistoryWithStore(browserHistory, store);
 
 ReactDOM.render(
-  <div className="container-fluid">
-    <Provider store={store}>
-      <Router history={history}>
-        <Route path="/" component={App}>
-          <IndexRoute component={About}/>
-          <Route path="query" component={QueryBuilder}/>
-          <Route path="datagrid" component={Datagrid}/>
-          <Route path="cytoscape" component={CytoscapeFrame}>
-            <Route path="query" component={() => <Cytoscape type="dbase_view1_cy"/>}/>
-            <Route path="target" component={() => <Cytoscape type="targets_cy"/>}/>
-            <Route path="genome" component={() => <Cytoscape type="genome_cy"/>}/>
-          </Route>
+  <Provider store={store}>
+    <Router history={history}>
+      <Route path="/" component={App}>
+        <IndexRoute component={About}/>
+        <Route path="query" component={QueryBuilder}/>
+        <Route path="datagrid" component={Datagrid}/>
+        <Route path="cytoscape" component={CytoscapeFrame}>
+          <Route path="query" component={() => <Cytoscape type="dbase_view1_cy"/>}/>
+          <Route path="target" component={() => <Cytoscape type="targets_cy"/>}/>
+          <Route path="genome" component={() => <Cytoscape type="genome_cy"/>}/>
         </Route>
-      </Router>
-    </Provider>
-  </div>,
+      </Route>
+    </Router>
+  </Provider>,
   document.getElementById('app')
 );

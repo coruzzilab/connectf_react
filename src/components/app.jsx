@@ -14,7 +14,7 @@ class App extends React.Component {
     let {router} = this.props;
     let {pathname} = router.getCurrentLocation();
 
-    return <div>
+    return <div style={{height: '100%'}}>
       <div>
         <h1>TargetDB</h1>
       </div>
