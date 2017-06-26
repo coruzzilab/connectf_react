@@ -6,7 +6,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {Link} from 'react-router';
 import cytoscape from 'cytoscape';
-import _ from 'lodash';
 import {connect} from 'react-redux';
 
 import {getCytoscape, setCytoscape} from '../../actions/index';
@@ -94,19 +93,45 @@ class CytoscapeBody extends React.Component {
     let {cytoscapeData} = this.props;
     this.cy.batch(() => {
       this.cy.add(cytoscapeData.elements);
-      let layout = this.cy.layout({
+      let layout = this.layout = this.cy.layout({
         name: 'breadthfirst'
       });
       layout.run();
     });
   }
 
-  componentDidUpdate() {
-    this.updateCytoscapeData();
+  resetCytoscape() {
+    this.layout.run();
+  }
+
+  fitCytoscape() {
+    this.cy.fit();
+  }
+
+  exportCytoscape(e) {
+    e.currentTarget.download = 'query.png';
+    e.currentTarget.href = this.cy.png();
+
+  }
+
+  componentDidUpdate(prevProp) {
+    if (prevProp.cytoscapeData !== this.props.cytoscapeData) {
+      this.updateCytoscapeData();
+    }
   }
 
   render() {
-    return <div>
+    return <div style={{height: '100%'}}>
+      <div>
+        <Link to={{pathname: "/datagrid", query: {tab: "3"}}} className="btn btn-danger">Back</Link>
+        <button className="btn btn-default" onClick={this.resetCytoscape.bind(this)}>Reset</button>
+        <button className="btn btn-default" onClick={this.fitCytoscape.bind(this)}>Fit</button>
+        <a className="btn btn-default"
+           ref={(c) => {
+             this.image = c;
+           }}
+           onClick={this.exportCytoscape.bind(this)}>Export Image</a>
+      </div>
       <div ref={(c) => {
         this.cyRef = c;
       }} style={{height: '85%', width: '100%'}}/>
