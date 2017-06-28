@@ -154,6 +154,10 @@ export const postQuery = (data) => {
 
     data.append('requestId', requestId);
 
+    dispatch(setBusy(true));
+    dispatch(clearResult());
+    dispatch(push('/datagrid'));
+
     return $.ajax({
       url: `${BASE_URL}/queryapp/`,
       type: 'POST',
@@ -165,10 +169,15 @@ export const postQuery = (data) => {
       .done((result) => {
         dispatch(setRequestId(requestId));
         dispatch(setResult(result));
-        dispatch(push('/datagrid'));
       })
       .fail((xhr, textStatus, err) => {
+        dispatch(setResult([{
+          data: [['No Data Matched Your Query']]
+        }, {}]));
         dispatch(setError(textStatus));
+      })
+      .always(() => {
+        dispatch(setBusy(false));
       });
   };
 };
