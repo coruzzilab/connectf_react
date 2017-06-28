@@ -108,6 +108,12 @@ class DFBody extends React.Component {
       }
     });
 
+    hot.addHook('afterOnCellMouseDown', function (event, {row, col}, ele) {
+      if (row === -1) {
+        hot.sort(col);
+      }
+    });
+
     Handsontable.dom.addEvent(this.search, 'keyup', function () {
       let data = self.data;
       if (this.value.length > 0) {
