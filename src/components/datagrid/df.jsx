@@ -44,7 +44,12 @@ class DFBody extends React.Component {
   componentDidMount() {
     let self = this;
     let hot = this.hot = new Handsontable(this.grid, {
-      rowHeaders: true,
+      rowHeaders: function (idx) {
+        if (idx < 6) {
+          return '';
+        }
+        return idx - 5;
+      },
       manualColumnResize: true,
       columnSorting: true,
       colHeaders: true,
