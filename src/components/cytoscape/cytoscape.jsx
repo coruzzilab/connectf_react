@@ -39,7 +39,9 @@ class CytoscapeBody extends React.Component {
           style: {
             'content': 'data(name)',
             'font-family': 'helvetica',
-            //'font-size': function( ele ){ return ele.data('weight')/2},
+            'font-size': function (ele) {
+              return ele.data('weight') / 2;
+            },
             'text-rotation': 270,
             //'text-outline-width': function( ele ){ return ele.data('weight')/40},
             'text-outline-color': '#000000',

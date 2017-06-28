@@ -9,7 +9,7 @@ class About extends React.Component {
     return <div>
       <h1>About TargetDB</h1>
       <p>
-        Insert descriptive text, preferably with accompanying diagrams.
+        Introduction page coming soon for TargetDB.
       </p>
     </div>;
   }

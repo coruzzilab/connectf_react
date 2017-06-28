@@ -78,6 +78,10 @@ class DFBody extends React.Component {
           cellProperties.colWidths = 200;
         }
 
+        if (col > 8) {
+          cellProperties.colWidths = 115;
+        }
+
         return cellProperties;
       },
       search: true,
