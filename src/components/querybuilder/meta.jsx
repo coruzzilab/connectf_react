@@ -69,7 +69,6 @@ class MetaBody extends React.Component {
     return <Query {...this.props}
                   title={<h2>Meta</h2>}
                   tree={<MetaTree valueOptions={VALUE_OPTS}
-                                  autoCompleteKey="meta_value"
                                   autoCompleteUrl={buildMetaAutoComplete}/>}
                   createQuery={this.createQuery.bind(this)}/>;
   }

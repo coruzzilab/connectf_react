@@ -49,7 +49,6 @@ class EdgeBody extends React.Component {
     return <Query {...this.props}
                   title={<h2>Edges</h2>}
                   tree={<EdgeTree valueOptions={VALUE_OPTS}
-                                  autoCompleteKey="edge_name"
                                   autoCompleteUrl={buildEdgeAutoComplete}/>}
                   createQuery={this.createQuery.bind(this)}/>;
   }

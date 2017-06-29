@@ -5,7 +5,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Tabs, AutoComplete} from 'antd';
-const TabPane = Tabs.TabPane;
+const {TabPane} = Tabs;
+const {Option} = AutoComplete;
 
 import {OPERANDS} from '../../actions';
 import {GROUP_NODE, VALUE_NODE} from '../../reducers';
@@ -15,7 +16,7 @@ import $ from 'jquery';
 
 function caseInsensitiveCompare(input, option) {
   // a cumbersome way to search case insensitively
-  return option.key.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+  return option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 }
 
 function idCompare(s, o) {
@@ -25,7 +26,7 @@ function idCompare(s, o) {
 function filterNodeType(nodeType = VALUE_NODE) {
   return function (n) {
     return n.nodeType === nodeType;
-  }
+  };
 }
 
 class Value extends React.Component {
@@ -49,7 +50,7 @@ class Value extends React.Component {
   }
 
   getAutoCompleteList() {
-    let {autoCompleteUrl, autoCompleteKey, node} = this.props;
+    let {autoCompleteUrl, node} = this.props;
     if (_.isString(autoCompleteUrl) || _.isFunction(autoCompleteUrl)) {
       let url;
       if (_.isFunction(autoCompleteUrl)) {
@@ -64,10 +65,8 @@ class Value extends React.Component {
           format: 'json',
           uinput: ''
         }
-      }).done((data) => {
-        this.setState({
-          dataSource: _.map(data, autoCompleteKey)
-        });
+      }).done((dataSource) => {
+        this.setState({dataSource});
       });
     }
   }
@@ -83,23 +82,43 @@ class Value extends React.Component {
 
   handleChange(value) {
     let {node, updateValueRaw} = this.props;
+    if (_.get(this, 'file.value')) {
+      this.file.value = '';
+    }
     updateValueRaw(node.id, value);
   }
 
   render() {
-    let {addFile, node, updateKey, removeNode, valueOptions} = this.props;
+    let {addFile, node, updateKey, removeNode, valueOptions, autoCompleteKey, autoCompleteName} = this.props;
     let {dataSource} = this.state;
+
     let valueInput = <AutoComplete value={node.value}
                                    onChange={this.handleChange.bind(this)}
                                    style={{width: '30em', height: '34px'}} // @todo: better CSS styling
                                    size="large"
-                                   dataSource={dataSource}
-                                   filterOption={caseInsensitiveCompare}/>;
+                                   filterOption={caseInsensitiveCompare}
+                                   optionLabelProp="value"
+                                   dataSource={_.map(dataSource, (s, i) => {
+                                     let value = _.get(s, autoCompleteName, '');
+                                     if (value && value !== "-") {
+                                       value = ` (${value})`;
+                                     } else {
+                                       value = '';
+                                     }
+
+                                     return <Option key={i} value={_.get(s, autoCompleteKey)}>
+                                       {_.get(s, autoCompleteKey, '') + value}
+                                     </Option>;
+                                   })}/>;
+
     return <div className="form-inline condition">
-      <select className="form-control" style={{float: 'left'}} ref={(c) => {this.keyName = c}}
+      <select className="form-control" style={{float: 'left'}}
+              ref={(c) => {
+                this.keyName = c;
+              }}
               onChange={updateKey.bind(undefined, node.id)} value={node.key}>
         {_.map(valueOptions, (o) => {
-          return <option key={o[0]} value={o[0]}>{o[1]}</option>
+          return <option key={o[0]} value={o[0]}>{o[1]}</option>;
         })}
       </select>
       <div style={{display: 'inline-block'}}>
@@ -109,11 +128,15 @@ class Value extends React.Component {
               {valueInput}
             </TabPane>
             <TabPane tab="File" key="2">
-              <select className="form-control" ref={(c) => {this.oper = c}} onChange={this.handleFile.bind(this)}>
+              <select className="form-control" ref={(c) => {
+                this.oper = c;
+              }} onChange={this.handleFile.bind(this)}>
                 <option value="And">And</option>
                 <option value="Or">Or</option>
               </select>
-              <input ref={(c) => {this.file = c}} type="file" className="form-control" onChange={this.handleFile.bind(this)}/>
+              <input ref={(c) => {
+                this.file = c;
+              }} type="file" className="form-control" onChange={this.handleFile.bind(this)}/>
             </TabPane>
           </Tabs> :
           valueInput
@@ -130,6 +153,7 @@ class Value extends React.Component {
 Value.propTypes = {
   addFile: PropTypes.bool,
   autoCompleteKey: PropTypes.string,
+  autoCompleteName: PropTypes.string,
   autoCompleteUrl: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   node: PropTypes.object.isRequired,
   removeNode: PropTypes.func.isRequired,
@@ -141,7 +165,8 @@ Value.propTypes = {
 };
 
 Value.defaultProps = {
-  autoCompleteKey: 'text'
+  autoCompleteKey: 'value',
+  autoCompleteName: 'name'
 };
 
 class Node extends React.Component {
@@ -174,7 +199,7 @@ class Node extends React.Component {
           node.children,
           idCompare)
         .map((n) => {
-          return <Value {...this.props} key={n.id} node={n}/>
+          return <Value {...this.props} key={n.id} node={n}/>;
         })
         .value()}
       {_tree
@@ -183,7 +208,7 @@ class Node extends React.Component {
           node.children,
           idCompare)
         .map((n) => {
-          return <Node {...this.props} key={n.id} node={n} removable={true}/>
+          return <Node {...this.props} key={n.id} node={n} removable={true}/>;
         })
         .value()}
     </div>;
@@ -220,6 +245,7 @@ class TreeBody extends React.Component {
 
 TreeBody.propTypes = {
   autoCompleteKey: PropTypes.string,
+  autoCompleteName: PropTypes.string,
   autoCompleteUrl: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
   root: PropTypes.arrayOf(PropTypes.object),
   tree: PropTypes.arrayOf(PropTypes.object),

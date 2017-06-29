@@ -81,8 +81,14 @@ class QuerybuilderBody extends React.Component {
         <Edge/>
         <Meta/>
 
-        <label className="col-sm-2">TargetGenes</label>
-        <input type="file" className="form-control" ref={(c) => {this.targetGenes = c}}/>
+        <div>
+          <h2>TargetGenes</h2>
+          <input type="file" className="form-control"
+                 ref={(c) => {
+                   this.targetGenes = c;
+                 }}
+                 style={{marginBottom: '2em'}}/>
+        </div>
       </div>
 
       <div style={{flex: 20}}>

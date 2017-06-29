@@ -44,7 +44,6 @@ class TFBody extends React.Component {
                   tree={
                     <TFTree addFile={true}
                             valueOptions={VALUE_OPTS}
-                            autoCompleteKey="db_tf_agi"
                             autoCompleteUrl={`${BASE_URL}/api/tfs/searchName/nodename`}/>}
                   createQuery={this.createQuery.bind(this)}/>;
   }
