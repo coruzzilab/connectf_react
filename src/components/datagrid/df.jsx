@@ -17,7 +17,7 @@ let mapStateToProps = (state) => {
   };
 };
 
-function renderInduced(instance, td, row, col, prop, value, cellProperties) {
+function renderTarget(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
   if (_.isString(value)) {
     if (value.startsWith('INDUCED')) {
@@ -38,6 +38,41 @@ function renderBold(instance, td, row, col, prop, value, cellProperties) {
   td.style.borderCollapse = 'collapse';
 }
 
+function renderNumber(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.BaseRenderer.apply(this, arguments);
+  let svalue = value.toString();
+  let isExp = svalue.indexOf("e") !== -1;
+
+  if ((!isExp && svalue.length > 5) || (isExp && svalue.length > 9)) {
+    td.textContent = value.toExponential(2);
+  } else {
+    td.textContent = value;
+  }
+
+  return td;
+}
+
+Handsontable.renderers.registerRenderer('renderBold', renderBold);
+Handsontable.renderers.registerRenderer('renderTarget', renderTarget);
+Handsontable.renderers.registerRenderer('renderNumber', renderNumber);
+
+function exponentialValidator(value, callback) {
+  if (value == null) {
+    value = '';
+  }
+  if (this.allowEmpty && value === '') {
+    callback(true);
+
+  } else if (value === '') {
+    callback(false);
+
+  } else {
+    callback(/^-?\d+(\.\d+)?(e[+-]\d+)?$/.test(value));
+  }
+}
+
+Handsontable.validators.registerValidator('exponential', exponentialValidator);
+
 let queryString = Handsontable.plugins.Search.DEFAULT_QUERY_METHOD;
 
 class DFBody extends React.Component {
@@ -56,21 +91,18 @@ class DFBody extends React.Component {
       fixedRowsTop: 6,
       wordWrap: false,
       rowHeights: 24,
-      cells: function (row, col, prop) {
-        let cellProperties = {...prop};
-        if (col > 8 && row > 5) {
-          cellProperties.renderer = renderInduced;
-        }
+      cells: function (row, col) {
+        let cellProperties = {};
 
         if (row < 6 || col === 7 || col === 8) {
-          cellProperties.renderer = renderBold;
+          cellProperties.renderer = 'renderBold';
         }
 
         if (col > 8 && row < 6) {
           cellProperties.className = "htCenter";
         }
 
-        if (row < 7) {
+        if (row < 6) {
           cellProperties.type = 'text';
         }
 
