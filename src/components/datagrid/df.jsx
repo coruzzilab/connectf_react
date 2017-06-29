@@ -177,7 +177,8 @@ class DFBody extends React.Component {
     let {result} = this.props;
     let data = this.data = _.get(result, '0.data', []);
     this.hot.updateSettings({
-      mergeCells: _.get(result, '0.mergeCells', [])
+      mergeCells: _.get(result, '0.mergeCells', []),
+      columns: _.get(result, '0.columns', [])
     });
     this.hot.loadData(data);
   }
