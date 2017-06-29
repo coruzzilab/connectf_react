@@ -162,7 +162,7 @@ class DFBody extends React.Component {
       </div>
       <div id="grid" ref={(c) => {
         this.grid = c;
-      }} style={{height: '80vh'}}/>
+      }} style={{height: '80vh', overflow: 'hidden'}}/>
     </div>;
   }
 }
