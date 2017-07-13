@@ -6,7 +6,7 @@ import {connect} from "react-redux";
 import _ from "lodash";
 import PropTypes from "prop-types";
 
-import {postQuery} from "../../actions";
+import {postQuery, resetTree} from "../../actions";
 
 import TF from "./tf";
 import Edge from "./edge";
@@ -29,9 +29,11 @@ const mapDispatchToProps = (dispatch) => {
   return {
     submit: (data) => {
       dispatch(postQuery(data));
-      // dispatch(resetTree("TF"));
-      // dispatch(resetTree("EDGE"));
-      // dispatch(resetTree("META"));
+    },
+    reset: () => {
+      dispatch(resetTree("TF"));
+      dispatch(resetTree("EDGE"));
+      dispatch(resetTree("META"));
     }
   };
 };
@@ -45,6 +47,11 @@ class QuerybuilderBody extends React.Component {
     let formData = this.buildForm();
 
     submit(formData);
+  }
+
+  reset() {
+    this.props.reset();
+    this.targetGenes.value = null;
   }
 
   buildForm() {
@@ -92,6 +99,7 @@ class QuerybuilderBody extends React.Component {
       </div>
 
       <div style={{flex: 20}}>
+        <button type="button" className="btn btn-danger" onClick={this.reset.bind(this)}>Reset</button>
         <button type="button" className="btn btn-default" onClick={this.handleSubmit.bind(this)}>Submit</button>
       </div>
     </div>;
@@ -105,6 +113,7 @@ class QuerybuilderBody extends React.Component {
 QuerybuilderBody.propTypes = {
   busy: PropTypes.bool,
   submit: PropTypes.func.isRequired,
+  reset: PropTypes.func,
   tfQuery: PropTypes.string,
   edgeQuery: PropTypes.string,
   metaQuery: PropTypes.string,
