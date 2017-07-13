@@ -39,17 +39,17 @@ function renderBold(instance, td, row, col, prop, value, cellProperties) {
 }
 
 function renderNumber(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.BaseRenderer.apply(this, arguments);
-  let svalue = value.toString();
-  let isExp = svalue.indexOf("e") !== -1;
+  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+  if (_.isFinite(value)) {
+    let svalue = value.toString();
+    let isExp = svalue.indexOf("e") !== -1;
 
-  if ((!isExp && svalue.length > 5) || (isExp && svalue.length > 9)) {
-    td.textContent = value.toExponential(2);
-  } else {
-    td.textContent = value;
+    if ((!isExp && svalue.length > 5) || (isExp && svalue.length > 9)) {
+      td.textContent = value.toExponential(2);
+    } else {
+      td.textContent = value;
+    }
   }
-
-  return td;
 }
 
 Handsontable.renderers.registerRenderer('renderBold', renderBold);
@@ -94,11 +94,11 @@ class DFBody extends React.Component {
       cells: function (row, col) {
         let cellProperties = {};
 
-        if (row < 6 || col === 7 || col === 8) {
+        if (row < 6 || col === 6 || col === 7) {
           cellProperties.renderer = 'renderBold';
         }
 
-        if (col > 8 && row < 6) {
+        if (col > 7 && row < 6) {
           cellProperties.className = "htCenter";
         }
 
@@ -106,11 +106,11 @@ class DFBody extends React.Component {
           cellProperties.type = 'text';
         }
 
-        if (col > 0 && col < 5) {
+        if (col < 4) {
           cellProperties.colWidths = 200;
         }
 
-        if (col > 8) {
+        if (col > 7) {
           cellProperties.colWidths = 115;
         }
 
@@ -144,14 +144,14 @@ class DFBody extends React.Component {
       }
     });
 
-    hot.addHook('afterOnCellMouseDown', function (event, {row, col}, ele) {
+    hot.addHook('afterOnCellMouseDown', function (event, {row, col}) {
       if (row === -1) {
         hot.sort(col);
       }
     });
 
     Handsontable.dom.addEvent(this.search, 'keyup', function () {
-      let data = self.data;
+      let {data} = self;
       if (this.value.length > 0) {
         hot.loadData([
           ...data.slice(0, 6),
@@ -171,6 +171,10 @@ class DFBody extends React.Component {
 
   componentDidUpdate() {
     this.updateData();
+  }
+
+  componentWillUnmount() {
+    this.hot.destroy();
   }
 
   updateData() {
