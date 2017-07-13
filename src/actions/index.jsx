@@ -171,9 +171,18 @@ export const postQuery = (data) => {
         dispatch(setResult(result));
       })
       .fail((xhr, textStatus, err) => {
-        dispatch(setResult([{
-          data: [['No Data Matched Your Query']]
-        }, {}]));
+        if (xhr.status >= 400 < 500) {
+          dispatch(setResult([{
+            data: [['No Data Matched Your Query']],
+            columns: [{type: 'text'}]
+          }, {}]));
+        } else {
+          dispatch(setResult([{
+            data: [['Something went wrong with the server. Please report to the development team.']],
+            columns: [{type: 'text'}]
+          }, {}]));
+        }
+
         dispatch(setError(textStatus));
       })
       .always(() => {
