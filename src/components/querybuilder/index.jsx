@@ -6,7 +6,7 @@ import {connect} from "react-redux";
 import _ from "lodash";
 import PropTypes from "prop-types";
 
-import {postQuery, resetTree} from "../../actions";
+import {postQuery, resetTree, clearQuery} from "../../actions";
 
 import TF from "./tf";
 import Edge from "./edge";
@@ -34,6 +34,9 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(resetTree("TF"));
       dispatch(resetTree("EDGE"));
       dispatch(resetTree("META"));
+      dispatch(clearQuery("TF"));
+      dispatch(clearQuery("EDGE"));
+      dispatch(clearQuery("META"));
     }
   };
 };
