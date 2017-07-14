@@ -25,6 +25,7 @@ import QueryBuilder from './components/querybuilder';
 import About from './components/about';
 import CytoscapeFrame from './components/cytoscape';
 import Cytoscape from './components/cytoscape/cytoscape';
+import Feedback from './components/feedback';
 
 const composeEnhancers = process.env.NODE_ENV !== 'production' &&
 typeof window === 'object' &&
@@ -58,6 +59,7 @@ ReactDOM.render(
           <Route path="target" component={() => <Cytoscape type="targets_cy"/>}/>
           <Route path="genome" component={() => <Cytoscape type="genome_cy"/>}/>
         </Route>
+        <Route path="feedback" component={Feedback}/>
       </Route>
     </Router>
   </Provider>,
