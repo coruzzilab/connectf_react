@@ -47,9 +47,7 @@ class CytoscapeBody extends React.Component {
             'text-outline-color': '#000000',
             'text-valign': 'center',
             'color': '#000000',
-            'shape': function (ele) {
-              return ele.data('shape');
-            },
+            'shape': 'data(shape)',
             'background-color': function (ele) {
               return ele.data('color');
             }
@@ -89,6 +87,10 @@ class CytoscapeBody extends React.Component {
 
     getCytoscape(requestId, type);
     // this.updateCytoscapeData();
+  }
+
+  componentWillUnmount() {
+    this.cy.destroy();
   }
 
   updateCytoscapeData() {
