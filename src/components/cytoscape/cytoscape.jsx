@@ -61,7 +61,7 @@ class CytoscapeBody extends React.Component {
             'target-arrow-shape': 'triangle',
             //'target-arrow-color': function( ele ){ return ele.data('color')},
             'curve-style': 'bezier',
-            // 'arrow-resize': 15,
+            'arrow-scale': 4,
             'control-point-distance': 500
           }
         }
