@@ -105,6 +105,11 @@ class CytoscapeBody extends React.Component {
   }
 
   resetCytoscape() {
+    if (!this.layout) {
+      this.layout = this.cy.layout({
+        name: 'breadthfirst'
+      })
+    }
     this.layout.run();
   }
 
