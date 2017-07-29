@@ -5,6 +5,16 @@ import {VALUE_NODE, GROUP_NODE} from '../reducers';
 import {push} from 'react-router-redux';
 import $ from 'jquery';
 
+let _BASE_URL;
+
+if (process.env.NODE_ENV !== "production") {
+  _BASE_URL = 'http://localhost:8001';
+} else {
+  _BASE_URL = window.location.origin;
+}
+
+export const BASE_URL = _BASE_URL;
+
 export const OPERANDS = ['And', 'Or', 'AndNot'];
 
 export const setBusy = (busy) => {
