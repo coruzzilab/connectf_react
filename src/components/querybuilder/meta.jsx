@@ -33,7 +33,11 @@ const VALUE_OPTS = [
   ["Publication", "Publication"],
   ["Experimenter", "Experimenter"],
   ["Submission_date", "Submission_date"],
-  ["Experiment_date", "Experiment_date"]
+  ["Experiment_date", "Experiment_date"],
+  ["Analysis_Id", "Analysis_Id"],
+  ["Analysis_Method", "Analysis_Method"],
+  ["Analysis_Cutoff", "Analysis_Cutoff"],
+  ["Analysis_Command", "Analysis_Command"]
 ];
 
 const mapStateToProps = (state) => {
