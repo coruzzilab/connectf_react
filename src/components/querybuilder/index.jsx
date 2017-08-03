@@ -102,8 +102,8 @@ class QuerybuilderBody extends React.Component {
       </div>
 
       <div style={{flex: 20}}>
-        <button type="button" className="btn btn-danger" onClick={this.reset.bind(this)}>Reset</button>
         <button type="button" className="btn btn-default" onClick={this.handleSubmit.bind(this)}>Submit</button>
+        <button type="button" className="btn btn-danger" onClick={this.reset.bind(this)}>Reset</button>
       </div>
     </div>;
   }
