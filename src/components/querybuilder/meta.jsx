@@ -59,7 +59,7 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 function buildMetaAutoComplete(node) {
-  return `${BASE_URL}/api/metas/searchType/${node.key}`;
+  return `${BASE_URL}/api/metas/search_type/${node.key}/`;
 }
 
 class MetaBody extends React.Component {

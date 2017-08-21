@@ -35,7 +35,7 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 function buildEdgeAutoComplete(node) {
-  return `${BASE_URL}/api/edges/searchName/${node.key}`;
+  return `${BASE_URL}/api/edges/search_name/${node.key}/`;
 }
 
 class EdgeBody extends React.Component {
