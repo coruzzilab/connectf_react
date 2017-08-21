@@ -3,7 +3,7 @@
  * 1/28/17
  */
 import React from 'react';
-import Handsontable from 'handsontable/dist/handsontable.full';
+import Handsontable from 'handsontable';
 import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -72,6 +72,11 @@ function exponentialValidator(value, callback) {
 }
 
 Handsontable.validators.registerValidator('exponential', exponentialValidator);
+
+Handsontable.cellTypes.registerCellType('p_value', {
+  renderer: 'renderNumber',
+  validator: 'exponentialValidator',
+});
 
 let queryString = Handsontable.plugins.Search.DEFAULT_QUERY_METHOD;
 
