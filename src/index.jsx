@@ -26,6 +26,7 @@ import About from './components/about';
 import CytoscapeFrame from './components/cytoscape';
 import Cytoscape from './components/cytoscape/cytoscape';
 import Feedback from './components/feedback';
+import UploadAnalysis from './components/upload_analysis';
 
 const composeEnhancers = process.env.NODE_ENV !== 'production' &&
 typeof window === 'object' &&
@@ -60,6 +61,7 @@ ReactDOM.render(
           <Route path="genome" component={() => <Cytoscape type="genome_cy"/>}/>
         </Route>
         <Route path="feedback" component={Feedback}/>
+        <Route path="upload_analysis" component={UploadAnalysis}/>
       </Route>
     </Router>
   </Provider>,
