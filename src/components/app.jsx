@@ -27,8 +27,8 @@ class App extends React.Component {
             <li className={classNames({active: pathname === "/query"})}>
               <Link to="/query">Query</Link>
             </li>
-            <li className={classNames({active: pathname === "/upload"})}>
-              <a href="http://coruzzilab-macpro.bio.nyu.edu/upload/">Upload Experiment</a>
+            <li className={classNames({active: pathname === "/upload_experiment"})}>
+              <Link to="/upload_experiment">Upload Experiment</Link>
             </li>
             <li className={classNames({active: pathname === "/upload_analysis"})}>
               <Link to="/upload_analysis">Upload Analysis</Link>
