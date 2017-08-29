@@ -7,9 +7,9 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {BASE_URL} from '../../actions';
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({requestId}) => {
   return {
-    requestId: state.requestId
+    requestId
   };
 };
 
@@ -17,7 +17,6 @@ class ExtraBody extends React.Component {
   render() {
     let {requestId} = this.props;
 
-    // @todo: use proper urls later
     return <div>
       <a href={`${BASE_URL}/queryapp/excel/${requestId}.zip`}
          className="btn btn-default"
