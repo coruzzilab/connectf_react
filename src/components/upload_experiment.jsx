@@ -7,11 +7,34 @@ import React from 'react';
 import $ from 'jquery';
 import {BASE_URL} from '../actions';
 import _ from 'lodash';
+import moment from 'moment';
 
-const pickIdKeys = _.partial(_.pick, _, ['tf_id', 'experimenter', 'submission_date', 'experiment_type']);
+const pickExperimentIdKeys = _.partial(_.pick, _, ['tf_id', 'experimenter', 'experiment_date', 'experiment_subtype']);
+const pickAnalysisIdKeys = _.partial(_.pick, _, ['tf_id', 'analysis_method', 'analysis_method_other', 'analysis_cutoff']);
+
+function getInitials(name) {
+  return name.split(/[\s_]+/).reduce((t, s) => t[0] + s[0]);
+}
+
+function isFormData(value, key) {
+  return !/_(?:list|other)$/.test(key);
+}
+
+const EXPERIMENTERS = [
+  "Chia-Yi_Cheng",
+  "Gil_Eshel",
+  "Laurie_Leonelli",
+  "Angelo_Pasquino",
+  "Jose_Alvarez",
+  "Viviana_Araus",
+  "Ritu_Vadodaria",
+  "Sophie_Leran",
+  "Eleonore_Bouguyon"
+];
 
 const initialFormData = {
   experiment_id: '',
+  analysis_id: '',
   tf_id: '',
   experiment: '',
   experiment_type: 'expression',
@@ -25,10 +48,12 @@ const initialFormData = {
   plasmid: '',
   control: 'mDEX',
   control_other: '',
+  tissue: 'shoot',
+  tissue_other: '',
   treatments: '',
   replicates: '',
   batch: '',
-  analysis_method: 'one-way ANOVA',
+  analysis_method: 'one_way_anova',
   analysis_method_other: '',
   analysis_cutoff: '',
   analysis_command: '',
@@ -40,25 +65,20 @@ const initialFormData = {
   errors: {}
 };
 
-function getInitials(name) {
-  return name.split(/[\s_]/).reduce((t, s) => t[0] + s[0]);
-}
-
-function isFormData(value, key) {
-  return !/_(?:list|other)$/.test(key);
-}
-
 class UploadExperiment extends React.Component {
   constructor(props) {
     super(props);
-    let today = new Date();
+    let today = moment();
+
+    let submission_date, experiment_date;
+    submission_date = experiment_date = today.format("YYYY-MM-DD");
 
     this.state = Object.assign({
       tf_id_list: [],
       genotype_list: [],
       experimenter_list: [],
-      submission_date: today.toISOString().split('T')[0],
-      experiment_date: today.toISOString().split('T')[0]
+      submission_date,
+      experiment_date
     }, initialFormData);
   }
 
@@ -83,14 +103,31 @@ class UploadExperiment extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    let nowIdData = pickIdKeys(this.state);
-    let prevIdData = pickIdKeys(prevState);
+    let nowExperimentIdData = pickExperimentIdKeys(this.state);
+    let prevExperimentIdData = pickExperimentIdKeys(prevState);
+    let nowAnalyisIdData = pickAnalysisIdKeys(this.state);
+    let prevAnalysisIdData = pickAnalysisIdKeys(prevState);
 
-    if (!_.isEqual(nowIdData, prevIdData)) {
+    if (!_.isEqual(nowExperimentIdData, prevExperimentIdData)) {
       // build experiment id
-      let {tf_id, experimenter, submission_date, experiment_type} = this.state;
+      let {tf_id, experimenter, experiment_date, experiment_subtype} = this.state;
+
+      experiment_date = moment(experiment_date);
+
       this.setState({
-        experiment_id: `${tf_id}_${getInitials(experimenter)}${submission_date.split('-').join('')}_${experiment_type}`.toUpperCase()
+        experiment_id: `${tf_id}_${getInitials(experimenter)}${experiment_date.format("MMDDYY")}_${experiment_subtype}`.toUpperCase()
+      });
+    }
+
+    if (!_.isEqual(nowAnalyisIdData, prevAnalysisIdData)) {
+      let {tf_id, analysis_method, analysis_method_other, analysis_cutoff} = this.state;
+
+      if (analysis_method === 'other') {
+        analysis_method = analysis_method_other;
+      }
+
+      this.setState({
+        analysis_id: `${tf_id}_${analysis_method.replace(/[\s_]+/ig, '')}_${analysis_cutoff}`.toUpperCase()
       });
     }
   }
@@ -114,8 +151,13 @@ class UploadExperiment extends React.Component {
     this.changeKey(e);
   }
 
-  submit(e) {
+  submit(e, event, auto = false) {
     let data = new FormData();
+    let {control, control_other, analysis_method, analysis_method_other, tissue, tissue_other} = this.state;
+    let url = `${BASE_URL}/upload/`;
+    if (auto) {
+      url += '?auto=1';
+    }
 
     e.preventDefault();
 
@@ -123,13 +165,24 @@ class UploadExperiment extends React.Component {
       data.set(key, val);
     });
 
+    // handle "other"
+    if (control === "other") {
+      data.set('control', control_other);
+    }
+    if (analysis_method === "other") {
+      data.set('analysis_method', analysis_method_other);
+    }
+    if (tissue === "other") {
+      data.set('tissue', tissue_other);
+    }
+
     // add files
     data.set('gene_list', _.get(this.geneList, 'files.0'));
     data.set('expression_values', _.get(this.expressionValues, 'files.0'));
     data.set('design', _.get(this.design, 'files.0'));
 
     $.ajax({
-      url: `${BASE_URL}/upload/`,
+      url,
       data,
       cache: false,
       contentType: false,
@@ -152,9 +205,9 @@ class UploadExperiment extends React.Component {
 
   render() {
     let {
-      tf_id_list, genotype_list, experimenter_list, experiment_id, tf_id, experiment, experiment_type,
-      experiment_subtype, direction, genotype, data_source, time, growth_period,
-      growth_medium, plasmid, control, control_other, treatments, replicates,
+      tf_id_list, genotype_list, experimenter_list, experiment_id, analysis_id, tf_id, experiment,
+      experiment_type, experiment_subtype, direction, genotype, data_source, time, growth_period,
+      growth_medium, plasmid, control, tissue, tissue_other, control_other, treatments, replicates,
       batch, analysis_method, analysis_method_other, analysis_cutoff, analysis_command,
       analysis_batch, analysis_notes, tf_history_notes, experimenter, submission_date,
       experiment_date, metadata_notes, errors
@@ -164,16 +217,6 @@ class UploadExperiment extends React.Component {
       <form onSubmit={this.submit.bind(this)} ref={(c) => {
         this.form = c;
       }}>
-        <div className="form-group">
-          <label htmlFor="experiment_id">Experiment ID:</label>
-          <input type="text" id="experiment_id" className="form-control" value={experiment_id}
-                 placeholder="AT4G24020_AS090116_RNASEQ (TFID_ExperimenterInitials&ExperimentDate_Type)"
-                 onChange={this.changeKey.bind(this)} required/>
-        </div>
-        {_.map(errors['experiment_id'], (val, i) => {
-          return <div className="help-block" key={i}>{val}</div>;
-        })}
-
         <div className="form-group">
           <label htmlFor="tf_id">Transcription Factor ID:</label>
           <input type="text" id="tf_id" className="form-control" list="tf_id_list" value={tf_id}
@@ -193,7 +236,7 @@ class UploadExperiment extends React.Component {
                  placeholder="Target/Inplanta etc." required/>
         </div>
         <div className="form-group">
-          <label htmlFor="experiment_type">Experiment:</label>
+          <label htmlFor="experiment_type">Experiment Type:</label>
           <select id="experiment_type" className="form-control" value={experiment_type}
                   onChange={this.changeExperimentType.bind(this)}>
             <option value="expression">Expression</option>
@@ -213,7 +256,7 @@ class UploadExperiment extends React.Component {
           null}
         {experiment_type === "binding" ?
           <div className="form-group">
-            <label htmlFor="experiment_subtype">Binging Type:</label>
+            <label htmlFor="experiment_subtype">Binding Type:</label>
             <select id="experiment_subtype" className="form-control" value={experiment_subtype}
                     onChange={this.changeKey.bind(this)}>
               <option value="ChIPseq">ChIPseq</option>
@@ -221,6 +264,39 @@ class UploadExperiment extends React.Component {
             </select>
           </div> :
           null}
+
+        <div className="form-group">
+          <label htmlFor="experimenter">Experimenter:</label>
+          <input type="text" id="experimenter" className="form-control" value={experimenter}
+                 placeholder="Your Name Here" list="experimenter_list"
+                 onChange={this.changeKey.bind(this)} required/>
+          <datalist id="experimenter_list">
+            {_(experimenter_list).map('value').concat(EXPERIMENTERS).uniqBy(_.toUpper).sortBy().map((l, i) => {
+              return <option key={i}>{l}</option>;
+            }).value()}
+          </datalist>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="submission_date">Submission Date:</label>
+          <input type="date" id="submission_date" className="form-control" value={submission_date} disabled/>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="experiment_date">Experiment Date:</label>
+          <input type="date" id="experiment_date" className="form-control" value={experiment_date}
+                 onChange={this.changeKey.bind(this)} required/>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="experiment_id">Experiment ID:</label>
+          <input type="text" id="experiment_id" className="form-control" value={experiment_id}
+                 placeholder="AT4G24020_AS090116_RNASEQ (TFID_ExperimenterInitials&ExperimentDate_Type)"
+                 onChange={this.changeKey.bind(this)} required/>
+          {_.map(errors['experiment_id'], (val, i) => {
+            return <div className="help-block" key={i}>{val}</div>;
+          })}
+        </div>
 
         <div className="form-group">
           <label htmlFor="direction">Direction:</label>
@@ -295,6 +371,21 @@ class UploadExperiment extends React.Component {
         </div>
 
         <div className="form-group">
+          <label htmlFor="tissue">Tissue:</label>
+          <select id="tissue" className="form-control" value={tissue}
+                  onChange={this.changeKey.bind(this)}>
+            <option value="shoot">Shoot</option>
+            <option value="root">Root</option>
+            <option value="other">Other</option>
+          </select>
+          {tissue === "other" ?
+            <input type="text" id="tissue_other" className="form-control" value={tissue_other}
+                   placeholder="other"
+                   onChange={this.changeKey.bind(this)}/> :
+            null}
+        </div>
+
+        <div className="form-group">
           <label htmlFor="treatments">Treatments:</label>
           <input type="text" id="treatments" className="form-control" value={treatments}
                  placeholder="PN,MDEX,PDEX,PCHX"
@@ -319,12 +410,12 @@ class UploadExperiment extends React.Component {
           <label htmlFor="analysis_method">Analysis Method:</label>
           <select name="analysis_method" id="analysis_method" className="form-control" value={analysis_method}
                   onChange={this.changeKey.bind(this)}>
-            <option>one-way ANOVA</option>
-            <option>two-way ANOVA</option>
-            <option>three-way ANOVA</option>
+            <option value="one_way_anova">one-way ANOVA</option>
+            <option value="two_way_anova">two-way ANOVA</option>
+            <option value="three_way_anova">three-way ANOVA</option>
             <option>edgeR</option>
-            <option>deseq</option>
-            <option>deseq2</option>
+            <option>DESeq</option>
+            <option>DESeq2</option>
             <option>MACS</option>
             <option>MACS2</option>
             <option value="other">other</option>
@@ -341,6 +432,16 @@ class UploadExperiment extends React.Component {
           <input type="text" id="analysis_cutoff" className="form-control" value={analysis_cutoff}
                  placeholder="FDR<0.1"
                  onChange={this.changeKey.bind(this)} required/>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="analysis_id">Analysis ID:</label>
+          <input type="text" id="analysis_id" className="form-control" value={analysis_id}
+                 placeholder="AT4G24020_DESEQ_0.05 (TFID_AnalysisMethod&AnalysisCutoff)"
+                 onChange={this.changeKey.bind(this)} required/>
+          {_.map(errors['analysis_id'], (val, i) => {
+            return <div className="help-block" key={i}>{val}</div>;
+          })}
         </div>
 
         <div className="form-group">
@@ -376,29 +477,6 @@ class UploadExperiment extends React.Component {
         </div>
 
         <div className="form-group">
-          <label htmlFor="experimenter">Experimenter:</label>
-          <input type="text" id="experimenter" className="form-control" value={experimenter}
-                 placeholder="Your Name Here" list="experimenter_list"
-                 onChange={this.changeKey.bind(this)} required/>
-          <datalist id="experimenter_list">
-            {_(experimenter_list).map('value').sortBy().map((l, i) => {
-              return <option key={i}>{l}</option>
-            }).value()}
-          </datalist>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="submission_date">Submission Date:</label>
-          <input type="date" id="submission_date" className="form-control" value={submission_date} disabled/>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="experiment_date">Experiment Date:</label>
-          <input type="date" id="experiment_date" className="form-control" value={experiment_date}
-                 onChange={this.changeKey.bind(this)} required/>
-        </div>
-
-        <div className="form-group">
           <label htmlFor="metadata_notes">Metadata Notes:</label>
           <textarea id="metadata_notes" className="form-control" value={metadata_notes}
                     rows={4}
@@ -427,7 +505,15 @@ class UploadExperiment extends React.Component {
           }} required/>
         </div>
 
+        <div className="form-group">
+          {!_.isEmpty(errors) ?
+            <pre>{JSON.stringify(errors, null, 2)}</pre> :
+            null}
+        </div>
+
         <button type="submit" className="btn btn-primary">Submit</button>
+        <button type="button" className="btn btn-default" onClick={_.bind(this.submit, this, _, _, true)}>Auto Submit
+        </button>
       </form>
     </div>;
   }

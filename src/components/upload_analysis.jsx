@@ -8,20 +8,33 @@ import _ from 'lodash';
 import {BASE_URL} from '../actions';
 import classNames from 'classnames';
 
+function getInitialExperiment(experiments) {
+  return {
+    tf: _.get(experiments, '0.value'),
+    experiment: _.get(experiments, '0.experiments.0')
+  };
+}
+
+const pickIdData = _.partial(_.pick, _, ['tf', 'analysisMethod', 'analysisMethodOther', 'analysisCutoff']);
+
+const initialState = {
+  tf: "",
+  experiment: "",
+  analysisId: "",
+  analysisCutoff: "",
+  analysisMethod: "one_way_anova",
+  analysisMethodOther: "",
+  analysisBatch: "YES",
+  analysisNotes: "",
+  errors: {}
+};
+
 class UploadAnalysis extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      tf: "",
+    this.state = Object.assign({}, {
       experiments: [],
-      experiment: "",
-      analysisId: "",
-      analysisCutoff: "",
-      analysisMethod: "",
-      analysisBatch: "YES",
-      analysisNotes: "",
-      errors: {}
-    }
+    }, initialState);
   }
 
   componentDidMount() {
@@ -29,18 +42,31 @@ class UploadAnalysis extends React.Component {
       .done((data) => {
         let experiments = _(data).sortBy('value').value();
 
-        this.setState({
-          experiments,
-          tf: _.get(experiments, '0.value'),
-          experiment: _.get(experiments, '0.experiments.0')
-        })
+        this.setState(Object.assign({}, {experiments}, getInitialExperiment(experiments)));
       });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    let prevIdData = pickIdData(prevState);
+    let nowIdData = pickIdData(this.state);
+
+    if (!_.isEqual(prevIdData, nowIdData)) {
+      let {tf, analysisMethod, analysisMethodOther, analysisCutoff} = this.state;
+
+      if (analysisMethod === "other") {
+        analysisMethod = analysisMethodOther;
+      }
+
+      this.setState({
+        analysisId: `${tf}_${analysisMethod.replace(/[\s_]+/ig, '')}_${analysisCutoff}`.toUpperCase()
+      });
+    }
   }
 
   submit(e) {
     let {
       experiments, experiment, analysisId, analysisCutoff,
-      analysisMethod, analysisBatch, analysisNotes
+      analysisMethod, analysisMethodOther, analysisBatch, analysisNotes
     } = this.state;
 
     e.preventDefault();
@@ -48,6 +74,9 @@ class UploadAnalysis extends React.Component {
     data.set('experiment', experiment);
     data.set('analysis_id', analysisId);
     data.set('analysis_cutoff', analysisCutoff);
+    if (analysisMethod === "other") {
+      analysisMethod = analysisMethodOther;
+    }
     data.set('analysis_method', analysisMethod);
     data.set('analysis_batch', analysisBatch);
     data.set('analysis_notes', analysisNotes);
@@ -67,21 +96,12 @@ class UploadAnalysis extends React.Component {
 
         this.form.reset();
 
-        this.setState({
-          tf: _.get(experiments, '0.value'),
-          experiment: "",
-          analysisId: "",
-          analysisCutoff: "",
-          analysisMethod: "",
-          analysisBatch: "YES",
-          analysisNotes: "",
-          errors: {}
-        });
+        this.setState(Object.assign({}, initialState, getInitialExperiment(experiments)));
       })
       .fail((res) => {
         this.setState({
           errors: res.responseJSON
-        })
+        });
       });
   }
 
@@ -94,7 +114,7 @@ class UploadAnalysis extends React.Component {
   render() {
     let {
       experiments, experiment, tf, analysisId, analysisCutoff,
-      analysisMethod, analysisBatch, analysisNotes, errors
+      analysisMethod, analysisMethodOther, analysisBatch, analysisNotes, errors
     } = this.state;
 
     return <div className="col-xs-6 col-xs-offset-3">
@@ -124,14 +144,26 @@ class UploadAnalysis extends React.Component {
             return <div className="help-block" key={i}>{val}</div>;
           })}
         </div>
-        <div className={classNames("form-group", {"has-danger": 'analysis_id' in errors})}>
-          <label htmlFor="analysisId">Analysis ID:</label>
-          <input type="text" className="form-control" id="analysisId" required value={analysisId}
-                 onChange={this.changeKey.bind(this, 'analysisId')}/>
-          <p id="idHelpBlock" className="form-text text-muted">
-            Can only contain letters, numbers, underscore, or hyphen.
-          </p>
-          {_.map(errors['analysis_id'], (val, i) => {
+        <div className={classNames("form-group", {"has-danger": 'analysis_method' in errors})}>
+          <label htmlFor="analysisMethod">Analysis Method:</label>
+          <select type="text" className="form-control" id="analysisMethod" value={analysisMethod}
+                  onChange={this.changeKey.bind(this, 'analysisMethod')}>
+            <option value="one_way_anova">one-way ANOVA</option>
+            <option value="two_way_anova">two-way ANOVA</option>
+            <option value="three_way_anova">three-way ANOVA</option>
+            <option>edgeR</option>
+            <option>DESeq</option>
+            <option>DESeq2</option>
+            <option>MACS</option>
+            <option>MACS2</option>
+            <option value="other">Other</option>
+          </select>
+          {analysisMethod === "other" ?
+            <input type="text" id="analysis_method_other" className="form-control" value={analysisMethodOther}
+                   placeholder="Other"
+                   onChange={this.changeKey.bind(this, 'analysisMethodOther')}/> :
+            null}
+          {_.map(errors['analysis_method'], (val, i) => {
             return <div className="help-block" key={i}>{val}</div>;
           })}
         </div>
@@ -143,11 +175,14 @@ class UploadAnalysis extends React.Component {
             return <div className="help-block" key={i}>{val}</div>;
           })}
         </div>
-        <div className={classNames("form-group", {"has-danger": 'analysis_method' in errors})}>
-          <label htmlFor="analysisMethod">Analysis Method:</label>
-          <input type="text" className="form-control" id="analysisMethod" required value={analysisMethod}
-                 onChange={this.changeKey.bind(this, 'analysisMethod')}/>
-          {_.map(errors['analysis_method'], (val, i) => {
+        <div className={classNames("form-group", {"has-danger": 'analysis_id' in errors})}>
+          <label htmlFor="analysisId">Analysis ID:</label>
+          <input type="text" className="form-control" id="analysisId" required value={analysisId}
+                 onChange={this.changeKey.bind(this, 'analysisId')}/>
+          <p id="idHelpBlock" className="form-text text-muted">
+            Can only contain letters, numbers, underscore, or hyphen.
+          </p>
+          {_.map(errors['analysis_id'], (val, i) => {
             return <div className="help-block" key={i}>{val}</div>;
           })}
         </div>
