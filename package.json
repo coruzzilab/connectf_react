@@ -32,7 +32,7 @@
     "webpack-visualizer-plugin": "^0.1.11"
   },
   "dependencies": {
-    "antd": "^2.12.7",
+    "antd": "^2.12.8",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
     "cytoscape": "^3.2.1",
@@ -40,6 +40,7 @@
     "handsontable": "^0.34.0",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
+    "moment": "^2.18.1",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
