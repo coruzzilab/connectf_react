@@ -5,6 +5,8 @@ import React from "react";
 import {connect} from "react-redux";
 import _ from "lodash";
 import PropTypes from "prop-types";
+import $ from 'jquery';
+import {BASE_URL} from '../../actions';
 
 import {postQuery, resetTree, clearQuery} from "../../actions";
 
@@ -45,6 +47,21 @@ const mapDispatchToProps = (dispatch) => {
  * Builds queries for tgdbbackend
  */
 class QuerybuilderBody extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      targetGenes: [],
+      targetGene: ''
+    }
+  }
+
+  componentDidMount() {
+    $.getJSON(`${BASE_URL}/api/lists/`)
+      .done((targetGenes) => {
+        this.setState({targetGenes});
+      });
+  }
+
   handleSubmit() {
     let {submit} = this.props;
     let formData = this.buildForm();
@@ -59,6 +76,7 @@ class QuerybuilderBody extends React.Component {
 
   buildForm() {
     let {tfQuery, edgeQuery, metaQuery, tfTree, edgeTree, metaTree} = this.props;
+    let {targetGene} = this.state;
     let {targetGenes} = this;
     let formData = new FormData();
     let i = 0;
@@ -75,12 +93,28 @@ class QuerybuilderBody extends React.Component {
     _.forEach(edgeTree, findFile);
     _.forEach(metaTree, findFile);
 
-    formData.append('targetgenes', !_.isEmpty(targetGenes.files) ? _.head(targetGenes.files) : 'undefined');
+    if (targetGene === "other") {
+      let f = _.get(targetGenes, 'files.0');
+      if (f && f.size > 0) {
+        formData.set('targetgenes', _.get(targetGenes, 'files.0'));
+      }
+    } else {
+      formData.set('targetgenes', targetGene)
+    }
+
 
     return formData;
   }
 
+  handleTargetGene(e) {
+    this.setState({
+      targetGene: e.target.value
+    });
+  }
+
   render() {
+    let {targetGenes, targetGene} = this.state;
+
     return <div style={{display: "flex", flexDirection: "row"}}>
       <div style={{
         display: "flex",
@@ -91,13 +125,22 @@ class QuerybuilderBody extends React.Component {
         <Edge/>
         <Meta/>
 
-        <div>
+        <div style={{marginBottom: '2em'}}>
           <h2>TargetGenes</h2>
-          <input type="file" className="form-control"
-                 ref={(c) => {
-                   this.targetGenes = c;
-                 }}
-                 style={{marginBottom: '2em'}}/>
+          <select className="form-control" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
+            <option value="">----</option>
+            {_.map(targetGenes, (l, i) => {
+              return <option key={i} value={l}>{l}</option>
+            })}
+            <option value="other">Other</option>
+          </select>
+          {targetGene === "other" ?
+            <input type="file" className="form-control-file"
+                   ref={(c) => {
+                     this.targetGenes = c;
+                   }}/> :
+            null}
+
         </div>
       </div>
 
