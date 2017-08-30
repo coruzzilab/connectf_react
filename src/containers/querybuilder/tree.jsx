@@ -4,20 +4,14 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Tabs, AutoComplete} from 'antd';
-const {TabPane} = Tabs;
-const {Option} = AutoComplete;
+import {Tabs, Tab} from 'react-bootstrap';
+import uuid from 'uuid';
 
 import {OPERANDS} from '../../actions';
 import {GROUP_NODE, VALUE_NODE} from '../../reducers';
 
 import _ from 'lodash';
 import $ from 'jquery';
-
-function caseInsensitiveCompare(input, option) {
-  // a cumbersome way to search case insensitively
-  return option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-}
 
 function idCompare(s, o) {
   return s.id === o;
@@ -80,36 +74,27 @@ class Value extends React.Component {
     });
   }
 
-  handleChange(value) {
+  handleChange(e) {
     let {node, updateValueRaw} = this.props;
     if (_.get(this, 'file.value')) {
       this.file.value = '';
     }
-    updateValueRaw(node.id, value);
+    updateValueRaw(node.id, e.target.value);
   }
 
   render() {
     let {addFile, node, updateKey, removeNode, valueOptions, autoCompleteKey, autoCompleteName} = this.props;
     let {dataSource} = this.state;
+    let uid = uuid.v4();
 
-    let valueInput = <AutoComplete value={node.value}
-                                   onChange={this.handleChange.bind(this)}
-                                   style={{width: '30em', height: '34px'}} // @todo: better CSS styling
-                                   size="large"
-                                   filterOption={caseInsensitiveCompare}
-                                   optionLabelProp="value"
-                                   dataSource={_.map(dataSource, (s, i) => {
-                                     let value = _.get(s, autoCompleteName, '');
-                                     if (value && value !== "-") {
-                                       value = ` (${value})`;
-                                     } else {
-                                       value = '';
-                                     }
-
-                                     return <Option key={i} value={_.get(s, autoCompleteKey)}>
-                                       {_.get(s, autoCompleteKey, '') + value}
-                                     </Option>;
-                                   })}/>;
+    let valueInput = <div className="form-group">
+      <input value={node.value}
+             onChange={this.handleChange.bind(this)}
+             className="form-control"
+             list={uid}
+             style={{width: '30em', height: '34px'}} // @todo: better CSS styling
+             size="large"/>
+    </div>;
 
     return <div className="form-inline condition">
       <select className="form-control" style={{float: 'left'}}
@@ -123,25 +108,45 @@ class Value extends React.Component {
       </select>
       <div style={{display: 'inline-block'}}>
         {addFile ?
-          <Tabs defaultActiveKey="1" type="card">
-            <TabPane tab="TF" key="1">
+          <Tabs defaultActiveKey={1} id="query">
+            <Tab title="TF" eventKey={1}>
               {valueInput}
-            </TabPane>
-            <TabPane tab="File" key="2">
-              <select className="form-control" ref={(c) => {
-                this.oper = c;
-              }} onChange={this.handleFile.bind(this)}>
-                <option value="And">And</option>
-                <option value="Or">Or</option>
-              </select>
-              <input ref={(c) => {
-                this.file = c;
-              }} type="file" className="form-control" onChange={this.handleFile.bind(this)}/>
-            </TabPane>
+            </Tab>
+            <Tab title="File" eventKey={2}>
+              <div className="row">
+                <div className="form-group">
+                  <select className="form-control" ref={(c) => {
+                    this.oper = c;
+                  }} onChange={this.handleFile.bind(this)}>
+                    <option value="And">And</option>
+                    <option value="Or">Or</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <input ref={(c) => {
+                    this.file = c;
+                  }} type="file" className="form-control-file" onChange={this.handleFile.bind(this)}/>
+                </div>
+              </div>
+            </Tab>
           </Tabs> :
           valueInput
         }
       </div>
+      <datalist id={uid}>
+        {_.map(dataSource, (s, i) => {
+          let value = _.get(s, autoCompleteName, '');
+          if (value && value !== "-") {
+            value = ` (${value})`;
+          } else {
+            value = '';
+          }
+
+          return <option key={i} value={_.get(s, autoCompleteKey)}>
+            {_.get(s, autoCompleteKey, '') + value}
+          </option>;
+        })}
+      </datalist>
       <button className="btn btn-sm btn-danger" style={{verticalAlign: 'middle', float: 'right'}}
               onClick={removeNode.bind(undefined, node.id)}>
         <span className="glyphicon glyphicon-minus-sign"/>

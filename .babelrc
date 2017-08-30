@@ -11,13 +11,6 @@
   ],
   "plugins": [
     [
-      "import",
-      {
-        "libraryName": "antd",
-        "style": true
-      }
-    ],
-    [
       "transform-object-rest-spread",
       {
         "useBuiltIns": true

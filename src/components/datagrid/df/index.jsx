@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import Handsontable from 'handsontable';
+import 'handsontable/dist/handsontable.full.css';
 import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -199,12 +200,12 @@ class DFBody extends React.Component {
       <div>
         <input type="text" placeholder="Search" ref={(c) => {
           this.search = c;
-        }}/>
+        }} style={{float: 'left'}}/>
         {busy ? <span className="fa fa-circle-o-notch fa-spin" style={{fontSize: '21px'}}/> : null}
       </div>
       <div id="grid" ref={(c) => {
         this.grid = c;
-      }} style={{height: '80vh', overflow: 'hidden'}}/>
+      }} style={{height: '80vh', overflow: 'hidden', clear: 'both'}}/>
     </div>;
   }
 }
