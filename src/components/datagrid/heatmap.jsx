@@ -25,15 +25,16 @@ class HeatMapBody extends React.Component {
     let {requestId} = this.props;
     let {success} = this.state;
     return <div>
-      {success ?
-        <img src={`${BASE_URL}/queryapp/heatmap/${requestId}.svg`}
-             alt="heatmap"
-             onError={() => {
-               this.setState({
-                 success: false
-               });
-             }}/> :
-        <div>Heatmap is not available for this query.</div>}
+      <img src={`${BASE_URL}/queryapp/heatmap/${requestId}.svg`}
+           onError={() => {
+             this.setState({success: false});
+           }}
+           onLoad={() => {
+             this.setState({success: true})
+           }}/>
+      {!success ?
+        <div>Heatmap is not available for this query.</div> :
+        null}
     </div>;
   }
 }
