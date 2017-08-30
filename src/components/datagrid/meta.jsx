@@ -18,7 +18,7 @@ export class MetaBody extends React.Component {
   componentDidMount() {
     let {result} = this.props;
 
-    let hot = new Handsontable(this.grid, {
+    let hot = this.hot = new Handsontable(this.grid, {
       rowHeaders: true,
       manualColumnResize: true,
       colHeaders: _.map(_.get(result, '1.columns', []), 'name'),
@@ -38,6 +38,21 @@ export class MetaBody extends React.Component {
       hot.search.query(this.value);
       hot.render();
     });
+  }
+
+  componentDidUpdate() {
+    let {result} = this.props;
+
+    this.hot.updateSettings({
+      columns: _.map(_.get(result, '1.columns', []), (c) => {
+        return {
+          data: c.id,
+          editor: false
+        };
+      })
+    });
+
+    this.hot.loadData(_.values(JSON.parse(_.get(result, '1.data', "{}"))));
   }
 
   render() {
