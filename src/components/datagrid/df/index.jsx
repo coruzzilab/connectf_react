@@ -5,9 +5,12 @@
 import React from 'react';
 import Handsontable from 'handsontable';
 import 'handsontable/dist/handsontable.full.css';
+import './multicolumn_sort';
 import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+
+import Reorder from './reorder';
 
 const NON_ALPHANUMERIC = /^\W*|\W*$/g;
 

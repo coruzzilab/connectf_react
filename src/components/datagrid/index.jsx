@@ -12,6 +12,7 @@ import DF from './df';
 import Meta from './meta';
 import Extra from './extra';
 import HeatMap from './heatmap';
+import MotifEnrichment from './motif_enrichment';
 
 class Datagrid extends React.Component {
   constructor(props) {
@@ -25,7 +26,7 @@ class Datagrid extends React.Component {
     let {location} = this.props;
 
     this.setState({
-      key: _.get(location, 'query.tab') || 1
+      key: parseInt(_.get(location, 'query.tab', 1))
     })
   }
 
@@ -37,7 +38,7 @@ class Datagrid extends React.Component {
     let {key} = this.state;
 
     return <Tabs activeKey={key} onSelect={this.onTabClick.bind(this)} id="result">
-      <Tab title="Query" eventKey={1}>
+      <Tab title="Table" eventKey={1}>
         <DF/>
       </Tab>
       <Tab title="Meta" eventKey={2}>
@@ -55,7 +56,10 @@ class Datagrid extends React.Component {
       <Tab title="Heatmap" eventKey={4}>
         <HeatMap/>
       </Tab>
-      <Tab title="Extras" eventKey={5}>
+      <Tab title="Motif Enrichment" eventKey={5}>
+        <MotifEnrichment/>
+      </Tab>
+      <Tab title="Extras" eventKey={6}>
         <Extra/>
       </Tab>
     </Tabs>;

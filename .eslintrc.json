@@ -17,7 +17,7 @@
     "plugin:react/recommended"
   ],
   "rules": {
-    "indent": [2, 2],
+    "indent": [0, 2],
     "strict": [2, "global"],
     "new-parens": 2
   },

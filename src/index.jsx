@@ -29,6 +29,9 @@ import Feedback from './components/feedback';
 import UploadAnalysis from './components/upload_analysis';
 import UploadExperiment from './components/upload_experiment';
 
+/*
+ * Enhancer composer for development. Connects to redux browser extension.
+ */
 const composeEnhancers = process.env.NODE_ENV !== 'production' &&
 typeof window === 'object' &&
 window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?

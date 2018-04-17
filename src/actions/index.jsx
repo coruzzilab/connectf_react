@@ -158,6 +158,30 @@ export const getCytoscape = (requestId, type = 'dbase_view1_cy') => {
   };
 };
 
+export const setMotifEnrichment = (data) => {
+  return {
+    type: 'SET_MOTIF_ENRICHMENT',
+    data
+  }
+};
+
+export const clearMotifEnrichment = () => {
+  return {
+    type: 'CLEAR_MOTIF_ENRICHMENT'
+  }
+};
+
+export const getMotifEnrichment = (requestId, alpha = 0.05) => {
+  return (dispatch) => {
+    return $.ajax({
+      url: `${BASE_URL}/queryapp/motif_enrichment/${requestId}/?${$.param({alpha})}`,
+      contentType: false
+    })
+      .done((data) => dispatch(setMotifEnrichment(data)))
+      .catch(() => dispatch(setMotifEnrichment({})))
+  }
+};
+
 export const postQuery = (data) => {
   return (dispatch) => {
     let requestId = (new Date().toISOString() + Math.floor(Math.random() * 1000)).replace(/[:.]/g, "");

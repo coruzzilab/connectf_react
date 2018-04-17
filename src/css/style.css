@@ -183,3 +183,17 @@
 html, body, #app {
     height: 100%;
 }
+
+.motif table {
+    border-collapse: collapse;
+    border: 1px solid black;
+}
+
+.motif th {
+    border: 1px solid black;
+}
+
+.motif td {
+    border: 1px solid black;
+    mix-blend-mode: luminosity;
+}

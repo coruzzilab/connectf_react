@@ -31,6 +31,7 @@ const VALUE_OPTS = [
   ["Growth_Medium", "Growth_Medium"],
   ["Growth_Period", "Growth_Period"],
   ["Plasmids", "Plasmids"],
+  ["P-value", "P-value"],
   ["Publication", "Publication"],
   ["Submission_date", "Submission_date"],
   ["TF_History", "TF_History"],

@@ -150,6 +150,17 @@ function cytoscape(state = {}, action) {
   }
 }
 
+function motifEnrichment(state = {}, action) {
+  switch (action.type) {
+    case 'SET_MOTIF_ENRICHMENT':
+      return action.data;
+    case 'CLEAR_MOTIF_ENRICHMENT':
+      return {};
+    default:
+      return state;
+  }
+}
+
 function error(state = '', action) {
   switch (action.type) {
   case 'SET_ERROR':
@@ -171,6 +182,7 @@ const tgdbApp = {
   metaQuery: createQueryWithName('META'),
   result,
   cytoscape,
+  motifEnrichment,
   requestId,
   error
 };

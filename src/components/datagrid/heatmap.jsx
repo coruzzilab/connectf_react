@@ -21,17 +21,20 @@ class HeatMapBody extends React.Component {
     };
   }
 
+  toggleSuccess(success) {
+    this.setState({success});
+  }
+
   render() {
     let {requestId} = this.props;
     let {success} = this.state;
     return <div>
-      <img src={`${BASE_URL}/queryapp/heatmap/${requestId}.svg`}
-           onError={() => {
-             this.setState({success: false});
-           }}
-           onLoad={() => {
-             this.setState({success: true})
-           }}/>
+      {requestId ?
+        <img src={`${BASE_URL}/queryapp/heatmap/${requestId}.svg`}
+             onError={this.toggleSuccess.bind(this, false)}
+             onLoad={this.toggleSuccess.bind(this, true)}/> :
+        null}
+
       {!success ?
         <div>Heatmap is not available for this query.</div> :
         null}
