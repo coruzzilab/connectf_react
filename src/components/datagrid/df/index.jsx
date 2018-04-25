@@ -10,8 +10,6 @@ import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 
-import Reorder from './reorder';
-
 const NON_ALPHANUMERIC = /^\W*|\W*$/g;
 
 let mapStateToProps = (state) => {

@@ -171,10 +171,13 @@ export const clearMotifEnrichment = () => {
   }
 };
 
-export const getMotifEnrichment = (requestId, alpha = 0.05) => {
+export const getMotifEnrichment = (requestId, alpha = 0.05, body = false) => {
   return (dispatch) => {
     return $.ajax({
-      url: `${BASE_URL}/queryapp/motif_enrichment/${requestId}/?${$.param({alpha})}`,
+      url: `${BASE_URL}/queryapp/motif_enrichment/${requestId}/?${$.param({
+        alpha,
+        body: body ? 1 : 0
+      })}`,
       contentType: false
     })
       .done((data) => dispatch(setMotifEnrichment(data)))
