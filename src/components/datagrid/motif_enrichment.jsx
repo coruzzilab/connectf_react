@@ -139,7 +139,7 @@ class MotifEnrichmentBody extends React.Component {
       alpha: 0.05,
       body: 'no',
       colSpan: 1,
-      img: ''
+      img: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg`
     };
   }
 
