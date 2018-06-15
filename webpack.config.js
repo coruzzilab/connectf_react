@@ -4,7 +4,6 @@
 const webpack = require('webpack');
 const path = require('path');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const Visualizer = require('webpack-visualizer-plugin');
 
 const APP_DIR = path.join(__dirname, 'src');
 
@@ -16,6 +15,7 @@ const config = {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js'
   },
+  mode: 'production',
   module: {
     rules: [
       {
@@ -56,8 +56,7 @@ const config = {
       }
     }),
     new webpack.optimize.UglifyJsPlugin(),
-    new ExtractTextPlugin('style.css'),
-    new Visualizer()
+    new ExtractTextPlugin('style.css')
   ]
 };
 

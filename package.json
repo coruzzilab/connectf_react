@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
     "build-doc": "jsdoc -r src/",
-    "start": "webpack-serve -d --config webpack.config-dev.js"
+    "start": "webpack-dev-server -d --config webpack.config-dev.js"
   },
   "author": "",
   "license": "ISC",
@@ -28,7 +28,7 @@
     "style-loader": "^0.21.0",
     "webpack": "^4.12.0",
     "webpack-cli": "^3.0.4",
-    "webpack-serve": "^1.0.4"
+    "webpack-dev-server": "^3.1.4"
   },
   "dependencies": {
     "bootstrap": "^3.3.7",
