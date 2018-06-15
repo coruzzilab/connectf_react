@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import Handsontable from 'handsontable';
+import defaultSort from 'handsontable/src/plugins/columnSorting/sortFunction/default';
 import 'handsontable/dist/handsontable.full.css';
 import './multicolumn_sort';
 import {connect} from 'react-redux';
@@ -80,12 +81,16 @@ Handsontable.cellTypes.registerCellType('p_value', {
   validator: 'exponentialValidator',
 });
 
-let queryString = Handsontable.plugins.Search.DEFAULT_QUERY_METHOD;
-
 class DFBody extends React.Component {
+  constructor(props) {
+    super(props);
+    this.search = React.createRef();
+    this.grid = React.createRef();
+  }
+
   componentDidMount() {
     let self = this;
-    let hot = this.hot = new Handsontable(this.grid, {
+    let hot = this.hot = new Handsontable(this.grid.current, {
       rowHeaders: function (idx) {
         if (idx < 6) {
           return '';
@@ -129,8 +134,6 @@ class DFBody extends React.Component {
         let skippedRows = 6;
 
         return function (a, b) {
-          let plugin = hot.getPlugin('columnSorting');
-
           if (a[0] < skippedRows) {
             if (a[0] > b[0]) {
               return 1;
@@ -144,20 +147,24 @@ class DFBody extends React.Component {
             return 1;
           }
 
-          return plugin.defaultSort(sortOrder, columnMeta)(
+          return defaultSort(sortOrder, columnMeta)(
             [a[0], _.isString(a[1]) ? a[1].replace(NON_ALPHANUMERIC, '') : a[1]],
             [b[0], _.isString(b[1]) ? b[1].replace(NON_ALPHANUMERIC, '') : b[1]]);
         };
       }
     });
 
+    let sort = hot.getPlugin('columnSorting');
+    let search = hot.getPlugin('search');
+    let queryString = search.getQueryMethod();
+
     hot.addHook('afterOnCellMouseDown', function (event, {row, col}) {
       if (row === -1) {
-        hot.sort(col);
+        sort.sort(col);
       }
     });
 
-    Handsontable.dom.addEvent(this.search, 'keyup', function () {
+    Handsontable.dom.addEvent(this.search.current, 'keyup', function () {
       let {data} = self;
       if (this.value.length > 0) {
         hot.loadData([
@@ -199,14 +206,10 @@ class DFBody extends React.Component {
     // @todo: find someone who actually knows CSS
     return <div>
       <div>
-        <input type="text" placeholder="Search" ref={(c) => {
-          this.search = c;
-        }} style={{float: 'left'}}/>
+        <input type="text" placeholder="Search" ref={this.search} style={{float: 'left'}}/>
         {busy ? <span className="fa fa-circle-o-notch fa-spin" style={{fontSize: '21px'}}/> : null}
       </div>
-      <div id="grid" ref={(c) => {
-        this.grid = c;
-      }} style={{height: '80vh', overflow: 'hidden', clear: 'both'}}/>
+      <div id="grid" ref={this.grid} style={{height: '80vh', overflow: 'hidden', clear: 'both'}}/>
     </div>;
   }
 }
