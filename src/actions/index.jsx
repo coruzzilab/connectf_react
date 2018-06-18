@@ -142,6 +142,22 @@ export const clearError = () => {
   };
 };
 
+export const setHeatmap = (data) => {
+  return {
+    type: 'SET_HEATMAP',
+    data
+  }
+};
+
+export const getHeatmap = (requestId) => {
+  return (dispatch) => {
+    return $.ajax({
+      url: `${BASE_URL}/queryapp/heatmap/${requestId}/`,
+      contentType: false
+    }).done((data) => dispatch(setHeatmap(data)));
+  }
+};
+
 export const setCytoscape = (data) => {
   return {
     type: 'SET_CYTOSCAPE',

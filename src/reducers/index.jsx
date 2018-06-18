@@ -29,7 +29,7 @@ function createQueryWithName(queryName = '') {
     default:
       return state;
     }
-  }
+  };
 }
 
 
@@ -40,7 +40,7 @@ function findDescendants(arr, id) {
       .map(findDescendants.bind(undefined, arr))
       .flattenDeep()
       .value()
-  )
+  );
 }
 
 const treeInitial = [
@@ -69,7 +69,7 @@ function createTreeWithName(treeName = '') {
         if (n.id === action.parent && n.nodeType === GROUP_NODE) {
           return Object.assign({}, n, {
             children: [...n.children, action.id]
-          })
+          });
         }
         return n;
       });
@@ -82,7 +82,7 @@ function createTreeWithName(treeName = '') {
             });
           } else if (n.nodeType === GROUP_NODE) {
             return _.merge({}, n, {
-              oper: action.oper,
+              oper: action.oper
             });
           }
         }
@@ -114,7 +114,7 @@ function createTreeWithName(treeName = '') {
     default:
       return state;
     }
-  }
+  };
 }
 
 function requestId(state = "", action) {
@@ -139,6 +139,17 @@ function result(state = [], action) {
   }
 }
 
+function heatmap(state = {}, action) {
+  switch (action.type) {
+  case 'SET_HEATMAP':
+    return action.data;
+  case 'CLEAR_HEATMAP':
+    return {};
+  default:
+    return state;
+  }
+}
+
 function cytoscape(state = {}, action) {
   switch (action.type) {
   case 'SET_CYTOSCAPE':
@@ -152,12 +163,12 @@ function cytoscape(state = {}, action) {
 
 function motifEnrichment(state = {}, action) {
   switch (action.type) {
-    case 'SET_MOTIF_ENRICHMENT':
-      return action.data;
-    case 'CLEAR_MOTIF_ENRICHMENT':
-      return {};
-    default:
-      return state;
+  case 'SET_MOTIF_ENRICHMENT':
+    return action.data;
+  case 'CLEAR_MOTIF_ENRICHMENT':
+    return {};
+  default:
+    return state;
   }
 }
 
@@ -181,6 +192,7 @@ const tgdbApp = {
   edgeQuery: createQueryWithName('EDGE'),
   metaQuery: createQueryWithName('META'),
   result,
+  heatmap,
   cytoscape,
   motifEnrichment,
   requestId,

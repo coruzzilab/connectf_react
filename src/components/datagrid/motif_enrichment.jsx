@@ -9,6 +9,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import {Modal, Button, Tab, Tabs} from 'react-bootstrap';
 import {getMotifEnrichment, BASE_URL} from "../../actions";
+import {blueShader, getLogMinMax} from '../../utils';
 
 export const BASE_COLORS = {
   'a': '#59C83B',
@@ -192,9 +193,7 @@ class MotifEnrichmentBody extends React.Component {
   render() {
     let {motifEnrichment} = this.props;
     let {body, img, colSpan} = this.state;
-    let res = _(_.get(motifEnrichment, 'result', [])).flatten().filter((n) => typeof n === 'number');
-    let min = Math.floor(Math.log10(res.min()));
-    let max = Math.ceil(Math.log10(res.max()));
+    let [min, max] = getLogMinMax(_.get(motifEnrichment, 'result', []));
 
     return <div className="motif">
       <form onSubmit={this.handleMotifForm.bind(this)}>
@@ -254,10 +253,7 @@ class MotifEnrichmentBody extends React.Component {
               return <tr key={i}>
                 <RowHeader data={row[0]}/>
                 {_.map(row.slice(1), (c, j) => {
-                  let l = 48 + Math.round(52 * ((Math.log10(c) - min) / (max - min)));
-                  l = l < 48 ? 48 : l;
-                  let background = c ? `hsl(228,89%,${l}%)` : '#FFFFFF';
-                  let color = l <= 65 && l >= 48 ? 'white' : 'black';
+                  let [background, color] = blueShader(c, min, max);
                   return <td key={j}
                              style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>
                 })}
