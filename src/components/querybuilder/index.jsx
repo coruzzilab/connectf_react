@@ -52,7 +52,8 @@ class QuerybuilderBody extends React.Component {
     this.state = {
       targetGenes: [],
       targetGene: ''
-    }
+    };
+    this.targetGenes = React.createRef();
   }
 
   componentDidMount() {
@@ -71,7 +72,7 @@ class QuerybuilderBody extends React.Component {
 
   reset() {
     this.props.reset();
-    this.targetGenes.value = null;
+    this.targetGenes.current.value = null;
   }
 
   buildForm() {
@@ -94,12 +95,12 @@ class QuerybuilderBody extends React.Component {
     _.forEach(metaTree, findFile);
 
     if (targetGene === "other") {
-      let f = _.get(targetGenes, 'files.0');
+      let f = _.get(targetGenes.current, 'files.0');
       if (f && f.size > 0) {
-        formData.set('targetgenes', _.get(targetGenes, 'files.0'));
+        formData.set('targetgenes', _.get(targetGenes.current, 'files.0'));
       }
     } else {
-      formData.set('targetgenes', targetGene)
+      formData.set('targetgenes', targetGene);
     }
 
 
@@ -130,15 +131,13 @@ class QuerybuilderBody extends React.Component {
           <select className="form-control" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
             <option value="">----</option>
             {_.map(targetGenes, (l, i) => {
-              return <option key={i} value={l}>{l}</option>
+              return <option key={i} value={l}>{l}</option>;
             })}
             <option value="other">Other</option>
           </select>
           {targetGene === "other" ?
             <input type="file" className="form-control-file"
-                   ref={(c) => {
-                     this.targetGenes = c;
-                   }}/> :
+                   ref={this.targetGenes}/> :
             null}
 
         </div>

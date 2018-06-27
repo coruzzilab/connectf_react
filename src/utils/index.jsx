@@ -3,6 +3,7 @@
  * 6/18/18
  */
 import _ from 'lodash';
+import moment from 'moment';
 
 export function blueShader(c, min, max) {
   let l = 48 + Math.round(52 * ((Math.log10(c) - min) / (max - min)));
@@ -17,4 +18,8 @@ export function getLogMinMax(data) {
   let res = _(data).flatten().filter((n) => typeof n === 'number');
 
   return [Math.floor(Math.log10(res.min())), Math.ceil(Math.log10(res.max()))];
+}
+
+export function generateRequestId() {
+  return moment.utc().format("Y-MM-DD[T]HHmmssSSS[Z]") + Math.floor(Math.random() * 1000).toString().padStart(3, "0");
 }

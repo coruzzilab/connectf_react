@@ -5,7 +5,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {Tabs, Tab} from 'react-bootstrap';
-import uuid from 'uuid';
+import uuidv4 from 'uuid/v4';
 
 import {OPERANDS} from '../../actions';
 import {GROUP_NODE, VALUE_NODE} from '../../reducers';
@@ -29,7 +29,9 @@ class Value extends React.Component {
     this.state = {
       dataSource: []
     };
-
+    this.oper = React.createRef();
+    this.file = React.createRef();
+    this.keyName = React.createRef();
   }
 
   componentDidMount() {
@@ -69,15 +71,15 @@ class Value extends React.Component {
     let {node, updateValueRaw} = this.props;
     let {oper, file} = this;
     updateValueRaw(node.id, {
-      oper: oper.value,
-      file: _.get(file, 'files.0')
+      oper: oper.current.value,
+      file: _.get(file.current, 'files.0')
     });
   }
 
   handleChange(e) {
     let {node, updateValueRaw} = this.props;
-    if (_.get(this, 'file.value')) {
-      this.file.value = '';
+    if (_.get(this.file.current, 'value')) {
+      this.file.current.value = '';
     }
     updateValueRaw(node.id, e.target.value);
   }
@@ -85,7 +87,7 @@ class Value extends React.Component {
   render() {
     let {addFile, node, updateKey, removeNode, valueOptions, autoCompleteKey, autoCompleteName} = this.props;
     let {dataSource} = this.state;
-    let uid = uuid.v4();
+    let uid = uuidv4();
 
     let valueInput = <div className="form-group">
       <input value={node.value}
@@ -98,9 +100,7 @@ class Value extends React.Component {
 
     return <div className="form-inline condition">
       <select className="form-control" style={{float: 'left'}}
-              ref={(c) => {
-                this.keyName = c;
-              }}
+              ref={this.keyName}
               onChange={updateKey.bind(undefined, node.id)} value={node.key}>
         {_.map(valueOptions, (o) => {
           return <option key={o[0]} value={o[0]}>{o[1]}</option>;
@@ -115,17 +115,13 @@ class Value extends React.Component {
             <Tab title="File" eventKey={2}>
               <div className="row">
                 <div className="form-group">
-                  <select className="form-control" ref={(c) => {
-                    this.oper = c;
-                  }} onChange={this.handleFile.bind(this)}>
+                  <select className="form-control" ref={this.oper} onChange={this.handleFile.bind(this)}>
                     <option value="And">And</option>
                     <option value="Or">Or</option>
                   </select>
                 </div>
                 <div className="form-group">
-                  <input ref={(c) => {
-                    this.file = c;
-                  }} type="file" className="form-control-file" onChange={this.handleFile.bind(this)}/>
+                  <input ref={this.file} type="file" className="form-control-file" onChange={this.handleFile.bind(this)}/>
                 </div>
               </div>
             </Tab>

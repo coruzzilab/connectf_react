@@ -74,11 +74,15 @@ function exponentialValidator(value, callback) {
   }
 }
 
+function normalizeSearchString(value) {
+  return _.isString(value) ? value.replace(NON_ALPHANUMERIC, '') : value;
+}
+
 Handsontable.validators.registerValidator('exponential', exponentialValidator);
 
 Handsontable.cellTypes.registerCellType('p_value', {
   renderer: 'renderNumber',
-  validator: 'exponentialValidator',
+  validator: 'exponentialValidator'
 });
 
 class DFBody extends React.Component {
@@ -148,8 +152,8 @@ class DFBody extends React.Component {
           }
 
           return defaultSort(sortOrder, columnMeta)(
-            [a[0], _.isString(a[1]) ? a[1].replace(NON_ALPHANUMERIC, '') : a[1]],
-            [b[0], _.isString(b[1]) ? b[1].replace(NON_ALPHANUMERIC, '') : b[1]]);
+            [a[0], normalizeSearchString(a[1])],
+            [b[0], normalizeSearchString(b[1])]);
         };
       }
     });
@@ -194,11 +198,11 @@ class DFBody extends React.Component {
   updateData() {
     let {result} = this.props;
     let data = this.data = _.get(result, '0.data', []);
+    this.hot.loadData(data);
     this.hot.updateSettings({
       mergeCells: _.get(result, '0.mergeCells', []),
       columns: _.get(result, '0.columns', [])
     });
-    this.hot.loadData(data);
   }
 
   render() {

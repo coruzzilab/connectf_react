@@ -32,6 +32,18 @@ function createQueryWithName(queryName = '') {
   };
 }
 
+function createCompleteWithName(completeName = '') {
+  return function (state = [], action) {
+    switch (action.type) {
+    case `SET_COMPLETE_${completeName}`:
+      return action.value;
+    case `CLEAR_COMPLETE_${completeName}`:
+      return [];
+    default:
+      return state;
+    }
+  };
+}
 
 function findDescendants(arr, id) {
   let l = _(_(arr).find((n) => n.id === id)).get('children', []);
@@ -191,6 +203,9 @@ const tgdbApp = {
   tfQuery: createQueryWithName('TF'),
   edgeQuery: createQueryWithName('EDGE'),
   metaQuery: createQueryWithName('META'),
+  tfComplete: createCompleteWithName('TF'),
+  edgeComplete: createCompleteWithName('EDGE'),
+  metaComplete: createCompleteWithName('META'),
   result,
   heatmap,
   cytoscape,

@@ -4,6 +4,7 @@
 import {VALUE_NODE, GROUP_NODE} from '../reducers';
 import {push} from 'react-router-redux';
 import $ from 'jquery';
+import {generateRequestId} from "../utils";
 
 let _BASE_URL;
 
@@ -40,6 +41,13 @@ export const setQuery = (name, value) => {
 export const clearQuery = (name) => {
   return {
     type: `CLEAR_QUERY_${name}`
+  };
+};
+
+export const setComplete = (name, value) => {
+  return {
+    type: `SET_COMPLETE_${name}`,
+    value
   };
 };
 
@@ -146,7 +154,13 @@ export const setHeatmap = (data) => {
   return {
     type: 'SET_HEATMAP',
     data
-  }
+  };
+};
+
+export const clearHeatmap = () => {
+  return {
+    type: 'CLEAR_HEATMAP'
+  };
 };
 
 export const getHeatmap = (requestId) => {
@@ -154,8 +168,10 @@ export const getHeatmap = (requestId) => {
     return $.ajax({
       url: `${BASE_URL}/queryapp/heatmap/${requestId}/`,
       contentType: false
-    }).done((data) => dispatch(setHeatmap(data)));
-  }
+    })
+      .done((data) => dispatch(setHeatmap(data)))
+      .catch(() => dispatch(clearHeatmap()));
+  };
 };
 
 export const setCytoscape = (data) => {
@@ -178,13 +194,13 @@ export const setMotifEnrichment = (data) => {
   return {
     type: 'SET_MOTIF_ENRICHMENT',
     data
-  }
+  };
 };
 
 export const clearMotifEnrichment = () => {
   return {
     type: 'CLEAR_MOTIF_ENRICHMENT'
-  }
+  };
 };
 
 export const getMotifEnrichment = (requestId, alpha = 0.05, body = false) => {
@@ -197,13 +213,13 @@ export const getMotifEnrichment = (requestId, alpha = 0.05, body = false) => {
       contentType: false
     })
       .done((data) => dispatch(setMotifEnrichment(data)))
-      .catch(() => dispatch(setMotifEnrichment({})))
-  }
+      .catch(() => dispatch(setMotifEnrichment({})));
+  };
 };
 
 export const postQuery = (data) => {
   return (dispatch) => {
-    let requestId = (new Date().toISOString() + Math.floor(Math.random() * 1000)).replace(/[:.]/g, "");
+    let requestId = generateRequestId();
 
     data.append('requestId', requestId);
 

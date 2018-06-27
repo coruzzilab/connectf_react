@@ -6,7 +6,7 @@ import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 
-import {setQuery, BASE_URL} from '../../actions';
+import {setQuery, BASE_URL, setComplete} from '../../actions';
 
 import Query from '../../containers/querybuilder/query';
 import {TFTree, getRoot, getChildQuery} from './tree';
@@ -32,6 +32,10 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 class TFBody extends React.Component {
+  getAutoComplete() {
+
+  }
+
   createQuery() {
     let {tree, setQueryRaw} = this.props;
     let root = _.head(getRoot(tree));
