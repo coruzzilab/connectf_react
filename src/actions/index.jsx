@@ -139,6 +139,12 @@ export const setQueryNot = (id, not_) => {
   };
 };
 
+export const clearQueryTree = () => {
+  return {
+    type: 'CLEAR_QUERY_TREE'
+  };
+};
+
 export const setRequestId = (requestId) => {
   return {
     type: 'SET_REQUEST_ID',

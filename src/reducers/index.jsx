@@ -175,6 +175,8 @@ function queryTree(state = [], action) {
       }
       return o;
     });
+  case 'CLEAR_QUERY_TREE':
+    return [];
   default:
     return state;
   }

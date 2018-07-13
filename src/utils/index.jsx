@@ -57,7 +57,7 @@ function getMod(queryTree, id) {
       s += `(${getMod(queryTree, o.id)})`;
     }
 
-    return s
+    return s;
   }).join(' ');
 
   return query.replace(trimOper, '');
@@ -83,4 +83,14 @@ export function getQuery(queryTree, id) {
   }).join(' ');
 
   return query.replace(trimOper, '').replace(cleanMod, '');
+}
+
+export function getParentTF(queryTree, node) {
+  let parent = _.find(queryTree, ['id', _.get(node, 'parent')]);
+
+  while (parent && parent.nodeType !== 'TF' && parent.parent) {
+    parent = _.find(queryTree, ['id', parent.parent]);
+  }
+
+  return parent;
 }

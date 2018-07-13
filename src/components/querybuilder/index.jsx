@@ -22,9 +22,10 @@ import {
   addModGroup,
   setModKey,
   setModValue,
-  setModInnerOper
+  setModInnerOper,
+  clearQueryTree
 } from '../../actions';
-import {getQuery} from "../../utils";
+import {getQuery, getParentTF} from "../../utils";
 
 const mapStateToProps = ({busy, query, queryTree}) => {
   return {
@@ -87,28 +88,51 @@ class ModBody extends React.Component {
       dataSourceValues: []
     };
     this.uuid = uuidv4();
+
+    this._getAutoComplete = _.debounce(this.getAutoComplete.bind(this), 200);
+    this._getKeyAutoComplete = _.debounce(this.getKeyAutoComplete.bind(this), 200);
   }
 
   componentDidMount() {
-    this.getAutoComplete();
-    this.getKeyAutoComplete();
+    this._getAutoComplete();
+    this._getKeyAutoComplete();
   }
 
   componentDidUpdate(prevProps) {
-    let {node, setModInnerOper} = this.props;
+    let {node, setModInnerOper, queryTree, setModValue} = this.props;
     if (node.key !== prevProps.node.key) {
-      this.getKeyAutoComplete();
+      this._getKeyAutoComplete();
     }
+
+    if (!_.isEqual(getParentTF(queryTree, node), getParentTF(prevProps.queryTree, prevProps.node))) {
+      this._getAutoComplete();
+      this._getKeyAutoComplete();
+    }
+
+    if (node.key !== prevProps.node.key) {
+      setModValue(node.id, '');
+    }
+
     if (node.key !== 'pvalue' && node.key !== 'fc' && node.innerOper !== '=') {
       setModInnerOper(node.id, '=');
     }
   }
 
   getAutoComplete() {
-    let {node} = this.props;
+    let {node, queryTree} = this.props;
+
+    let parent = getParentTF(queryTree, node);
+
+    let data = {};
+
+    if (parent) {
+      data.tf = parent.name;
+    }
+
     $.ajax({
       url: `${BASE_URL}/api/key/`,
-      contentType: false
+      contentType: false,
+      data
     }).done((dataSource) => {
       this.setState({dataSource});
       if (!node.key) {
@@ -118,9 +142,20 @@ class ModBody extends React.Component {
   }
 
   getKeyAutoComplete() {
+    let {queryTree, node} = this.props;
+
+    let parent = getParentTF(queryTree, node);
+
+    let data = {};
+
+    if (parent) {
+      data.tf = parent.name;
+    }
+
     $.ajax({
       url: `${BASE_URL}/api/key/${this.props.node.key}/`,
-      contentType: false
+      contentType: false,
+      data
     }).done((dataSourceValues) => {
       this.setState({dataSourceValues});
     });
@@ -192,6 +227,7 @@ class ModBody extends React.Component {
 ModBody.propTypes = {
   node: PropTypes.object,
   first: PropTypes.bool,
+  queryTree: PropTypes.arrayOf(PropTypes.object),
   removeNode: PropTypes.func,
   setQueryOper: PropTypes.func,
   setQueryNot: PropTypes.func,
@@ -202,7 +238,7 @@ ModBody.propTypes = {
   setModInnerOper: PropTypes.func
 };
 
-const Mod = connect(null, {
+const Mod = connect(mapStateToProps, {
   removeNode,
   setQueryOper,
   setQueryNot,
@@ -535,6 +571,7 @@ class QuerybuilderBody extends React.Component {
     }
 
     this.props.clearQuery();
+    this.props.clearQueryTree();
   }
 
   handleTargetGene(e) {
@@ -622,6 +659,7 @@ QuerybuilderBody.propTypes = {
   addGroup: PropTypes.func,
   postQuery: PropTypes.func,
   clearQuery: PropTypes.func,
+  clearQueryTree: PropTypes.func,
   setQuery: PropTypes.func
 };
 
@@ -630,7 +668,8 @@ const Querybuilder = connect(mapStateToProps, {
   setQuery,
   clearQuery,
   addTF,
-  addGroup
+  addGroup,
+  clearQueryTree
 })(QuerybuilderBody);
 
 export default Querybuilder;
