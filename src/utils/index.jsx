@@ -23,3 +23,64 @@ export function getLogMinMax(data) {
 export function generateRequestId() {
   return moment.utc().format("Y-MM-DD[T]HHmmssSSS[Z]") + Math.floor(Math.random() * 1000).toString().padStart(3, "0");
 }
+
+let trimOper = /^(?:and|or)\s+/i;
+let cleanMod = /\[\s*]/g;
+
+
+function getMod(queryTree, id) {
+  let curr = _(queryTree)
+    .filter((o) => o.parent === id)
+    .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
+  let query = curr.map((o) => {
+    let s = o.oper + ' ';
+
+    if (o.not_) {
+      s += 'not ';
+    }
+
+    if (o.nodeType === 'MOD') {
+      if (/\s/g.test(o.key)) {
+        s += `"${o.key}"`;
+      } else {
+        s += o.key;
+      }
+
+      s += o.innerOper;
+
+      if (/\s/g.test(o.value)) {
+        s += `"${o.value}"`;
+      } else {
+        s += o.value;
+      }
+    } else if (o.nodeType === 'MOD_GROUP') {
+      s += `(${getMod(queryTree, o.id)})`;
+    }
+
+    return s
+  }).join(' ');
+
+  return query.replace(trimOper, '');
+}
+
+
+export function getQuery(queryTree, id) {
+  let curr = _(queryTree).filter((o) => o.parent === id);
+  let query = curr.map((o) => {
+    let s = o.oper + ' ';
+
+    if (o.not_) {
+      s += 'not ';
+    }
+
+    if (o.nodeType === 'TF') {
+      s += `${o.name}[${getMod(queryTree, o.id)}]`;
+    } else if (o.nodeType === 'GROUP') {
+      s += `(${getQuery(queryTree, o.id)})[${getMod(queryTree, o.id)}]`;
+    }
+
+    return s;
+  }).join(' ');
+
+  return query.replace(trimOper, '').replace(cleanMod, '');
+}

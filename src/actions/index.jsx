@@ -1,10 +1,9 @@
 /**
  * Created by zacharyjuang on 11/26/16.
  */
-import {VALUE_NODE, GROUP_NODE} from '../reducers';
-import {push} from 'react-router-redux';
 import $ from 'jquery';
 import {generateRequestId} from "../utils";
+import uuidv4 from "uuid/v4";
 
 let _BASE_URL;
 
@@ -16,8 +15,6 @@ if (process.env.NODE_ENV !== "production") {
 
 export const BASE_URL = _BASE_URL;
 
-export const OPERANDS = ['And', 'Or', 'AndNot'];
-
 export const setBusy = (busy) => {
   return {
     type: 'SET_BUSY',
@@ -25,89 +22,120 @@ export const setBusy = (busy) => {
   };
 };
 
-export const toggleBusy = () => {
+
+export const setQuery = (query) => {
   return {
-    type: 'TOGGLE_BUSY'
+    type: 'SET_QUERY',
+    query
   };
 };
 
-export const setQuery = (name, value) => {
+export const clearQuery = () => {
   return {
-    type: `SET_QUERY_${name}`,
-    value
+    type: 'CLEAR_QUERY'
   };
 };
 
-export const clearQuery = (name) => {
+export const addTF = (name, parent, after, oper = 'or', not_ = false) => {
   return {
-    type: `CLEAR_QUERY_${name}`
-  };
-};
-
-export const setComplete = (name, value) => {
-  return {
-    type: `SET_COMPLETE_${name}`,
-    value
-  };
-};
-
-let id = 1;
-
-export const addValue = (name, value, parent, key = '') => {
-  return {
-    type: `ADD_TREE_NODE_${name}`,
-    id: id++,
-    nodeType: VALUE_NODE,
-    value,
+    type: 'ADD_TF',
+    id: uuidv4(),
+    name,
     parent,
+    after,
+    oper,
+    not_
+  };
+};
+
+export const addGroup = (parent, after, oper = 'or', not_ = false) => {
+  return {
+    type: 'ADD_GROUP',
+    id: uuidv4(),
+    parent,
+    after,
+    oper,
+    not_
+  };
+};
+
+export const addMod = (key, value, parent, after, oper = 'or', not_ = false, innerOper = '=') => {
+  return {
+    type: 'ADD_MOD',
+    id: uuidv4(),
+    parent,
+    key,
+    value,
+    after,
+    oper,
+    innerOper,
+    not_
+  };
+};
+
+export const setModKey = (id, key) => {
+  return {
+    type: 'SET_MOD_KEY',
+    id,
     key
   };
 };
 
-export const updateValue = (name, id, value) => {
+export const setModValue = (id, value) => {
   return {
-    type: `UPDATE_TREE_NODE_VALUE_${name}`,
+    type: 'SET_MOD_VALUE',
     id,
     value
   };
 };
 
-export const updateKey = (name, id, key) => {
+export const setModInnerOper = (id, innerOper) => {
   return {
-    type: `UPDATE_TREE_NODE_KEY_${name}`,
+    type: 'SET_MOD_INNER_OPER',
     id,
-    key
+    innerOper
   };
 };
 
-export const removeNode = (name, id) => {
+export const addModGroup = (parent, after, oper = 'or', not_ = false) => {
   return {
-    type: `REMOVE_TREE_NODE_${name}`,
+    type: 'ADD_MOD_GROUP',
+    id: uuidv4(),
+    parent,
+    after,
+    oper,
+    not_
+  };
+};
+
+export const removeNode = (id) => {
+  return {
+    type: 'REMOVE_NODE',
     id
   };
 };
 
-export const addGroup = (name, oper, parent) => {
+export const setQueryName = (id, name) => {
   return {
-    type: `ADD_TREE_NODE_${name}`,
-    id: id++,
-    nodeType: GROUP_NODE,
-    oper,
-    parent
+    type: 'SET_QUERY_NAME',
+    id,
+    name
   };
 };
 
-export const updateGroup = (name, id, oper) => {
+export const setQueryOper = (id, oper) => {
   return {
-    type: `UPDATE_TREE_NODE_VALUE_${name}`,
+    type: 'SET_QUERY_OPER',
     id,
     oper
   };
 };
 
-export const resetTree = (name) => {
+export const setQueryNot = (id, not_) => {
   return {
-    type: `RESET_TREE_${name}`
+    type: 'SET_QUERY_NOT',
+    id,
+    not_
   };
 };
 
@@ -225,7 +253,6 @@ export const postQuery = (data) => {
 
     dispatch(setBusy(true));
     dispatch(clearResult());
-    dispatch(push('/datagrid'));
 
     return $.ajax({
       url: `${BASE_URL}/queryapp/`,

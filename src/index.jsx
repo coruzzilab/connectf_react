@@ -6,7 +6,6 @@ import ReactDOM from 'react-dom';
 import {createStore, applyMiddleware, compose, combineReducers} from 'redux';
 import {Provider} from 'react-redux';
 import {Router, Route, IndexRoute, browserHistory} from 'react-router';
-import {syncHistoryWithStore, routerMiddleware, routerReducer} from 'react-router-redux';
 import thunk from 'redux-thunk';
 
 import 'file-loader?name=[name].[ext]!./index.html';
@@ -39,22 +38,18 @@ window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
 
 const store = createStore(
   combineReducers({
-    ...tgdbApp,
-    routing: routerReducer
+    ...tgdbApp
   }),
   composeEnhancers(
     applyMiddleware(
-      thunk,
-      routerMiddleware(browserHistory)
+      thunk
     )
   )
 );
 
-const history = syncHistoryWithStore(browserHistory, store);
-
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={history}>
+    <Router history={browserHistory}>
       <Route path="/" component={App}>
         <IndexRoute component={About}/>
         <Route path="query" component={QueryBuilder}/>

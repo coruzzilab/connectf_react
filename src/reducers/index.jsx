@@ -2,8 +2,7 @@
  * Created by zacharyjuang on 11/24/16.
  */
 import _ from 'lodash';
-
-import {OPERANDS} from '../actions';
+import uuidv4 from 'uuid/v4';
 
 export const VALUE_NODE = 1;
 export const GROUP_NODE = 2;
@@ -19,114 +18,166 @@ const busy = (state = false, action) => {
   }
 };
 
-function createQueryWithName(queryName = '') {
-  return function query(state = '', action) {
-    switch (action.type) {
-    case `SET_QUERY_${queryName}`:
-      return action.value;
-    case `CLEAR_QUERY_${queryName}`:
-      return '';
-    default:
-      return state;
-    }
-  };
-}
-
-function createCompleteWithName(completeName = '') {
-  return function (state = [], action) {
-    switch (action.type) {
-    case `SET_COMPLETE_${completeName}`:
-      return action.value;
-    case `CLEAR_COMPLETE_${completeName}`:
-      return [];
-    default:
-      return state;
-    }
-  };
-}
-
-function findDescendants(arr, id) {
-  let l = _(_(arr).find((n) => n.id === id)).get('children', []);
-  return l.concat(
-    _(l)
-      .map(findDescendants.bind(undefined, arr))
-      .flattenDeep()
-      .value()
-  );
-}
-
-const treeInitial = [
-  {
-    id: 0,
-    nodeType: GROUP_NODE,
-    oper: OPERANDS[0],
-    children: []
+function query(state = '', action) {
+  switch (action.type) {
+  case 'SET_QUERY':
+    return action.query;
+  case 'CLEAR_QUERY':
+    return '';
+  default:
+    return state;
   }
-];
+}
 
-function createTreeWithName(treeName = '') {
-  return function tree(state = treeInitial, action) {
-    let newNode = {
-      id: action.id,
-      oper: action.oper || '',
-      value: action.value || '',
-      key: action.key || '',
-      nodeType: action.nodeType || VALUE_NODE,
-      children: []
-    };
-    let descendants = findDescendants(state, action.id);
-    switch (action.type) {
-    case `ADD_TREE_NODE_${treeName}`:
-      return [...state, newNode].map((n) => {
-        if (n.id === action.parent && n.nodeType === GROUP_NODE) {
-          return Object.assign({}, n, {
-            children: [...n.children, action.id]
-          });
-        }
-        return n;
+function getDescendants(state, id) {
+  let curr = _(state).filter((o) => o.id === id);
+  return curr.map('id').concat(_(state).filter((o) => o.parent === id).map((o) => {
+    return getDescendants(state, o.id);
+  }).flatten().value()).uniq().value();
+}
+
+function addAfter(state, id, obj) {
+  let prevLoc = _.findIndex(state, ['id', id]);
+  return [...state.slice(0, prevLoc + 1), obj, ...state.slice(prevLoc + 1)];
+}
+
+function queryTree(state = [], action) {
+  switch (action.type) {
+  case 'ADD_TF':
+    if (action.after) {
+      return addAfter(state, action.after, {
+        id: action.id,
+        nodeType: 'TF',
+        name: action.name,
+        parent: action.parent,
+        oper: action.oper,
+        not_: action.not_
       });
-    case `UPDATE_TREE_NODE_VALUE_${treeName}`:
-      return state.map((n) => {
-        if (n.id === action.id) {
-          if (n.nodeType === VALUE_NODE) {
-            return _.merge({}, n, {
-              value: action.value
-            });
-          } else if (n.nodeType === GROUP_NODE) {
-            return _.merge({}, n, {
-              oper: action.oper
-            });
-          }
-        }
-        return n;
-      });
-    case `UPDATE_TREE_NODE_KEY_${treeName}`:
-      return state.map((n) => {
-        if (n.id === action.id) {
-          if (n.nodeType === VALUE_NODE) {
-            return _.merge({}, n, {
-              key: action.key
-            });
-          }
-        }
-        return n;
-      });
-    case `REMOVE_TREE_NODE_${treeName}`:
-      return state.filter((n) => {
-        return n.id !== action.id && !(descendants.indexOf(n.id) > -1);
-      }).map((n) => {
-        return Object.assign({}, n, {
-          children: n.children.filter((i) => {
-            return i !== action.id;
-          })
-        });
-      });
-    case `RESET_TREE_${treeName}`:
-      return treeInitial;
-    default:
-      return state;
     }
-  };
+    return [{
+      id: action.id,
+      nodeType: 'TF',
+      name: action.name,
+      parent: action.parent,
+      oper: action.oper,
+      not_: action.not_
+    }, ...state];
+  case 'ADD_GROUP':
+    if (action.after) {
+      return addAfter(state, action.after, {
+        id: action.id,
+        nodeType: 'GROUP',
+        parent: action.parent,
+        oper: action.oper,
+        not_: action.not_
+      });
+    }
+    return [{
+      id: action.id,
+      nodeType: 'GROUP',
+      parent: action.parent,
+      oper: action.oper,
+      not_: action.not_
+    }, ...state];
+  case 'ADD_MOD':
+    if (action.after) {
+      return addAfter(state, action.after, {
+        id: action.id,
+        nodeType: 'MOD',
+        key: action.key,
+        value: action.value,
+        parent: action.parent,
+        oper: action.oper,
+        innerOper: action.innerOper,
+        not_: action.not_
+      });
+    }
+    return [{
+      id: action.id,
+      nodeType: 'MOD',
+      key: action.key,
+      value: action.value,
+      parent: action.parent,
+      oper: action.oper,
+      innerOper: action.innerOper,
+      not_: action.not_
+    }, ...state];
+  case 'ADD_MOD_GROUP':
+    if (action.after) {
+      return addAfter(state, action.after, {
+        id: action.id,
+        nodeType: 'MOD_GROUP',
+        parent: action.parent,
+        oper: action.oper,
+        not_: action.not_
+      });
+    }
+    return [{
+      id: action.id,
+      nodeType: 'MOD_GROUP',
+      parent: action.parent,
+      oper: action.oper,
+      not_: action.not_
+    }, ...state];
+  case 'SET_MOD_KEY':
+    return _.map(state, (o) => {
+      if (o.id === action.id) {
+        return Object.assign({}, o, {
+          key: action.key
+        });
+      }
+      return o;
+    });
+  case 'SET_MOD_VALUE':
+    return _.map(state, (o) => {
+      if (o.id === action.id) {
+        return Object.assign({}, o, {
+          value: action.value
+        });
+      }
+      return o;
+    });
+  case 'SET_MOD_INNER_OPER':
+    return _.map(state, (o) => {
+      if (o.id === action.id) {
+        return Object.assign({}, o, {
+          innerOper: action.innerOper
+        });
+      }
+      return o;
+    });
+  case 'REMOVE_NODE':
+    return _.differenceWith(state, getDescendants(state, action.id), (c, o) => c.id === o);
+  case 'SET_QUERY_NAME':
+    return _.map(state, (o) => {
+      if (o.id === action.id) {
+        return Object.assign({}, o, {
+          name: action.name
+        });
+      }
+      return o;
+    });
+  case 'SET_QUERY_OPER':
+    return _.map(state, (o) => {
+      if (o.id === action.id) {
+        return Object.assign({}, o, {
+          oper: action.oper
+        });
+      }
+      return o;
+    });
+  case 'SET_QUERY_NOT':
+    return _.map(state, (o) => {
+      if (o.id === action.id) {
+        return Object.assign({}, o, {
+          not_: action.not_
+        });
+      }
+      return o;
+    });
+  default:
+    return state;
+  }
 }
 
 function requestId(state = "", action) {
@@ -197,15 +248,8 @@ function error(state = '', action) {
 
 const tgdbApp = {
   busy,
-  tfTree: createTreeWithName('TF'),
-  edgeTree: createTreeWithName('EDGE'),
-  metaTree: createTreeWithName('META'),
-  tfQuery: createQueryWithName('TF'),
-  edgeQuery: createQueryWithName('EDGE'),
-  metaQuery: createQueryWithName('META'),
-  tfComplete: createCompleteWithName('TF'),
-  edgeComplete: createCompleteWithName('EDGE'),
-  metaComplete: createCompleteWithName('META'),
+  query,
+  queryTree,
   result,
   heatmap,
   cytoscape,
