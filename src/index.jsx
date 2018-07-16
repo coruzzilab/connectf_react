@@ -7,6 +7,7 @@ import {createStore, applyMiddleware, compose, combineReducers} from 'redux';
 import {Provider} from 'react-redux';
 import {Router, Route, IndexRoute, browserHistory} from 'react-router';
 import thunk from 'redux-thunk';
+import $ from 'jquery';
 
 import 'file-loader?name=[name].[ext]!./index.html';
 
@@ -15,6 +16,11 @@ import 'bootstrap/less/theme.less';
 import './css/style.css';
 
 import 'font-awesome/less/font-awesome.less';
+
+// Set up ajax default options before they are used
+$.ajaxSetup({
+  traditional: true
+});
 
 import tgdbApp from './reducers';
 

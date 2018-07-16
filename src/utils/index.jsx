@@ -85,12 +85,24 @@ export function getQuery(queryTree, id) {
   return query.replace(trimOper, '').replace(cleanMod, '');
 }
 
-export function getParentTF(queryTree, node) {
+function getDescendants(queryTree, node) {
+  let curr = _(queryTree).filter((o) => o.parent === node.id);
+
+  return curr.concat(curr.map((o) => {
+    return getDescendants(queryTree, o);
+  }).flatten().value()).value();
+}
+
+export function getParentTfTree(queryTree, node) {
   let parent = _.find(queryTree, ['id', _.get(node, 'parent')]);
 
-  while (parent && parent.nodeType !== 'TF' && parent.parent) {
+  while (parent && (parent.nodeType !== 'TF' || parent.nodeType !== 'GROUP') && parent.parent) {
     parent = _.find(queryTree, ['id', parent.parent]);
   }
 
-  return parent;
+  if (parent.nodeType === 'TF') {
+    return [parent];
+  } else if (parent.nodeType === 'GROUP') {
+    return getDescendants(queryTree, parent);
+  }
 }

@@ -2,7 +2,6 @@
  * Created by zacharyjuang on 11/24/16.
  */
 import _ from 'lodash';
-import uuidv4 from 'uuid/v4';
 
 export const VALUE_NODE = 1;
 export const GROUP_NODE = 2;

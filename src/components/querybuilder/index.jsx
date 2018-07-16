@@ -25,7 +25,7 @@ import {
   setModInnerOper,
   clearQueryTree
 } from '../../actions';
-import {getQuery, getParentTF} from "../../utils";
+import {getQuery, getParentTfTree} from "../../utils";
 
 const mapStateToProps = ({busy, query, queryTree}) => {
   return {
@@ -104,7 +104,7 @@ class ModBody extends React.Component {
       this._getKeyAutoComplete();
     }
 
-    if (!_.isEqual(getParentTF(queryTree, node), getParentTF(prevProps.queryTree, prevProps.node))) {
+    if (!_.isEqual(getParentTfTree(queryTree, node), getParentTfTree(prevProps.queryTree, prevProps.node))) {
       this._getAutoComplete();
       this._getKeyAutoComplete();
     }
@@ -121,12 +121,13 @@ class ModBody extends React.Component {
   getAutoComplete() {
     let {node, queryTree} = this.props;
 
-    let parent = getParentTF(queryTree, node);
+    let parent = getParentTfTree(queryTree, node);
+    let tfs = _(parent).filter((o) => o.nodeType === 'TF').map('name').value();
 
     let data = {};
 
-    if (parent) {
-      data.tf = parent.name;
+    if (_.size(tfs)) {
+      data.tf = tfs;
     }
 
     $.ajax({
@@ -144,12 +145,13 @@ class ModBody extends React.Component {
   getKeyAutoComplete() {
     let {queryTree, node} = this.props;
 
-    let parent = getParentTF(queryTree, node);
+    let parent = getParentTfTree(queryTree, node);
+    let tfs = _(parent).filter((o) => o.nodeType === 'TF').map('name').value();
 
     let data = {};
 
-    if (parent) {
-      data.tf = parent.name;
+    if (_.size(tfs)) {
+      data.tf = tfs;
     }
 
     $.ajax({
