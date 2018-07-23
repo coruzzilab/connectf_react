@@ -544,12 +544,16 @@ class QuerybuilderBody extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-
+    let {query} = this.props;
     let {targetGene} = this.state;
     let {targetGenes} = this;
     let data = new FormData();
 
-    data.append('query', this.props.query);
+    if (!this.props.query) {
+      query = this.buildQuery();
+    }
+
+    data.append('query', query);
 
     if (targetGene === "other") {
       let f = _.get(targetGenes.current, 'files.0');
@@ -569,7 +573,7 @@ class QuerybuilderBody extends React.Component {
     try {
       this.targetGenes.current.value = null;
     } catch (e) {
-      console.log(e);
+      console.log("no file selected");
     }
 
     this.props.clearQuery();
@@ -583,8 +587,12 @@ class QuerybuilderBody extends React.Component {
   }
 
   buildQuery() {
-    let {queryTree, setQuery} = this.props;
-    setQuery(getQuery(queryTree));
+    let {queryTree} = this.props;
+    return getQuery(queryTree);
+  }
+
+  setQuery() {
+    this.props.setQuery(this.buildQuery());
   }
 
   render() {
@@ -619,9 +627,9 @@ class QuerybuilderBody extends React.Component {
               }
             }).value()}
           </div>
-          <button className="btn btn-default" onClick={this.buildQuery.bind(this)}>Build Query</button>
+          <button className="btn btn-default" onClick={this.setQuery.bind(this)}>Build Query</button>
           <textarea className="form-control" rows="5" style={{width: "100%"}} value={this.props.query}
-                    onChange={this.handleQuery.bind(this)}/>
+                    onChange={this.handleQuery.bind(this)} autoComplete="on"/>
         </div>
 
         <div style={{marginBottom: '2em'}}>
@@ -634,7 +642,7 @@ class QuerybuilderBody extends React.Component {
             <option value="other">Other</option>
           </select>
           {targetGene === "other" ?
-            <input type="file" className="form-control-file"
+            <input type="file" className="form-control form-control-file"
                    ref={this.targetGenes}/> :
             null}
 

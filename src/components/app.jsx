@@ -16,7 +16,7 @@ class App extends React.Component {
 
     return <div style={{height: '100%'}}>
       <div>
-        <h1>TargetDB</h1>
+        <h1>TF2TargetDB</h1>
       </div>
       <nav className="navbar navbar-default">
         <div className="container-fluid">
