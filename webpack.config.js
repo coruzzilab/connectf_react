@@ -4,6 +4,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const APP_DIR = path.join(__dirname, 'src');
 
@@ -58,7 +59,8 @@ const config = {
         NODE_ENV: JSON.stringify('production')
       }
     }),
-    new ExtractTextPlugin('style.css')
+    new ExtractTextPlugin('style.css'),
+    new BundleAnalyzerPlugin()
   ]
 };
 

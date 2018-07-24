@@ -28,8 +28,7 @@ import App from './components/app';
 import Datagrid from './components/datagrid';
 import QueryBuilder from './components/querybuilder';
 import About from './components/about';
-import CytoscapeFrame from './components/cytoscape';
-import Cytoscape from './components/cytoscape/cytoscape';
+import Cytoscape from './components/cytoscape';
 import Feedback from './components/feedback';
 import UploadAnalysis from './components/upload_analysis';
 import UploadExperiment from './components/upload_experiment';
@@ -60,11 +59,7 @@ ReactDOM.render(
         <IndexRoute component={About}/>
         <Route path="query" component={QueryBuilder}/>
         <Route path="datagrid" component={Datagrid}/>
-        <Route path="cytoscape" component={CytoscapeFrame}>
-          <Route path="query" component={() => <Cytoscape type="dbase_view1_cy"/>}/>
-          <Route path="target" component={() => <Cytoscape type="targets_cy"/>}/>
-          <Route path="genome" component={() => <Cytoscape type="genome_cy"/>}/>
-        </Route>
+        <Route path="cytoscape" component={Cytoscape}/>
         <Route path="feedback" component={Feedback}/>
         <Route path="upload_analysis" component={UploadAnalysis}/>
         <Route path="upload_experiment" component={UploadExperiment}/>

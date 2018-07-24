@@ -215,12 +215,14 @@ export const setCytoscape = (data) => {
   };
 };
 
-export const getCytoscape = (requestId, type = 'dbase_view1_cy') => {
+export const getCytoscape = (requestId) => {
   return (dispatch) => {
     return $.ajax({
-      url: `${BASE_URL}/queryapp/cytoscape/${requestId}/${type}/`,
+      url: `${BASE_URL}/queryapp/cytoscape/${requestId}/`,
       contentType: false
-    }).done((data) => dispatch(setCytoscape(data)));
+    })
+      .done((data) => dispatch(setCytoscape(data)))
+      .catch(() => dispatch(setCytoscape([])));
   };
 };
 

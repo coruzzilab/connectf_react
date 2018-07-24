@@ -214,12 +214,12 @@ function heatmap(state = {}, action) {
   }
 }
 
-function cytoscape(state = {}, action) {
+function cytoscape(state = [], action) {
   switch (action.type) {
   case 'SET_CYTOSCAPE':
     return action.data;
   case 'CLEAR_CYTOSCAPE':
-    return {};
+    return [];
   default:
     return state;
   }

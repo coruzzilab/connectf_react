@@ -7,6 +7,7 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import $ from 'jquery';
 import uuidv4 from 'uuid/v4';
+import Clipboard from 'clipboard';
 import {
   BASE_URL,
   postQuery,
@@ -529,6 +530,7 @@ class QuerybuilderBody extends React.Component {
       targetGene: ''
     };
     this.targetGenes = React.createRef();
+    this.copy = React.createRef();
   }
 
   componentDidMount() {
@@ -536,6 +538,16 @@ class QuerybuilderBody extends React.Component {
       .done((targetGenes) => {
         this.setState({targetGenes});
       });
+
+    this.clipboard = new Clipboard(this.copy.current, {
+      text: (trigger) => {
+        return this.props.query;
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    this.clipboard.destroy();
   }
 
   handleQuery(e) {
@@ -628,6 +640,7 @@ class QuerybuilderBody extends React.Component {
             }).value()}
           </div>
           <button className="btn btn-default" onClick={this.setQuery.bind(this)}>Build Query</button>
+          <button className="btn btn-default" ref={this.copy}>Copy</button>
           <textarea className="form-control" rows="5" style={{width: "100%"}} value={this.props.query}
                     onChange={this.handleQuery.bind(this)} autoComplete="on"/>
         </div>
