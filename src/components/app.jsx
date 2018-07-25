@@ -2,17 +2,24 @@
  * @author zacharyjuang
  */
 import React from 'react';
-import {IndexLink, Link} from 'react-router';
+import {Link, Switch, Route, Redirect} from 'react-router-dom';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+
+import About from './about';
+import Datagrid from './datagrid';
+import QueryBuilder from './querybuilder';
+import Cytoscape from './cytoscape';
+import Feedback from './feedback';
+import UploadAnalysis from './upload_analysis';
+import UploadExperiment from './upload_experiment';
 
 /**
  * Main app component
  */
 class App extends React.Component {
   render() {
-    let {router} = this.props;
-    let {pathname} = router.getCurrentLocation();
+    let {pathname} = this.props.location;
 
     return <div style={{height: '100%'}}>
       <div>
@@ -22,7 +29,7 @@ class App extends React.Component {
         <div className="container-fluid">
           <ul className="nav navbar-nav">
             <li className={classNames({active: pathname === "/"})}>
-              <IndexLink to="/">About</IndexLink>
+              <Link to="/">About</Link>
             </li>
             <li className={classNames({active: pathname === "/query"})}>
               <Link to="/query">Query</Link>
@@ -39,7 +46,16 @@ class App extends React.Component {
           </ul>
         </div>
       </nav>
-      {this.props.children}
+      <Switch>
+        <Route exact path="/" component={About}/>
+        <Route path="/query" component={QueryBuilder}/>
+        <Route path="/upload_analysis" component={UploadAnalysis}/>
+        <Route path="/upload_experiment" component={UploadExperiment}/>
+        <Route path="/feedback" component={Feedback}/>
+        <Route path="/cytoscape" component={Cytoscape}/>
+        <Route path="/datagrid/:key" component={Datagrid}/>
+        <Redirect from="/datagrid" to="/datagrid/table"/>
+      </Switch>
     </div>;
   }
 }
@@ -51,7 +67,7 @@ class App extends React.Component {
  */
 App.propTypes = {
   children: PropTypes.node,
-  router: PropTypes.object.isRequired
+  location: PropTypes.object
 };
 
 export default App;

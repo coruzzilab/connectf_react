@@ -18,8 +18,9 @@ class ExtraBody extends React.Component {
     let {requestId} = this.props;
 
     return <div>
-      <a href={`${BASE_URL}/queryapp/excel/${requestId}.zip`}
+      <a href={`${BASE_URL}/queryapp/export/${requestId}.zip`}
          className="btn btn-default"
+         target="_blank" rel="noopener noreferrer"
          download="query.zip">Download Query as ZIP file</a>
     </div>;
   }

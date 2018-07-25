@@ -5,7 +5,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {createStore, applyMiddleware, compose, combineReducers} from 'redux';
 import {Provider} from 'react-redux';
-import {Router, Route, IndexRoute, browserHistory} from 'react-router';
+import {BrowserRouter as Router, withRouter} from 'react-router-dom';
 import thunk from 'redux-thunk';
 import $ from 'jquery';
 
@@ -24,14 +24,7 @@ $.ajaxSetup({
 
 import tgdbApp from './reducers';
 
-import App from './components/app';
-import Datagrid from './components/datagrid';
-import QueryBuilder from './components/querybuilder';
-import About from './components/about';
-import Cytoscape from './components/cytoscape';
-import Feedback from './components/feedback';
-import UploadAnalysis from './components/upload_analysis';
-import UploadExperiment from './components/upload_experiment';
+import _App from './components/app';
 
 /*
  * Enhancer composer for development. Connects to redux browser extension.
@@ -52,18 +45,12 @@ const store = createStore(
   )
 );
 
+const App = withRouter(_App);
+
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={browserHistory}>
-      <Route path="/" component={App}>
-        <IndexRoute component={About}/>
-        <Route path="query" component={QueryBuilder}/>
-        <Route path="datagrid" component={Datagrid}/>
-        <Route path="cytoscape" component={Cytoscape}/>
-        <Route path="feedback" component={Feedback}/>
-        <Route path="upload_analysis" component={UploadAnalysis}/>
-        <Route path="upload_experiment" component={UploadExperiment}/>
-      </Route>
+    <Router>
+      <App/>
     </Router>
   </Provider>,
   document.getElementById('app')

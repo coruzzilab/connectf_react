@@ -146,7 +146,7 @@ class CytoscapeBody extends React.Component {
   }
 
   back() {
-    this.props.router.goBack();
+    this.props.history.goBack();
   }
 
   render() {
@@ -163,7 +163,7 @@ class CytoscapeBody extends React.Component {
 }
 
 CytoscapeBody.propTypes = {
-  router: PropTypes.object,
+  history: PropTypes.object,
   requestId: PropTypes.string,
   cytoscapeData: PropTypes.array,
   getCytoscape: PropTypes.func,

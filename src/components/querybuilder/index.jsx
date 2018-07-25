@@ -577,7 +577,7 @@ class QuerybuilderBody extends React.Component {
     }
 
     this.props.postQuery(data);
-    this.props.router.push('/datagrid');
+    this.props.history.push('/datagrid');
   }
 
   reset() {
@@ -674,7 +674,7 @@ class QuerybuilderBody extends React.Component {
  * @memberOf QuerybuilderBody
  */
 QuerybuilderBody.propTypes = {
-  router: PropTypes.object.isRequired,
+  history: PropTypes.object.isRequired,
   busy: PropTypes.bool,
   query: PropTypes.string,
   queryTree: PropTypes.arrayOf(PropTypes.object),
