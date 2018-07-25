@@ -7,9 +7,9 @@ import React from 'react';
 class About extends React.Component {
   render() {
     return <div>
-      <h1>About TargetDB</h1>
+      <h1>About TF2TargetDB</h1>
       <p>
-        Introduction page coming soon for TargetDB.
+        Introduction page coming soon for TF2TargetDB.
       </p>
     </div>;
   }

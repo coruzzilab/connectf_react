@@ -5,6 +5,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import $ from 'jquery';
 import {connect} from 'react-redux';
 import {BASE_URL, getHeatmap} from '../../actions';
 import {Tabs, Tab, Modal, Button} from 'react-bootstrap';
@@ -60,7 +61,10 @@ class HeatMapBody extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      success: true
+      success: true,
+      upper: 30,
+      lower: 0,
+      imgSrc: `${BASE_URL}/queryapp/heatmap/${this.props.requestId}.svg`
     };
   }
 
@@ -71,6 +75,7 @@ class HeatMapBody extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.requestId !== this.props.requestId) {
       this.props.getHeatmap(this.props.requestId);
+      this.setImageSrc();
     }
   }
 
@@ -78,19 +83,52 @@ class HeatMapBody extends React.Component {
     this.setState({success});
   }
 
+  handleSubmit(e) {
+    e.preventDefault();
+    this.setImageSrc();
+  }
+
+  handleUpper(e) {
+    this.setState({
+      upper: e.target.value
+    });
+  }
+
+  handleLower(e) {
+    this.setState({
+      lower: e.target.value
+    });
+  }
+
+  setImageSrc() {
+    let {upper, lower} = this.state;
+
+    this.setState({
+      imgSrc: `${BASE_URL}/queryapp/heatmap/${this.props.requestId}.svg?${$.param({
+        upper,
+        lower
+      })}`
+    });
+  }
+
   render() {
-    let {requestId, heatmap} = this.props;
-    let {success} = this.state;
+    let {heatmap} = this.props;
+    let {success, lower, upper, imgSrc} = this.state;
     let [min, max] = getLogMinMax(_.get(heatmap, 'result', []));
 
     return <div>
+      <form onSubmit={this.handleSubmit.bind(this)}>
+        <label>Lower Bound (-log10):</label><input type="number" className="form-control" min={0} value={lower}
+                                                   step="any" onChange={this.handleLower.bind(this)}/>
+        <label>Upper Bound (-log10):</label><input type="number" className="form-control" min={0} value={upper}
+                                                   step="any" onChange={this.handleUpper.bind(this)}/>
+        <button className="btn btn-primary" type="submit">Submit</button>
+      </form>
       <Tabs id="heatmap">
         <Tab title="Heat Map" eventKey={1}>
-          {requestId ?
-            <img src={`${BASE_URL}/queryapp/heatmap/${requestId}.svg`}
-                 onError={this.toggleSuccess.bind(this, false)}
-                 onLoad={this.toggleSuccess.bind(this, true)}/> :
-            null}
+          <img src={imgSrc}
+               onError={this.toggleSuccess.bind(this, false)}
+               onLoad={this.toggleSuccess.bind(this, true)}/>
 
           {!success ?
             <div>Heatmap is not available for this query.</div> :

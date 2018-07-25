@@ -200,7 +200,7 @@ class MotifEnrichmentBody extends React.Component {
         <div>
           <label>Alpha:</label>
           <input type="number" min={0} max={1} step={1e-8} style={{width: '10em'}} placeholder={0.05}
-                 defaultValue={0.05} onChange={this.handleAlpha.bind(this)}/>
+                 defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
         </div>
         <div>
           <p style={{fontWeight: 'bold'}}>Show Enrichment of Gene Body:</p>
@@ -213,7 +213,7 @@ class MotifEnrichmentBody extends React.Component {
                           onChange={this.handleBody.bind(this)}/>No</label>
           </div>
         </div>
-        <button type="submit">Submit</button>
+        <button type="submit" className="btn btn-primary">Submit</button>
       </form>
       <Tabs id="motif_enrichment">
         <Tab title={"Table"} eventKey={1}>
