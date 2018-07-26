@@ -9,11 +9,10 @@ import $ from 'jquery';
 
 import 'file-loader?name=[name].[ext]!./index.html';
 
-import 'bootstrap/less/bootstrap.less';
-import 'bootstrap/less/theme.less';
+import 'bootstrap/dist/css/bootstrap.css';
 import './css/style.css';
 
-import 'font-awesome/less/font-awesome.less';
+import './fontawesome';
 
 // Set up ajax default options before they are used
 $.ajaxSetup({

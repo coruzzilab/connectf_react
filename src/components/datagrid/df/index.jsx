@@ -10,6 +10,7 @@ import './multicolumn_sort';
 import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 const NON_ALPHANUMERIC = /^\W*|\W*$/g;
 
@@ -187,8 +188,10 @@ class DFBody extends React.Component {
     this.updateData();
   }
 
-  componentDidUpdate() {
-    this.updateData();
+  componentDidUpdate(prevProps) {
+    if (this.props.result !== prevProps.result) {
+      this.updateData();
+    }
   }
 
   componentWillUnmount() {
@@ -211,7 +214,7 @@ class DFBody extends React.Component {
     return <div>
       <div>
         <input type="text" placeholder="Search" ref={this.search} style={{float: 'left'}}/>
-        {busy ? <span className="fa fa-circle-o-notch fa-spin" style={{fontSize: '21px'}}/> : null}
+        {busy ? <FontAwesomeIcon icon="circle-notch" spin size="lg"/> : null}
       </div>
       <div id="grid" ref={this.grid} style={{height: '80vh', overflow: 'hidden', clear: 'both'}}/>
     </div>;

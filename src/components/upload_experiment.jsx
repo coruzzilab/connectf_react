@@ -512,7 +512,7 @@ class UploadExperiment extends React.Component {
         </div>
 
         <button type="submit" className="btn btn-primary">Submit</button>
-        <button type="button" className="btn btn-default" onClick={_.bind(this.submit, this, _, _, true)}>Auto Submit
+        <button type="button" className="btn btn-light" onClick={_.bind(this.submit, this, _, _, true)}>Auto Submit
         </button>
       </form>
     </div>;

@@ -7,7 +7,19 @@ import PropTypes from "prop-types";
 import {connect} from 'react-redux';
 import _ from 'lodash';
 import $ from 'jquery';
-import {Modal, Button, Tab, Tabs} from 'react-bootstrap';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  TabContent,
+  TabPane,
+  Nav,
+  NavItem,
+  NavLink
+} from 'reactstrap';
 import {getMotifEnrichment, BASE_URL} from "../../actions";
 import {blueShader, getLogMinMax} from '../../utils';
 
@@ -31,7 +43,7 @@ export class ColHeader extends React.Component {
     super(props);
     this.state = {
       visible: false
-    }
+    };
   }
 
   showModal() {
@@ -50,18 +62,18 @@ export class ColHeader extends React.Component {
     let {visible} = this.state;
     return <th colSpan={this.props.colSpan}>
       <a onClick={this.showModal.bind(this)}>{this.props.children}</a>
-      <Modal show={visible} onHide={this.hideModal.bind(this)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Meta Data</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+      <Modal isOpen={visible} toggle={this.hideModal.bind(this)}>
+        <ModalHeader toggle={this.hideModal.bind(this)}>
+          Meta Data
+        </ModalHeader>
+        <ModalBody>
           {_(this.props.data).map((val, key) => {
-            return <p key={key}><b>{key}:</b> {val}</p>
+            return <p key={key}><b>{key}:</b> {val}</p>;
           }).value()}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={this.hideModal.bind(this)}>Close</Button>
-        </Modal.Footer>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times"/> Close</Button>
+        </ModalFooter>
       </Modal>
     </th>;
   }
@@ -83,7 +95,7 @@ export class RowHeader extends React.Component {
     super(props);
     this.state = {
       visible: false
-    }
+    };
   }
 
   showModal() {
@@ -104,11 +116,11 @@ export class RowHeader extends React.Component {
 
     return <td>
       <a onClick={this.showModal.bind(this)}>{`${data.name} ${data['Family']}`}</a>
-      <Modal show={visible} onHide={this.hideModal.bind(this)}>
-        <Modal.Header closeButton>
-          <Modal.Title>{`${data.name} ${data['Family']}`}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+      <Modal isOpen={visible} toggle={this.hideModal.bind(this)}>
+        <ModalHeader>
+          {`${data.name} ${data['Family']}`}
+        </ModalHeader>
+        <ModalBody>
           <p><span style={{fontWeight: 'bold'}}>Number of Motifs:</span> {data['# Motifs']}</p>
           <p style={{fontWeight: 'bold'}}>Consensus: {_.map(data['Consensus'], (cons, i) => {
             return <span key={i}
@@ -119,10 +131,10 @@ export class RowHeader extends React.Component {
               </span>;
           })}</p>
           <p><span style={{fontWeight: 'bold'}}>Family:</span> {data['Family']}</p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={this.hideModal.bind(this)}>Close</Button>
-        </Modal.Footer>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times"/> Close</Button>
+        </ModalFooter>
       </Modal>
     </td>;
   }
@@ -140,7 +152,8 @@ class MotifEnrichmentBody extends React.Component {
       alpha: 0.05,
       body: 'no',
       colSpan: 1,
-      img: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg`
+      img: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg`,
+      key: "table"
     };
   }
 
@@ -175,7 +188,7 @@ class MotifEnrichmentBody extends React.Component {
     this.setImgURL();
     this.setState({
       colSpan: this.state.body === 'yes' ? 2 : 1
-    })
+    });
   }
 
   handleAlpha(e) {
@@ -187,12 +200,16 @@ class MotifEnrichmentBody extends React.Component {
   handleBody(e) {
     this.setState({
       body: e.target.value
-    })
+    });
+  }
+
+  onTabClick(key) {
+    this.setState({key});
   }
 
   render() {
     let {motifEnrichment} = this.props;
-    let {body, img, colSpan} = this.state;
+    let {body, img, colSpan, key} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment, 'result', []));
 
     return <div className="motif">
@@ -215,8 +232,20 @@ class MotifEnrichmentBody extends React.Component {
         </div>
         <button type="submit" className="btn btn-primary">Submit</button>
       </form>
-      <Tabs id="motif_enrichment">
-        <Tab title={"Table"} eventKey={1}>
+      <Nav tabs>
+        <NavItem>
+          <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"}>
+            Table
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink onClick={this.onTabClick.bind(this, "heatmap")} active={key === "heatmap"}>
+            Heatmap
+          </NavLink>
+        </NavItem>
+      </Nav>
+      <TabContent id="motif_enrichment" activeTab={key}>
+        <TabPane tabId="table">
           <table>
             <thead>
             <tr>
@@ -239,12 +268,13 @@ class MotifEnrichmentBody extends React.Component {
             </tr>
             <tr>
               <th/>
-              {colSpan === 2 ? _(_.get(motifEnrichment, 'columns', {})).map((val, key) => {
+              {colSpan === 2 ?
+                _(_.get(motifEnrichment, 'columns', {})).map((val, key) => {
                   return [<th key={key}>promoter (p-value)</th>, <th key={key + 1}>gene body (p-value)</th>];
                 }).flatten().value() :
                 _(_.get(motifEnrichment, 'columns', {})).map((val, key) => {
                   return <th key={key}>promoter (p-value)</th>;
-                })
+                }).value()
               }
             </tr>
             </thead>
@@ -255,19 +285,19 @@ class MotifEnrichmentBody extends React.Component {
                 {_.map(row.slice(1), (c, j) => {
                   let [background, color] = blueShader(c, min, max);
                   return <td key={j}
-                             style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>
+                             style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>;
                 })}
               </tr>;
             }).value()}
             </tbody>
           </table>
-        </Tab>
-        <Tab title={"Heatmap"} eventKey={2}>
+        </TabPane>
+        <TabPane tabId="heatmap">
           <img
             src={img}
             alt="heatmap"/>
-        </Tab>
-      </Tabs>
+        </TabPane>
+      </TabContent>
 
     </div>;
   }

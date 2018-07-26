@@ -155,9 +155,9 @@ class CytoscapeBody extends React.Component {
     return <div style={{height: '100%'}}>
       <div>
         <button onClick={this.back.bind(this)} className="btn btn-warning">Back</button>
-        <button className="btn btn-default" onClick={this.resetCytoscape.bind(this)}>Reset</button>
-        <button className="btn btn-default" onClick={this.fitCytoscape.bind(this)}>Fit</button>
-        <a className="btn btn-default" onClick={this.exportCytoscape.bind(this)}>Export Image</a>
+        <button className="btn btn-light" onClick={this.resetCytoscape.bind(this)}>Reset</button>
+        <button className="btn btn-light" onClick={this.fitCytoscape.bind(this)}>Fit</button>
+        <a className="btn btn-light" onClick={this.exportCytoscape.bind(this)}>Export Image</a>
       </div>
       <div ref={this.cyRef} style={{height: '85%', width: '100%'}}/>
     </div>;

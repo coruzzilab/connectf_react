@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import $ from 'jquery';
 import uuidv4 from 'uuid/v4';
 import Clipboard from 'clipboard';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
   BASE_URL,
   postQuery,
@@ -211,17 +212,17 @@ class ModBody extends React.Component {
           })}
         </datalist>
       </div>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Modifier
+        <FontAwesomeIcon icon="plus-circle"/> Add Modifier
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Modifier Group
+        <FontAwesomeIcon icon="plus-circle"/> Add Modifier Group
       </button>
-      <button className="btn btn-sm btn-danger" style={{verticalAlign: 'middle', float: 'right'}}
+      <button className="btn btn-danger" style={{verticalAlign: 'middle', float: 'right'}}
               onClick={removeNode.bind(undefined, node.id)}>
-        <span className="glyphicon glyphicon-minus-sign"/>
+        <FontAwesomeIcon icon="minus-circle"/>
       </button>
     </div>;
   }
@@ -264,25 +265,25 @@ class ModGroupBody extends React.Component {
         <AndOrSelect value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
         null}
       <NotSelect value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Modifier
+        <FontAwesomeIcon icon="plus-circle"/> Add Modifier
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Modifier Group
+        <FontAwesomeIcon icon="plus-circle"/> Add Modifier Group
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-danger"
+      <button style={{marginLeft: '5px'}} className="btn btn-danger"
               onClick={removeNode.bind(undefined, node.id)}>
-        <span className="glyphicon glyphicon-minus-sign"/> Remove Modifier Group
+        <FontAwesomeIcon icon="minus-circle"/> Remove Modifier Group
       </button>
-      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-success"
               onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add TF Proceeding Modifier Group
+        <FontAwesomeIcon icon="plus-circle"/> Add TF Proceeding Modifier Group
       </button>
-      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-success"
               onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Proceeding Modifier
+        <FontAwesomeIcon icon="plus-circle"/> Add Proceeding Modifier
       </button>
       {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
         let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
@@ -369,25 +370,25 @@ class ValueBody extends React.Component {
           })}
         </datalist>
       </div>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add TF
+        <FontAwesomeIcon icon="plus-circle"/> Add TF
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Group
+        <FontAwesomeIcon icon="plus-circle"/> Add Group
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addMod.bind(undefined, '', '', node.id, undefined, undefined, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Modifier
+        <FontAwesomeIcon icon="plus-circle"/> Add Modifier
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addModGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Modifier Group
+        <FontAwesomeIcon icon="plus-circle"/> Add Modifier Group
       </button>
-      <button className="btn btn-sm btn-danger" style={{verticalAlign: 'middle', float: 'right'}}
+      <button className="btn btn-danger" style={{verticalAlign: 'middle', float: 'right'}}
               onClick={removeNode.bind(undefined, node.id)}>
-        <span className="glyphicon glyphicon-minus-sign"/>
+        <FontAwesomeIcon icon="minus-circle"/>
       </button>
       {mods.map((o, i, a) => {
         let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
@@ -437,33 +438,33 @@ class GroupBody extends React.Component {
         <AndOrSelect value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
         null}
       <NotSelect value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addTF.bind(undefined, '', node.id, undefined, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add TF
+        <FontAwesomeIcon icon="plus-circle"/> Add TF
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add TF Group
+        <FontAwesomeIcon icon="plus-circle"/> Add TF Group
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Modifier
+        <FontAwesomeIcon icon="plus-circle"/> Add Modifier
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px'}} className="btn btn-success"
               onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Modifier Group
+        <FontAwesomeIcon icon="plus-circle"/> Add Modifier Group
       </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-sm btn-danger"
+      <button style={{marginLeft: '5px'}} className="btn btn-danger"
               onClick={removeNode.bind(undefined, node.id)}>
-        <span className="glyphicon glyphicon-minus-sign"/> Remove TF Group
+        <FontAwesomeIcon icon="minus-circle"/> Remove TF Group
       </button>
-      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-success"
               onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add TF Proceeding Group
+        <FontAwesomeIcon icon="plus-circle"/> Add TF Proceeding Group
       </button>
-      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-sm btn-success"
+      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-success"
               onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
-        <span className="glyphicon glyphicon-plus-sign"/> Add Proceeding TF
+        <FontAwesomeIcon icon="plus-circle"/> Add Proceeding TF
       </button>
       {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
         let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
@@ -620,13 +621,13 @@ class QuerybuilderBody extends React.Component {
         <div>
           <h1>Query</h1>
           <div className="alert form-inline alert-warning alert-group group">
-            <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+            <button style={{marginLeft: '5px'}} className="btn btn-success"
                     onClick={addTF.bind(undefined, '', undefined, undefined, undefined, undefined)}>
-              <span className="glyphicon glyphicon-plus-sign"/> Add TF
+              <FontAwesomeIcon icon="plus-circle"/> Add TF
             </button>
-            <button style={{marginLeft: '5px'}} className="btn btn-sm btn-success"
+            <button style={{marginLeft: '5px'}} className="btn btn-success"
                     onClick={addGroup.bind(undefined, undefined, undefined, undefined, undefined)}>
-              <span className="glyphicon glyphicon-plus-sign"/> Add TF Group
+              <FontAwesomeIcon icon="plus-circle"/> Add TF Group
             </button>
             {_(queryTree).filter((o) => _.isUndefined(o.parent)).map((o, i, a) => {
               let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
@@ -639,8 +640,10 @@ class QuerybuilderBody extends React.Component {
               }
             }).value()}
           </div>
-          <button className="btn btn-default" onClick={this.setQuery.bind(this)}>Build Query</button>
-          <button className="btn btn-default" ref={this.copy}>Copy</button>
+          <button className="btn btn-light" onClick={this.setQuery.bind(this)}>
+            <FontAwesomeIcon icon="edit"/> Build Query
+          </button>
+          <button className="btn btn-light" ref={this.copy}><FontAwesomeIcon icon="copy"/> Copy</button>
           <textarea className="form-control" rows="5" style={{width: "100%"}} value={this.props.query}
                     onChange={this.handleQuery.bind(this)} autoComplete="on"/>
         </div>
@@ -655,7 +658,7 @@ class QuerybuilderBody extends React.Component {
             <option value="other">Other</option>
           </select>
           {targetGene === "other" ?
-            <input type="file" className="form-control form-control-file"
+            <input type="file" className="form-control-file"
                    ref={this.targetGenes}/> :
             null}
 
@@ -663,7 +666,7 @@ class QuerybuilderBody extends React.Component {
       </div>
 
       <div style={{flex: 20}}>
-        <button type="submit" className="btn btn-default" onClick={this.handleSubmit.bind(this)}>Submit</button>
+        <button type="submit" className="btn btn-light" onClick={this.handleSubmit.bind(this)}>Submit</button>
         <button type="button" className="btn btn-danger" onClick={this.reset.bind(this)}>Reset</button>
       </div>
     </div>;

@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 import tgdbApp from './reducers';
 import {loadState, saveState} from "./local_storage";
-import {BASE_URL, clearRequestId, setResult} from "./actions";
+import {BASE_URL, clearRequestId, setResult, setBusy} from "./actions";
 
 /*
  * Enhancer composer for development. Connects to redux browser extension.
@@ -45,6 +45,7 @@ store.dispatch(function (dispatch) {
   let state = store.getState();
 
   if (state.requestId && _.isEmpty(state.result)) {
+    dispatch(setBusy(true));
     $.ajax(`${BASE_URL}/queryapp/${state.requestId}/`)
       .always((data, textStatus) => {
         if (state.requestId === store.getState().requestId) {
@@ -53,6 +54,7 @@ store.dispatch(function (dispatch) {
           } else {
             dispatch(clearRequestId());
           }
+          dispatch(setBusy(false));
         }
       });
   }

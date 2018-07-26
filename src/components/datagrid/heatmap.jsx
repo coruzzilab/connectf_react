@@ -7,8 +7,20 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import $ from 'jquery';
 import {connect} from 'react-redux';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {BASE_URL, getHeatmap} from '../../actions';
-import {Tabs, Tab, Modal, Button} from 'react-bootstrap';
+import {
+  TabContent,
+  TabPane,
+  Nav,
+  NavItem,
+  NavLink,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button
+} from 'reactstrap';
 import {blueShader, getLogMinMax} from "../../utils";
 
 class RowHeader extends React.Component {
@@ -31,16 +43,16 @@ class RowHeader extends React.Component {
 
     return <td>
       <a onClick={this.showModal.bind(this, undefined)}>{info.name}</a>
-      <Modal show={visible} onHide={this.showModal.bind(this, false)}>
-        <Modal.Header closeButton>{info.name}</Modal.Header>
-        <Modal.Body>
+      <Modal isOpen={visible} toggle={this.showModal.bind(this, false)}>
+        <ModalHeader toggle={this.showModal.bind(this, false)}>{info.name}</ModalHeader>
+        <ModalBody>
           {_.map(info, (val, key) => {
             return <p key={key}>{key}: {val}</p>;
           })}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={this.showModal.bind(this, false)}>Close</Button>
-        </Modal.Footer>
+        </ModalBody>
+        <ModalFooter>
+          <Button onClick={this.showModal.bind(this, false)}><FontAwesomeIcon icon="times"/> Close</Button>
+        </ModalFooter>
       </Modal>
     </td>;
   }
@@ -64,7 +76,8 @@ class HeatMapBody extends React.Component {
       success: true,
       upper: 30,
       lower: 0,
-      imgSrc: `${BASE_URL}/queryapp/heatmap/${this.props.requestId}.svg`
+      imgSrc: `${BASE_URL}/queryapp/heatmap/${this.props.requestId}.svg`,
+      key: "table"
     };
   }
 
@@ -111,30 +124,41 @@ class HeatMapBody extends React.Component {
     });
   }
 
+  onTabClick(key) {
+    this.setState({key});
+  }
+
   render() {
     let {heatmap} = this.props;
-    let {success, lower, upper, imgSrc} = this.state;
+    let {success, lower, upper, imgSrc, key} = this.state;
     let [min, max] = getLogMinMax(_.get(heatmap, 'result', []));
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
-        <label>Lower Bound (-log10):</label><input type="number" className="form-control" min={0} value={lower}
-                                                   step="any" onChange={this.handleLower.bind(this)}/>
-        <label>Upper Bound (-log10):</label><input type="number" className="form-control" min={0} value={upper}
-                                                   step="any" onChange={this.handleUpper.bind(this)}/>
+        <div className="form-group">
+          <label>Lower Bound (-log10):</label>
+          <input type="number" className="form-control form-control-sm" min={0} value={lower} step="any"
+                 onChange={this.handleLower.bind(this)}/>
+          <label>Upper Bound (-log10):</label>
+          <input type="number" className="form-control form-control-sm" min={0} value={upper} step="any"
+                 onChange={this.handleUpper.bind(this)}/>
+        </div>
         <button className="btn btn-primary" type="submit">Submit</button>
       </form>
-      <Tabs id="heatmap">
-        <Tab title="Heat Map" eventKey={1}>
-          <img src={imgSrc}
-               onError={this.toggleSuccess.bind(this, false)}
-               onLoad={this.toggleSuccess.bind(this, true)}/>
-
-          {!success ?
-            <div>Heatmap is not available for this query.</div> :
-            null}
-        </Tab>
-        <Tab title="Table" eventKey={2}>
+      <Nav tabs>
+        <NavItem>
+          <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"}>
+            Table
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink onClick={this.onTabClick.bind(this, "heatmap")} active={key === "heatmap"}>
+            Heat Map
+          </NavLink>
+        </NavItem>
+      </Nav>
+      <TabContent activeTab={key}>
+        <TabPane tabId="table">
           <table className="motif">
             <thead>
             <tr>
@@ -156,8 +180,17 @@ class HeatMapBody extends React.Component {
             })}
             </tbody>
           </table>
-        </Tab>
-      </Tabs>
+        </TabPane>
+        <TabPane tabId="heatmap">
+          <img src={imgSrc}
+               onError={this.toggleSuccess.bind(this, false)}
+               onLoad={this.toggleSuccess.bind(this, true)}/>
+
+          {!success ?
+            <div>Heatmap is not available for this query.</div> :
+            null}
+        </TabPane>
+      </TabContent>
     </div>;
   }
 }
