@@ -577,7 +577,7 @@ class QuerybuilderBody extends React.Component {
     }
 
     this.props.postQuery(data);
-    this.props.history.push('/datagrid');
+    this.props.history.push('/datagrid/table');
   }
 
   reset() {

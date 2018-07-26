@@ -287,6 +287,7 @@ export const postQuery = (data) => {
           }, {}]));
         }
 
+        dispatch(clearRequestId());
         dispatch(setError(textStatus));
       })
       .always(() => {

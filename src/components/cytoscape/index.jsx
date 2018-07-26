@@ -100,7 +100,9 @@ class CytoscapeBody extends React.Component {
       ele.style({'content': null});
     });
 
-    this.props.getCytoscape(this.props.requestId);
+    if (this.props.requestId) {
+      this.props.getCytoscape(this.props.requestId);
+    }
   }
 
   componentWillUnmount() {
