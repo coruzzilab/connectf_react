@@ -63,32 +63,32 @@ class Datagrid extends React.Component {
       </Nav>
       <TabContent activeTab={pathname}>
         <Switch>
-          <Route path={match.path + '/table'} component={() => {
+          <Route path={match.path + '/table'} render={() => {
             return <TabPane tabId="/datagrid/table">
               <DF/>
             </TabPane>;
           }}/>
-          <Route path={match.path + '/meta'} component={() => {
+          <Route path={match.path + '/meta'} render={() => {
             return <TabPane tabId="/datagrid/meta">
               <Meta/>
             </TabPane>;
           }}/>
-          <Route path={match.path + '/cytoscape'} component={() => {
+          <Route path={match.path + '/cytoscape'} render={() => {
             return <TabPane tabId="/datagrid/cytoscape">
               <Link to="/cytoscape" className="btn btn-light">Open Cytoscape</Link>
             </TabPane>;
           }}/>
-          <Route path={match.path + '/heatmap'} component={() => {
+          <Route path={match.path + '/heatmap'} render={() => {
             return <TabPane tabId="/datagrid/heatmap">
               <HeatMap/>
             </TabPane>;
           }}/>
-          <Route path={match.path + '/motif'} component={() => {
+          <Route path={match.path + '/motif'} render={() => {
             return <TabPane tabId="/datagrid/motif">
               <MotifEnrichment/>
             </TabPane>;
           }}/>
-          <Route path={match.path + '/extra'} component={() => {
+          <Route path={match.path + '/extra'} render={() => {
             return <TabPane tabId="/datagrid/extra">
               <Extra/>
             </TabPane>;
