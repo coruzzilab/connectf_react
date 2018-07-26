@@ -8,6 +8,7 @@ import {Provider} from 'react-redux';
 import {BrowserRouter as Router, withRouter} from 'react-router-dom';
 import thunk from 'redux-thunk';
 import $ from 'jquery';
+import _ from 'lodash';
 
 import 'file-loader?name=[name].[ext]!./index.html';
 
@@ -25,6 +26,7 @@ $.ajaxSetup({
 import tgdbApp from './reducers';
 
 import _App from './components/app';
+import {loadState, saveState} from "./local_storage";
 
 /*
  * Enhancer composer for development. Connects to redux browser extension.
@@ -34,16 +36,28 @@ typeof window === 'object' &&
 window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
   window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : compose;
 
+const persistedState = loadState();
+
 const store = createStore(
   combineReducers({
     ...tgdbApp
   }),
+  persistedState,
   composeEnhancers(
     applyMiddleware(
       thunk
     )
   )
 );
+
+store.subscribe(_.throttle(function () {
+  saveState(_.pick(store.getState(), [
+    'query',
+    'queryTree',
+    'requestId',
+    'result'
+  ]))
+}, 1000));
 
 const App = withRouter(_App);
 

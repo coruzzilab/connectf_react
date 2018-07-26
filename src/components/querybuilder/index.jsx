@@ -540,7 +540,7 @@ class QuerybuilderBody extends React.Component {
       });
 
     this.clipboard = new Clipboard(this.copy.current, {
-      text: (trigger) => {
+      text: () => {
         return this.props.query;
       }
     });
@@ -585,7 +585,7 @@ class QuerybuilderBody extends React.Component {
     try {
       this.targetGenes.current.value = null;
     } catch (e) {
-      console.log("no file selected");
+      // Ignore for now
     }
 
     this.props.clearQuery();
