@@ -204,7 +204,11 @@ export const getHeatmap = (requestId) => {
       contentType: false
     })
       .done((data) => dispatch(setHeatmap(data)))
-      .catch(() => dispatch(clearHeatmap()));
+      .catch(() => {
+        dispatch(setHeatmap({
+          'error': true
+        }))
+      });
   };
 };
 

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import {connect} from 'react-redux';
 import {Link, Route, Redirect, Switch} from 'react-router-dom';
 
 import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap';
@@ -13,13 +14,19 @@ import Extra from './extra';
 import HeatMap from './heatmap';
 import MotifEnrichment from './motif_enrichment';
 
+function mapStateToProps({heatmap}) {
+  return {
+    heatmap
+  };
+}
+
 class Datagrid extends React.Component {
   onTabClick(key) {
     this.props.history.push(key);
   }
 
   render() {
-    let {match, location} = this.props;
+    let {match, location, heatmap} = this.props;
     let {pathname} = location;
 
     return <div>
@@ -44,6 +51,7 @@ class Datagrid extends React.Component {
         </NavItem>
         <NavItem>
           <NavLink onClick={this.onTabClick.bind(this, "/datagrid/heatmap")}
+                   disabled={heatmap.error}
                    active={pathname === "/datagrid/heatmap"}>
             Heatmap
           </NavLink>
@@ -103,7 +111,8 @@ class Datagrid extends React.Component {
 Datagrid.propTypes = {
   location: PropTypes.object,
   match: PropTypes.object,
-  history: PropTypes.object
+  history: PropTypes.object,
+  heatmap: PropTypes.object
 };
 
-export default Datagrid;
+export default connect(mapStateToProps)(Datagrid);

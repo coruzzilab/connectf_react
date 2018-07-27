@@ -72,7 +72,7 @@ export class ColHeader extends React.Component {
           }).value()}
         </ModalBody>
         <ModalFooter>
-          <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times"/> Close</Button>
+          <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times" className="mr-1"/>Close</Button>
         </ModalFooter>
       </Modal>
     </th>;
@@ -117,7 +117,7 @@ export class RowHeader extends React.Component {
     return <td>
       <a onClick={this.showModal.bind(this)}>{`${data.name} ${data['Family']}`}</a>
       <Modal isOpen={visible} toggle={this.hideModal.bind(this)}>
-        <ModalHeader>
+        <ModalHeader toggle={this.hideModal.bind(this)}>
           {`${data.name} ${data['Family']}`}
         </ModalHeader>
         <ModalBody>
@@ -133,7 +133,7 @@ export class RowHeader extends React.Component {
           <p><span style={{fontWeight: 'bold'}}>Family:</span> {data['Family']}</p>
         </ModalBody>
         <ModalFooter>
-          <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times"/> Close</Button>
+          <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times" className="mr-1"/>Close</Button>
         </ModalFooter>
       </Modal>
     </td>;
