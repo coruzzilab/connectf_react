@@ -212,7 +212,7 @@ class MotifEnrichmentBody extends React.Component {
     let {body, img, colSpan, key} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment, 'result', []));
 
-    return <div className="table table-bordered">
+    return <div>
       <form onSubmit={this.handleMotifForm.bind(this)}>
         <div>
           <label>Alpha:</label>
@@ -246,7 +246,7 @@ class MotifEnrichmentBody extends React.Component {
       </Nav>
       <TabContent id="motif_enrichment" activeTab={key}>
         <TabPane tabId="table">
-          <table>
+          <table className="table table-bordered">
             <thead>
             <tr>
               <th/>
@@ -258,9 +258,9 @@ class MotifEnrichmentBody extends React.Component {
                                   data={val}
                                   colSpan={colSpan}>
                   {!_.isEmpty(val) ?
-                    <div>{line1 ? <span>{line1}<br/></span> : null}
-                      {line2 ? <span>{line2}<br/></span> : null}
-                      {line3}
+                    <div>{line1 ? <p className="m-0">{line1}</p> : null}
+                      {line2 ? <p className="m-0">{line2}</p> : null}
+                      <p className="m-0">{line3}</p>
                     </div> :
                     key}
                 </ColHeader>;

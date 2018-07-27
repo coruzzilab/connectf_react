@@ -53,6 +53,7 @@ const config = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new ExtractTextPlugin('style.css')
   ]
 };

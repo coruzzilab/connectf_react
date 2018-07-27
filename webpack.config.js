@@ -59,6 +59,7 @@ const config = {
         NODE_ENV: JSON.stringify('production')
       }
     }),
+    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new ExtractTextPlugin('style.css'),
     new BundleAnalyzerPlugin()
   ]

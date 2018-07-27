@@ -6,6 +6,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cytoscape from 'cytoscape';
 import {connect} from 'react-redux';
+import _ from 'lodash';
 
 import {getCytoscape, setCytoscape} from '../../actions';
 
@@ -21,10 +22,10 @@ class CytoscapeBody extends React.Component {
     super(props);
     this.cyRef = React.createRef();
     this.state = {
-      height: 0
+      height: Math.floor(document.documentElement.clientHeight * 0.8)
     };
 
-    this.setHeight = this.setHeight.bind(this);
+    this.setHeight = _.debounce(this.setHeight.bind(this), 100);
   }
 
   componentDidMount() {
@@ -105,11 +106,11 @@ class CytoscapeBody extends React.Component {
       ele.style({'content': null});
     });
 
+    this.setHeight();
+
     if (this.props.requestId) {
       this.props.getCytoscape(this.props.requestId);
     }
-
-    this.setHeight();
 
     window.addEventListener("resize", this.setHeight);
   }
