@@ -5,7 +5,16 @@
  * 7/26/18
  */
 import {library} from '@fortawesome/fontawesome-svg-core';
-import {faCircleNotch, faPlusCircle, faMinusCircle, faCopy, faEdit, faTimes} from '@fortawesome/free-solid-svg-icons';
+import {
+  faCircleNotch,
+  faPlusCircle,
+  faMinusCircle,
+  faCopy,
+  faEdit,
+  faTimes,
+  faArrowCircleUp,
+  faRedo
+} from '@fortawesome/free-solid-svg-icons';
 
 library.add(
   faCircleNotch,
@@ -13,5 +22,7 @@ library.add(
   faMinusCircle,
   faCopy,
   faEdit,
-  faTimes
+  faTimes,
+  faArrowCircleUp,
+  faRedo
 );

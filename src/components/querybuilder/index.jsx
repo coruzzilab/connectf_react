@@ -39,6 +39,32 @@ const mapStateToProps = ({busy, query, queryTree}) => {
 };
 
 
+class TargetGenesFile extends React.Component {
+  constructor(props) {
+    super(props);
+    this.targetGenes = React.createRef();
+  }
+
+  componentDidMount() {
+    this.targetGenes.current.scrollIntoView();
+  }
+
+  handleChange(e) {
+    this.props.handleChange(e.target.files)
+  }
+
+  render() {
+    return <input type="file" className="form-control-file"
+                  onChange={this.handleChange.bind(this)}
+                  ref={this.targetGenes}/>
+  }
+}
+
+TargetGenesFile.propTypes = {
+  handleChange: PropTypes.func
+};
+
+
 class AndOrSelect extends React.Component {
   handleChange(e) {
     this.props.handleChange(e.target.value);
@@ -592,9 +618,10 @@ class QuerybuilderBody extends React.Component {
     super(props);
     this.state = {
       targetGenes: [],
-      targetGene: ''
+      targetGene: '',
+      files: null
     };
-    this.targetGenes = React.createRef();
+
     this.copy = React.createRef();
   }
 
@@ -622,8 +649,7 @@ class QuerybuilderBody extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
     let {query} = this.props;
-    let {targetGene} = this.state;
-    let {targetGenes} = this;
+    let {targetGene, files} = this.state;
     let data = new FormData();
 
     if (!this.props.query) {
@@ -633,10 +659,9 @@ class QuerybuilderBody extends React.Component {
     data.append('query', query);
 
     if (targetGene === "other") {
-      let f = _.get(targetGenes.current, 'files.0');
-      if (f && f.size > 0) {
-        data.set('targetgenes', _.get(targetGenes.current, 'files.0'));
-      }
+     if (files && files.length) {
+       data.set('targetgenes', files[0]);
+     }
     } else {
       data.set('targetgenes', targetGene);
     }
@@ -661,6 +686,10 @@ class QuerybuilderBody extends React.Component {
     this.setState({
       targetGene: e.target.value
     });
+  }
+
+  handleFile(files) {
+    this.setState({files});
   }
 
   buildQuery() {
@@ -698,8 +727,12 @@ class QuerybuilderBody extends React.Component {
             </div>
             <div className="col">
               <div className="btn-group float-right">
-                <button type="submit" className="btn btn-primary">Submit</button>
-                <button type="button" className="btn btn-outline-danger" onClick={this.reset.bind(this)}>Reset</button>
+                <button type="submit" className="btn btn-primary btn-lg">
+                  <FontAwesomeIcon icon="arrow-circle-up" className="mr-2"/>Submit
+                </button>
+                <button type="button" className="btn btn-outline-danger btn-lg" onClick={this.reset.bind(this)}>
+                  <FontAwesomeIcon icon="redo" className="mr-2"/>Reset
+                </button>
               </div>
             </div>
           </div>
@@ -732,8 +765,8 @@ class QuerybuilderBody extends React.Component {
             <h2>TargetGenes</h2>
           </div>
           <div className="form-row">
-            <div className="input-group">
-              <select className="form-control col mr-1" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
+            <div className="input-group col">
+              <select className="form-control mr-1" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
                 <option value="">----</option>
                 {_.map(targetGenes, (l, i) => {
                   return <option key={i} value={l}>{l}</option>;
@@ -741,8 +774,7 @@ class QuerybuilderBody extends React.Component {
                 <option value="other">Other</option>
               </select>
               {targetGene === "other" ?
-                <input type="file" className="form-control-file col"
-                       ref={this.targetGenes}/> :
+                <TargetGenesFile handleChange={this.handleFile.bind(this)}/> :
                 null}
             </div>
           </div>
