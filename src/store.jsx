@@ -33,13 +33,13 @@ const store = createStore(
   )
 );
 
-store.subscribe(_.debounce(function () {
+store.subscribe(_.throttle(function () {
   saveState(_.pick(store.getState(), [
     'query',
     'queryTree',
     'requestId'
   ]));
-}, 1000, {maxWait: 3000}));
+}, 1000));
 
 store.dispatch(function (dispatch) {
   let state = store.getState();

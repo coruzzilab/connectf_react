@@ -236,6 +236,17 @@ function motifEnrichment(state = {}, action) {
   }
 }
 
+function stats(state = {}, action) {
+  switch (action.type) {
+  case 'SET_STATS':
+    return action.data;
+  case 'CLEAR_STATS':
+    return {};
+  default:
+    return state
+  }
+}
+
 function error(state = '', action) {
   switch (action.type) {
   case 'SET_ERROR':
@@ -256,6 +267,7 @@ const tgdbApp = {
   cytoscape,
   motifEnrichment,
   requestId,
+  stats,
   error
 };
 

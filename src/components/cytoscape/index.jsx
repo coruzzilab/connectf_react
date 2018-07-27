@@ -195,9 +195,9 @@ class CytoscapeBody extends React.Component {
           <button className="btn btn-light" onClick={this.fitCytoscape.bind(this)}>
             <FontAwesomeIcon icon="expand" className="mr-1"/>Fit</button>
           <a className="btn btn-light" onClick={this.exportCytoscape.bind(this)}>
-            <FontAwesomeIcon icon="file-export" className="mr-1"/>Export Image</a>
+            <FontAwesomeIcon icon="image" className="mr-1"/>Export Image</a>
           <a className="btn btn-light" onClick={this.exportJSON.bind(this)}>
-            <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a>
+              <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a>
         </div>
       </div>
       <div className="row" ref={this.cyRef} style={{height}}/>

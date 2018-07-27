@@ -16,8 +16,8 @@ import {
   faArrowCircleLeft,
   faExpand,
   faRedo,
-  faFileExport,
-  faFileDownload
+  faFileDownload,
+  faImage
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -31,6 +31,6 @@ library.add(
   faArrowCircleLeft,
   faExpand,
   faRedo,
-  faFileExport,
-  faFileDownload
+  faFileDownload,
+  faImage
 );

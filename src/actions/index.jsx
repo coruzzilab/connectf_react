@@ -207,7 +207,7 @@ export const getHeatmap = (requestId) => {
       .catch(() => {
         dispatch(setHeatmap({
           'error': true
-        }))
+        }));
       });
   };
 };
@@ -297,5 +297,31 @@ export const postQuery = (data) => {
       .always(() => {
         dispatch(setBusy(false));
       });
+  };
+};
+
+export const setStats = (data) => {
+  return {
+    type: 'SET_STATS',
+    data
+  };
+};
+
+export const clearStats = () => {
+  return {
+    type: 'CLEAR_STATS'
+  };
+};
+
+export const getStats = (requestId) => {
+  return (dispatch) => {
+    $.ajax({
+      url: `${BASE_URL}/queryapp/stats/${requestId}`,
+      method: 'GET'
+    }).done((data) => {
+      dispatch(setStats(data));
+    }).fail(() => {
+      dispatch(clearStats());
+    });
   };
 };
