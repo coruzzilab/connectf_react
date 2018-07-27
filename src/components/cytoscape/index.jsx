@@ -20,6 +20,11 @@ class CytoscapeBody extends React.Component {
   constructor(props) {
     super(props);
     this.cyRef = React.createRef();
+    this.state = {
+      height: 0
+    };
+
+    this.setHeight = this.setHeight.bind(this);
   }
 
   componentDidMount() {
@@ -103,12 +108,21 @@ class CytoscapeBody extends React.Component {
     if (this.props.requestId) {
       this.props.getCytoscape(this.props.requestId);
     }
+
+    this.setHeight();
+
+    window.addEventListener("resize", this.setHeight);
   }
 
   componentWillUnmount() {
     if (this.cy) {
       this.cy.destroy();
     }
+    window.removeEventListener("resize", this.setHeight);
+  }
+
+  setHeight() {
+    this.setState({height: document.documentElement.clientHeight - this.cyRef.current.offsetTop});
   }
 
   resetCytoscape() {
@@ -152,14 +166,18 @@ class CytoscapeBody extends React.Component {
   }
 
   render() {
-    return <div style={{height: '100%'}}>
-      <div>
-        <button onClick={this.back.bind(this)} className="btn btn-warning">Back</button>
-        <button className="btn btn-light" onClick={this.resetCytoscape.bind(this)}>Reset</button>
-        <button className="btn btn-light" onClick={this.fitCytoscape.bind(this)}>Fit</button>
-        <a className="btn btn-light" onClick={this.exportCytoscape.bind(this)}>Export Image</a>
+    let {height} = this.state;
+
+    return <div className="container-fluid">
+      <div className="row">
+        <div className="btn-group m-2">
+          <button onClick={this.back.bind(this)} className="btn btn-warning">Back</button>
+          <button className="btn btn-light" onClick={this.resetCytoscape.bind(this)}>Reset</button>
+          <button className="btn btn-light" onClick={this.fitCytoscape.bind(this)}>Fit</button>
+          <a className="btn btn-light" onClick={this.exportCytoscape.bind(this)}>Export Image</a>
+        </div>
       </div>
-      <div ref={this.cyRef} style={{height: '85%', width: '100%'}}/>
+      <div className="row" ref={this.cyRef} style={{height}}/>
     </div>;
   }
 }

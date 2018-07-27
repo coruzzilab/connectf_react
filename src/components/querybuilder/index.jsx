@@ -8,6 +8,7 @@ import PropTypes from "prop-types";
 import $ from 'jquery';
 import uuidv4 from 'uuid/v4';
 import Clipboard from 'clipboard';
+import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
   BASE_URL,
@@ -44,8 +45,8 @@ class AndOrSelect extends React.Component {
   }
 
   render() {
-    let {value} = this.props;
-    return <select className="form-control" style={{float: 'left'}} value={value}
+    let {value, className} = this.props;
+    return <select className={classNames("form-control col-1", className)} value={value}
                    onChange={this.handleChange.bind(this)}>
       <option>or</option>
       <option>and</option>
@@ -55,7 +56,8 @@ class AndOrSelect extends React.Component {
 
 AndOrSelect.propTypes = {
   value: PropTypes.string.isRequired,
-  handleChange: PropTypes.func.isRequired
+  handleChange: PropTypes.func.isRequired,
+  className: PropTypes.string
 };
 
 
@@ -65,9 +67,9 @@ class NotSelect extends React.Component {
   }
 
   render() {
-    let {value} = this.props;
+    let {value, className} = this.props;
 
-    return <select className="form-control" style={{float: 'left'}}
+    return <select className={classNames("form-control col-1", className)}
                    onChange={this.handleChange.bind(this)}
                    value={value ? 'not' : '-'}>
       <option>-</option>
@@ -78,7 +80,8 @@ class NotSelect extends React.Component {
 
 NotSelect.propTypes = {
   value: PropTypes.bool.isRequired,
-  handleChange: PropTypes.func.isRequired
+  handleChange: PropTypes.func.isRequired,
+  className: PropTypes.string
 };
 
 
@@ -181,49 +184,64 @@ class ModBody extends React.Component {
     let {first, node, addMod, addModGroup, removeNode, setQueryNot, setQueryOper} = this.props;
     let {dataSource, dataSourceValues} = this.state;
 
-    return <div className="alert form-inline alert-warning alert-group group">
-      {!first ?
-        <AndOrSelect value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
-        null}
-      <NotSelect value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-      <div style={{display: 'inline-block'}}>
-        <select className="form-control" onChange={this.setModKey.bind(this)} value={node.key}>
-          {_.map(dataSource, (o, i) => {
-            return <option key={i}>{o}</option>;
-          })}
-        </select>
-        {node.key === 'pvalue' || node.key === 'fc' ?
-          <select className="form-control" value={node.innerOper} onChange={this.setModInnerOper.bind(this)}>
-            <option>=</option>
-            <option>&lt;</option>
-            <option>&gt;</option>
-            <option>&lt;=</option>
-            <option>&gt;=</option>
-          </select> :
-          null}
-        <input className="form-control"
-               list={this.uuid}
-               style={{width: '30em', height: '34px'}} // @todo: better CSS styling
-               size="large"
-               onChange={this.setModValue.bind(this)} value={node.value}/>
-        <datalist id={this.uuid}>
-          {_.map(dataSourceValues, (o, i) => {
-            return <option key={i}>{o}</option>;
-          })}
-        </datalist>
+    return <div className="row border border-dark rounded m-2">
+      <div className="col">
+        <div className="row m-2">
+          <div className="col">
+            <div className="form-row">
+              {!first ?
+                <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
+                null}
+              <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+              <select className="form-control col-1 mr-1" onChange={this.setModKey.bind(this)} value={node.key}>
+                {_.map(dataSource, (o, i) => {
+                  return <option key={i}>{o}</option>;
+                })}
+              </select>
+              {node.key === 'pvalue' || node.key === 'fc' ?
+                <select className="form-control col-1 mr-1" value={node.innerOper}
+                        onChange={this.setModInnerOper.bind(this)}>
+                  <option>=</option>
+                  <option>&lt;</option>
+                  <option>&gt;</option>
+                  <option>&lt;=</option>
+                  <option>&gt;=</option>
+                </select> :
+                null}
+              <input className="form-control col"
+                     list={this.uuid}
+                     onChange={this.setModValue.bind(this)} value={node.value}/>
+            </div>
+            <datalist id={this.uuid}>
+              {_.map(dataSourceValues, (o, i) => {
+                return <option key={i}>{o}</option>;
+              })}
+            </datalist>
+          </div>
+          <div className="col">
+            <div className="btn-toolbar">
+              <div className="btn-group mr-2">
+                <button type="button" className="btn btn-success"
+                        onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
+                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+                </button>
+                <button type="button" className="btn btn-success"
+                        onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
+                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+                </button>
+              </div>
+              <div className="btn-group">
+                <button type="button" className="btn btn-danger"
+                        onClick={removeNode.bind(undefined, node.id)}>
+                  <FontAwesomeIcon icon="minus-circle"/>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Modifier
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Modifier Group
-      </button>
-      <button className="btn btn-danger" style={{verticalAlign: 'middle', float: 'right'}}
-              onClick={removeNode.bind(undefined, node.id)}>
-        <FontAwesomeIcon icon="minus-circle"/>
-      </button>
+
+
     </div>;
   }
 }
@@ -260,43 +278,58 @@ class ModGroupBody extends React.Component {
 
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
 
-    return <div className="alert form-inline alert-warning alert-group group">
-      {!first ?
-        <AndOrSelect value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
-        null}
-      <NotSelect value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Modifier
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Modifier Group
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-danger"
-              onClick={removeNode.bind(undefined, node.id)}>
-        <FontAwesomeIcon icon="minus-circle"/> Remove Modifier Group
-      </button>
-      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-success"
-              onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add TF Proceeding Modifier Group
-      </button>
-      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-success"
-              onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Proceeding Modifier
-      </button>
-      {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
-        let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-        if (o.nodeType === 'MOD') {
-          return <Mod key={o.id}
-                      first={first}
-                      node={o}/>;
-        } else if (o.nodeType === 'MOD_GROUP') {
-          return <ModGroup key={o.id}
-                           first={first}
-                           node={o}/>;
-        }
-      }).value()}
+    return <div className="row border border-dark rounded m-2">
+      <div className="col">
+        <div className="row m-2">
+          {!first ?
+            <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
+            null}
+          <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+          <div className="btn-toolbar">
+            <div className="btn-group mr-2">
+              <button type="button" className="btn btn-success"
+                      onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+              </button>
+            </div>
+            <div className="btn-group mr-2">
+              <button type="button" className="btn btn-danger"
+                      onClick={removeNode.bind(undefined, node.id)}>
+                <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove Modifier Group
+              </button>
+            </div>
+            <div className="btn-group">
+              <button type="button" className="btn btn-success"
+                      onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Proceeding Modifier Group
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Proceeding Modifier
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="w-100"/>
+      <div className="col">
+        {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
+          let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+          if (o.nodeType === 'MOD') {
+            return <Mod key={o.id}
+                        first={first}
+                        node={o}/>;
+          } else if (o.nodeType === 'MOD_GROUP') {
+            return <ModGroup key={o.id}
+                             first={first}
+                             node={o}/>;
+          }
+        }).value()}
+      </div>
     </div>;
   }
 }
@@ -354,50 +387,65 @@ class ValueBody extends React.Component {
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
-    return <div className="alert form-inline alert-warning alert-group group">
-      {!first ?
-        <AndOrSelect value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
-        null}
-      <NotSelect value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-      <div style={{display: 'inline-block'}}>
-        <input className="form-control"
-               list={this.uuid}
-               style={{width: '30em', height: '34px'}} // @todo: better CSS styling
-               size="large" onChange={this.handleQueryName.bind(this, node.id)} value={node.name}/>
-        <datalist id={this.uuid}>
-          {_.map(dataSource, (o, i) => {
-            return <option value={o.value} key={i}>{o.name}</option>;
-          })}
-        </datalist>
+    return <div className="row border border-dark rounded m-2">
+      <div className="col">
+        <div className="row m-2">
+          <div className="col">
+            <div className="form-row">
+              {!first ?
+                <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
+                null}
+              <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+              <input className="form-control col"
+                     list={this.uuid}
+                     onChange={this.handleQueryName.bind(this, node.id)} value={node.name}/>
+            </div>
+          </div>
+          <datalist id={this.uuid}>
+            {_.map(dataSource, (o, i) => {
+              return <option value={o.value} key={i}>{o.name}</option>;
+            })}
+          </datalist>
+          <div className="btn-toolbar col">
+            <div className="btn-group mr-2">
+              <button type="button" className="btn btn-success"
+                      onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addMod.bind(undefined, '', '', node.id, undefined, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addModGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+              </button>
+            </div>
+            <div className="btn-group">
+              <button type="button" className="btn btn-danger"
+                      onClick={removeNode.bind(undefined, node.id)}>
+                <FontAwesomeIcon icon="minus-circle"/>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add TF
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Group
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addMod.bind(undefined, '', '', node.id, undefined, undefined, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Modifier
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addModGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Modifier Group
-      </button>
-      <button className="btn btn-danger" style={{verticalAlign: 'middle', float: 'right'}}
-              onClick={removeNode.bind(undefined, node.id)}>
-        <FontAwesomeIcon icon="minus-circle"/>
-      </button>
-      {mods.map((o, i, a) => {
-        let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-        if (o.nodeType === 'MOD') {
-          return <Mod key={o.id} first={first} node={o}/>;
-        } else if (o.nodeType === 'MOD_GROUP') {
-          return <ModGroup key={o.id} first={first} node={o}/>;
-        }
-      }).value()}
+
+      <div className="w-100"/>
+      <div className="col">
+        {mods.map((o, i, a) => {
+          let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+          if (o.nodeType === 'MOD') {
+            return <Mod key={o.id} first={first} node={o}/>;
+          } else if (o.nodeType === 'MOD_GROUP') {
+            return <ModGroup key={o.id} first={first} node={o}/>;
+          }
+        }).value()}
+      </div>
     </div>;
   }
 }
@@ -433,53 +481,69 @@ class GroupBody extends React.Component {
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
-    return <div className="alert form-inline alert-warning alert-group group">
-      {!first ?
-        <AndOrSelect value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
-        null}
-      <NotSelect value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addTF.bind(undefined, '', node.id, undefined, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add TF
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add TF Group
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Modifier
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-success"
-              onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Modifier Group
-      </button>
-      <button style={{marginLeft: '5px'}} className="btn btn-danger"
-              onClick={removeNode.bind(undefined, node.id)}>
-        <FontAwesomeIcon icon="minus-circle"/> Remove TF Group
-      </button>
-      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-success"
-              onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add TF Proceeding Group
-      </button>
-      <button style={{marginLeft: '5px', float: 'right'}} className="btn btn-success"
-              onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
-        <FontAwesomeIcon icon="plus-circle"/> Add Proceeding TF
-      </button>
-      {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
-        let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-        if (o.nodeType === 'TF') {
-          return <Value key={o.id}
-                        first={first}
-                        node={o}/>;
-        } else if (o.nodeType === 'GROUP') {
-          return <Group key={o.id}
-                        first={first}
-                        node={o}/>;
-        }
-      }).value()}
+    return <div className="row border border-dark rounded m-2">
+      <div className="col">
+        <div className="row m-2">
+          {!first ?
+            <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
+            null}
+          <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+          <div className="btn-toolbar col">
+            <div className="btn-group mr-2">
+              <button type="button" className="btn btn-success"
+                      onClick={addTF.bind(undefined, '', node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+              </button>
+            </div>
+            <div className="btn-group mr-2">
+              <button type="button" className="btn btn-danger"
+                      onClick={removeNode.bind(undefined, node.id)}>
+                <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove TF Group
+              </button>
+            </div>
+            <div className="btn-group">
+              <button type="button" className="btn btn-success"
+                      onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Proceeding Group
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Proceeding TF
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="w-100"/>
+      <div className="col">
+        {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
+          let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+          if (o.nodeType === 'TF') {
+            return <Value key={o.id}
+                          first={first}
+                          node={o}/>;
+          } else if (o.nodeType === 'GROUP') {
+            return <Group key={o.id}
+                          first={first}
+                          node={o}/>;
+          }
+        }).value()}
+      </div>
+      <div className="w-100"/>
       {mods.size() ?
-        <div className="alert form-inline alert-warning alert-group group">
+        <div className="col border border-light rounded bg-light m-2">
           <h3>Modifiers</h3>
           {mods.map((o, i, a) => {
             let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
@@ -612,63 +676,78 @@ class QuerybuilderBody extends React.Component {
     let {targetGenes, targetGene} = this.state;
     let {addTF, addGroup, queryTree} = this.props;
 
-    return <div style={{display: "flex", flexDirection: "row"}}>
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-        flex: 90
-      }}>
-        <div>
-          <h1>Query</h1>
-          <div className="alert form-inline alert-warning alert-group group">
-            <button style={{marginLeft: '5px'}} className="btn btn-success"
-                    onClick={addTF.bind(undefined, '', undefined, undefined, undefined, undefined)}>
-              <FontAwesomeIcon icon="plus-circle"/> Add TF
-            </button>
-            <button style={{marginLeft: '5px'}} className="btn btn-success"
-                    onClick={addGroup.bind(undefined, undefined, undefined, undefined, undefined)}>
-              <FontAwesomeIcon icon="plus-circle"/> Add TF Group
-            </button>
-            {_(queryTree).filter((o) => _.isUndefined(o.parent)).map((o, i, a) => {
-              let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-              if (o.nodeType === 'TF') {
-                return <Value key={o.id}
-                              first={first}
-                              node={o}/>;
-              } else if (o.nodeType === 'GROUP') {
-                return <Group key={o.id} first={first} node={o}/>;
-              }
-            }).value()}
+    return <div>
+      <form onSubmit={this.handleSubmit.bind(this)}>
+        <div className="container-fluid">
+
+          <div className="row">
+            <h2>Query</h2>
           </div>
-          <button className="btn btn-light" onClick={this.setQuery.bind(this)}>
-            <FontAwesomeIcon icon="edit"/> Build Query
-          </button>
-          <button className="btn btn-light" ref={this.copy}><FontAwesomeIcon icon="copy"/> Copy</button>
-          <textarea className="form-control" rows="5" style={{width: "100%"}} value={this.props.query}
+          <div className="row">
+            <div className="col">
+              <div className="btn-group float-left">
+                <button type="button" className="btn btn-success"
+                        onClick={addTF.bind(undefined, '', undefined, undefined, undefined, undefined)}>
+                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
+                </button>
+                <button type="button" className="btn btn-success"
+                        onClick={addGroup.bind(undefined, undefined, undefined, undefined, undefined)}>
+                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
+                </button>
+              </div>
+            </div>
+            <div className="col">
+              <div className="btn-group float-right">
+                <button type="submit" className="btn btn-primary">Submit</button>
+                <button type="button" className="btn btn-outline-danger" onClick={this.reset.bind(this)}>Reset</button>
+              </div>
+            </div>
+          </div>
+          {_(queryTree).filter((o) => _.isUndefined(o.parent)).map((o, i, a) => {
+            let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+            if (o.nodeType === 'TF') {
+              return <Value key={o.id}
+                            first={first}
+                            node={o}/>;
+            } else if (o.nodeType === 'GROUP') {
+              return <Group key={o.id} first={first} node={o}/>;
+            }
+          }).value()}
+          <div className="form-row">
+            <div className="btn-group m-1">
+              <button type="button" className="btn btn-secondary" onClick={this.setQuery.bind(this)}>
+                <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
+              </button>
+              <button type="button" className="btn btn-outline-secondary" ref={this.copy}>
+                <FontAwesomeIcon icon="copy" className="mr-1"/>Copy
+              </button>
+            </div>
+          </div>
+          <div className="form-row">
+          <textarea className="form-control col m-2" rows="5" value={this.props.query}
                     onChange={this.handleQuery.bind(this)} autoComplete="on"/>
+          </div>
+
+          <div className="row">
+            <h2>TargetGenes</h2>
+          </div>
+          <div className="form-row">
+            <div className="input-group">
+              <select className="form-control col mr-1" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
+                <option value="">----</option>
+                {_.map(targetGenes, (l, i) => {
+                  return <option key={i} value={l}>{l}</option>;
+                })}
+                <option value="other">Other</option>
+              </select>
+              {targetGene === "other" ?
+                <input type="file" className="form-control-file col"
+                       ref={this.targetGenes}/> :
+                null}
+            </div>
+          </div>
         </div>
-
-        <div style={{marginBottom: '2em'}}>
-          <h2>TargetGenes</h2>
-          <select className="form-control" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
-            <option value="">----</option>
-            {_.map(targetGenes, (l, i) => {
-              return <option key={i} value={l}>{l}</option>;
-            })}
-            <option value="other">Other</option>
-          </select>
-          {targetGene === "other" ?
-            <input type="file" className="form-control-file"
-                   ref={this.targetGenes}/> :
-            null}
-
-        </div>
-      </div>
-
-      <div style={{flex: 20}}>
-        <button type="submit" className="btn btn-light" onClick={this.handleSubmit.bind(this)}>Submit</button>
-        <button type="button" className="btn btn-danger" onClick={this.reset.bind(this)}>Reset</button>
-      </div>
+      </form>
     </div>;
   }
 }

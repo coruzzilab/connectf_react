@@ -3,9 +3,8 @@
  */
 import React from 'react';
 import {Link, Switch, Route, Redirect} from 'react-router-dom';
-import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import {Navbar, Nav, NavItem, Collapse, NavbarToggler, NavLink} from 'reactstrap';
+import {Navbar, Nav, NavItem, Collapse, NavbarToggler} from 'reactstrap';
 
 import About from './about';
 import Datagrid from './datagrid';
@@ -35,7 +34,7 @@ class App extends React.Component {
   render() {
     let {pathname} = this.props.location;
 
-    return <div style={{height: '100%'}}>
+    return <div>
       <div>
         <h1>TF2TargetDB</h1>
       </div>
@@ -69,6 +68,7 @@ class App extends React.Component {
         <Route path="/feedback" component={Feedback}/>
         <Route path="/cytoscape" component={Cytoscape}/>
         <Route path="/datagrid" component={Datagrid}/>
+        <Redirect to="/"/>
       </Switch>
     </div>;
   }

@@ -64,32 +64,32 @@ class Datagrid extends React.Component {
       <TabContent activeTab={pathname}>
         <Switch>
           <Route path={match.path + '/table'} render={() => {
-            return <TabPane tabId="/datagrid/table">
+            return <TabPane tabId={pathname}>
               <DF/>
             </TabPane>;
           }}/>
           <Route path={match.path + '/meta'} render={() => {
-            return <TabPane tabId="/datagrid/meta">
+            return <TabPane tabId={pathname}>
               <Meta/>
             </TabPane>;
           }}/>
           <Route path={match.path + '/cytoscape'} render={() => {
-            return <TabPane tabId="/datagrid/cytoscape">
+            return <TabPane tabId={pathname}>
               <Link to="/cytoscape" className="btn btn-light">Open Cytoscape</Link>
             </TabPane>;
           }}/>
           <Route path={match.path + '/heatmap'} render={() => {
-            return <TabPane tabId="/datagrid/heatmap">
+            return <TabPane tabId={pathname}>
               <HeatMap/>
             </TabPane>;
           }}/>
           <Route path={match.path + '/motif'} render={() => {
-            return <TabPane tabId="/datagrid/motif">
+            return <TabPane tabId={pathname}>
               <MotifEnrichment/>
             </TabPane>;
           }}/>
           <Route path={match.path + '/extra'} render={() => {
-            return <TabPane tabId="/datagrid/extra">
+            return <TabPane tabId={pathname}>
               <Extra/>
             </TabPane>;
           }}/>

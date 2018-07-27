@@ -212,7 +212,7 @@ class MotifEnrichmentBody extends React.Component {
     let {body, img, colSpan, key} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment, 'result', []));
 
-    return <div className="motif">
+    return <div className="table table-bordered">
       <form onSubmit={this.handleMotifForm.bind(this)}>
         <div>
           <label>Alpha:</label>
