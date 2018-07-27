@@ -6,6 +6,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cytoscape from 'cytoscape';
 import {connect} from 'react-redux';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import _ from 'lodash';
 
 import {getCytoscape, setCytoscape} from '../../actions';
@@ -142,7 +143,22 @@ class CytoscapeBody extends React.Component {
   exportCytoscape(e) {
     e.currentTarget.download = 'query.png';
     e.currentTarget.href = this.cy.png();
+  }
 
+  exportJSON(e) {
+    let {cytoscapeData} = this.props;
+
+    let data = {
+      "format_version" : "1.0",
+      "generated_by" : "tf2targetdb",
+      elements: {
+        nodes: _.filter(cytoscapeData, ['group', 'nodes']),
+        edges: _.filter(cytoscapeData, ['group', 'edges'])
+      }
+    };
+
+    e.currentTarget.download = 'cytoscape.cyjs';
+    e.currentTarget.href = 'data:application/json,' + JSON.stringify(data);
   }
 
   setData(data) {
@@ -172,10 +188,16 @@ class CytoscapeBody extends React.Component {
     return <div className="container-fluid">
       <div className="row">
         <div className="btn-group m-2">
-          <button onClick={this.back.bind(this)} className="btn btn-warning">Back</button>
-          <button className="btn btn-light" onClick={this.resetCytoscape.bind(this)}>Reset</button>
-          <button className="btn btn-light" onClick={this.fitCytoscape.bind(this)}>Fit</button>
-          <a className="btn btn-light" onClick={this.exportCytoscape.bind(this)}>Export Image</a>
+          <button onClick={this.back.bind(this)} className="btn btn-warning">
+            <FontAwesomeIcon icon="arrow-circle-left" className="mr-1"/>Back</button>
+          <button className="btn btn-light" onClick={this.resetCytoscape.bind(this)}>
+            <FontAwesomeIcon icon="redo" className="mr-1"/>Reset</button>
+          <button className="btn btn-light" onClick={this.fitCytoscape.bind(this)}>
+            <FontAwesomeIcon icon="expand" className="mr-1"/>Fit</button>
+          <a className="btn btn-light" onClick={this.exportCytoscape.bind(this)}>
+            <FontAwesomeIcon icon="file-export" className="mr-1"/>Export Image</a>
+          <a className="btn btn-light" onClick={this.exportJSON.bind(this)}>
+            <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a>
         </div>
       </div>
       <div className="row" ref={this.cyRef} style={{height}}/>

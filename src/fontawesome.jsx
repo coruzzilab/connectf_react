@@ -13,7 +13,11 @@ import {
   faEdit,
   faTimes,
   faArrowCircleUp,
-  faRedo
+  faArrowCircleLeft,
+  faExpand,
+  faRedo,
+  faFileExport,
+  faFileDownload
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -24,5 +28,9 @@ library.add(
   faEdit,
   faTimes,
   faArrowCircleUp,
-  faRedo
+  faArrowCircleLeft,
+  faExpand,
+  faRedo,
+  faFileExport,
+  faFileDownload
 );

@@ -213,21 +213,23 @@ class MotifEnrichmentBody extends React.Component {
     let [min, max] = getLogMinMax(_.get(motifEnrichment, 'result', []));
 
     return <div>
-      <form onSubmit={this.handleMotifForm.bind(this)}>
-        <div>
+      <form onSubmit={this.handleMotifForm.bind(this)} className="m-2">
+        <div className="form-group mb-2">
           <label>Alpha:</label>
-          <input type="number" min={0} max={1} step={1e-8} style={{width: '10em'}} placeholder={0.05}
+          <input type="number" min={0} max={1} step="any" placeholder={0.05}
                  defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
         </div>
-        <div>
-          <p style={{fontWeight: 'bold'}}>Show Enrichment of Gene Body:</p>
-          <div>
-            <label><input type='radio' value='yes' checked={body === 'yes'}
-                          onChange={this.handleBody.bind(this)}/>Yes</label>
+        <div className="form-group mb-2">
+          <p className="col-form-label">Show Enrichment of Gene Body:</p>
+          <div className="form-check form-check-inline">
+            <input type='radio' value='yes' checked={body === 'yes'} className="form-check-input"
+                   onChange={this.handleBody.bind(this)}/>
+            <label className="form-check-label">Yes</label>
           </div>
-          <div>
-            <label><input type='radio' value='no' checked={body === 'no'}
-                          onChange={this.handleBody.bind(this)}/>No</label>
+          <div className="form-check form-check-inline">
+            <input type='radio' value='no' checked={body === 'no'} className="form-check-input"
+                   onChange={this.handleBody.bind(this)}/>
+            <label className="form-check-label">No</label>
           </div>
         </div>
         <button type="submit" className="btn btn-primary">Submit</button>

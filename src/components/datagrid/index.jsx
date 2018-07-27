@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
-import {Link, Route, Redirect, Switch} from 'react-router-dom';
+import {Route, Redirect, Switch} from 'react-router-dom';
 
 import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap';
 
@@ -13,6 +13,7 @@ import Meta from './meta';
 import Extra from './extra';
 import HeatMap from './heatmap';
 import MotifEnrichment from './motif_enrichment';
+import Cytoscape from './cytoscape';
 
 function mapStateToProps({heatmap}) {
   return {
@@ -26,7 +27,7 @@ class Datagrid extends React.Component {
   }
 
   render() {
-    let {match, location, heatmap} = this.props;
+    let {match, location} = this.props;
     let {pathname} = location;
 
     return <div>
@@ -51,7 +52,6 @@ class Datagrid extends React.Component {
         </NavItem>
         <NavItem>
           <NavLink onClick={this.onTabClick.bind(this, "/datagrid/heatmap")}
-                   disabled={heatmap.error}
                    active={pathname === "/datagrid/heatmap"}>
             Heatmap
           </NavLink>
@@ -83,7 +83,7 @@ class Datagrid extends React.Component {
           }}/>
           <Route path={match.path + '/cytoscape'} render={() => {
             return <TabPane tabId={pathname}>
-              <Link to="/cytoscape" className="btn btn-light">Open Cytoscape</Link>
+              <Cytoscape/>
             </TabPane>;
           }}/>
           <Route path={match.path + '/heatmap'} render={() => {

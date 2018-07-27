@@ -74,8 +74,8 @@ class HeatMapBody extends React.Component {
     super(props);
     this.state = {
       success: true,
-      upper: 30,
-      lower: 0,
+      upper: '',
+      lower: '',
       imgSrc: `${BASE_URL}/queryapp/heatmap/${this.props.requestId}.svg`,
       key: "table"
     };
@@ -134,17 +134,20 @@ class HeatMapBody extends React.Component {
     let [min, max] = getLogMinMax(_.get(heatmap, 'result', []));
 
     return <div>
-      <form onSubmit={this.handleSubmit.bind(this)}>
-        <div className="form-group">
+      <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
+        <div className="form-group mb-2">
           <label>Lower Bound (-log10):</label>
-          <input type="number" className="form-control form-control-sm" min={0} value={lower} step="any"
+          <input type="number" className="form-control" min={0} value={lower} step="any"
                  onChange={this.handleLower.bind(this)}/>
+        </div>
+        <div className="form-group mb-2">
           <label>Upper Bound (-log10):</label>
-          <input type="number" className="form-control form-control-sm" min={0} value={upper} step="any"
+          <input type="number" className="form-control" min={0} value={upper} step="any"
                  onChange={this.handleUpper.bind(this)}/>
         </div>
         <button className="btn btn-primary" type="submit">Submit</button>
       </form>
+
       <Nav tabs>
         <NavItem>
           <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"}>
