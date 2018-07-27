@@ -88,8 +88,15 @@ Handsontable.cellTypes.registerCellType('p_value', {
 class DFBody extends React.Component {
   constructor(props) {
     super(props);
+
     this.search = React.createRef();
     this.grid = React.createRef();
+
+    this.state = {
+      height: Math.floor(document.documentElement.clientHeight * 0.8)
+    };
+
+    this.setHeight = _.debounce(this.setHeight.bind(this), 100);
   }
 
   componentDidMount() {
@@ -168,7 +175,7 @@ class DFBody extends React.Component {
       }
     });
 
-    Handsontable.dom.addEvent(this.search.current, 'keyup', function () {
+    Handsontable.dom.addEvent(this.search.current, 'keyup', _.debounce(function () {
       let {data} = self;
       if (this.value.length > 0) {
         hot.loadData([
@@ -182,9 +189,12 @@ class DFBody extends React.Component {
       } else {
         hot.loadData(data);
       }
-    });
+    }, 100));
 
     this.updateData();
+
+    this.setHeight();
+    window.addEventListener("resize", this.setHeight);
   }
 
   componentDidUpdate(prevProps) {
@@ -195,6 +205,7 @@ class DFBody extends React.Component {
 
   componentWillUnmount() {
     this.hot.destroy();
+    window.removeEventListener("resize", this.setHeight);
   }
 
   updateData() {
@@ -207,15 +218,36 @@ class DFBody extends React.Component {
     });
   }
 
+  setHeight() {
+    this.setState({height: document.documentElement.clientHeight - this.grid.current.offsetTop});
+  }
+
   render() {
     let {busy} = this.props;
-    // @todo: find someone who actually knows CSS
-    return <div>
-      <div>
-        <input type="text" placeholder="Search" ref={this.search} style={{float: 'left'}}/>
-        {busy ? <FontAwesomeIcon icon="circle-notch" spin size="lg"/> : null}
+    let {height} = this.state;
+
+    return <div className="container-fluid">
+      <div className="row my-1">
+        <div className="col-4">
+          <div className="input-group">
+            <div className="input-group-prepend">
+              <span className="input-group-text">
+                <FontAwesomeIcon icon="search"/>
+              </span>
+            </div>
+            <input type="text" placeholder="Search" ref={this.search} className="form-control"/>
+          </div>
+        </div>
+        <div className="col">
+          {busy ? <FontAwesomeIcon icon="circle-notch" spin size="2x"/> : null}
+        </div>
       </div>
-      <div id="grid" ref={this.grid} style={{height: '80vh', overflow: 'hidden', clear: 'both'}}/>
+      <div className="row">
+        <div className="col">
+          <div id="grid" ref={this.grid} style={{overflow: 'hidden', height}}/>
+        </div>
+      </div>
+
     </div>;
   }
 }

@@ -17,7 +17,8 @@ import {
   faExpand,
   faRedo,
   faFileDownload,
-  faImage
+  faImage,
+  faSearch
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -32,5 +33,6 @@ library.add(
   faExpand,
   faRedo,
   faFileDownload,
-  faImage
+  faImage,
+  faSearch
 );
