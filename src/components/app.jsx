@@ -4,7 +4,7 @@
 import React from 'react';
 import {Link, Switch, Route, Redirect} from 'react-router-dom';
 import PropTypes from 'prop-types';
-import {Navbar, Nav, NavItem, Collapse, NavbarToggler} from 'reactstrap';
+import {Navbar, Nav, NavItem, Collapse, NavbarToggler, NavbarBrand} from 'reactstrap';
 
 import About from './about';
 import Datagrid from './datagrid';
@@ -35,13 +35,11 @@ class App extends React.Component {
     let {pathname} = this.props.location;
 
     return <div>
-      <div>
-        <h1>TF2TargetDB</h1>
-      </div>
       <Navbar color="light" light expand="md">
+        <NavbarBrand>TF2TargetDB</NavbarBrand>
         <NavbarToggler onClick={this.toggle.bind(this)}/>
         <Collapse isOpen={this.state.isOpen} navbar>
-          <Nav className="mr-auto" navbar>
+          <Nav className="ml-auto" navbar>
             <NavItem active={pathname === "/"}>
               <Link to="/" className="nav-link">About</Link>
             </NavItem>

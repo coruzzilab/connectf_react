@@ -71,7 +71,7 @@ export class MetaBody extends React.Component {
         })
       });
 
-      this.hot.loadData(_.values(JSON.parse(_.get(result, '1.data', "{}"))));
+      this.hot.loadData(_.values(_.get(result, '1.data', {})));
     }
   }
 

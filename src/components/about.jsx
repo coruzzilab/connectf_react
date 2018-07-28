@@ -3,14 +3,18 @@
  * 6/14/17
  */
 import React from 'react';
+import {Link} from 'react-router-dom';
 
 class About extends React.Component {
   render() {
-    return <div>
-      <h1>About TF2TargetDB</h1>
-      <p>
-        Introduction page coming soon for TF2TargetDB.
-      </p>
+    return <div className="jumbotron jumbotron-fluid">
+      <div className="container-fluid">
+        <h1 className="display-4">Welcome to TF2TargetDB</h1>
+        <p className="lead">
+          Query transcription factor and target gene interactions.
+        </p>
+        <Link to="/query" className="btn btn-primary btn-lg">Get Started</Link>
+      </div>
     </div>;
   }
 }

@@ -5,6 +5,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
+import {FontAwesomeIcon as Icon} from '@fortawesome/react-fontawesome';
 import {BASE_URL} from '../../actions';
 
 const mapStateToProps = ({requestId}) => {
@@ -21,7 +22,7 @@ class ExtraBody extends React.Component {
       <a href={`${BASE_URL}/queryapp/export/${requestId}.zip`}
          className="btn btn-primary"
          target="_blank" rel="noopener noreferrer"
-         download="query.zip">Download Query as ZIP file</a>
+         download="query.zip"><Icon icon="file-archive" className="mr-1"/>Download Query as ZIP file</a>
     </div>;
   }
 }

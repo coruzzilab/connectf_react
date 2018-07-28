@@ -50,13 +50,13 @@ class TargetGenesFile extends React.Component {
   }
 
   handleChange(e) {
-    this.props.handleChange(e.target.files)
+    this.props.handleChange(e.target.files);
   }
 
   render() {
     return <input type="file" className="form-control-file"
                   onChange={this.handleChange.bind(this)}
-                  ref={this.targetGenes}/>
+                  ref={this.targetGenes}/>;
   }
 }
 
@@ -659,9 +659,9 @@ class QuerybuilderBody extends React.Component {
     data.append('query', query);
 
     if (targetGene === "other") {
-     if (files && files.length) {
-       data.set('targetgenes', files[0]);
-     }
+      if (files && files.length) {
+        data.set('targetgenes', files[0]);
+      }
     } else {
       data.set('targetgenes', targetGene);
     }
@@ -680,6 +680,9 @@ class QuerybuilderBody extends React.Component {
 
     this.props.clearQuery();
     this.props.clearQueryTree();
+    this.setState({
+      targetGene: ""
+    });
   }
 
   handleTargetGene(e) {
@@ -712,26 +715,16 @@ class QuerybuilderBody extends React.Component {
           <div className="row">
             <h2>Query</h2>
           </div>
-          <div className="row">
+          <div className="form-row m-1">
             <div className="col">
-              <div className="btn-group float-left">
-                <button type="button" className="btn btn-success"
+              <div className="btn-group">
+                <button type="button" className="btn btn-success btn-lg"
                         onClick={addTF.bind(undefined, '', undefined, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
                 </button>
-                <button type="button" className="btn btn-success"
+                <button type="button" className="btn btn-success btn-lg"
                         onClick={addGroup.bind(undefined, undefined, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
-                </button>
-              </div>
-            </div>
-            <div className="col">
-              <div className="btn-group float-right">
-                <button type="submit" className="btn btn-primary btn-lg">
-                  <FontAwesomeIcon icon="arrow-circle-up" className="mr-2"/>Submit
-                </button>
-                <button type="button" className="btn btn-outline-danger btn-lg" onClick={this.reset.bind(this)}>
-                  <FontAwesomeIcon icon="redo" className="mr-2"/>Reset
                 </button>
               </div>
             </div>
@@ -747,18 +740,28 @@ class QuerybuilderBody extends React.Component {
             }
           }).value()}
           <div className="form-row">
-            <div className="btn-group m-1">
-              <button type="button" className="btn btn-secondary" onClick={this.setQuery.bind(this)}>
-                <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
-              </button>
-              <button type="button" className="btn btn-outline-secondary" ref={this.copy}>
-                <FontAwesomeIcon icon="copy" className="mr-1"/>Copy
-              </button>
+            <div className="col m-2">
+              <div className="input-group">
+                <div className="input-group-prepend">
+                  <button type="button" className="btn btn-outline-secondary btn-lg" ref={this.copy}>
+                    <FontAwesomeIcon icon="copy" className="mr-1"/>Copy
+                  </button>
+                  <button type="button" className="btn btn-secondary btn-lg" onClick={this.setQuery.bind(this)}>
+                    <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
+                  </button>
+                </div>
+                <textarea className="form-control" value={this.props.query}
+                          onChange={this.handleQuery.bind(this)} autoComplete="on"/>
+                <div className="input-group-append">
+                  <button type="submit" className="btn btn-primary btn-lg">
+                    <FontAwesomeIcon icon="arrow-circle-up" className="mr-2"/>Submit
+                  </button>
+                  <button type="button" className="btn btn-outline-danger btn-lg" onClick={this.reset.bind(this)}>
+                    <FontAwesomeIcon icon="redo" className="mr-2"/>Reset
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="form-row">
-          <textarea className="form-control col m-2" rows="5" value={this.props.query}
-                    onChange={this.handleQuery.bind(this)} autoComplete="on"/>
           </div>
 
           <div className="row">

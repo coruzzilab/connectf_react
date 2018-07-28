@@ -316,7 +316,7 @@ export const clearStats = () => {
 export const getStats = (requestId) => {
   return (dispatch) => {
     $.ajax({
-      url: `${BASE_URL}/queryapp/stats/${requestId}`,
+      url: `${BASE_URL}/queryapp/stats/${requestId}/`,
       method: 'GET'
     }).done((data) => {
       dispatch(setStats(data));
