@@ -19,7 +19,8 @@ import {
   faFileDownload,
   faImage,
   faSearch,
-  faFileArchive
+  faFileArchive,
+  faSync
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -36,5 +37,6 @@ library.add(
   faFileDownload,
   faImage,
   faSearch,
-  faFileArchive
+  faFileArchive,
+  faSync
 );

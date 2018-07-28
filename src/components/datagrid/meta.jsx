@@ -42,7 +42,7 @@ export class MetaBody extends React.Component {
         };
       }),
       columnSorting: true,
-      data: _.values(JSON.parse(_.get(result, '1.data', "{}"))),
+      data: _.values(_.get(result, '1.data', {})),
       sortIndicator: true,
       search: true
     });

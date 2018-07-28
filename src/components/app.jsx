@@ -35,7 +35,7 @@ class App extends React.Component {
     let {pathname} = this.props.location;
 
     return <div>
-      <Navbar color="light" light expand="md">
+      <Navbar color="light" light expand="md" className="mb-1">
         <NavbarBrand>TF2TargetDB</NavbarBrand>
         <NavbarToggler onClick={this.toggle.bind(this)}/>
         <Collapse isOpen={this.state.isOpen} navbar>

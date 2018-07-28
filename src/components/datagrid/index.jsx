@@ -5,8 +5,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Route, Redirect, Switch} from 'react-router-dom';
-
 import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {clearQuery, clearQueryTree} from "../../actions";
 
 import DF from './df';
 import Meta from './meta';
@@ -26,6 +27,15 @@ class Datagrid extends React.Component {
     this.props.history.push(key);
   }
 
+  back() {
+    this.props.history.push('/query');
+  }
+
+  backReset() {
+    this.props.clearQuery();
+    this.props.clearQueryTree();
+    this.props.history.push('/query');
+  }
   render() {
     let {match, location} = this.props;
     let {pathname} = location;
@@ -68,7 +78,16 @@ class Datagrid extends React.Component {
             Extra
           </NavLink>
         </NavItem>
+        <NavItem className="ml-auto">
+          <div className="btn-group mr-1">
+            <button type="button" className="btn btn-primary" onClick={this.back.bind(this)}>
+              <FontAwesomeIcon icon="arrow-circle-left" className="mr-1"/>Back</button>
+            <button type="button" className="btn btn-primary" onClick={this.backReset.bind(this)}>
+              <FontAwesomeIcon icon="sync" className="mr-1"/>New Query</button>
+          </div>
+        </NavItem>
       </Nav>
+
       <TabContent activeTab={pathname}>
         <Switch>
           <Route path={match.path + '/table'} render={() => {
@@ -112,7 +131,9 @@ Datagrid.propTypes = {
   location: PropTypes.object,
   match: PropTypes.object,
   history: PropTypes.object,
-  heatmap: PropTypes.object
+  heatmap: PropTypes.object,
+  clearQuery: PropTypes.func,
+  clearQueryTree: PropTypes.func
 };
 
-export default connect(mapStateToProps)(Datagrid);
+export default connect(mapStateToProps, {clearQuery, clearQueryTree})(Datagrid);
