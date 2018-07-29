@@ -352,6 +352,7 @@ class ModGroupBody extends React.Component {
   constructor(props) {
     super(props);
     this.dropTarget = React.createRef();
+    this.queryDiv = React.createRef();
   }
 
   render() {
@@ -381,18 +382,35 @@ class ModGroupBody extends React.Component {
                     if (source_id !== node.id) {
                       let source = _.find(queryTree, ['id', source_id]);
                       if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
-                        let rect = this.dropTarget.current.getBoundingClientRect();
-                        let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
                         let target;
-                        if (after) {
-                          target = _.findLast(queryTree, ['parent', node.id]);
+                        let after;
+                        let currY = e.clientY - value.clientYOffset;
+                        let _currNodesPos = _(this.queryDiv.current.children)
+                          .invokeMap('getBoundingClientRect')
+                          .map(_.unary(_.partial(_.pick, _, ['top', 'height'])))
+                          .map((rect) => rect.top + rect.height / 2);
+                        let _currNodes = _(queryTree)
+                          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
+                          .filter((o) => o.parent === node.id);
+
+
+                        let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
+                        let nextPos = _currNodesPos.findIndex((p) => p > currY);
+
+                        if (prevPos === -1) {
+                          target = _currNodes.head();
+                          after = false;
+                        } else if (nextPos === -1) {
+                          target = _currNodes.last();
+                          after = true;
                         } else {
-                          target = _.find(queryTree, ['parent', node.id]);
+                          let currNodes = _currNodes.value();
+                          target = currNodes[prevPos];
+                          after = true;
                         }
                         if (target) {
                           moveItem(source_id, target.id, after);
                         }
-
                         setParent(source_id, node.id);
                       }
                     }
@@ -432,7 +450,7 @@ class ModGroupBody extends React.Component {
             </div>
           </div>
           <div className="row">
-            <div className="col">
+            <div className="col" ref={this.queryDiv}>
               {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
                 let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
                 if (o.nodeType === 'MOD') {
@@ -482,6 +500,7 @@ class ValueBody extends React.Component {
   constructor(props) {
     super(props);
     this.dropTarget = React.createRef();
+    this.queryDiv = React.createRef();
     this.uuid = uuidv4();
     this.state = {
       dataSource: []
@@ -541,15 +560,34 @@ class ValueBody extends React.Component {
                         }
                       } else if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
                         let target;
-                        if (after) {
-                          target = _.findLast(queryTree, ['parent', node.id]);
+                        let after;
+                        let currY = e.clientY - value.clientYOffset;
+                        let _currNodesPos = _(this.queryDiv.current.children)
+                          .invokeMap('getBoundingClientRect')
+                          .map(_.unary(_.partial(_.pick, _, ['top', 'height'])))
+                          .map((rect) => rect.top + rect.height / 2);
+                        let _currNodes = _(queryTree)
+                          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
+                          .filter((o) => o.parent === node.id);
+
+
+                        let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
+                        let nextPos = _currNodesPos.findIndex((p) => p > currY);
+
+                        if (prevPos === -1) {
+                          target = _currNodes.head();
+                          after = false;
+                        } else if (nextPos === -1) {
+                          target = _currNodes.last();
+                          after = true;
                         } else {
-                          target = _.find(queryTree, ['parent', node.id]);
+                          let currNodes = _currNodes.value();
+                          target = currNodes[prevPos];
+                          after = true;
                         }
                         if (target) {
                           moveItem(source_id, target.id, after);
                         }
-
                         setParent(source_id, node.id);
                       }
                     }
@@ -604,7 +642,7 @@ class ValueBody extends React.Component {
         </div>
 
         <div className="w-100"/>
-        <div className="col">
+        <div className="col" ref={this.queryDiv}>
           {mods.map((o, i, a) => {
             let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
             if (o.nodeType === 'MOD') {
@@ -652,6 +690,7 @@ class GroupBody extends React.Component {
   constructor(props) {
     super(props);
     this.dropTarget = React.createRef();
+    this.queryDiv = React.createRef();
   }
 
   render() {
@@ -679,18 +718,33 @@ class GroupBody extends React.Component {
                     e.preventDefault();
                     let source_id = e.dataTransfer.getData('id');
                     if (source_id !== node.id) {
-                      let rect = this.dropTarget.current.getBoundingClientRect();
-                      let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
                       let target;
-                      if (after) {
-                        target = _.findLast(queryTree, ['parent', node.id]);
+                      let after;
+                      let currY = e.clientY - value.clientYOffset;
+                      let _currNodesPos = _(this.queryDiv.current.children)
+                        .invokeMap('getBoundingClientRect')
+                        .map(_.unary(_.partial(_.pick, _, ['top', 'height'])))
+                        .map((rect) => rect.top + rect.height / 2);
+                      let _currNodes = _(queryTree).filter((o) => o.parent === node.id);
+
+
+                      let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
+                      let nextPos = _currNodesPos.findIndex((p) => p > currY);
+
+                      if (prevPos === -1) {
+                        target = _currNodes.head();
+                        after = false;
+                      } else if (nextPos === -1) {
+                        target = _currNodes.last();
+                        after = true;
                       } else {
-                        target = _.find(queryTree, ['parent', node.id]);
+                        let currNodes = _currNodes.value();
+                        target = currNodes[prevPos];
+                        after = true;
                       }
                       if (target) {
                         moveItem(source_id, target.id, after);
                       }
-
                       setParent(source_id, node.id);
                     }
                   }}>
@@ -737,7 +791,7 @@ class GroupBody extends React.Component {
             </div>
           </div>
           <div className="row">
-            <div className="col">
+            <div className="col" ref={this.queryDiv}>
               {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
                 let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
                 if (o.nodeType === 'TF') {
