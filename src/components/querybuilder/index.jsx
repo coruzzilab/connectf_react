@@ -219,7 +219,7 @@ class ModBody extends React.Component {
                 <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
                 null}
               <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-              <select className="form-control col-1 mr-1" onChange={this.setModKey.bind(this)} value={node.key}>
+              <select className="form-control col mr-1" onChange={this.setModKey.bind(this)} value={node.key}>
                 {_.map(dataSource, (o, i) => {
                   return <option key={i}>{o}</option>;
                 })}
@@ -234,7 +234,7 @@ class ModBody extends React.Component {
                   <option>&gt;=</option>
                 </select> :
                 null}
-              <input className="form-control col"
+              <input className="form-control col-6"
                      list={this.uuid}
                      onChange={this.setModValue.bind(this)} value={node.value}/>
             </div>
@@ -648,12 +648,13 @@ class QuerybuilderBody extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    let {query} = this.props;
+    let {query, setQuery} = this.props;
     let {targetGene, files} = this.state;
     let data = new FormData();
 
     if (!this.props.query) {
       query = this.buildQuery();
+      setQuery(query);
     }
 
     data.append('query', query);
