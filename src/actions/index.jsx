@@ -22,6 +22,12 @@ export const setBusy = (busy) => {
   };
 };
 
+export const setDraggable = (draggable) => {
+  return {
+    type: 'SET_DRAGGABLE',
+    draggable
+  };
+};
 
 export const setQuery = (query) => {
   return {
@@ -70,6 +76,23 @@ export const addMod = (key, value, parent, after, oper = 'or', not_ = false, inn
     oper,
     innerOper,
     not_
+  };
+};
+
+export const moveItem = (source, target, after = true) => {
+  return {
+    type: 'MOVE_ITEM',
+    source,
+    target,
+    after
+  };
+};
+
+export const setParent = (id, parent) => {
+  return {
+    type: 'SET_PARENT',
+    id,
+    parent
   };
 };
 

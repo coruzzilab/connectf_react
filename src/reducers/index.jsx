@@ -40,6 +40,47 @@ function addAfter(state, id, obj) {
   return [...state.slice(0, prevLoc + 1), obj, ...state.slice(prevLoc + 1)];
 }
 
+function moveItem(state, source, target, after = true) {
+  let source_loc = _.findIndex(state, ['id', source]);
+  let target_loc = _.findIndex(state, ['id', target]);
+
+  if (source_loc === -1 || target_loc === -1) {
+    return state;
+  }
+
+  if (after) {
+    if (source_loc > target_loc) {
+      return [
+        ...state.slice(0, target_loc + 1),
+        state[source_loc],
+        ...state.slice(target_loc + 1, source_loc),
+        ...state.slice(source_loc + 1)
+      ];
+    }
+    return [
+      ...state.slice(0, source_loc),
+      ...state.slice(source_loc + 1, target_loc + 1),
+      state[source_loc],
+      ...state.slice(target_loc + 1)];
+
+  } else {
+    if (source_loc < target_loc) {
+      return [
+        ...state.slice(0, source_loc),
+        ...state.slice(source_loc + 1, target_loc),
+        state[source_loc],
+        ...state.slice(target_loc)
+      ];
+    }
+    return [
+      ...state.slice(0, target_loc),
+      state[source_loc],
+      ...state.slice(target_loc, source_loc),
+      ...state.slice(source_loc + 1)
+    ];
+  }
+}
+
 function queryTree(state = [], action) {
   switch (action.type) {
   case 'ADD_TF':
@@ -176,6 +217,26 @@ function queryTree(state = [], action) {
     });
   case 'CLEAR_QUERY_TREE':
     return [];
+  case 'MOVE_ITEM':
+    return moveItem(state, action.source, action.target, action.after);
+  case 'SET_PARENT':
+    return _.map(state, (o) => {
+      if (o.id === action.id) {
+        return Object.assign({}, o, {
+          parent: action.parent
+        });
+      }
+      return o;
+    });
+  default:
+    return state;
+  }
+}
+
+function draggable(state = true, action) {
+  switch (action.type) {
+  case 'SET_DRAGGABLE':
+    return action.draggable;
   default:
     return state;
   }
@@ -243,7 +304,7 @@ function stats(state = {}, action) {
   case 'CLEAR_STATS':
     return {};
   default:
-    return state
+    return state;
   }
 }
 
@@ -268,7 +329,8 @@ const tgdbApp = {
   motifEnrichment,
   requestId,
   stats,
-  error
+  error,
+  draggable
 };
 
 export default tgdbApp;

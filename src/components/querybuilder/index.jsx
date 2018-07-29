@@ -26,18 +26,36 @@ import {
   setModKey,
   setModValue,
   setModInnerOper,
-  clearQueryTree
+  clearQueryTree,
+  moveItem,
+  setParent,
+  setDraggable
 } from '../../actions';
 import {getQuery, getParentTfTree} from "../../utils";
 
-const mapStateToProps = ({busy, query, queryTree}) => {
+const mapStateToProps = ({busy, query, queryTree, draggable}) => {
   return {
     busy,
     query,
-    queryTree
+    queryTree,
+    draggable
   };
 };
 
+class ImmobileInputBody extends React.Component {
+  render() {
+    let {setDraggable} = this.props;
+    return <input onFocus={setDraggable.bind(undefined, false)}
+                  onBlur={setDraggable.bind(undefined, true)}
+                  {..._.omit(this.props, 'setDraggable')}/>;
+  }
+}
+
+ImmobileInputBody.propTypes = {
+  setDraggable: PropTypes.func
+};
+
+const ImmobileInput = connect(null, {setDraggable})(ImmobileInputBody);
 
 class TargetGenesFile extends React.Component {
   constructor(props) {
@@ -114,6 +132,7 @@ NotSelect.propTypes = {
 class ModBody extends React.Component {
   constructor(props) {
     super(props);
+    this.dropTarget = React.createRef();
     this.state = {
       dataSource: [],
       dataSourceValues: []
@@ -207,10 +226,36 @@ class ModBody extends React.Component {
   }
 
   render() {
-    let {first, node, addMod, addModGroup, removeNode, setQueryNot, setQueryOper} = this.props;
+    let {
+      first, node, addMod, addModGroup, removeNode, setQueryNot, setQueryOper, queryTree, moveItem, setParent, draggable
+    } = this.props;
     let {dataSource, dataSourceValues} = this.state;
 
-    return <div className="row border border-dark rounded m-2">
+    return <div draggable={draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+                onDragStart={(e) => {
+                  e.stopPropagation();
+                  e.dataTransfer.setData('id', node.id);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  let source_id = e.dataTransfer.getData('id');
+                  if (source_id !== node.id) {
+                    let source = _.find(queryTree, ['id', source_id]);
+                    if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
+                      let rect = this.dropTarget.current.getBoundingClientRect();
+                      let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                      moveItem(source_id, node.id, after);
+                      if (source.parent !== node.parent) {
+                        setParent(source_id, node.parent);
+                      }
+                    }
+                  }
+
+                }}>
       <div className="col">
         <div className="row m-2">
           <div className="col">
@@ -234,9 +279,11 @@ class ModBody extends React.Component {
                   <option>&gt;=</option>
                 </select> :
                 null}
-              <input className="form-control col-6"
-                     list={this.uuid}
-                     onChange={this.setModValue.bind(this)} value={node.value}/>
+              <ImmobileInput className="form-control col-6"
+                             type="text"
+                             list={this.uuid}
+                             onChange={this.setModValue.bind(this)}
+                             value={node.value}/>
             </div>
             <datalist id={this.uuid}>
               {_.map(dataSourceValues, (o, i) => {
@@ -283,7 +330,10 @@ ModBody.propTypes = {
   addModGroup: PropTypes.func,
   setModKey: PropTypes.func,
   setModValue: PropTypes.func,
-  setModInnerOper: PropTypes.func
+  setModInnerOper: PropTypes.func,
+  moveItem: PropTypes.func,
+  setParent: PropTypes.func,
+  draggable: PropTypes.bool
 };
 
 const Mod = connect(mapStateToProps, {
@@ -294,17 +344,56 @@ const Mod = connect(mapStateToProps, {
   addModGroup,
   setModKey,
   setModValue,
-  setModInnerOper
+  setModInnerOper,
+  moveItem,
+  setParent
 })(ModBody);
 
 class ModGroupBody extends React.Component {
+  constructor(props) {
+    super(props);
+    this.dropTarget = React.createRef();
+  }
+
   render() {
-    let {first, node, queryTree, removeNode, addMod, addModGroup, setQueryNot, setQueryOper} = this.props;
+    let {
+      first, node, queryTree, removeNode, addMod, addModGroup, setQueryNot, setQueryOper, moveItem, setParent, draggable
+    } = this.props;
 
 
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
 
-    return <div className="row border border-dark rounded m-2">
+    return <div draggable={draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+                onDragStart={(e) => {
+                  e.stopPropagation();
+                  e.dataTransfer.setData('id', node.id);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  let source_id = e.dataTransfer.getData('id');
+                  if (source_id !== node.id) {
+                    let source = _.find(queryTree, ['id', source_id]);
+                    if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
+                      let rect = this.dropTarget.current.getBoundingClientRect();
+                      let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                      let target;
+                      if (after) {
+                        target = _.findLast(queryTree, ['parent', node.id]);
+                      } else {
+                        target = _.find(queryTree, ['parent', node.id]);
+                      }
+                      if (target) {
+                        moveItem(source_id, target.id, after);
+                      }
+
+                      setParent(source_id, node.id);
+                    }
+                  }
+                }}>
       <div className="col">
         <div className="row m-2">
           {!first ?
@@ -340,21 +429,22 @@ class ModGroupBody extends React.Component {
             </div>
           </div>
         </div>
-      </div>
-      <div className="w-100"/>
-      <div className="col">
-        {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
-          let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-          if (o.nodeType === 'MOD') {
-            return <Mod key={o.id}
-                        first={first}
-                        node={o}/>;
-          } else if (o.nodeType === 'MOD_GROUP') {
-            return <ModGroup key={o.id}
-                             first={first}
-                             node={o}/>;
-          }
-        }).value()}
+        <div className="row">
+          <div className="col">
+            {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
+              let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+              if (o.nodeType === 'MOD') {
+                return <Mod key={o.id}
+                            first={first}
+                            node={o}/>;
+              } else if (o.nodeType === 'MOD_GROUP') {
+                return <ModGroup key={o.id}
+                                 first={first}
+                                 node={o}/>;
+              }
+            }).value()}
+          </div>
+        </div>
       </div>
     </div>;
   }
@@ -369,7 +459,10 @@ ModGroupBody.propTypes = {
   removeNode: PropTypes.func,
   queryTree: PropTypes.arrayOf(PropTypes.object),
   setQueryOper: PropTypes.func,
-  setQueryNot: PropTypes.func
+  setQueryNot: PropTypes.func,
+  moveItem: PropTypes.func,
+  setParent: PropTypes.func,
+  draggable: PropTypes.bool
 };
 
 const ModGroup = connect(mapStateToProps, {
@@ -378,12 +471,15 @@ const ModGroup = connect(mapStateToProps, {
   setQueryName,
   removeNode,
   setQueryOper,
-  setQueryNot
+  setQueryNot,
+  moveItem,
+  setParent
 })(ModGroupBody);
 
 class ValueBody extends React.Component {
   constructor(props) {
     super(props);
+    this.dropTarget = React.createRef();
     this.uuid = uuidv4();
     this.state = {
       dataSource: []
@@ -408,12 +504,51 @@ class ValueBody extends React.Component {
   }
 
   render() {
-    let {first, node, addTF, addGroup, removeNode, setQueryNot, setQueryOper, addMod, addModGroup, queryTree} = this.props;
+    let {
+      first, node, addTF, addGroup, removeNode, setQueryNot, setQueryOper, addMod, addModGroup, queryTree, moveItem,
+      setParent, draggable
+    } = this.props;
     let {dataSource} = this.state;
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
-    return <div className="row border border-dark rounded m-2">
+    return <div draggable={draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+                onDragStart={(e) => {
+                  e.stopPropagation();
+                  e.dataTransfer.setData('id', node.id);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  let source_id = e.dataTransfer.getData('id');
+                  if (source_id !== node.id) {
+                    let source = _.find(queryTree, ['id', source_id]);
+                    let rect = this.dropTarget.current.getBoundingClientRect();
+                    let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                    if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
+                      moveItem(source_id, node.id, after);
+                      if (source.parent !== node.parent) {
+                        setParent(source_id, node.parent);
+                      }
+                    } else if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
+                      let target;
+                      if (after) {
+                        target = _.findLast(queryTree, ['parent', node.id]);
+                      } else {
+                        target = _.find(queryTree, ['parent', node.id]);
+                      }
+                      if (target) {
+                        moveItem(source_id, target.id, after);
+                      }
+
+                      setParent(source_id, node.id);
+                    }
+                  }
+
+                }}>
       <div className="col">
         <div className="row m-2">
           <div className="col">
@@ -422,9 +557,11 @@ class ValueBody extends React.Component {
                 <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}/> :
                 null}
               <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-              <input className="form-control col"
-                     list={this.uuid}
-                     onChange={this.handleQueryName.bind(this, node.id)} value={node.name}/>
+              <ImmobileInput className="form-control col"
+                             type="text"
+                             list={this.uuid}
+                             onChange={this.handleQueryName.bind(this, node.id)}
+                             value={node.name}/>
             </div>
           </div>
           <datalist id={this.uuid}>
@@ -487,7 +624,10 @@ ValueBody.propTypes = {
   setQueryNot: PropTypes.func,
   addMod: PropTypes.func,
   addModGroup: PropTypes.func,
-  queryTree: PropTypes.arrayOf(PropTypes.object)
+  queryTree: PropTypes.arrayOf(PropTypes.object),
+  moveItem: PropTypes.func,
+  setParent: PropTypes.func,
+  draggable: PropTypes.bool
 };
 
 const Value = connect(mapStateToProps, {
@@ -498,16 +638,53 @@ const Value = connect(mapStateToProps, {
   setQueryOper,
   setQueryNot,
   addMod,
-  addModGroup
+  addModGroup,
+  moveItem,
+  setParent
 })(ValueBody);
 
 class GroupBody extends React.Component {
+  constructor(props) {
+    super(props);
+    this.dropTarget = React.createRef();
+  }
+
   render() {
-    let {first, node, queryTree, removeNode, addTF, addGroup, addMod, addModGroup, setQueryNot, setQueryOper} = this.props;
+    let {
+      first, node, queryTree, removeNode, addTF, addGroup, addMod, addModGroup, setQueryNot, setQueryOper, moveItem,
+      setParent, draggable
+    } = this.props;
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
-    return <div className="row border border-dark rounded m-2">
+    return <div draggable={draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+                onDragStart={(e) => {
+                  e.stopPropagation();
+                  e.dataTransfer.setData('id', node.id);
+                }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  let source_id = e.dataTransfer.getData('id');
+                  if (source_id !== node.id) {
+                    let rect = this.dropTarget.current.getBoundingClientRect();
+                    let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                    let target;
+                    if (after) {
+                      target = _.findLast(queryTree, ['parent', node.id]);
+                    } else {
+                      target = _.find(queryTree, ['parent', node.id]);
+                    }
+                    if (target) {
+                      moveItem(source_id, target.id, after);
+                    }
+
+                    setParent(source_id, node.id);
+                  }
+                }}>
       <div className="col">
         <div className="row m-2">
           {!first ?
@@ -551,36 +728,38 @@ class GroupBody extends React.Component {
             </div>
           </div>
         </div>
+        <div className="row">
+          <div className="col">
+            {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
+              let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+              if (o.nodeType === 'TF') {
+                return <Value key={o.id}
+                              first={first}
+                              node={o}/>;
+              } else if (o.nodeType === 'GROUP') {
+                return <Group key={o.id}
+                              first={first}
+                              node={o}/>;
+              }
+            }).value()}
+          </div>
+        </div>
+        <div className="row">
+          {mods.size() ?
+            <div className="col border border-light rounded bg-light m-2">
+              <h3>Modifiers</h3>
+              {mods.map((o, i, a) => {
+                let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+                if (o.nodeType === 'MOD') {
+                  return <Mod key={o.id} first={first} node={o}/>;
+                } else if (o.nodeType === 'MOD_GROUP') {
+                  return <ModGroup key={o.id} first={first} node={o}/>;
+                }
+              }).value()}
+            </div> :
+            null}
+        </div>
       </div>
-      <div className="w-100"/>
-      <div className="col">
-        {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
-          let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-          if (o.nodeType === 'TF') {
-            return <Value key={o.id}
-                          first={first}
-                          node={o}/>;
-          } else if (o.nodeType === 'GROUP') {
-            return <Group key={o.id}
-                          first={first}
-                          node={o}/>;
-          }
-        }).value()}
-      </div>
-      <div className="w-100"/>
-      {mods.size() ?
-        <div className="col border border-light rounded bg-light m-2">
-          <h3>Modifiers</h3>
-          {mods.map((o, i, a) => {
-            let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-            if (o.nodeType === 'MOD') {
-              return <Mod key={o.id} first={first} node={o}/>;
-            } else if (o.nodeType === 'MOD_GROUP') {
-              return <ModGroup key={o.id} first={first} node={o}/>;
-            }
-          }).value()}
-        </div> :
-        null}
     </div>;
   }
 }
@@ -596,7 +775,10 @@ GroupBody.propTypes = {
   removeNode: PropTypes.func,
   queryTree: PropTypes.arrayOf(PropTypes.object),
   setQueryOper: PropTypes.func,
-  setQueryNot: PropTypes.func
+  setQueryNot: PropTypes.func,
+  moveItem: PropTypes.func,
+  setParent: PropTypes.func,
+  draggable: PropTypes.bool
 };
 
 const Group = connect(mapStateToProps, {
@@ -607,8 +789,61 @@ const Group = connect(mapStateToProps, {
   setQueryName,
   removeNode,
   setQueryOper,
-  setQueryNot
+  setQueryNot,
+  moveItem,
+  setParent
 })(GroupBody);
+
+class QueryBoxBody extends React.Component {
+  constructor(props) {
+    super(props);
+    this.dropTarget = React.createRef();
+  }
+
+  render() {
+    let {queryTree, setParent, moveItem} = this.props;
+
+    return <div className={classNames("form-row", queryTree.length ? "border border-dark rounded py-3 mx-1" : null)}
+                ref={this.dropTarget}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                }}
+                onDrop={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  let source_id = e.dataTransfer.getData('id');
+                  let source = _.find(queryTree, ['id', source_id]);
+                  if ((source.nodeType === 'TF' || source.nodeType === 'GROUP') && source.parent) {
+                    let rect = this.dropTarget.current.getBoundingClientRect();
+                    let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                    let target;
+                    if (after) {
+                      target = _.last(queryTree);
+                    } else {
+                      target = _.head(queryTree);
+                    }
+                    moveItem(source_id, target.id, after);
+                    setParent(source_id, undefined);
+                  }
+                }}>
+      <div className="col">
+        {this.props.children}
+      </div>
+    </div>;
+  }
+}
+
+QueryBoxBody.propTypes = {
+  children: PropTypes.node,
+  queryTree: PropTypes.arrayOf(PropTypes.object),
+  moveItem: PropTypes.func,
+  setParent: PropTypes.func
+};
+
+const QueryBox = connect(mapStateToProps, {
+  moveItem,
+  setParent
+})(QueryBoxBody);
 
 /**
  * Builds queries for tgdbbackend
@@ -730,16 +965,18 @@ class QuerybuilderBody extends React.Component {
               </div>
             </div>
           </div>
-          {_(queryTree).filter((o) => _.isUndefined(o.parent)).map((o, i, a) => {
-            let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-            if (o.nodeType === 'TF') {
-              return <Value key={o.id}
-                            first={first}
-                            node={o}/>;
-            } else if (o.nodeType === 'GROUP') {
-              return <Group key={o.id} first={first} node={o}/>;
-            }
-          }).value()}
+          <QueryBox>
+            {_(queryTree).filter((o) => _.isUndefined(o.parent)).map((o, i, a) => {
+              let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+              if (o.nodeType === 'TF') {
+                return <Value key={o.id}
+                              first={first}
+                              node={o}/>;
+              } else if (o.nodeType === 'GROUP') {
+                return <Group key={o.id} first={first} node={o}/>;
+              }
+            }).value()}
+          </QueryBox>
           <div className="form-row">
             <div className="col m-2">
               <div className="input-group">
