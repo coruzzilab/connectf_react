@@ -5,6 +5,7 @@ import React from 'react';
 import {Link, Switch, Route, Redirect} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {Navbar, Nav, NavItem, Collapse, NavbarToggler, NavbarBrand} from 'reactstrap';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 import About from './about';
 import Datagrid from './datagrid';
@@ -36,7 +37,7 @@ class App extends React.Component {
 
     return <div>
       <Navbar color="light" light expand="md">
-        <NavbarBrand>TF2TargetDB</NavbarBrand>
+        <NavbarBrand><FontAwesomeIcon icon="dna" className="mr-1"/>TF2TargetDB</NavbarBrand>
         <NavbarToggler onClick={this.toggle.bind(this)}/>
         <Collapse isOpen={this.state.isOpen} navbar>
           <Nav className="ml-auto" navbar>

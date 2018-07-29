@@ -22,7 +22,8 @@ import {
   faFileArchive,
   faSync,
   faFileUpload,
-  faInfoCircle
+  faInfoCircle,
+  faDna
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -42,5 +43,6 @@ library.add(
   faFileArchive,
   faSync,
   faFileUpload,
-  faInfoCircle
+  faInfoCircle,
+  faDna
 );
