@@ -44,16 +44,14 @@ const mapStateToProps = ({busy, query, queryTree}) => {
 
 class ImmobileInput extends React.Component {
   render() {
-    let {setDraggable} = this.props;
-    return <input onFocus={setDraggable.bind(undefined, false)}
-                  onBlur={setDraggable.bind(undefined, true)}
-                  {..._.omit(this.props, 'setDraggable')}/>;
+    return <QueryContext.Consumer>{value => {
+      return <input onFocus={value.setDraggable.bind(undefined, false)}
+                    onBlur={value.setDraggable.bind(undefined, true)}
+                    autoFocus
+                    {...this.props}/>;
+    }}</QueryContext.Consumer>;
   }
 }
-
-ImmobileInput.propTypes = {
-  setDraggable: PropTypes.func
-};
 
 class TargetGenesFile extends React.Component {
   constructor(props) {
@@ -236,6 +234,9 @@ class ModBody extends React.Component {
                   onDragStart={(e) => {
                     e.stopPropagation();
                     e.dataTransfer.setData('id', node.id);
+
+                    let rect = this.dropTarget.current.getBoundingClientRect();
+                    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
                   }}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -248,7 +249,7 @@ class ModBody extends React.Component {
                       let source = _.find(queryTree, ['id', source_id]);
                       if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
                         let rect = this.dropTarget.current.getBoundingClientRect();
-                        let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                        let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
                         moveItem(source_id, node.id, after);
                         if (source.parent !== node.parent) {
                           setParent(source_id, node.parent);
@@ -283,7 +284,6 @@ class ModBody extends React.Component {
                                type="text"
                                list={this.uuid}
                                onChange={this.setModValue.bind(this)}
-                               setDraggable={value.setDraggable}
                                value={node.value}/>
               </div>
               <datalist id={this.uuid}>
@@ -367,6 +367,9 @@ class ModGroupBody extends React.Component {
                   onDragStart={(e) => {
                     e.stopPropagation();
                     e.dataTransfer.setData('id', node.id);
+
+                    let rect = this.dropTarget.current.getBoundingClientRect();
+                    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
                   }}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -379,7 +382,7 @@ class ModGroupBody extends React.Component {
                       let source = _.find(queryTree, ['id', source_id]);
                       if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
                         let rect = this.dropTarget.current.getBoundingClientRect();
-                        let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                        let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
                         let target;
                         if (after) {
                           target = _.findLast(queryTree, ['parent', node.id]);
@@ -516,6 +519,9 @@ class ValueBody extends React.Component {
                   onDragStart={(e) => {
                     e.stopPropagation();
                     e.dataTransfer.setData('id', node.id);
+
+                    let rect = this.dropTarget.current.getBoundingClientRect();
+                    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
                   }}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -527,7 +533,7 @@ class ValueBody extends React.Component {
                     if (source_id !== node.id) {
                       let source = _.find(queryTree, ['id', source_id]);
                       let rect = this.dropTarget.current.getBoundingClientRect();
-                      let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                      let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
                       if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
                         moveItem(source_id, node.id, after);
                         if (source.parent !== node.parent) {
@@ -560,7 +566,6 @@ class ValueBody extends React.Component {
                                type="text"
                                list={this.uuid}
                                onChange={this.handleQueryName.bind(this, node.id)}
-                               setDraggable={value.setDraggable}
                                value={node.name}/>
               </div>
             </div>
@@ -662,6 +667,9 @@ class GroupBody extends React.Component {
                   onDragStart={(e) => {
                     e.stopPropagation();
                     e.dataTransfer.setData('id', node.id);
+
+                    let rect = this.dropTarget.current.getBoundingClientRect();
+                    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
                   }}
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -672,7 +680,7 @@ class GroupBody extends React.Component {
                     let source_id = e.dataTransfer.getData('id');
                     if (source_id !== node.id) {
                       let rect = this.dropTarget.current.getBoundingClientRect();
-                      let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                      let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
                       let target;
                       if (after) {
                         target = _.findLast(queryTree, ['parent', node.id]);
@@ -798,8 +806,10 @@ class QueryBoxBody extends React.Component {
   constructor(props) {
     super(props);
     this.dropTarget = React.createRef();
+    this.queryDiv = React.createRef();
     this.state = {
-      draggable: true
+      draggable: true,
+      clientYOffset: 0
     };
   }
 
@@ -809,9 +819,15 @@ class QueryBoxBody extends React.Component {
     });
   }
 
+  setClientYOffset(clientYOffset) {
+    this.setState({
+      clientYOffset
+    });
+  }
+
   render() {
     let {queryTree, setParent, moveItem} = this.props;
-    let {draggable} = this.state;
+    let {draggable, clientYOffset} = this.state;
 
     return <div className={classNames("form-row", queryTree.length ? "border border-dark rounded py-3 mx-1" : null)}
                 ref={this.dropTarget}
@@ -823,23 +839,40 @@ class QueryBoxBody extends React.Component {
                   e.preventDefault();
                   let source_id = e.dataTransfer.getData('id');
                   let source = _.find(queryTree, ['id', source_id]);
-                  if ((source.nodeType === 'TF' || source.nodeType === 'GROUP') && source.parent) {
-                    let rect = this.dropTarget.current.getBoundingClientRect();
-                    let after = e.clientY - rect.top - rect.height / 2 >= 0;
+                  if ((source.nodeType === 'TF' || source.nodeType === 'GROUP')) {
                     let target;
-                    if (after) {
-                      target = _.last(queryTree);
-                    } else {
+                    let after;
+                    let currY = e.clientY - clientYOffset;
+                    let _currNodesPos = _(this.queryDiv.current.children)
+                      .invokeMap('getBoundingClientRect')
+                      .map(_.unary(_.partial(_.pick, _, ['top', 'height'])))
+                      .map((rect) => rect.top + rect.height / 2);
+
+
+                    let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
+                    let nextPos = _currNodesPos.findIndex((p) => p > currY);
+
+                    if (prevPos === -1) {
                       target = _.head(queryTree);
+                      after = false;
+                    } else if (nextPos === -1) {
+                      target = _.last(queryTree);
+                      after = true;
+                    } else {
+                      let currNodes = _.filter(queryTree, (o) => !o.parent);
+                      target = currNodes[prevPos];
+                      after = true;
                     }
                     moveItem(source_id, target.id, after);
                     setParent(source_id, undefined);
                   }
                 }}>
-      <div className="col">
+      <div className="col" ref={this.queryDiv}>
         <QueryContext.Provider value={{
           draggable,
-          setDraggable: this.setDraggable.bind(this)
+          setDraggable: this.setDraggable.bind(this),
+          clientYOffset,
+          setClientYOffset: this.setClientYOffset.bind(this)
         }}>
           {this.props.children}
         </QueryContext.Provider>
