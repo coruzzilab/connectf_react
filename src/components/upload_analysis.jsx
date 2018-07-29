@@ -38,9 +38,9 @@ class UploadAnalysis extends React.Component {
   }
 
   componentDidMount() {
-    $.getJSON(`${BASE_URL}/api/tfs/search_name/`)
+    $.getJSON(`${BASE_URL}/api/tfs/`)
       .done((data) => {
-        let experiments = _(data).sortBy('value').value();
+        let experiments = _(data).sortBy().value();
 
         this.setState(Object.assign({}, {experiments}, getInitialExperiment(experiments)));
       });
@@ -146,7 +146,7 @@ class UploadAnalysis extends React.Component {
         </div>
         <div className={classNames("form-group", {"has-danger": 'analysis_method' in errors})}>
           <label htmlFor="analysisMethod">Analysis Method:</label>
-          <select type="text" className="form-control" id="analysisMethod" value={analysisMethod}
+          <select className="form-control" id="analysisMethod" value={analysisMethod}
                   onChange={this.changeKey.bind(this, 'analysisMethod')}>
             <option value="one_way_anova">one-way ANOVA</option>
             <option value="two_way_anova">two-way ANOVA</option>

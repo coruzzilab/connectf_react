@@ -89,13 +89,13 @@ class UploadExperiment extends React.Component {
       });
     });
 
-    $.getJSON(`${BASE_URL}/api/metas/search_type/Genotype/`).done((genotype_list) => {
+    $.getJSON(`${BASE_URL}/api/key/Genotype/`).done((genotype_list) => {
       this.setState({
         genotype_list
       });
     });
 
-    $.getJSON(`${BASE_URL}/api/metas/search_type/Experimenter/`).done((experimenter_list) => {
+    $.getJSON(`${BASE_URL}/api/key/Experimenter/`).done((experimenter_list) => {
       this.setState({
         experimenter_list
       });
@@ -271,7 +271,7 @@ class UploadExperiment extends React.Component {
                  placeholder="Your Name Here" list="experimenter_list"
                  onChange={this.changeKey.bind(this)} required/>
           <datalist id="experimenter_list">
-            {_(experimenter_list).map('value').concat(EXPERIMENTERS).uniqBy(_.toUpper).sortBy().map((l, i) => {
+            {_(experimenter_list).concat(EXPERIMENTERS).uniqBy(_.toUpper).sortBy().map((l, i) => {
               return <option key={i}>{l}</option>;
             }).value()}
           </datalist>
@@ -312,7 +312,7 @@ class UploadExperiment extends React.Component {
                  placeholder="COL-0"
                  onChange={this.changeKey.bind(this)} required/>
           <datalist id="genotype_list">
-            {_(genotype_list).map('value').sortBy().map((l, i) => {
+            {_(genotype_list).sortBy().map((l, i) => {
               return <option key={i} value={l}>{l}</option>;
             }).value()}
           </datalist>
