@@ -3,7 +3,9 @@
  */
 const webpack = require('webpack');
 const path = require('path');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const APP_DIR = path.join(__dirname, 'src');
@@ -26,20 +28,18 @@ const config = {
       },
       {
         test: /\.css(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: [{loader: "css-loader", options: {minimize: true}}]
-        })
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader'
+        ]
       },
       {
         test: /\.less$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {loader: "css-loader", options: {minimize: true}},
-            'less-loader'
-          ]
-        })
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'less-loader'
+        ]
       },
       {
         test: /\.(ttf|eot|svg|gif|woff(2)?)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
@@ -51,7 +51,11 @@ const config = {
     extensions: ['.js', '.jsx'],
   },
   optimization: {
-    minimize: true
+    minimize: true,
+    minimizer: [
+      new UglifyJsPlugin(),
+      new OptimizeCSSAssetsPlugin({})
+    ]
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -60,7 +64,9 @@ const config = {
       }
     }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new ExtractTextPlugin('style.css'),
+    new MiniCssExtractPlugin({
+      filename: 'style.css'
+    }),
     new BundleAnalyzerPlugin()
   ]
 };

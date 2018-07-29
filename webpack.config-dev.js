@@ -3,7 +3,7 @@
  */
 const webpack = require('webpack');
 const path = require('path');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const APP_DIR = path.join(__dirname, 'src');
 
@@ -25,17 +25,18 @@ const config = {
       },
       {
         test: /\.css(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: "css-loader"
-        })
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
       },
       {
         test: /\.less$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: ['css-loader', 'less-loader']
-        })
+        use: [
+          'style-loader',
+          'css-loader',
+          'less-loader'
+        ]
       },
       {
         test: /\.(ttf|eot|svg|gif|woff(2)?)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
@@ -54,7 +55,9 @@ const config = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new ExtractTextPlugin('style.css')
+    new MiniCssExtractPlugin({
+      filename: 'style.css'
+    })
   ]
 };
 
