@@ -20,7 +20,9 @@ import {
   faImage,
   faSearch,
   faFileArchive,
-  faSync
+  faSync,
+  faFileUpload,
+  faInfoCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -38,5 +40,7 @@ library.add(
   faImage,
   faSearch,
   faFileArchive,
-  faSync
+  faSync,
+  faFileUpload,
+  faInfoCircle
 );
