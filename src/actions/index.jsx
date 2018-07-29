@@ -22,13 +22,6 @@ export const setBusy = (busy) => {
   };
 };
 
-export const setDraggable = (draggable) => {
-  return {
-    type: 'SET_DRAGGABLE',
-    draggable
-  };
-};
-
 export const setQuery = (query) => {
   return {
     type: 'SET_QUERY',

@@ -233,15 +233,6 @@ function queryTree(state = [], action) {
   }
 }
 
-function draggable(state = true, action) {
-  switch (action.type) {
-  case 'SET_DRAGGABLE':
-    return action.draggable;
-  default:
-    return state;
-  }
-}
-
 function requestId(state = "", action) {
   switch (action.type) {
   case 'SET_REQUEST_ID':
@@ -329,8 +320,7 @@ const tgdbApp = {
   motifEnrichment,
   requestId,
   stats,
-  error,
-  draggable
+  error
 };
 
 export default tgdbApp;

@@ -82,7 +82,7 @@ class Datagrid extends React.Component {
           <div className="btn-group mr-1">
             <button type="button" className="btn btn-primary" onClick={this.back.bind(this)}>
               <FontAwesomeIcon icon="arrow-circle-left" className="mr-1"/>Back</button>
-            <button type="button" className="btn btn-primary" onClick={this.backReset.bind(this)}>
+            <button type="button" className="btn btn-outline-danger" onClick={this.backReset.bind(this)}>
               <FontAwesomeIcon icon="sync" className="mr-1"/>New Query</button>
           </div>
         </NavItem>
