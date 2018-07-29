@@ -65,7 +65,9 @@ function getMod(queryTree, id) {
 
 
 export function getQuery(queryTree, id) {
-  let curr = _(queryTree).filter((o) => o.parent === id);
+  let curr = _(queryTree)
+    .filter((o) => o.parent === id)
+    .filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP');
   let query = curr.map((o) => {
     let s = o.oper + ' ';
 
