@@ -151,6 +151,8 @@ class MotifEnrichmentBody extends React.Component {
     this.state = {
       alpha: 0.05,
       body: 'no',
+      upper: '',
+      lower: '',
       colSpan: 1,
       img: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg`,
       key: "table"
@@ -167,10 +169,14 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   setImgURL() {
+    let {alpha, lower, upper} = this.state;
+
     this.setState({
       img: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg?${$.param({
-        alpha: this.state.alpha,
-        body: this.state.body === 'yes' ? 1 : 0
+        alpha,
+        body: this.state.body === 'yes' ? 1 : 0,
+        lower,
+        upper
       })}`
     });
   }
@@ -203,13 +209,25 @@ class MotifEnrichmentBody extends React.Component {
     });
   }
 
+  handleUpper(e) {
+    this.setState({
+      upper: e.target.value
+    });
+  }
+
+  handleLower(e) {
+    this.setState({
+      lower: e.target.value
+    });
+  }
+
   onTabClick(key) {
     this.setState({key});
   }
 
   render() {
     let {motifEnrichment} = this.props;
-    let {body, img, colSpan, key} = this.state;
+    let {body, img, colSpan, key, lower, upper} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment, 'result', []));
 
     return <div>
@@ -218,6 +236,18 @@ class MotifEnrichmentBody extends React.Component {
           <label>Alpha:</label>
           <input type="number" min={0} max={1} step="any" placeholder={0.05}
                  defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
+        </div>
+        <div className="form-group mb-2">
+          <div className="form-group mb-2">
+            <label>Lower Bound (-log10):</label>
+            <input type="number" className="form-control" min={0} value={lower} step="any"
+                   onChange={this.handleLower.bind(this)}/>
+          </div>
+          <div className="form-group mb-2">
+            <label>Upper Bound (-log10):</label>
+            <input type="number" className="form-control" min={0} value={upper} step="any"
+                   onChange={this.handleUpper.bind(this)}/>
+          </div>
         </div>
         <div className="form-group mb-2">
           <p className="col-form-label">Show Enrichment of Gene Body:</p>
