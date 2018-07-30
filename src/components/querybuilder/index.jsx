@@ -1074,8 +1074,7 @@ class QuerybuilderBody extends React.Component {
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
         <div className="container-fluid">
-
-          <div className="row">
+          <div className="row m-2">
             <h2>Query</h2>
           </div>
           <div className="form-row m-1">
@@ -1129,23 +1128,23 @@ class QuerybuilderBody extends React.Component {
             </div>
           </div>
 
-          <div className="row">
+          <div className="row m-2">
             <h2>TargetGenes</h2>
           </div>
-          <div className="form-row">
-            <div className="input-group col">
-              <select className="form-control mr-1" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
-                <option value="">----</option>
-                {_.map(targetGenes, (l, i) => {
-                  return <option key={i} value={l}>{l}</option>;
-                })}
-                <option value="other">Other</option>
-              </select>
-              {targetGene === "other" ?
-                <TargetGenesFile handleChange={this.handleFile.bind(this)}/> :
-                null}
-            </div>
+          <div className="form-row m-2">
+            <select className="form-control mr-1" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
+              <option value="">----</option>
+              {_.map(targetGenes, (l, i) => {
+                return <option key={i} value={l}>{l}</option>;
+              })}
+              <option value="other">Other</option>
+            </select>
           </div>
+          {targetGene === "other" ?
+            <div className="form-row m-2">
+              <TargetGenesFile handleChange={this.handleFile.bind(this)}/>
+            </div> :
+            null}
         </div>
       </form>
     </div>;
