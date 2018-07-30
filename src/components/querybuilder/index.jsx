@@ -913,19 +913,12 @@ class QueryBoxBody extends React.Component {
                     let after;
                     let currY = e.clientY - clientYOffset;
                     let _currNodes = _(queryTree)
-                      .filter((o) => !o.parent)
-                      .sortBy(_.flow(
-                        _.property('id'),
-                        _.unary(document.getElementById.bind(document)),
-                        _.partial(_.invoke, _, 'getBoundingClientRect'),
-                        (rect) => rect.top + rect.height / 2
-                      ));
+                      .filter((o) => !o.parent);
                     let _currNodesPos = _currNodes
                       .map('id')
                       .map(_.unary(document.getElementById.bind(document)))
                       .invokeMap('getBoundingClientRect')
-                      .map((rect) => rect.top + rect.height / 2)
-                      .sortBy();
+                      .map((rect) => rect.top + rect.height / 2);
 
 
                     let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
