@@ -231,6 +231,7 @@ class ModBody extends React.Component {
 
     return <QueryContext.Consumer>{value => {
       return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+                  id={node.id}
                   onDragStart={(e) => {
                     e.stopPropagation();
                     e.dataTransfer.setData('id', node.id);
@@ -352,7 +353,6 @@ class ModGroupBody extends React.Component {
   constructor(props) {
     super(props);
     this.dropTarget = React.createRef();
-    this.queryDiv = React.createRef();
   }
 
   render() {
@@ -365,6 +365,7 @@ class ModGroupBody extends React.Component {
 
     return <QueryContext.Consumer>{value => {
       return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+                  id={node.id}
                   onDragStart={(e) => {
                     e.stopPropagation();
                     e.dataTransfer.setData('id', node.id);
@@ -385,13 +386,14 @@ class ModGroupBody extends React.Component {
                         let target;
                         let after;
                         let currY = e.clientY - value.clientYOffset;
-                        let _currNodesPos = _(this.queryDiv.current.children)
-                          .invokeMap('getBoundingClientRect')
-                          .map(_.unary(_.partial(_.pick, _, ['top', 'height'])))
-                          .map((rect) => rect.top + rect.height / 2);
                         let _currNodes = _(queryTree)
                           .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
                           .filter((o) => o.parent === node.id);
+                        let _currNodesPos = _currNodes
+                          .map('id')
+                          .map(_.unary(document.getElementById.bind(document)))
+                          .invokeMap('getBoundingClientRect')
+                          .map((rect) => rect.top + rect.height / 2);
 
 
                         let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
@@ -450,7 +452,7 @@ class ModGroupBody extends React.Component {
             </div>
           </div>
           <div className="row">
-            <div className="col" ref={this.queryDiv}>
+            <div className="col">
               {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
                 let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
                 if (o.nodeType === 'MOD') {
@@ -500,7 +502,6 @@ class ValueBody extends React.Component {
   constructor(props) {
     super(props);
     this.dropTarget = React.createRef();
-    this.queryDiv = React.createRef();
     this.uuid = uuidv4();
     this.state = {
       dataSource: []
@@ -535,6 +536,7 @@ class ValueBody extends React.Component {
 
     return <QueryContext.Consumer>{value => {
       return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+                  id={node.id}
                   onDragStart={(e) => {
                     e.stopPropagation();
                     e.dataTransfer.setData('id', node.id);
@@ -562,13 +564,14 @@ class ValueBody extends React.Component {
                         let target;
                         let after;
                         let currY = e.clientY - value.clientYOffset;
-                        let _currNodesPos = _(this.queryDiv.current.children)
-                          .invokeMap('getBoundingClientRect')
-                          .map(_.unary(_.partial(_.pick, _, ['top', 'height'])))
-                          .map((rect) => rect.top + rect.height / 2);
                         let _currNodes = _(queryTree)
                           .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
                           .filter((o) => o.parent === node.id);
+                        let _currNodesPos = _currNodes
+                          .map('id')
+                          .map(_.unary(document.getElementById.bind(document)))
+                          .invokeMap('getBoundingClientRect')
+                          .map((rect) => rect.top + rect.height / 2);
 
 
                         let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
@@ -642,7 +645,7 @@ class ValueBody extends React.Component {
         </div>
 
         <div className="w-100"/>
-        <div className="col" ref={this.queryDiv}>
+        <div className="col">
           {mods.map((o, i, a) => {
             let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
             if (o.nodeType === 'MOD') {
@@ -690,7 +693,6 @@ class GroupBody extends React.Component {
   constructor(props) {
     super(props);
     this.dropTarget = React.createRef();
-    this.queryDiv = React.createRef();
   }
 
   render() {
@@ -703,6 +705,7 @@ class GroupBody extends React.Component {
 
     return <QueryContext.Consumer>{value => {
       return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+                  id={node.id}
                   onDragStart={(e) => {
                     e.stopPropagation();
                     e.dataTransfer.setData('id', node.id);
@@ -718,14 +721,27 @@ class GroupBody extends React.Component {
                     e.preventDefault();
                     let source_id = e.dataTransfer.getData('id');
                     if (source_id !== node.id) {
+                      let source = _.find(queryTree, ['id', source_id]);
                       let target;
                       let after;
+                      let _currNodes;
                       let currY = e.clientY - value.clientYOffset;
-                      let _currNodesPos = _(this.queryDiv.current.children)
+
+                      if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
+                        _currNodes = _(queryTree)
+                          .filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP')
+                          .filter((o) => o.parent === node.id);
+                      } else {
+                        _currNodes = _(queryTree)
+                          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
+                          .filter((o) => o.parent === node.id);
+                      }
+
+                      let _currNodesPos = _currNodes
+                        .map('id')
+                        .map(_.unary(document.getElementById.bind(document)))
                         .invokeMap('getBoundingClientRect')
-                        .map(_.unary(_.partial(_.pick, _, ['top', 'height'])))
                         .map((rect) => rect.top + rect.height / 2);
-                      let _currNodes = _(queryTree).filter((o) => o.parent === node.id);
 
 
                       let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
@@ -791,7 +807,7 @@ class GroupBody extends React.Component {
             </div>
           </div>
           <div className="row">
-            <div className="col" ref={this.queryDiv}>
+            <div className="col">
               {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
                 let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
                 if (o.nodeType === 'TF') {
@@ -860,7 +876,6 @@ class QueryBoxBody extends React.Component {
   constructor(props) {
     super(props);
     this.dropTarget = React.createRef();
-    this.queryDiv = React.createRef();
     this.state = {
       draggable: true,
       clientYOffset: 0
@@ -897,10 +912,20 @@ class QueryBoxBody extends React.Component {
                     let target;
                     let after;
                     let currY = e.clientY - clientYOffset;
-                    let _currNodesPos = _(this.queryDiv.current.children)
+                    let _currNodes = _(queryTree)
+                      .filter((o) => !o.parent)
+                      .sortBy(_.flow(
+                        _.property('id'),
+                        _.unary(document.getElementById.bind(document)),
+                        _.partial(_.invoke, _, 'getBoundingClientRect'),
+                        (rect) => rect.top + rect.height / 2
+                      ));
+                    let _currNodesPos = _currNodes
+                      .map('id')
+                      .map(_.unary(document.getElementById.bind(document)))
                       .invokeMap('getBoundingClientRect')
-                      .map(_.unary(_.partial(_.pick, _, ['top', 'height'])))
-                      .map((rect) => rect.top + rect.height / 2);
+                      .map((rect) => rect.top + rect.height / 2)
+                      .sortBy();
 
 
                     let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
@@ -913,7 +938,7 @@ class QueryBoxBody extends React.Component {
                       target = _.last(queryTree);
                       after = true;
                     } else {
-                      let currNodes = _.filter(queryTree, (o) => !o.parent);
+                      let currNodes = _currNodes.value();
                       target = currNodes[prevPos];
                       after = true;
                     }
@@ -921,7 +946,7 @@ class QueryBoxBody extends React.Component {
                     setParent(source_id, undefined);
                   }
                 }}>
-      <div className="col" ref={this.queryDiv}>
+      <div className="col">
         <QueryContext.Provider value={{
           draggable,
           setDraggable: this.setDraggable.bind(this),
