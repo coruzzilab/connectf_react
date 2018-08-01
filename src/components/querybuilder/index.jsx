@@ -1100,7 +1100,8 @@ class QuerybuilderBody extends React.Component {
             <div className="col m-2">
               <div className="input-group">
                 <div className="input-group-prepend">
-                  <button type="button" className="btn btn-outline-secondary btn-lg" ref={this.copy}>
+                  <button type="button" className="btn btn-outline-secondary btn-lg" ref={this.copy}
+                          title="Copy query to clipboard">
                     <FontAwesomeIcon icon="copy" className="mr-1"/>Copy
                   </button>
                   <button type="button" className="btn btn-secondary btn-lg" onClick={this.setQuery.bind(this)}>

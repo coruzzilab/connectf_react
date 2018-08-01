@@ -99,10 +99,12 @@ class CytoscapeBody extends React.Component {
         {
           selector: 'edge',
           style: {
+            'width': 1,
             'target-arrow-shape': 'triangle',
             'target-arrow-color': 'data(color)',
             'curve-style': 'bezier',
-            'line-color': 'data(color)'
+            'line-color': 'data(color)',
+            'arrow-scale': 0.5
           }
         }
       ],
@@ -114,14 +116,13 @@ class CytoscapeBody extends React.Component {
     this.cy.on('mouseover', 'edge', function (event) {
       let ele = event.target;
       ele.style({
-        'label': ele.data('name'),
-        'z-compound-depth': 'top'
+        'label': ele.data('name')
       });
     });
 
     this.cy.on('mouseout', 'edge', function (event) {
       let ele = event.target;
-      ele.removeStyle('label z-compound-depth');
+      ele.removeStyle('label');
     });
 
     this.cy.on('mouseover', "node[showLabel != 'show']", function (event) {
@@ -254,56 +255,75 @@ class CytoscapeBody extends React.Component {
 
   handleEdges(text) {
     let {color} = this.state;
-    this.setBusy(true);
-    let res = _(text)
-      .split("\n")
-      .filter(_.negate(_.isEmpty))
-      .map(_.trim)
-      .map(_.unary(_.partial(_.split, _, '\t')))
-      .map(_.unary(_.partial(_.map, _, _.trim)))
-      .map(_.unary(_.partial(_.filter, _, _.negate(_.isEmpty))));
-
-    if (res.some((o) => o.length < 3)) {
-      this.setAlertMessage("Every row need to have at least 3 columns.");
-      return;
-    }
-
-    let nodes = _.invokeMap(this.cy.$("node"), 'data', 'id');
-
-    let edges = res
-      .map(([s, e, ...ts]) => {
-        return _.map(ts, (t) => {
-          return {
-            data: {
-              id: uuid4(),
-              source: s,
-              target: t,
-              name: e,
-              color,
-              user: true
-            }
-          };
+    try {
+      this.setBusy(true);
+      let res = _(text)
+        .split("\n")
+        .filter(_.negate(_.isEmpty))
+        .map((o) => {
+          if (o.indexOf('\t') !== -1) {
+            return _.split(o, '\t');
+          }
+          return o.split(/\s+/);
+        })
+        .map(_.unary(_.partial(_.map, _, _.trim)))
+        .map(_.unary(_.partial(_.filter, _, _.negate(_.isEmpty))))
+        .map((o) => {
+          return [..._.map(o.slice(0, 1), _.toUpper), ...o.slice(1, 2), ..._.map(o.slice(2), _.toUpper)];
         });
-      })
-      .flatten();
 
-    let uniqExistEdges = edges
-      .intersectionWith(nodes, (s, o) => {
-        return _.toUpper(s.data.source) === _.toUpper(o);
-      })
-      .intersectionWith(edges
+      if (res.some((o) => o.length < 3)) {
+        this.setAlertMessage("Every row need to have at least 3 columns.");
+        return;
+      }
+
+      let nodes = _.invokeMap(this.cy.$("node"), 'data', 'id');
+
+      let edges = res
+        .map(([s, e, ...ts]) => {
+          return _.map(ts, (t) => {
+            return {
+              data: {
+                id: uuid4(),
+                source: s,
+                target: t,
+                name: e,
+                color,
+                user: true
+              }
+            };
+          });
+        })
+        .flatten();
+
+      let uniqExistEdges = edges
         .intersectionWith(nodes, (s, o) => {
-          return _.toUpper(s.data.target) === _.toUpper(o);
-        }).value(), edge_compare)
-      .uniqWith(edge_compare).value();
+          return s.data.source === o;
+        })
+        .intersectionWith(edges
+          .intersectionWith(nodes, (s, o) => {
+            return s.data.target === o;
+          }).value(), edge_compare)
+        .uniqWith(edge_compare).value();
 
-    if (!uniqExistEdges.length) {
-      this.setAlertMessage("No edges added.");
-    } else {
-      this.cy.add(uniqExistEdges);
+      if (!uniqExistEdges.length) {
+        this.setAlertMessage("No edges added.");
+      } else {
+        this.cy.batch(() => {
+          this.cy.add(uniqExistEdges);
+          this.cy.forceRender();
+        });
+      }
+    } finally {
+      this.setBusy(false);
     }
+  }
 
-    this.setBusy(false);
+  deleteEdges() {
+    this.cy.batch(() => {
+      this.cy.remove(this.cy.$('edge[user]'));
+      this.cy.forceRender();
+    });
   }
 
   toggleAlert() {
@@ -360,6 +380,12 @@ class CytoscapeBody extends React.Component {
             </div>
             <UploadSifInfoPopover target="info" placement="right" isOpen={popoverOpen}
                                   toggle={this.togglePopover.bind(this)}/>
+          </div>
+          <div className="btn-group">
+            <button type="button" className="btn btn-danger"
+                    title="remove user uploaded edges"
+                    onClick={this.deleteEdges.bind(this)}>
+              <FontAwesomeIcon icon="trash-alt" className="mr-1"/>Remove Edges</button>
           </div>
         </div>
       </div>
