@@ -162,7 +162,7 @@ class HeatMapBody extends React.Component {
       </Nav>
       <TabContent activeTab={key}>
         <TabPane tabId="table">
-          <table className="table table-bordered">
+          <table className="table-responsive table-sm table-bordered">
             <thead>
             <tr>
               <th/>

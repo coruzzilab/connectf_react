@@ -278,7 +278,7 @@ class MotifEnrichmentBody extends React.Component {
       </Nav>
       <TabContent id="motif_enrichment" activeTab={key}>
         <TabPane tabId="table">
-          <table className="table table-bordered">
+          <table className="table-responsive table-bordered table-sm">
             <thead>
             <tr>
               <th/>
