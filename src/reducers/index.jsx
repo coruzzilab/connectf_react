@@ -299,6 +299,21 @@ function stats(state = {}, action) {
   }
 }
 
+function edges(state = [], action) {
+  switch (action.type) {
+  case 'ADD_EDGE':
+    return [...state, action.name];
+  case 'REMOVE_EDGE':
+    return _.filter(state, (e) => {
+      return e !== action.name;
+    });
+  case 'CLEAR_EDGE':
+    return [];
+  default:
+    return state;
+  }
+}
+
 function error(state = '', action) {
   switch (action.type) {
   case 'SET_ERROR':
@@ -320,6 +335,7 @@ const tgdbApp = {
   motifEnrichment,
   requestId,
   stats,
+  edges,
   error
 };
 

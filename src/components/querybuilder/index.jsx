@@ -28,17 +28,21 @@ import {
   setModInnerOper,
   clearQueryTree,
   moveItem,
-  setParent
+  setParent,
+  addEdge,
+  removeEdge,
+  clearEdges
 } from '../../actions';
 import {getQuery, getParentTfTree} from "../../utils";
 
 const QueryContext = React.createContext();
 
-const mapStateToProps = ({busy, query, queryTree}) => {
+const mapStateToProps = ({busy, query, queryTree, edges}) => {
   return {
     busy,
     query,
-    queryTree
+    queryTree,
+    edges
   };
 };
 
@@ -973,6 +977,7 @@ class QuerybuilderBody extends React.Component {
     super(props);
     this.state = {
       targetGenes: [],
+      edgeList: [],
       targetGene: '',
       files: null
     };
@@ -984,6 +989,11 @@ class QuerybuilderBody extends React.Component {
     $.getJSON(`${BASE_URL}/api/lists/`)
       .done((targetGenes) => {
         this.setState({targetGenes});
+      });
+
+    $.getJSON(`${BASE_URL}/api/edges/`)
+      .done((edgeList) => {
+        this.setState({edgeList});
       });
 
     this.clipboard = new Clipboard(this.copy.current, {
@@ -1003,7 +1013,7 @@ class QuerybuilderBody extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    let {query, setQuery} = this.props;
+    let {query, setQuery, edges} = this.props;
     let {targetGene, files} = this.state;
     let data = new FormData();
 
@@ -1013,6 +1023,10 @@ class QuerybuilderBody extends React.Component {
     }
 
     data.append('query', query);
+
+    for (let e of edges) {
+      data.append('edges', e);
+    }
 
     if (targetGene === "other") {
       if (files && files.length) {
@@ -1036,6 +1050,7 @@ class QuerybuilderBody extends React.Component {
 
     this.props.clearQuery();
     this.props.clearQueryTree();
+    this.props.clearEdges();
     this.setState({
       targetGene: ""
     });
@@ -1060,9 +1075,17 @@ class QuerybuilderBody extends React.Component {
     this.props.setQuery(this.buildQuery());
   }
 
+  handleEdgeCheck(name, e) {
+    if (e.target.checked) {
+      this.props.addEdge(name);
+    } else {
+      this.props.removeEdge(name);
+    }
+  }
+
   render() {
-    let {targetGenes, targetGene} = this.state;
-    let {addTF, addGroup, queryTree} = this.props;
+    let {targetGenes, targetGene, edgeList} = this.state;
+    let {addTF, addGroup, queryTree, edges} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
@@ -1123,6 +1146,22 @@ class QuerybuilderBody extends React.Component {
           </div>
 
           <div className="row m-2">
+            <h2>Edges</h2>
+          </div>
+          <div className="form-row m-2">
+            <div className="col-auto">
+              {_.map(edgeList, (e, i) => {
+                return <div className="form-check" key={i}>
+                  <input className="form-check-input" type="checkbox" value={e}
+                         checked={_.indexOf(edges, e) !== -1}
+                         onChange={this.handleEdgeCheck.bind(this, e)}/>
+                  <label className="form-check-label">{e}</label>
+                </div>;
+              })}
+            </div>
+          </div>
+
+          <div className="row m-2">
             <h2>TargetGenes</h2>
           </div>
           <div className="form-row m-2">
@@ -1158,7 +1197,11 @@ QuerybuilderBody.propTypes = {
   postQuery: PropTypes.func,
   clearQuery: PropTypes.func,
   clearQueryTree: PropTypes.func,
-  setQuery: PropTypes.func
+  setQuery: PropTypes.func,
+  addEdge: PropTypes.func,
+  removeEdge: PropTypes.func,
+  clearEdges: PropTypes.func,
+  edges: PropTypes.arrayOf(PropTypes.string)
 };
 
 const Querybuilder = connect(mapStateToProps, {
@@ -1167,7 +1210,10 @@ const Querybuilder = connect(mapStateToProps, {
   clearQuery,
   addTF,
   addGroup,
-  clearQueryTree
+  clearQueryTree,
+  addEdge,
+  removeEdge,
+  clearEdges
 })(QuerybuilderBody);
 
 export default Querybuilder;

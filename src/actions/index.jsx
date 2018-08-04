@@ -316,6 +316,26 @@ export const postQuery = (data) => {
   };
 };
 
+export const addEdge = (name) => {
+  return {
+    type: 'ADD_EDGE',
+    name
+  }
+};
+
+export const removeEdge = (name) => {
+  return {
+    type: 'REMOVE_EDGE',
+    name
+  }
+};
+
+export const clearEdges = () => {
+  return {
+    type: 'CLEAR_EDGE'
+  }
+};
+
 export const setStats = (data) => {
   return {
     type: 'SET_STATS',
