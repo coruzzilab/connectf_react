@@ -1085,7 +1085,7 @@ class QuerybuilderBody extends React.Component {
 
   render() {
     let {targetGenes, targetGene, edgeList} = this.state;
-    let {addTF, addGroup, queryTree, edges} = this.props;
+    let {addTF, addGroup, queryTree, edges, query} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
@@ -1127,11 +1127,13 @@ class QuerybuilderBody extends React.Component {
                           title="Copy query to clipboard">
                     <FontAwesomeIcon icon="copy" className="mr-1"/>Copy
                   </button>
-                  <button type="button" className="btn btn-secondary btn-lg" onClick={this.setQuery.bind(this)}>
+                  <button type="button"
+                          className={classNames("btn btn-lg", getQuery(queryTree) === query ? "btn-secondary" : "btn-warning")}
+                          onClick={this.setQuery.bind(this)}>
                     <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
                   </button>
                 </div>
-                <textarea className="form-control" value={this.props.query}
+                <textarea className="form-control" value={query}
                           onChange={this.handleQuery.bind(this)} autoComplete="on"/>
                 <div className="input-group-append">
                   <button type="submit" className="btn btn-primary btn-lg">

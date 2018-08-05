@@ -134,13 +134,15 @@ class CytoscapeBody extends React.Component {
             return ele.data('id');
           }
           return `${ele.data('id')} (${ele.data('name')})`;
-        }
+        },
+        'z-compound-depth': 'top'
       });
     });
 
     this.cy.on('mouseout', "node[showLabel != 'show']", function (event) {
       let ele = event.target;
       ele.style({'content': null});
+      ele.removeStyle('z-compound-depth');
     });
 
     this.setHeight();
@@ -385,7 +387,8 @@ class CytoscapeBody extends React.Component {
             <button type="button" className="btn btn-danger"
                     title="remove user uploaded edges"
                     onClick={this.deleteEdges.bind(this)}>
-              <FontAwesomeIcon icon="trash-alt" className="mr-1"/>Remove Edges</button>
+              <FontAwesomeIcon icon="trash-alt" className="mr-1"/>Remove Edges
+            </button>
           </div>
         </div>
       </div>

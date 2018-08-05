@@ -28,9 +28,9 @@ function renderTarget(instance, td, row, col, prop, value, cellProperties) {
     } else if (value.startsWith('REPRESSED')) {
       td.style.background = 'lightcoral';
     }
-    if (value === 'Present') {
-      td.style.background = '#F6DB77';
-    }
+    // if (value) {
+    //   td.style.background = '#F6DB77';
+    // }
   }
 }
 
@@ -244,7 +244,7 @@ class DFBody extends React.Component {
       </div>
       <div className="row">
         <div className="col">
-          <div id="grid" ref={this.grid} style={{overflow: 'hidden', height}}/>
+          <div id="grid" ref={this.grid} style={{overflow: 'visible', overflowX: 'auto', height}}/>
         </div>
       </div>
 
