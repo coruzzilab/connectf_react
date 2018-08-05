@@ -60,16 +60,39 @@ export class ColHeader extends React.Component {
 
   render() {
     let {visible} = this.state;
-    return <th colSpan={this.props.colSpan}>
-      <a onClick={this.showModal.bind(this)}>{this.props.children}</a>
-      <Modal isOpen={visible} toggle={this.hideModal.bind(this)}>
+    let {colSpan, data, sorted, ascending, sortFunc} = this.props;
+
+    return <th colSpan={colSpan}>
+      <div className="container-fluid">
+        <div className="row align-items-center">
+          <div className="col">
+            <a onClick={this.showModal.bind(this)}>{this.props.children}</a>
+          </div>
+          <div className="col-1" style={{cursor: 'pointer'}}>
+            <a onClick={sortFunc}>
+              {sorted ?
+                (ascending ? <FontAwesomeIcon icon="sort-up"/> : <FontAwesomeIcon icon="sort-down"/>) :
+                <FontAwesomeIcon icon="sort"/>}
+            </a>
+
+          </div>
+        </div>
+      </div>
+
+
+      <Modal isOpen={visible} toggle={this.hideModal.bind(this)} size="lg">
         <ModalHeader toggle={this.hideModal.bind(this)}>
           Meta Data
         </ModalHeader>
         <ModalBody>
-          {_(this.props.data).map((val, key) => {
-            return <p key={key}><b>{key}:</b> {val}</p>;
-          }).value()}
+          <table className="table table-sm">
+            {_(data).map((val, key) => {
+              return <tr key={key}>
+                <th>{key}</th>
+                <td>{val}</td>
+              </tr>;
+            }).value()}
+          </table>
         </ModalBody>
         <ModalFooter>
           <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times" className="mr-1"/>Close</Button>
@@ -83,11 +106,16 @@ ColHeader.propTypes = {
   colSpan: PropTypes.number,
   name: PropTypes.string,
   data: PropTypes.object,
-  children: PropTypes.node
+  children: PropTypes.node,
+  sortFunc: PropTypes.func,
+  sorted: PropTypes.bool,
+  ascending: PropTypes.bool
 };
 
 ColHeader.defaultProps = {
-  colSpan: 1
+  colSpan: 1,
+  sorted: false,
+  ascending: true
 };
 
 export class RowHeader extends React.Component {
@@ -121,16 +149,27 @@ export class RowHeader extends React.Component {
           {`${data.name} ${data['Family']}`}
         </ModalHeader>
         <ModalBody>
-          <p><span style={{fontWeight: 'bold'}}>Number of Motifs:</span> {data['# Motifs']}</p>
-          <p style={{fontWeight: 'bold'}}>Consensus: {_.map(data['Consensus'], (cons, i) => {
-            return <span key={i}
-                         style={{
-                           color: _.get(BASE_COLORS, _.lowerCase(cons), BASE_COLORS['other'])
-                         }}>
-              {cons}
-              </span>;
-          })}</p>
-          <p><span style={{fontWeight: 'bold'}}>Family:</span> {data['Family']}</p>
+          <table className="table table-sm">
+            <tr>
+              <th className="font-weight-bold">Number of Motifs</th>
+              <td>{data['# Motifs']}</td>
+            </tr>
+            <tr>
+              <th className="font-weight-bold">Consensus</th>
+              <td className="font-weight-bold">
+                {_.map(data['Consensus'], (cons, i) => {
+                  return <span key={i}
+                               style={{
+                                 color: _.get(BASE_COLORS, _.lowerCase(cons), BASE_COLORS['other'])
+                               }}>{cons}</span>;
+                })}
+              </td>
+            </tr>
+            <tr>
+              <th className="font-weight-bold">Family</th>
+              <td>{data['Family']}</td>
+            </tr>
+          </table>
         </ModalBody>
         <ModalFooter>
           <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times" className="mr-1"/>Close</Button>
@@ -155,7 +194,9 @@ class MotifEnrichmentBody extends React.Component {
       lower: '',
       colSpan: 1,
       img: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg`,
-      key: "table"
+      key: "table",
+      sortCol: null,
+      ascending: true
     };
   }
 
@@ -225,9 +266,29 @@ class MotifEnrichmentBody extends React.Component {
     this.setState({key});
   }
 
+  sortFunc(i) {
+    let {sortCol, ascending} = this.state;
+
+    if (sortCol !== i) {
+      this.setState({
+        sortCol: i,
+        ascending: true
+      });
+    } else if (ascending) {
+      this.setState({
+        ascending: false
+      });
+    } else if (!ascending) {
+      this.setState({
+        ascending: true,
+        sortCol: null
+      });
+    }
+  }
+
   render() {
     let {motifEnrichment} = this.props;
-    let {body, img, colSpan, key, lower, upper} = this.state;
+    let {body, img, colSpan, key, lower, upper, sortCol, ascending} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment, 'result', []));
 
     return <div>
@@ -282,13 +343,16 @@ class MotifEnrichmentBody extends React.Component {
             <thead>
             <tr>
               <th/>
-              {_(_.get(motifEnrichment, 'columns', {})).map((val, key) => {
+              {_(_.get(motifEnrichment, 'columns', {})).map((val, key) => [val, key]).map(([val, key], i) => {
                 let line1 = _(val).pick(['TRANSCRIPTION_FACTOR_ID', 'TRANSCRIPTION_FACTOR_NAME']).values().join('-');
                 let line2 = _(val).pick(['EXPRESSION_TYPE', 'ANALYSIS_METHOD']).values().join('-');
                 let line3 = _.get(val, 'list_name', '');
                 return <ColHeader key={key}
                                   data={val}
-                                  colSpan={colSpan}>
+                                  colSpan={colSpan}
+                                  sortFunc={this.sortFunc.bind(this, i + 1)}
+                                  sorted={sortCol === i + 1}
+                                  ascending={ascending}>
                   {!_.isEmpty(val) ?
                     <div>{line1 ? <p className="m-0">{line1}</p> : null}
                       {line2 ? <p className="m-0">{line2}</p> : null}
@@ -311,16 +375,25 @@ class MotifEnrichmentBody extends React.Component {
             </tr>
             </thead>
             <tbody>
-            {_(_.get(motifEnrichment, 'result', [])).sortBy((row) => parseInt(row[0].name.split('_')[1])).map((row, i) => {
-              return <tr key={i}>
-                <RowHeader data={row[0]}/>
-                {_.map(row.slice(1), (c, j) => {
-                  let [background, color] = blueShader(c, min, max);
-                  return <td key={j}
-                             style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>;
-                })}
-              </tr>;
-            }).value()}
+            {_(_.get(motifEnrichment, 'result', []))
+              .orderBy(
+                _.isNull(sortCol) ?
+                  (row) => parseInt(row[0].name.split('_')[1]) :
+                  (row) => typeof row[sortCol] === 'number' ?
+                    row[sortCol] :
+                    (ascending ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY),
+                ascending ? 'asc' : 'desc')
+              .map((row, i) => {
+                return <tr key={i}>
+                  <RowHeader data={row[0]}/>
+                  {_.map(row.slice(1), (c, j) => {
+                    let [background, color] = blueShader(c, min, max);
+                    return <td key={j}
+                               style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>;
+                  })}
+                </tr>;
+              })
+              .value()}
             </tbody>
           </table>
         </TabPane>

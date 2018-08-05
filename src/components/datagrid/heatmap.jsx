@@ -77,7 +77,9 @@ class HeatMapBody extends React.Component {
       upper: '',
       lower: '',
       imgSrc: `${BASE_URL}/queryapp/heatmap/${this.props.requestId}.svg`,
-      key: "table"
+      key: "table",
+      sortCol: null,
+      ascending: true
     };
   }
 
@@ -128,9 +130,29 @@ class HeatMapBody extends React.Component {
     this.setState({key});
   }
 
+  sortFunc(i) {
+    let {sortCol, ascending} = this.state;
+
+    if (sortCol !== i) {
+      this.setState({
+        sortCol: i,
+        ascending: true
+      });
+    } else if (ascending) {
+      this.setState({
+        ascending: false
+      });
+    } else if (!ascending) {
+      this.setState({
+        ascending: true,
+        sortCol: null
+      });
+    }
+  }
+
   render() {
     let {heatmap} = this.props;
-    let {success, lower, upper, imgSrc, key} = this.state;
+    let {success, lower, upper, imgSrc, key, sortCol, ascending} = this.state;
     let [min, max] = getLogMinMax(_.get(heatmap, 'result', []));
 
     return <div>
@@ -166,21 +188,40 @@ class HeatMapBody extends React.Component {
             <thead>
             <tr>
               <th/>
-              {_.map(_.get(heatmap, 'columns', {}), (val, i) => {
-                return <th key={i}>{val}</th>;
-              })}
+              {_(_.get(heatmap, 'columns', {}))
+                .map((val, key) => [val, key])
+                .map(([val, key], i) => {
+                  return <th key={key}>
+                    <div className="container-fluid">
+                      <div className="row align-items-center">
+                        <div className="col">
+                          {val}
+                        </div>
+                        <div className="col-1" onClick={this.sortFunc.bind(this, i + 1)} style={{cursor: 'pointer'}}>
+                          {sortCol !== i + 1 ?
+                            <FontAwesomeIcon icon="sort"/> :
+                            (ascending ? <FontAwesomeIcon icon="sort-up"/> : <FontAwesomeIcon icon="sort-down"/>)}
+                        </div>
+                      </div>
+                    </div>
+                  </th>;
+                })
+                .value()}
             </tr>
             </thead>
             <tbody>
-            {_.map(_.get(heatmap, 'result', []), (row, i) => {
-              return <tr key={i}>
-                <RowHeader info={row[0]}/>
-                {_.map(row.slice(1), (cell, j) => {
-                  let [background, color] = blueShader(cell, min, max);
-                  return <td style={{background, color}} key={j}>{cell.toExponential(2)}</td>;
-                })}
-              </tr>;
-            })}
+            {_(_.get(heatmap, 'result', []))
+              .orderBy((row) => _.isNull(row) ? row : row[sortCol], ascending ? 'asc' : 'desc')
+              .map((row, i) => {
+                return <tr key={i}>
+                  <RowHeader info={row[0]}/>
+                  {_.map(row.slice(1), (cell, j) => {
+                    let [background, color] = blueShader(cell, min, max);
+                    return <td style={{background, color}} key={j}>{cell.toExponential(2)}</td>;
+                  })}
+                </tr>;
+              })
+              .value()}
             </tbody>
           </table>
         </TabPane>

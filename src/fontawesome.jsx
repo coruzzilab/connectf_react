@@ -24,7 +24,10 @@ import {
   faFileUpload,
   faInfoCircle,
   faDna,
-  faTrashAlt
+  faTrashAlt,
+  faSort,
+  faSortUp,
+  faSortDown
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -46,5 +49,8 @@ library.add(
   faFileUpload,
   faInfoCircle,
   faDna,
-  faTrashAlt
+  faTrashAlt,
+  faSort,
+  faSortUp,
+  faSortDown
 );
