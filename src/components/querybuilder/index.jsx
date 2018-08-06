@@ -980,10 +980,13 @@ class QuerybuilderBody extends React.Component {
       targetGenes: [],
       edgeList: [],
       targetGene: '',
-      files: null
+      files: null,
+      shouldBuild: false
     };
 
     this.copy = React.createRef();
+
+    this.checkShouldBuild = _.debounce(this.checkShouldBuild.bind(this), 100);
   }
 
   componentDidMount() {
@@ -1003,6 +1006,13 @@ class QuerybuilderBody extends React.Component {
         return this.props.query;
       }
     });
+    this.checkShouldBuild();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.query !== prevProps.query || !_.isEqual(this.props.queryTree, prevProps.queryTree)) {
+      this.checkShouldBuild();
+    }
   }
 
   componentWillUnmount() {
@@ -1085,8 +1095,14 @@ class QuerybuilderBody extends React.Component {
     }
   }
 
+  checkShouldBuild() {
+    this.setState({
+      shouldBuild: this.props.query !== getQuery(this.props.queryTree)
+    });
+  }
+
   render() {
-    let {targetGenes, targetGene, edgeList} = this.state;
+    let {targetGenes, targetGene, edgeList, shouldBuild} = this.state;
     let {addTF, addGroup, queryTree, edges, query} = this.props;
 
     return <div>
@@ -1130,7 +1146,7 @@ class QuerybuilderBody extends React.Component {
                     <FontAwesomeIcon icon="copy" className="mr-1"/>Copy
                   </button>
                   <button type="button"
-                          className={classNames("btn btn-lg", getQuery(queryTree) === query ? "btn-secondary" : "btn-warning")}
+                          className={classNames("btn btn-lg", shouldBuild ? "btn-warning" : "btn-secondary")}
                           onClick={this.setQuery.bind(this)}>
                     <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
                   </button>
