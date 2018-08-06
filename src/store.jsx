@@ -37,7 +37,8 @@ store.subscribe(_.throttle(function () {
   saveState(_.pick(store.getState(), [
     'query',
     'queryTree',
-    'requestId'
+    'requestId',
+    'edges'
   ]));
 }, 1000));
 

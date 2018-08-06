@@ -330,6 +330,20 @@ export const removeEdge = (name) => {
   }
 };
 
+export const removeEdges = (edges) => {
+  return {
+    type: 'REMOVE_EDGES',
+    edges
+  };
+};
+
+export const setEdges = (edges) => {
+  return {
+    type: 'SET_EDGES',
+    edges
+  };
+};
+
 export const clearEdges = () => {
   return {
     type: 'CLEAR_EDGE'

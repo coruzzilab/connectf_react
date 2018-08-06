@@ -307,6 +307,10 @@ function edges(state = [], action) {
     return _.filter(state, (e) => {
       return e !== action.name;
     });
+  case 'REMOVE_EDGES':
+    return _.difference(state, action.edges);
+  case 'SET_EDGES':
+    return action.edges;
   case 'CLEAR_EDGE':
     return [];
   default:

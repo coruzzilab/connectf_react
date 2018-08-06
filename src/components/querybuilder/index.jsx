@@ -31,7 +31,8 @@ import {
   setParent,
   addEdge,
   removeEdge,
-  clearEdges
+  clearEdges,
+  setEdges
 } from '../../actions';
 import {getQuery, getParentTfTree} from "../../utils";
 
@@ -994,6 +995,7 @@ class QuerybuilderBody extends React.Component {
     $.getJSON(`${BASE_URL}/api/edges/`)
       .done((edgeList) => {
         this.setState({edgeList});
+        this.props.setEdges(_.intersection(this.props.edges, edgeList));
       });
 
     this.clipboard = new Clipboard(this.copy.current, {
@@ -1203,7 +1205,8 @@ QuerybuilderBody.propTypes = {
   addEdge: PropTypes.func,
   removeEdge: PropTypes.func,
   clearEdges: PropTypes.func,
-  edges: PropTypes.arrayOf(PropTypes.string)
+  edges: PropTypes.arrayOf(PropTypes.string),
+  setEdges: PropTypes.func
 };
 
 const Querybuilder = connect(mapStateToProps, {
@@ -1215,7 +1218,8 @@ const Querybuilder = connect(mapStateToProps, {
   clearQueryTree,
   addEdge,
   removeEdge,
-  clearEdges
+  clearEdges,
+  setEdges
 })(QuerybuilderBody);
 
 export default Querybuilder;
