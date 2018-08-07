@@ -1169,7 +1169,7 @@ class QuerybuilderBody extends React.Component {
           </div>
 
           <div className="row m-2">
-            <h2>Edges</h2>
+            <h2>Additional Edges</h2>
           </div>
           <div className="form-row m-2">
             <div className="col-auto">
