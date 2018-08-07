@@ -271,7 +271,10 @@ class ModBody extends React.Component {
                 <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
                              disable={first}/>
                 <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-                <select className="form-control col mr-1" onChange={this.setModKey.bind(this)} value={node.key}>
+                <select
+                  className={classNames("form-control mr-1",
+                    node.key === 'pvalue' || node.key === 'fc' ? 'col-3' : 'col-4')}
+                  onChange={this.setModKey.bind(this)} value={node.key}>
                   {_.map(dataSource, (o, i) => {
                     return <option key={i}>{o}</option>;
                   })}
@@ -286,7 +289,7 @@ class ModBody extends React.Component {
                     <option>&gt;=</option>
                   </select> :
                   null}
-                <ImmobileInput className="form-control col-6"
+                <ImmobileInput className="form-control col"
                                type="text"
                                list={this.uuid}
                                onChange={this.setModValue.bind(this)}
