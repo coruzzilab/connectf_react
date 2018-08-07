@@ -34,15 +34,46 @@ class UploadAnalysis extends React.Component {
     super(props);
     this.state = Object.assign({}, {
       experiments: [],
+      tfs: []
     }, initialState);
   }
 
   componentDidMount() {
-    $.getJSON(`${BASE_URL}/api/tfs/`)
-      .done((data) => {
-        let experiments = _(data).sortBy().value();
+    this.getTfs();
+  }
 
-        this.setState(Object.assign({}, {experiments}, getInitialExperiment(experiments)));
+  getTfs() {
+    return $.ajax({
+      url: `${BASE_URL}/api/tfs/`,
+      method: 'GET',
+      data: {
+        all: 0
+      },
+      dataType: 'json'
+    })
+      .done((tfs) => {
+        this.setState({
+          tfs,
+          tf: _.get(tfs, '0.value', '')
+        });
+      }).then(this.getExperiments.bind(this));
+  }
+
+  getExperiments() {
+    let {tf} = this.state;
+    return $.ajax({
+      url: `${BASE_URL}/api/experiments/`,
+      method: 'GET',
+      data: {
+        tf
+      },
+      dataType: 'json'
+    })
+      .done((experiments) => {
+        this.setState({
+          experiment: experiments[0],
+          experiments
+        });
       });
   }
 
@@ -61,11 +92,15 @@ class UploadAnalysis extends React.Component {
         analysisId: `${tf}_${analysisMethod.replace(/[\s_]+/ig, '')}_${analysisCutoff}`.toUpperCase()
       });
     }
+
+    if (this.state.tf !== prevState.tf) {
+      this.getExperiments();
+    }
   }
 
   submit(e) {
     let {
-      experiments, experiment, analysisId, analysisCutoff,
+      experiment, analysisId, analysisCutoff,
       analysisMethod, analysisMethodOther, analysisBatch, analysisNotes
     } = this.state;
 
@@ -96,7 +131,7 @@ class UploadAnalysis extends React.Component {
 
         this.form.reset();
 
-        this.setState(Object.assign({}, initialState, getInitialExperiment(experiments)));
+        this.setState(Object.assign({}, initialState));
       })
       .fail((res) => {
         this.setState({
@@ -113,69 +148,82 @@ class UploadAnalysis extends React.Component {
 
   render() {
     let {
-      experiments, experiment, tf, analysisId, analysisCutoff,
+      experiments, experiment, tf, analysisId, analysisCutoff, tfs,
       analysisMethod, analysisMethodOther, analysisBatch, analysisNotes, errors
     } = this.state;
 
-    return <div className="col-xs-6 col-xs-offset-3">
+    return <div className="container-fluid">
+      <h1>Upload Analysis</h1>
       <form onSubmit={this.submit.bind(this)} ref={(c) => {
         this.form = c;
       }}>
-        <div className="form-group">
-          <label htmlFor="experiment">Select TF:</label>
-          <select className="form-control" value={tf}
-                  onChange={this.changeKey.bind(this, 'tf')}
-                  id="tf">
-            {_.map(experiments, (e, i) => {
-              return <option value={e.value} key={i}>{e.value}</option>;
+        <div className="form-row">
+          <div className="form-group col">
+            <label htmlFor="experiment">Select TF:</label>
+            <select className="form-control" value={tf}
+                    onChange={this.changeKey.bind(this, 'tf')}
+                    id="tf">
+              {_.map(tfs, (tf, i) => {
+                let name = tf.value;
+
+                if (tf.name) {
+                  name += ` (${tf.name})`;
+                }
+                return <option value={tf.value} key={i}>{name}</option>;
+              })}
+            </select>
+          </div>
+          <div className={classNames("form-group col", {"has-danger": 'experiment' in errors})}>
+            <label htmlFor="experiment">Select Experiment:</label>
+            <select className="form-control" value={experiment}
+                    onChange={this.changeKey.bind(this, 'experiment')}
+                    id="experiment">
+              {_.map(experiments, (e) => {
+                return <option value={e} key={e}>{e}</option>;
+              })}
+            </select>
+            {_.map(errors['experiment'], (val, i) => {
+              return <div className="help-block" key={i}>{val}</div>;
             })}
-          </select>
+          </div>
         </div>
-        <div className={classNames("form-group", {"has-danger": 'experiment' in errors})}>
-          <label htmlFor="experiment">Select Experiment:</label>
-          <select className="form-control" value={experiment}
-                  onChange={this.changeKey.bind(this, 'experiment')}
-                  id="experiment">
-            {_.map(_.get(_.find(experiments, ['value', tf]), 'experiments', []), (e, i) => {
-              return <option value={e} key={i}>{e}</option>;
+
+        <div className="form-row">
+          <div className={classNames("form-group col", {"has-danger": 'analysis_method' in errors})}>
+            <label htmlFor="analysisMethod">Analysis Method:</label>
+            <select className="form-control" id="analysisMethod" value={analysisMethod}
+                    onChange={this.changeKey.bind(this, 'analysisMethod')}>
+              <option value="one_way_anova">one-way ANOVA</option>
+              <option value="two_way_anova">two-way ANOVA</option>
+              <option value="three_way_anova">three-way ANOVA</option>
+              <option>edgeR</option>
+              <option>DESeq</option>
+              <option>DESeq2</option>
+              <option>MACS</option>
+              <option>MACS2</option>
+              <option value="other">Other</option>
+            </select>
+            {analysisMethod === "other" ?
+              <input type="text" id="analysis_method_other" className="form-control" value={analysisMethodOther}
+                     placeholder="Other"
+                     onChange={this.changeKey.bind(this, 'analysisMethodOther')}/> :
+              null}
+            {_.map(errors['analysis_method'], (val, i) => {
+              return <div className="help-block" key={i}>{val}</div>;
             })}
-          </select>
-          {_.map(errors['experiment'], (val, i) => {
-            return <div className="help-block" key={i}>{val}</div>;
-          })}
+          </div>
+          <div className={classNames("form-group col", {"has-danger": 'analysis_cutoff' in errors})}>
+            <label htmlFor="analysisCutoff">Analysis Cutoff:</label>
+            <input type="text" className="form-control" id="analysisCutoff" required value={analysisCutoff}
+                   onChange={this.changeKey.bind(this, 'analysisCutoff')}/>
+            {_.map(errors['analysis_cutoff'], (val, i) => {
+              return <div className="help-block" key={i}>{val}</div>;
+            })}
+          </div>
         </div>
-        <div className={classNames("form-group", {"has-danger": 'analysis_method' in errors})}>
-          <label htmlFor="analysisMethod">Analysis Method:</label>
-          <select className="form-control" id="analysisMethod" value={analysisMethod}
-                  onChange={this.changeKey.bind(this, 'analysisMethod')}>
-            <option value="one_way_anova">one-way ANOVA</option>
-            <option value="two_way_anova">two-way ANOVA</option>
-            <option value="three_way_anova">three-way ANOVA</option>
-            <option>edgeR</option>
-            <option>DESeq</option>
-            <option>DESeq2</option>
-            <option>MACS</option>
-            <option>MACS2</option>
-            <option value="other">Other</option>
-          </select>
-          {analysisMethod === "other" ?
-            <input type="text" id="analysis_method_other" className="form-control" value={analysisMethodOther}
-                   placeholder="Other"
-                   onChange={this.changeKey.bind(this, 'analysisMethodOther')}/> :
-            null}
-          {_.map(errors['analysis_method'], (val, i) => {
-            return <div className="help-block" key={i}>{val}</div>;
-          })}
-        </div>
-        <div className={classNames("form-group", {"has-danger": 'analysis_cutoff' in errors})}>
-          <label htmlFor="analysisCutoff">Analysis Cutoff:</label>
-          <input type="text" className="form-control" id="analysisCutoff" required value={analysisCutoff}
-                 onChange={this.changeKey.bind(this, 'analysisCutoff')}/>
-          {_.map(errors['analysis_cutoff'], (val, i) => {
-            return <div className="help-block" key={i}>{val}</div>;
-          })}
-        </div>
-        <div className={classNames("form-group", {"has-danger": 'analysis_id' in errors})}>
+
+
+        <div className={classNames("form-group form-row", {"has-danger": 'analysis_id' in errors})}>
           <label htmlFor="analysisId">Analysis ID:</label>
           <input type="text" className="form-control" id="analysisId" required value={analysisId}
                  onChange={this.changeKey.bind(this, 'analysisId')}/>
@@ -186,7 +234,7 @@ class UploadAnalysis extends React.Component {
             return <div className="help-block" key={i}>{val}</div>;
           })}
         </div>
-        <div className={classNames("form-group", {"has-danger": 'analysis_batch' in errors})}>
+        <div className={classNames("form-group form-row", {"has-danger": 'analysis_batch' in errors})}>
           <label htmlFor="analysisBatch">Analysis Batch Effect:</label>
           <select className="form-control" id="analysisBatch" value={analysisBatch}
                   onChange={this.changeKey.bind(this, 'analysisBatch')}>
@@ -197,7 +245,7 @@ class UploadAnalysis extends React.Component {
             return <div className="help-block" key={i}>{val}</div>;
           })}
         </div>
-        <div className={classNames("form-group", {"has-danger": 'analysis_notes' in errors})}>
+        <div className={classNames("form-group form-row", {"has-danger": 'analysis_notes' in errors})}>
           <label htmlFor="analysisNotes">Analysis Notes:</label>
           <textarea className="form-control" id="analysisNotes" rows="3" required value={analysisNotes}
                     onChange={this.changeKey.bind(this, 'analysisNotes')}/>
@@ -205,7 +253,7 @@ class UploadAnalysis extends React.Component {
             return <div className="help-block" key={i}>{val}</div>;
           })}
         </div>
-        <div className={classNames("form-group", {"has-danger": 'gene_list' in errors})}>
+        <div className={classNames("form-group form-row", {"has-danger": 'gene_list' in errors})}>
           <label htmlFor="geneList">Gene List:</label>
           <input type="file" className="form-control-file" id="geneList" required ref={(c) => {
             this.geneList = c;
@@ -214,7 +262,7 @@ class UploadAnalysis extends React.Component {
             return <div className="help-block" key={i}>{val}</div>;
           })}
         </div>
-        <div className={classNames("form-group", {"has-danger": 'experimental_design' in errors})}>
+        <div className={classNames("form-group form-row", {"has-danger": 'experimental_design' in errors})}>
           <label htmlFor="experimentalDesign">Experimental Design:</label>
           <input type="file" className="form-control-file" id="experimentalDesign" required ref={(c) => {
             this.experimentalDesign = c;
@@ -223,7 +271,7 @@ class UploadAnalysis extends React.Component {
             return <div className="help-block" key={i}>{val}</div>;
           })}
         </div>
-        <button type="submit" className="btn btn-primary">Submit</button>
+        <button type="submit" className="btn btn-primary btn-lg">Submit</button>
       </form>
     </div>;
   }
