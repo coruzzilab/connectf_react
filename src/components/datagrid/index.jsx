@@ -5,9 +5,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Route, Redirect, Switch} from 'react-router-dom';
-import {TabContent, TabPane, Nav, NavItem, NavLink} from 'reactstrap';
+import {TabContent, TabPane, Nav, NavItem, NavLink, Popover, PopoverHeader, PopoverBody} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {clearQuery, clearQueryTree, clearEdges} from "../../actions";
+import _ from 'lodash';
 
 import DF from './df';
 import Meta from './meta';
@@ -22,7 +23,54 @@ function mapStateToProps({heatmap}) {
   };
 }
 
+class QueryPopoverBody extends React.Component {
+  render() {
+    let {edges, query} = this.props;
+    return <Popover className="mw-100" {..._.omit(this.props, ['query', 'dispatch', 'edges'])}>
+      <PopoverBody>
+        <h6>Query</h6>
+        <div className="query-popover text-monospace mb-1">
+          {query}
+        </div>
+        {edges.length ?
+          <div>
+            <h6>Additional Edges</h6>
+            <ul>
+              {_.map(edges, (e, i) => {
+                return <li key={i}>{e}</li>;
+              })}
+            </ul>
+          </div> :
+          null}
+
+      </PopoverBody>
+    </Popover>;
+  }
+}
+
+QueryPopoverBody.propTypes = {
+  query: PropTypes.string,
+  edges: PropTypes.arrayOf(PropTypes.string)
+};
+
+const QueryPopover = connect(({query, edges}) => ({query, edges}))(QueryPopoverBody);
+
 class Datagrid extends React.Component {
+  constructor(props) {
+    super(props);
+    this.query = React.createRef();
+
+    this.state = {
+      popoverOpen: false
+    };
+  }
+
+  togglePopover() {
+    this.setState({
+      popoverOpen: !this.state.popoverOpen
+    });
+  }
+
   onTabClick(key) {
     this.props.history.push(key);
   }
@@ -37,7 +85,9 @@ class Datagrid extends React.Component {
     this.props.clearEdges();
     this.props.history.push('/query');
   }
+
   render() {
+    let {popoverOpen} = this.state;
     let {match, location} = this.props;
     let {pathname} = location;
 
@@ -80,12 +130,22 @@ class Datagrid extends React.Component {
           </NavLink>
         </NavItem>
         <NavItem className="ml-auto">
-          <div className="btn-group mr-1">
-            <button type="button" className="btn btn-primary" onClick={this.back.bind(this)}>
-              <FontAwesomeIcon icon="arrow-circle-left" className="mr-1"/>Back</button>
-            <button type="button" className="btn btn-outline-danger" onClick={this.backReset.bind(this)}>
-              <FontAwesomeIcon icon="sync" className="mr-1"/>New Query</button>
+          <div className="btn-toolbar">
+            <div className="btn-group mr-2">
+              <a className="btn btn-outline-dark" ref={this.query} onClick={this.togglePopover.bind(this)}>
+                <FontAwesomeIcon icon="info-circle" className="mr-1"/>Query
+              </a>
+            </div>
+            <div className="btn-group mr-1">
+              <button type="button" className="btn btn-primary" onClick={this.back.bind(this)}>
+                <FontAwesomeIcon icon="arrow-circle-left" className="mr-1"/>Back
+              </button>
+              <button type="button" className="btn btn-outline-danger" onClick={this.backReset.bind(this)}>
+                <FontAwesomeIcon icon="sync" className="mr-1"/>New Query
+              </button>
+            </div>
           </div>
+
         </NavItem>
       </Nav>
 
@@ -124,6 +184,8 @@ class Datagrid extends React.Component {
           <Redirect to="/datagrid/table"/>
         </Switch>
       </TabContent>
+      <QueryPopover target={() => this.query.current} placement="auto" isOpen={popoverOpen}
+                    toggle={this.togglePopover.bind(this)}/>
     </div>;
   }
 }
