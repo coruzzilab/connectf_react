@@ -68,8 +68,7 @@ class CytoscapeBody extends React.Component {
   componentDidMount() {
     this.cy = cytoscape({
       container: this.cyRef.current,
-      boxSelectionEnabled: false,
-      autounselectify: true,
+      boxSelectionEnabled: true,
       style: [
         {
           selector: 'node',
@@ -144,6 +143,16 @@ class CytoscapeBody extends React.Component {
       let ele = event.target;
       ele.style({'content': null});
       ele.removeStyle('z-compound-depth');
+    });
+
+    this.cy.on('select', 'node', function (event) {
+      let ele = event.target;
+      ele.style({'border-width': '1px', 'border-color': 'rgb(49,123,246)'});
+    });
+
+    this.cy.on('unselect', 'node', function (event) {
+      let ele = event.target;
+      ele.removeStyle('border-width border-color');
     });
 
     this.setHeight();
