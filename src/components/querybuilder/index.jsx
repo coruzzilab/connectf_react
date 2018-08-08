@@ -34,7 +34,7 @@ import {
   clearEdges,
   setEdges
 } from '../../actions';
-import {getQuery, getParentTfTree} from "../../utils";
+import {getQuery, getParentTfTree, getGrey} from "../../utils";
 
 const QueryContext = React.createContext();
 
@@ -543,7 +543,8 @@ class ValueBody extends React.Component {
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
     return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+      return <div draggable={value.draggable} className="row border border-dark rounded m-2 bg-white"
+                  ref={this.dropTarget}
                   id={node.id}
                   onDragStart={(e) => {
                     e.stopPropagation();
@@ -713,6 +714,7 @@ class GroupBody extends React.Component {
 
     return <QueryContext.Consumer>{value => {
       return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+                  style={{background: getGrey(queryTree, node)}}
                   id={node.id}
                   onDragStart={(e) => {
                     e.stopPropagation();

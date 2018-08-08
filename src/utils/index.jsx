@@ -108,3 +108,26 @@ export function getParentTfTree(queryTree, node) {
     return getDescendants(queryTree, parent);
   }
 }
+
+export function getLevel(queryTree, node) {
+  let parent = _.find(queryTree, ['id', node.parent]);
+
+  if (parent) {
+    return getLevel(queryTree, parent) + 1;
+  }
+  return 0;
+}
+
+const GREYS = [
+  '#FFFFFF',
+  '#DFDFDF',
+  '#BFBFBF',
+  '#9F9F9F',
+  '#808080'
+];
+
+export const getGrey = _.flow(
+  getLevel,
+  _.partial(_.clamp, _, 0, 4),
+  _.partial(_.get, GREYS, _, GREYS[4])
+);
