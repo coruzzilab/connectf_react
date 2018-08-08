@@ -50,6 +50,7 @@ class CytoscapeBody extends React.Component {
   constructor(props) {
     super(props);
     this.cyRef = React.createRef();
+    this.info = React.createRef();
 
     this.state = {
       height: Math.floor(document.documentElement.clientHeight * 0.8),
@@ -375,11 +376,11 @@ class CytoscapeBody extends React.Component {
             <input type="color" className="form-control" style={{width: '80px'}} value={color}
                    onChange={this.setColor.bind(this)}/>
             <div className="input-group-append">
-              <div className="btn btn-outline-dark" id="info" onClick={this.togglePopover.bind(this)}>
+              <div className="btn btn-outline-dark" onClick={this.togglePopover.bind(this)} ref={this.info}>
                 <FontAwesomeIcon icon="info-circle"/>
               </div>
             </div>
-            <UploadSifInfoPopover target="info" placement="right" isOpen={popoverOpen}
+            <UploadSifInfoPopover target={() => this.info.current} placement="right" isOpen={popoverOpen}
                                   toggle={this.togglePopover.bind(this)}/>
           </div>
           <div className="btn-group">
