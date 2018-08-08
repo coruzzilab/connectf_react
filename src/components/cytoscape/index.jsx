@@ -279,8 +279,6 @@ class CytoscapeBody extends React.Component {
         return;
       }
 
-      let nodes = _.invokeMap(this.cy.$("node"), 'data', 'id');
-
       let edges = res
         .map(([s, e, ...ts]) => {
           return _.map(ts, (t) => {
@@ -298,14 +296,14 @@ class CytoscapeBody extends React.Component {
         })
         .flatten();
 
+      let nodes = _(this.cy.$("node"))
+        .invokeMap('data', 'id')
+        .value();
+
       let uniqExistEdges = edges
         .filter((e) => {
-          return _.indexOf(nodes, e.data.source) !== -1;
+          return _.indexOf(nodes, e.data.source) !== -1 && _.indexOf(nodes, e.data.target) !== -1;
         })
-        .intersectionWith(edges
-          .filter((e) => {
-            return _.indexOf(nodes, e.data.target) !== -1;
-          }).value(), edge_compare)
         .uniqWith(edge_compare).value();
 
       if (!uniqExistEdges.length) {
