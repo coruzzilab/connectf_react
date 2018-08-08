@@ -29,7 +29,7 @@ class QueryPopoverBody extends React.Component {
     return <Popover className="mw-100" {..._.omit(this.props, ['query', 'dispatch', 'edges'])}>
       <PopoverBody>
         <h6>Query</h6>
-        <div className="query-popover text-monospace mb-1">
+        <div className="query-popover text-monospace mb-1 border rounded border-light bg-light">
           {query}
         </div>
         {edges.length ?
