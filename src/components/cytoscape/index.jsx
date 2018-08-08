@@ -299,17 +299,18 @@ class CytoscapeBody extends React.Component {
         .flatten();
 
       let uniqExistEdges = edges
-        .intersectionWith(nodes, (s, o) => {
-          return s.data.source === o;
+        .filter((e) => {
+          return _.indexOf(nodes, e.data.source) !== -1;
         })
         .intersectionWith(edges
-          .intersectionWith(nodes, (s, o) => {
-            return s.data.target === o;
+          .filter((e) => {
+            return _.indexOf(nodes, e.data.target) !== -1;
           }).value(), edge_compare)
         .uniqWith(edge_compare).value();
 
       if (!uniqExistEdges.length) {
         this.setAlertMessage("No edges added.");
+        setTimeout(this.setAlertMessage.bind(this, "", false), 10000);
       } else {
         this.cy.batch(() => {
           this.cy.add(uniqExistEdges);
