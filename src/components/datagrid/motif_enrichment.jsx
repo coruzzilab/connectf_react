@@ -86,12 +86,14 @@ export class ColHeader extends React.Component {
         </ModalHeader>
         <ModalBody>
           <table className="table table-sm">
+            <tbody>
             {_(data).map((val, key) => {
               return <tr key={key}>
                 <th>{key}</th>
                 <td>{val}</td>
               </tr>;
             }).value()}
+            </tbody>
           </table>
         </ModalBody>
         <ModalFooter>
@@ -150,6 +152,7 @@ export class RowHeader extends React.Component {
         </ModalHeader>
         <ModalBody>
           <table className="table table-sm">
+            <tbody>
             <tr>
               <th className="font-weight-bold">Number of Motifs</th>
               <td>{data['# Motifs']}</td>
@@ -169,6 +172,7 @@ export class RowHeader extends React.Component {
               <th className="font-weight-bold">Family</th>
               <td>{data['Family']}</td>
             </tr>
+            </tbody>
           </table>
         </ModalBody>
         <ModalFooter>
