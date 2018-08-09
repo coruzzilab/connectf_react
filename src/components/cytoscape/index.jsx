@@ -164,6 +164,16 @@ class CytoscapeBody extends React.Component {
     window.addEventListener("resize", this.setHeight);
   }
 
+  componentDidUpdate(prevProp) {
+    if (prevProp.requestId !== this.props.requestId) {
+      this.props.getCytoscape(this.props.requestId);
+    }
+
+    if (prevProp.cytoscapeData !== this.props.cytoscapeData) {
+      this.resetCytoscape();
+    }
+  }
+
   componentWillUnmount() {
     if (this.cy) {
       this.cy.destroy();
@@ -175,7 +185,7 @@ class CytoscapeBody extends React.Component {
     this.setState({height: document.documentElement.clientHeight - this.cyRef.current.offsetTop});
   }
 
-  resetCytoscape() {
+  runCyLayout() {
     if (!this.layout) {
       this.layout = this.cy.layout({
         name: 'preset'
@@ -211,19 +221,14 @@ class CytoscapeBody extends React.Component {
 
   setData(data) {
     this.cy.batch(() => {
-      this.cy.json({elements: data});
-      this.resetCytoscape();
+      this.cy.json({elements: _.cloneDeep(data)});
+      this.cy.$(':selected').unselect();
+      this.runCyLayout();
     });
   }
 
-  componentDidUpdate(prevProp) {
-    if (prevProp.requestId !== this.props.requestId) {
-      this.props.getCytoscape(this.props.requestId);
-    }
-
-    if (prevProp.cytoscapeData !== this.props.cytoscapeData) {
-      this.setData(this.props.cytoscapeData);
-    }
+  resetCytoscape() {
+    this.setData(this.props.cytoscapeData);
   }
 
   back() {
@@ -314,7 +319,8 @@ class CytoscapeBody extends React.Component {
         .filter((e) => {
           return _.indexOf(nodes, e.data.source) !== -1 && _.indexOf(nodes, e.data.target) !== -1;
         })
-        .uniqWith(edge_compare).value();
+        .uniqWith(edge_compare)
+        .value();
 
       if (!uniqExistEdges.length) {
         this.setAlertMessage("No edges added.");
@@ -361,7 +367,7 @@ class CytoscapeBody extends React.Component {
             <button onClick={this.back.bind(this)} className="btn btn-warning">
               <FontAwesomeIcon icon="arrow-circle-left" className="mr-1"/>Back
             </button>
-            <button className="btn btn-light" onClick={this.resetCytoscape.bind(this)}>
+            <button className="btn btn-danger" onClick={this.resetCytoscape.bind(this)}>
               <FontAwesomeIcon icon="redo" className="mr-1"/>Reset
             </button>
             <button className="btn btn-light" onClick={this.fitCytoscape.bind(this)}>
