@@ -7,6 +7,8 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
 
 const APP_DIR = path.join(__dirname, 'src');
 
@@ -16,7 +18,7 @@ const config = {
   ],
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: '[name].[contenthash].js'
   },
   mode: 'production',
   module: {
@@ -55,9 +57,20 @@ const config = {
     minimizer: [
       new UglifyJsPlugin(),
       new OptimizeCSSAssetsPlugin({})
-    ]
+    ],
+    runtimeChunk: 'single',
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all'
+        }
+      }
+    }
   },
   plugins: [
+    new CleanWebpackPlugin(['dist']),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production')
@@ -65,7 +78,10 @@ const config = {
     }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new MiniCssExtractPlugin({
-      filename: 'style.css'
+      filename: '[name].[contenthash].css'
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/index.html'
     }),
     new BundleAnalyzerPlugin()
   ]

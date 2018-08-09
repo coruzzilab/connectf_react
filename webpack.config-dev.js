@@ -4,6 +4,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const APP_DIR = path.join(__dirname, 'src');
 
@@ -57,6 +58,9 @@ const config = {
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new MiniCssExtractPlugin({
       filename: 'style.css'
+    }),
+    new HtmlWebpackPlugin({
+      template: 'src/index.html'
     })
   ]
 };

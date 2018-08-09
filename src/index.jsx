@@ -7,8 +7,6 @@ import {Provider} from 'react-redux';
 import {BrowserRouter as Router, withRouter} from 'react-router-dom';
 import $ from 'jquery';
 
-import 'file-loader?name=[name].[ext]!./index.html';
-
 import 'bootstrap/dist/css/bootstrap.css';
 import './css/style.css';
 
