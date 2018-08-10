@@ -65,6 +65,7 @@ class CytoscapeBody extends React.Component {
 
     this.setHeight = _.debounce(this.setHeight.bind(this), 100);
     this.setUserEdgeColor = _.debounce(this.setUserEdgeColor.bind(this), 50, {maxWait: 200});
+    this.searchNode = _.debounce(this.searchNode.bind(this), 200);
   }
 
   componentDidMount() {
@@ -360,6 +361,20 @@ class CytoscapeBody extends React.Component {
     });
   }
 
+  searchNode(value) {
+    value = _.toUpper(value);
+    if (value) {
+      this.cy.$(`node[id !*= '${value}']`).unselect();
+      this.cy.$(`node[id *= '${value}']`).select();
+    } else {
+      this.cy.$('node').unselect();
+    }
+  }
+
+  handleSearch(e) {
+    this.searchNode(e.target.value);
+  }
+
   render() {
     let {height, popoverOpen, busy, color, alertOpen, alertMessage} = this.state;
 
@@ -408,6 +423,13 @@ class CytoscapeBody extends React.Component {
                     onClick={this.deleteEdges.bind(this)}>
               <FontAwesomeIcon icon="trash-alt" className="mr-1"/>Remove Edges
             </button>
+          </div>
+          <div className="input-group ml-auto">
+            <div className="input-group-prepend">
+              <span className="input-group-text"><FontAwesomeIcon icon="search"/></span>
+            </div>
+            <input type="text" className="form-control" placeholder="Search"
+                   onChange={this.handleSearch.bind(this)}/>
           </div>
         </div>
       </div>
