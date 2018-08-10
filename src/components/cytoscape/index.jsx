@@ -65,7 +65,7 @@ class CytoscapeBody extends React.Component {
 
     this.setHeight = _.debounce(this.setHeight.bind(this), 100);
     this.setUserEdgeColor = _.debounce(this.setUserEdgeColor.bind(this), 50, {maxWait: 200});
-    this.searchNode = _.debounce(this.searchNode.bind(this), 200);
+    this.searchNode = _.debounce(this.searchNode.bind(this), 200, {leading: true});
   }
 
   componentDidMount() {
@@ -362,7 +362,7 @@ class CytoscapeBody extends React.Component {
   }
 
   searchNode(value) {
-    value = _.toUpper(value);
+    value = _.toUpper(value).replace(/'/g, "\\'");
     if (value) {
       this.cy.$(`node[id !*= '${value}']`).unselect();
       this.cy.$(`node[id *= '${value}']`).select();
