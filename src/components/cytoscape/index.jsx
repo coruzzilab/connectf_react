@@ -15,6 +15,8 @@ import uuid4 from 'uuid/v4';
 
 import {getCytoscape, setCytoscape} from '../../actions';
 
+const clampWeight = _.memoize(_.partial(_.clamp, _, 1, 5));
+
 const edge_value = _.unary(_.partial(_.pick, _, ['data.source', 'data.target', 'data.name']));
 const edge_compare = (s, o) => {
   return _.isEqual(edge_value(s), edge_value(o));
@@ -99,7 +101,9 @@ class CytoscapeBody extends React.Component {
         {
           selector: 'edge',
           style: {
-            'width': 1,
+            'width': function (ele) {
+              return clampWeight(ele.data('weight'));
+            },
             'target-arrow-shape': 'triangle',
             'target-arrow-color': 'data(color)',
             'curve-style': 'bezier',
