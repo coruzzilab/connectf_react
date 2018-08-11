@@ -221,8 +221,10 @@ class HeatmapTable extends React.Component {
     return <table className="table table-responsive table-sm">
       <thead>
       <tr>
-        <th/>
+        <th>Index</th>
+        <th>Gene ID</th>
         <th>Name</th>
+        <th>Analysis ID</th>
       </tr>
       </thead>
       <tbody>
@@ -230,6 +232,8 @@ class HeatmapTable extends React.Component {
         return <tr key={i}>
           <ColHeader data={row[0]} sortable={false}>{row[1]}</ColHeader>
           <td>{row[2]}</td>
+          <td>{row[3]}</td>
+          <td>{row[4]}</td>
         </tr>
       })}
       </tbody>
