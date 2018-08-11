@@ -362,12 +362,15 @@ class CytoscapeBody extends React.Component {
   }
 
   searchNode(value) {
-    value = _.toUpper(value).replace(/'/g, "\\'");
+    value = value.replace(/'/g, "\\'");
     if (value) {
-      this.cy.$(`node[id !*= '${value}']`).unselect();
-      this.cy.$(`node[id *= '${value}']`).select();
+      this.cy.batch(() => {
+        this.cy.nodes(':selected').unselect();
+        this.cy.nodes(`[id @*= '${value}']`).select();
+        this.cy.edges(`[name @*= '${value}']`).targets().select();
+      });
     } else {
-      this.cy.$('node').unselect();
+      this.cy.nodes(':selected').unselect();
     }
   }
 
