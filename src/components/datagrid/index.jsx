@@ -5,9 +5,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Route, Redirect, Switch} from 'react-router-dom';
-import {TabContent, TabPane, Nav, NavItem, NavLink, Popover, PopoverHeader, PopoverBody} from 'reactstrap';
+import {TabContent, TabPane, Nav, NavItem, NavLink, Popover, PopoverBody} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {clearQuery, clearQueryTree, clearEdges} from "../../actions";
+import {clearQuery, clearQueryTree, clearEdges, clearRequestId} from "../../actions";
 import _ from 'lodash';
 
 import DF from './df';
@@ -83,6 +83,7 @@ class Datagrid extends React.Component {
     this.props.clearQuery();
     this.props.clearQueryTree();
     this.props.clearEdges();
+    this.props.clearRequestId();
     this.props.history.push('/query');
   }
 
@@ -197,7 +198,8 @@ Datagrid.propTypes = {
   heatmap: PropTypes.object,
   clearQuery: PropTypes.func,
   clearQueryTree: PropTypes.func,
-  clearEdges: PropTypes.func
+  clearEdges: PropTypes.func,
+  clearRequestId: PropTypes.func
 };
 
-export default connect(mapStateToProps, {clearQuery, clearQueryTree, clearEdges})(Datagrid);
+export default connect(mapStateToProps, {clearQuery, clearQueryTree, clearEdges, clearRequestId})(Datagrid);

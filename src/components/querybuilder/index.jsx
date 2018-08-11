@@ -32,7 +32,8 @@ import {
   addEdge,
   removeEdge,
   clearEdges,
-  setEdges
+  setEdges,
+  clearRequestId
 } from '../../actions';
 import {getQuery, getParentTfTree, getGrey} from "../../utils";
 
@@ -1068,6 +1069,7 @@ class QuerybuilderBody extends React.Component {
     this.props.clearQuery();
     this.props.clearQueryTree();
     this.props.clearEdges();
+    this.props.clearRequestId();
     this.setState({
       targetGene: ""
     });
@@ -1227,7 +1229,8 @@ QuerybuilderBody.propTypes = {
   removeEdge: PropTypes.func,
   clearEdges: PropTypes.func,
   edges: PropTypes.arrayOf(PropTypes.string),
-  setEdges: PropTypes.func
+  setEdges: PropTypes.func,
+  clearRequestId: PropTypes.func
 };
 
 const Querybuilder = connect(mapStateToProps, {
@@ -1240,7 +1243,8 @@ const Querybuilder = connect(mapStateToProps, {
   addEdge,
   removeEdge,
   clearEdges,
-  setEdges
+  setEdges,
+  clearRequestId
 })(QuerybuilderBody);
 
 export default Querybuilder;
