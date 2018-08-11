@@ -18,7 +18,8 @@ const config = {
   ],
   output: {
     path: path.join(__dirname, 'dist'),
-    filename: '[name].[contenthash].js'
+    filename: '[name].[contenthash].js',
+    publicPath: "/"
   },
   mode: 'production',
   module: {
