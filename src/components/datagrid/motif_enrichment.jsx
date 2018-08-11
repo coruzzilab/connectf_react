@@ -60,32 +60,32 @@ export class ColHeader extends React.Component {
 
   render() {
     let {visible} = this.state;
-    let {colSpan, data, sorted, ascending, sortFunc} = this.props;
+    let {colSpan, data, sorted, ascending, sortFunc, sortable} = this.props;
 
     return <th colSpan={colSpan}>
       <div className="container-fluid">
         <div className="row align-items-center">
           <div className="col">
-            <a onClick={this.showModal.bind(this)}>{this.props.children}</a>
+            <a className="text-primary link" onClick={this.showModal.bind(this)}>{this.props.children}</a>
           </div>
-          <div className="col-1" style={{cursor: 'pointer'}}>
+          {sortable ? <div className="col-1" style={{cursor: 'pointer'}}>
             <a onClick={sortFunc}>
               {sorted ?
                 (ascending ? <FontAwesomeIcon icon="sort-up"/> : <FontAwesomeIcon icon="sort-down"/>) :
                 <FontAwesomeIcon icon="sort"/>}
             </a>
 
-          </div>
+          </div> : null}
         </div>
       </div>
 
 
-      <Modal isOpen={visible} toggle={this.hideModal.bind(this)} size="lg">
+      <Modal isOpen={visible} toggle={this.hideModal.bind(this)}>
         <ModalHeader toggle={this.hideModal.bind(this)}>
           Meta Data
         </ModalHeader>
         <ModalBody>
-          <table className="table table-sm">
+          <table className="table table-responsive table-sm">
             <tbody>
             {_(data).map((val, key) => {
               return <tr key={key}>
@@ -109,12 +109,14 @@ ColHeader.propTypes = {
   name: PropTypes.string,
   data: PropTypes.object,
   children: PropTypes.node,
+  sortable: PropTypes.bool,
   sortFunc: PropTypes.func,
   sorted: PropTypes.bool,
   ascending: PropTypes.bool
 };
 
 ColHeader.defaultProps = {
+  sortable: true,
   colSpan: 1,
   sorted: false,
   ascending: true
@@ -145,13 +147,13 @@ export class RowHeader extends React.Component {
     let {data} = this.props;
 
     return <td>
-      <a onClick={this.showModal.bind(this)}>{`${data.name} ${data['Family']}`}</a>
+      <a className="text-secondary" onClick={this.showModal.bind(this)}>{`${data.name} ${data['Family']}`}</a>
       <Modal isOpen={visible} toggle={this.hideModal.bind(this)}>
         <ModalHeader toggle={this.hideModal.bind(this)}>
           {`${data.name} ${data['Family']}`}
         </ModalHeader>
         <ModalBody>
-          <table className="table table-sm">
+          <table className="table table-responsive table-sm">
             <tbody>
             <tr>
               <th className="font-weight-bold">Number of Motifs</th>
@@ -186,6 +188,57 @@ export class RowHeader extends React.Component {
 RowHeader.propTypes = {
   data: PropTypes.object,
   children: PropTypes.node
+};
+
+class HeatmapTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: []
+    };
+  }
+
+  componentDidMount() {
+    this.getTableData();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.tableUrl !== this.props.tableUrl) {
+      this.getTableData();
+    }
+  }
+
+
+  getTableData() {
+    $.ajax({
+      url: this.props.tableUrl
+    }).done((data) => {
+      this.setState({data});
+    });
+  }
+
+  render() {
+    return <table className="table table-responsive table-sm">
+      <thead>
+      <tr>
+        <th/>
+        <th>Name</th>
+      </tr>
+      </thead>
+      <tbody>
+      {_.map(this.state.data, (row, i) => {
+        return <tr key={i}>
+          <ColHeader data={row[0]} sortable={false}>{row[1]}</ColHeader>
+          <td>{row[2]}</td>
+        </tr>
+      })}
+      </tbody>
+    </table>;
+  }
+}
+
+HeatmapTable.propTypes = {
+  tableUrl: PropTypes.string
 };
 
 class MotifEnrichmentBody extends React.Component {
@@ -402,9 +455,19 @@ class MotifEnrichmentBody extends React.Component {
           </table>
         </TabPane>
         <TabPane tabId="heatmap">
-          <img
-            src={img}
-            alt="heatmap"/>
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col">
+                <img className="img-fluid"
+                     src={img}
+                     alt="heatmap"/>
+              </div>
+              <div className="col">
+                <HeatmapTable
+                  tableUrl={`${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap_table/`}/>
+              </div>
+            </div>
+          </div>
         </TabPane>
       </TabContent>
 

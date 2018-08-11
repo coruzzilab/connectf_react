@@ -3,3 +3,7 @@
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
+.link {
+    cursor: pointer;
+}
