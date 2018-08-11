@@ -102,14 +102,20 @@ class CytoscapeBody extends React.Component {
         {
           selector: 'edge',
           style: {
-            'width': function (ele) {
-              return clampWeight(ele.data('weight'));
-            },
+            'width': 1,
             'target-arrow-shape': 'triangle',
             'target-arrow-color': 'data(color)',
             'curve-style': 'bezier',
             'line-color': 'data(color)',
             'arrow-scale': 0.5
+          }
+        },
+        {
+          selector: 'edge[weight]',
+          style: {
+            'width': function (ele) {
+              return clampWeight(ele.data('weight'));
+            }
           }
         }
       ],
@@ -289,7 +295,7 @@ class CytoscapeBody extends React.Component {
           return o.split(/\s+/);
         })
         .map(_.unary(_.partial(_.map, _, _.trim)))
-        .map(_.unary(_.partial(_.filter, _, _.negate(_.isEmpty))))
+        .map(_.unary(_.partial(_.compact)))
         .map((o) => {
           return [..._.map(o.slice(0, 1), _.toUpper), ...o.slice(1, 2), ..._.map(o.slice(2), _.toUpper)];
         });
