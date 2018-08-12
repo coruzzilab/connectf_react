@@ -72,6 +72,8 @@ class CytoscapeBody extends React.Component {
     this.cy = cytoscape({
       container: this.cyRef.current,
       boxSelectionEnabled: true,
+      maxZoom: 20,
+      minZoom: 0.05,
       style: [
         {
           selector: 'node',
@@ -84,11 +86,12 @@ class CytoscapeBody extends React.Component {
             'shape': 'data(shape)',
             'background-color': 'data(color)',
             'width': 'data(size)',
-            'height': 'data(size)'
+            'height': 'data(size)',
+            'min-zoomed-font-size': 3
           }
         },
         {
-          selector: "node[showLabel = 'show']",
+          selector: "node[?showLabel]",
           style: {
             'content': function (ele) {
               let name = ele.data('name');
@@ -107,7 +110,8 @@ class CytoscapeBody extends React.Component {
             'target-arrow-color': 'data(color)',
             'curve-style': 'bezier',
             'line-color': 'data(color)',
-            'arrow-scale': 0.5
+            'arrow-scale': 0.5,
+            'min-zoomed-font-size': 3
           }
         },
         {
@@ -132,11 +136,10 @@ class CytoscapeBody extends React.Component {
     });
 
     this.cy.on('mouseout', 'edge', function (event) {
-      let ele = event.target;
-      ele.removeStyle('label');
+      event.target.removeStyle('label');
     });
 
-    this.cy.on('mouseover', "node[showLabel != 'show']", function (event) {
+    this.cy.on('mouseover', "node[!showLabel]", function (event) {
       let ele = event.target;
       ele.style({
         'content': function (ele) {
@@ -150,20 +153,29 @@ class CytoscapeBody extends React.Component {
       });
     });
 
-    this.cy.on('mouseout', "node[showLabel != 'show']", function (event) {
+    this.cy.on('mouseover', "node[!showLabel]:unselected", function (event) {
+      event.target.style({
+        'border-width': '2px',
+        'border-color': 'red'
+      });
+    });
+
+    this.cy.on('mouseout', "node[!showLabel]:unselected", function (event) {
+      event.target.removeStyle('border-width border-color');
+    });
+
+    this.cy.on('mouseout', "node[!showLabel]", function (event) {
       let ele = event.target;
       ele.style({'content': null});
       ele.removeStyle('z-compound-depth');
     });
 
     this.cy.on('select', 'node', function (event) {
-      let ele = event.target;
-      ele.style({'border-width': '1px', 'border-color': 'rgb(49,123,246)'});
+      event.target.style({'border-width': '2px', 'border-color': 'rgb(49,123,246)'});
     });
 
     this.cy.on('unselect', 'node', function (event) {
-      let ele = event.target;
-      ele.removeStyle('border-width border-color');
+      event.target.removeStyle('border-width border-color');
     });
 
     this.setHeight();
@@ -210,8 +222,33 @@ class CytoscapeBody extends React.Component {
   }
 
   exportCytoscape(e) {
+    let png64 = this.cy.png();
     e.currentTarget.download = 'query.png';
-    e.currentTarget.href = this.cy.png();
+
+    if (png64.length < 2097152) {
+      e.currentTarget.href = png64;
+    } else {
+      let byteCharacters = atob(this.cy.png().split(',', 2)[1]);
+      let byteArrays = [];
+
+      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        let slice = byteCharacters.slice(offset, offset + 512);
+
+        let byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+          byteNumbers[i] = slice.charCodeAt(i);
+        }
+
+        let byteArray = new Uint8Array(byteNumbers);
+
+        byteArrays.push(byteArray);
+      }
+
+      let blob = new Blob(byteArrays, {type: 'image/png'});
+
+      e.currentTarget.href = URL.createObjectURL(blob);
+    }
+
   }
 
   exportJSON(e) {
@@ -233,7 +270,7 @@ class CytoscapeBody extends React.Component {
   setData(data) {
     this.cy.batch(() => {
       this.cy.json({elements: _.cloneDeep(data)});
-      this.cy.$(':selected').unselect();
+      this.cy.nodes(':selected').unselect();
       this.runCyLayout();
     });
   }
@@ -265,7 +302,9 @@ class CytoscapeBody extends React.Component {
   }
 
   setUserEdgeColor(color) {
-    this.cy.$('edge[user]').data('color', color);
+    this.cy.batch(() => {
+      this.cy.edges('[?user]').data('color', color);
+    });
   }
 
   handleUpload(acceptedFiles, rejectedFiles) {
@@ -322,7 +361,7 @@ class CytoscapeBody extends React.Component {
         })
         .flatten();
 
-      let nodes = _(this.cy.$("node"))
+      let nodes = _(this.cy.nodes())
         .invokeMap('data', 'id')
         .value();
 
@@ -349,7 +388,7 @@ class CytoscapeBody extends React.Component {
 
   deleteEdges() {
     this.cy.batch(() => {
-      this.cy.remove(this.cy.$('edge[user]'));
+      this.cy.remove(this.cy.edges('[?user]'));
       this.cy.forceRender();
     });
   }
