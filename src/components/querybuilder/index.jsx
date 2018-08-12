@@ -431,7 +431,7 @@ class ModGroupBody extends React.Component {
             <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
                          disable={first}/>
             <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-            <div className="btn-toolbar">
+            <div className="btn-toolbar col">
               <div className="btn-group mr-2">
                 <button type="button" className="btn btn-success"
                         onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
@@ -442,20 +442,20 @@ class ModGroupBody extends React.Component {
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
                 </button>
               </div>
-              <div className="btn-group mr-2">
+              <div className="btn-group">
                 <button type="button" className="btn btn-danger"
                         onClick={removeNode.bind(undefined, node.id)}>
                   <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove Modifier Group
                 </button>
               </div>
-              <div className="btn-group">
-                <button type="button" className="btn btn-success"
-                        onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Proceeding Modifier Group
-                </button>
+              <div className="btn-group ml-auto">
                 <button type="button" className="btn btn-success"
                         onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Proceeding Modifier
+                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding Modifier
+                </button>
+                <button type="button" className="btn btn-success"
+                        onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
+                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding Modifier Group
                 </button>
               </div>
             </div>
@@ -635,6 +635,8 @@ class ValueBody extends React.Component {
                         onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
                 </button>
+              </div>
+              <div className="btn-group mr-2">
                 <button type="button" className="btn btn-success"
                         onClick={addMod.bind(undefined, '', '', node.id, undefined, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
@@ -790,6 +792,8 @@ class GroupBody extends React.Component {
                         onClick={addGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
                 </button>
+              </div>
+              <div className="btn-group mr-2">
                 <button type="button" className="btn btn-success"
                         onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
@@ -799,20 +803,20 @@ class GroupBody extends React.Component {
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
                 </button>
               </div>
-              <div className="btn-group mr-2">
+              <div className="btn-group">
                 <button type="button" className="btn btn-danger"
                         onClick={removeNode.bind(undefined, node.id)}>
                   <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove TF Group
                 </button>
               </div>
-              <div className="btn-group">
-                <button type="button" className="btn btn-success"
-                        onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Proceeding Group
-                </button>
+              <div className="btn-group ml-auto">
                 <button type="button" className="btn btn-success"
                         onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Proceeding TF
+                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding TF
+                </button>
+                <button type="button" className="btn btn-success"
+                        onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
+                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding TF Group
                 </button>
               </div>
             </div>

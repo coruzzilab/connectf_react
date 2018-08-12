@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import {Link} from 'react-router-dom';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 class About extends React.Component {
   render() {
@@ -13,7 +14,8 @@ class About extends React.Component {
         <p className="lead">
           Query transcription factor and target gene interactions.
         </p>
-        <Link to="/query" className="btn btn-primary btn-lg">Get Started</Link>
+        <Link to="/query" className="btn btn-primary btn-lg">Get Started
+          <FontAwesomeIcon icon="chevron-circle-right" className="ml-2"/></Link>
       </div>
     </div>;
   }
