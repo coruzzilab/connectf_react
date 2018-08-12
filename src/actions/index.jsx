@@ -5,15 +5,7 @@ import $ from 'jquery';
 import {generateRequestId} from "../utils";
 import uuidv4 from "uuid/v4";
 
-let _BASE_URL;
-
-if (process.env.NODE_ENV !== "production") {
-  _BASE_URL = 'http://localhost:8001';
-} else {
-  _BASE_URL = window.location.origin;
-}
-
-export const BASE_URL = _BASE_URL;
+export const BASE_URL = window.location.origin;
 
 export const setBusy = (busy) => {
   return {

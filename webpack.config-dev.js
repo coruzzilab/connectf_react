@@ -3,8 +3,11 @@
  */
 const webpack = require('webpack');
 const path = require('path');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+const convert = require('koa-connect');
+const history = require('connect-history-api-fallback');
+const proxy = require('http-proxy-middleware');
 
 const APP_DIR = path.join(__dirname, 'src');
 
@@ -42,28 +45,26 @@ const config = {
       },
       {
         test: /\.(ttf|eot|svg|gif|woff(2)?)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader',
+        loader: 'file-loader'
       }
     ]
   },
   resolve: {
-    extensions: ['.js', '.jsx'],
-  },
-  devServer: {
-    contentBase: path.join(__dirname, 'dist'),
-    // serve index.html in place of 404 responses to allow HTML5 history
-    historyApiFallback: true
+    extensions: ['.js', '.jsx']
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new MiniCssExtractPlugin({
-      filename: 'style.css'
-    }),
     new HtmlWebpackPlugin({
       template: 'src/index.html'
     })
-  ]
+  ],
+  serve: {
+    content: [__dirname],
+    add: (app, middleware, options) => {
+      app.use(convert(proxy(['/api', '/queryapp', '/upload'], {target: 'http://localhost:8001'})));
+      app.use(convert(history()));
+    }
+  }
 };
 
 module.exports = config;
