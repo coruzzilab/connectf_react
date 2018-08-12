@@ -7,6 +7,7 @@ import {Link} from 'react-router-dom';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 import {getStats} from '../../actions';
 
@@ -43,13 +44,14 @@ class Cytoscape extends React.Component {
           <div className="col m-1">
             <p>There are {stats.num_edges.toLocaleString()} edges in the network,
               with {stats.num_targets.toLocaleString()} targets.</p>
-            <p className="text-warning">Warning! Graphs of over 5,000 edges might affect browser performance.</p>
+            <p className="text-warning">Warning! Graphs of over 3,000 edges might affect browser performance.</p>
           </div>
         </div> :
         null}
       <div className="row">
         <div className="col m-1">
-          <Link to="/cytoscape" className="btn btn-primary">Open Cytoscape</Link>
+          <Link to="/cytoscape" className={classNames("btn", stats.num_edges > 3000 ? "btn-warning" : "btn-primary")}>Open
+            Cytoscape</Link>
         </div>
       </div>
     </div>;
