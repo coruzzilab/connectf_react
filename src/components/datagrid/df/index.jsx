@@ -219,7 +219,7 @@ class DFBody extends React.Component {
   }
 
   setHeight() {
-    this.setState({height: document.documentElement.clientHeight - this.grid.current.offsetTop});
+    this.setState({height: document.documentElement.clientHeight - this.grid.current.getBoundingClientRect().top});
   }
 
   render() {
@@ -244,7 +244,7 @@ class DFBody extends React.Component {
       </div>
       <div className="row">
         <div className="col">
-          <div id="grid" ref={this.grid} style={{overflow: 'visible', overflowX: 'auto', height}}/>
+          <div id="grid" ref={this.grid} style={{overflow: 'hidden', height}}/>
         </div>
       </div>
 
