@@ -208,7 +208,7 @@ export const clearHeatmap = () => {
 export const getHeatmap = (requestId) => {
   return (dispatch) => {
     return $.ajax({
-      url: `${BASE_URL}/queryapp/heatmap/${requestId}/`,
+      url: `${BASE_URL}/queryapp/list_enrichment/${requestId}/`,
       contentType: false
     })
       .done((data) => dispatch(setHeatmap(data)))

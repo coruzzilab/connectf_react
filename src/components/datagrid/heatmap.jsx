@@ -41,8 +41,8 @@ class RowHeader extends React.Component {
     let {visible} = this.state;
     let {info} = this.props;
 
-    return <td>
-      <a onClick={this.showModal.bind(this, undefined)}>{info.name}</a>
+    return <th>
+      <a className="text-primary link" onClick={this.showModal.bind(this, undefined)}>{this.props.children}</a>
       <Modal isOpen={visible} toggle={this.showModal.bind(this, false)}>
         <ModalHeader toggle={this.showModal.bind(this, false)}>{info.name}</ModalHeader>
         <ModalBody>
@@ -54,12 +54,68 @@ class RowHeader extends React.Component {
           <Button onClick={this.showModal.bind(this, false)}><FontAwesomeIcon icon="times"/> Close</Button>
         </ModalFooter>
       </Modal>
-    </td>;
+    </th>;
   }
 }
 
 RowHeader.propTypes = {
-  info: PropTypes.object.isRequired
+  info: PropTypes.object.isRequired,
+  children: PropTypes.node
+};
+
+class HeatmapTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: []
+    };
+  }
+
+  componentDidMount() {
+    this.getTableData();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.tableUrl !== this.props.tableUrl) {
+      this.getTableData();
+    }
+  }
+
+
+  getTableData() {
+    $.ajax({
+      url: this.props.tableUrl
+    }).done((data) => {
+      this.setState({data});
+    });
+  }
+
+  render() {
+    return <table className="table table-responsive table-sm">
+      <thead>
+      <tr>
+        <th>Index</th>
+        <th>Name</th>
+        <th>Gene Name</th>
+        <th>Analysis ID</th>
+      </tr>
+      </thead>
+      <tbody>
+      {_.map(this.state.data, (row, i) => {
+        return <tr key={i}>
+          <RowHeader info={row[0]}>{row[1]}</RowHeader>
+          <td>{row[2]}</td>
+          <td>{row[3]}</td>
+          <td>{row[4]}</td>
+        </tr>
+      })}
+      </tbody>
+    </table>;
+  }
+}
+
+HeatmapTable.propTypes = {
+  tableUrl: PropTypes.string
 };
 
 const mapStateToProps = (state) => {
@@ -76,7 +132,7 @@ class HeatMapBody extends React.Component {
       success: true,
       upper: '',
       lower: '',
-      imgSrc: `${BASE_URL}/queryapp/heatmap/${this.props.requestId}.svg`,
+      imgSrc: `${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}.svg`,
       key: "table",
       sortCol: null,
       ascending: true
@@ -119,7 +175,7 @@ class HeatMapBody extends React.Component {
     let {upper, lower} = this.state;
 
     this.setState({
-      imgSrc: `${BASE_URL}/queryapp/heatmap/${this.props.requestId}.svg?${$.param({
+      imgSrc: `${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}.svg?${$.param({
         upper,
         lower
       })}`
@@ -214,7 +270,7 @@ class HeatMapBody extends React.Component {
               .orderBy((row) => _.isNull(row) ? row : row[sortCol], ascending ? 'asc' : 'desc')
               .map((row, i) => {
                 return <tr key={i}>
-                  <RowHeader info={row[0]}/>
+                  <RowHeader info={row[0]}>{row[0].name}</RowHeader>
                   {_.map(row.slice(1), (cell, j) => {
                     let [background, color] = blueShader(cell, min, max);
                     return <td style={{background, color}} key={j}>{cell.toExponential(2)}</td>;
@@ -226,13 +282,22 @@ class HeatMapBody extends React.Component {
           </table>
         </TabPane>
         <TabPane tabId="heatmap">
-          <img src={imgSrc}
-               onError={this.toggleSuccess.bind(this, false)}
-               onLoad={this.toggleSuccess.bind(this, true)}/>
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col">
+                <img src={imgSrc}
+                     onError={this.toggleSuccess.bind(this, false)}
+                     onLoad={this.toggleSuccess.bind(this, true)}/>
 
-          {!success ?
-            <div>Heatmap is not available for this query.</div> :
-            null}
+                {!success ?
+                  <div>Heatmap is not available for this query.</div> :
+                  null}
+              </div>
+              <div className="col">
+                <HeatmapTable tableUrl={`${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}/legend/`}/>
+              </div>
+            </div>
+          </div>
         </TabPane>
       </TabContent>
     </div>;
