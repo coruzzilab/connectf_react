@@ -7,3 +7,10 @@
 .link {
     cursor: pointer;
 }
+
+.query-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 10em;
+}

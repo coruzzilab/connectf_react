@@ -9,6 +9,7 @@ import $ from 'jquery';
 import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {BASE_URL, getHeatmap} from '../../actions';
+import {QueryNameCell} from "./motif_enrichment";
 import {
   TabContent,
   TabPane,
@@ -96,6 +97,7 @@ class HeatmapTable extends React.Component {
       <tr>
         <th>Index</th>
         <th>Name</th>
+        <th>No. Targets</th>
         <th>Gene Name</th>
         <th>Analysis ID</th>
       </tr>
@@ -104,9 +106,10 @@ class HeatmapTable extends React.Component {
       {_.map(this.state.data, (row, i) => {
         return <tr key={i}>
           <RowHeader info={row[0]}>{row[1]}</RowHeader>
-          <td>{row[2]}</td>
+          <QueryNameCell>{row[2]}</QueryNameCell>
           <td>{row[3]}</td>
           <td>{row[4]}</td>
+          <td>{row[5]}</td>
         </tr>
       })}
       </tbody>

@@ -18,7 +18,8 @@ import {
   TabPane,
   Nav,
   NavItem,
-  NavLink
+  NavLink,
+  Tooltip
 } from 'reactstrap';
 import {getMotifEnrichment, BASE_URL} from "../../actions";
 import {blueShader, getLogMinMax} from '../../utils';
@@ -190,6 +191,36 @@ RowHeader.propTypes = {
   children: PropTypes.node
 };
 
+export class QueryNameCell extends React.Component {
+  constructor(props) {
+    super(props);
+    this.name = React.createRef();
+    this.state = {
+      tooltipOpen: false
+    };
+  }
+
+  toggleTooltip() {
+    this.setState({
+      tooltipOpen: !this.state.tooltipOpen && (this.name.current.offsetWidth < this.name.current.scrollWidth)
+    });
+  }
+
+  render() {
+    return <td className="p-0 align-middle">
+      <div className="query-name h-100" ref={this.name}>
+        {this.props.children}
+      </div>
+      <Tooltip target={() => this.name.current} placement="right" isOpen={this.state.tooltipOpen} autohide={false}
+               toggle={this.toggleTooltip.bind(this)}>{this.props.children}</Tooltip>
+    </td>;
+  }
+}
+
+QueryNameCell.propTypes = {
+  children: PropTypes.node
+};
+
 class HeatmapTable extends React.Component {
   constructor(props) {
     super(props);
@@ -231,10 +262,10 @@ class HeatmapTable extends React.Component {
       {_.map(this.state.data, (row, i) => {
         return <tr key={i}>
           <ColHeader data={row[0]} sortable={false}>{row[1]}</ColHeader>
-          <td>{row[2]}</td>
+          <QueryNameCell>{row[2]}</QueryNameCell>
           <td>{row[3]}</td>
           <td>{row[4]}</td>
-        </tr>
+        </tr>;
       })}
       </tbody>
     </table>;
