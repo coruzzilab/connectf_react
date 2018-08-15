@@ -52,6 +52,7 @@ const config = {
   resolve: {
     extensions: ['.js', '.jsx']
   },
+  devtool: 'inline-source-map',
   plugins: [
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new HtmlWebpackPlugin({
