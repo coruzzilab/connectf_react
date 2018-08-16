@@ -56,6 +56,11 @@ const initialFormData = {
 class UploadExperiment extends React.Component {
   constructor(props) {
     super(props);
+    this.design = React.createRef();
+    this.expressionValues = React.createRef();
+    this.geneList = React.createRef();
+    this.form = React.createRef();
+
     let today = moment();
 
     let submission_date, experiment_date;
@@ -170,9 +175,9 @@ class UploadExperiment extends React.Component {
     }
 
     // add files
-    data.set('gene_list', _.get(this.geneList, 'files.0'));
-    data.set('expression_values', _.get(this.expressionValues, 'files.0'));
-    data.set('design', _.get(this.design, 'files.0'));
+    data.set('gene_list', _.get(this.geneList.current, 'files.0'));
+    data.set('expression_values', _.get(this.expressionValues.current, 'files.0'));
+    data.set('design', _.get(this.design.current, 'files.0'));
 
     $.ajax({
       url,
@@ -185,7 +190,7 @@ class UploadExperiment extends React.Component {
       .done(() => {
         alert("Data Submitted!");
 
-        this.form.reset();
+        this.form.current.reset();
 
         this.setState(initialFormData);
       })
@@ -208,9 +213,7 @@ class UploadExperiment extends React.Component {
 
     return <div className="container-fluid">
       <h1>Upload New Experiment</h1>
-      <form onSubmit={this.submit.bind(this)} ref={(c) => {
-        this.form = c;
-      }}>
+      <form onSubmit={this.submit.bind(this)} ref={this.form}>
         <div className="form-group form-row">
           <label htmlFor="tf_id">Transcription Factor ID:</label>
           <input type="text" id="tf_id" className="form-control" list="tf_id_list" value={tf_id}
@@ -483,23 +486,17 @@ class UploadExperiment extends React.Component {
 
         <div className="form-group form-row">
           <label htmlFor="gene_list">Upload Gene List:</label>
-          <input type="file" className="form-control-file" id="gene_list" ref={(c) => {
-            this.geneList = c;
-          }} required/>
+          <input type="file" className="form-control-file" id="gene_list" ref={this.geneList} required/>
         </div>
 
         <div className="form-group form-row">
           <label htmlFor="expression_values">Upload Raw Expression Values:</label>
-          <input type="file" className="form-control-file" id="expression_values" ref={(c) => {
-            this.expressionValues = c;
-          }} required/>
+          <input type="file" className="form-control-file" id="expression_values" ref={this.expressionValues} required/>
         </div>
 
         <div className="form-group form-row">
           <label htmlFor="design">Upload Experimental Design:</label>
-          <input type="file" className="form-control-file" id="design" ref={(c) => {
-            this.design = c;
-          }} required/>
+          <input type="file" className="form-control-file" id="design" ref={this.design} required/>
         </div>
 
         <div className="form-group form-row">

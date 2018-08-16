@@ -8,13 +8,6 @@ import _ from 'lodash';
 import {BASE_URL} from '../actions';
 import classNames from 'classnames';
 
-function getInitialExperiment(experiments) {
-  return {
-    tf: _.get(experiments, '0.value'),
-    experiment: _.get(experiments, '0.experiments.0')
-  };
-}
-
 const pickIdData = _.partial(_.pick, _, ['tf', 'analysisMethod', 'analysisMethodOther', 'analysisCutoff']);
 
 const initialState = {
