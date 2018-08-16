@@ -93,7 +93,7 @@ class AndOrSelect extends React.Component {
 
   render() {
     let {value, className, disable} = this.props;
-    return <select className={classNames("form-control col-1", className)} value={value}
+    return <select className={classNames("form-control first-input", className)} value={value}
                    onChange={this.handleChange.bind(this)}
                    disabled={disable}>
       <option>or</option>
@@ -118,7 +118,7 @@ class NotSelect extends React.Component {
   render() {
     let {value, className} = this.props;
 
-    return <select className={classNames("form-control col-1", className)}
+    return <select className={classNames("form-control", className)}
                    onChange={this.handleChange.bind(this)}
                    value={value ? 'not' : '-'}>
       <option>-</option>
@@ -274,12 +274,12 @@ class ModBody extends React.Component {
                   onDragOver={this.dragOver.bind(this)}
                   onDrop={this.drop.bind(this, value)}>
         <div className="col">
-          <div className="row m-2">
+          <div className="row my-2">
             <div className="col">
               <div className="form-row">
-                <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
+                <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
                              disable={first}/>
-                <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+                <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
                 <select
                   className={classNames("form-control mr-1",
                     node.key === 'pvalue' || node.key === 'fc' ? 'col-3' : 'col-4')}
@@ -312,7 +312,7 @@ class ModBody extends React.Component {
             </div>
             <div className="col">
               <div className="btn-toolbar">
-                <div className="btn-group mr-2">
+                <div className="btn-group mr-1">
                   <button type="button" className="btn btn-success"
                           onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
                     <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
@@ -450,12 +450,12 @@ class ModGroupBody extends React.Component {
                   onDragOver={this.dragOver.bind(this)}
                   onDrop={this.drop.bind(this, value)}>
         <div className="col">
-          <div className="row m-2">
-            <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
+          <div className="row my-2">
+            <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
                          disable={first}/>
-            <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+            <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
             <div className="btn-toolbar col">
-              <div className="btn-group mr-2">
+              <div className="btn-group mr-1">
                 <button type="button" className="btn btn-success"
                         onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
@@ -471,14 +471,14 @@ class ModGroupBody extends React.Component {
                   <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove Modifier Group
                 </button>
               </div>
-              <div className="btn-group ml-auto mr-2">
+              <div className="btn-group ml-auto mr-1">
                 <button type="button" className="btn btn-success"
                         onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding Modifier
+                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Following Modifier
                 </button>
                 <button type="button" className="btn btn-success"
                         onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding Modifier Group
+                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Following Modifier Group
                 </button>
               </div>
               <div className="btn-group">
@@ -643,12 +643,12 @@ class ValueBody extends React.Component {
                   onDragOver={this.dragOver.bind(this)}
                   onDrop={this.drop.bind(this, value)}>
         <div className="col">
-          <div className="row m-2">
+          <div className="row my-2">
             <div className="col">
               <div className="form-row">
-                <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
+                <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
                              disable={first}/>
-                <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+                <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
                 <ImmobileInput className="form-control col"
                                type="text"
                                list={this.uuid}
@@ -662,7 +662,7 @@ class ValueBody extends React.Component {
               })}
             </datalist>
             <div className="btn-toolbar col">
-              <div className="btn-group mr-2">
+              <div className="btn-group mr-1">
                 <button type="button" className="btn btn-success"
                         onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
@@ -672,7 +672,7 @@ class ValueBody extends React.Component {
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
                 </button>
               </div>
-              <div className="btn-group mr-2">
+              <div className="btn-group mr-1">
                 <button type="button" className="btn btn-success"
                         onClick={addMod.bind(undefined, '', '', node.id, undefined, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
@@ -829,12 +829,12 @@ class GroupBody extends React.Component {
                   onDragOver={this.dragOver.bind(this)}
                   onDrop={this.drop.bind(this, value)}>
         <div className="col">
-          <div className="row m-2">
-            <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
+          <div className="row my-2">
+            <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
                          disable={first}/>
-            <NotSelect className="mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+            <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
             <div className="btn-toolbar col">
-              <div className="btn-group mr-2">
+              <div className="btn-group mr-1">
                 <button type="button" className="btn btn-success"
                         onClick={addTF.bind(undefined, '', node.id, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
@@ -844,7 +844,7 @@ class GroupBody extends React.Component {
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
                 </button>
               </div>
-              <div className="btn-group mr-2">
+              <div className="btn-group mr-1">
                 <button type="button" className="btn btn-success"
                         onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
@@ -860,14 +860,14 @@ class GroupBody extends React.Component {
                   <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove TF Group
                 </button>
               </div>
-              <div className="btn-group ml-auto mr-2">
+              <div className="btn-group ml-auto mr-1">
                 <button type="button" className="btn btn-success"
                         onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding TF
+                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Following TF
                 </button>
                 <button type="button" className="btn btn-success"
                         onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding TF Group
+                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Following TF Group
                 </button>
               </div>
               <div className="btn-group">

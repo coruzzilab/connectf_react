@@ -14,3 +14,7 @@
     text-overflow: ellipsis;
     max-width: 10em;
 }
+
+.first-input:disabled {
+    visibility: hidden;
+}
