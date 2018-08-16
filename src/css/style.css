@@ -18,3 +18,16 @@
 .first-input:disabled {
     visibility: hidden;
 }
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.node {
+    animation: fadein 500ms;
+}

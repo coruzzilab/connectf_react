@@ -268,7 +268,8 @@ class ModBody extends React.Component {
     let {dataSource, dataSourceValues} = this.state;
 
     return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+      return <div draggable={value.draggable} className="row border border-dark rounded m-2 node"
+                  ref={this.dropTarget}
                   id={node.id}
                   onDragStart={this.dragStart.bind(this, value)}
                   onDragOver={this.dragOver.bind(this)}
@@ -444,13 +445,14 @@ class ModGroupBody extends React.Component {
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
 
     return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+      return <div draggable={value.draggable} className="row border border-dark rounded m-2 node"
+                  ref={this.dropTarget}
                   id={node.id}
                   onDragStart={this.dragStart.bind(this, value)}
                   onDragOver={this.dragOver.bind(this)}
                   onDrop={this.drop.bind(this, value)}>
         <div className="col">
-          <div className="row my-2">
+          <div className="form-row my-2">
             <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
                          disable={first}/>
             <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
@@ -636,7 +638,7 @@ class ValueBody extends React.Component {
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
     return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className="row border border-dark rounded m-2 bg-white"
+      return <div draggable={value.draggable} className="row border border-dark rounded m-2 bg-white node"
                   ref={this.dropTarget}
                   id={node.id}
                   onDragStart={this.dragStart.bind(this, value)}
@@ -695,10 +697,6 @@ class ValueBody extends React.Component {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="w-100"/>
-        <div className="col">
           {mods.map((o, i, a) => {
             let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
             if (o.nodeType === 'MOD') {
@@ -822,14 +820,15 @@ class GroupBody extends React.Component {
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
     return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
+      return <div draggable={value.draggable} className="row border border-dark rounded m-2 node"
+                  ref={this.dropTarget}
                   style={{background: getGrey(queryTree, node)}}
                   id={node.id}
                   onDragStart={this.dragStart.bind(this, value)}
                   onDragOver={this.dragOver.bind(this)}
                   onDrop={this.drop.bind(this, value)}>
         <div className="col">
-          <div className="row my-2">
+          <div className="form-row my-2">
             <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
                          disable={first}/>
             <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
@@ -895,7 +894,7 @@ class GroupBody extends React.Component {
           </div>
           <div className="row">
             {mods.size() ?
-              <div className="col border border-light rounded bg-light m-2">
+              <div className="col border border-light rounded bg-light m-2 node">
                 <h3>Modifiers</h3>
                 {mods.map((o, i, a) => {
                   let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
