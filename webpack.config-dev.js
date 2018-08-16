@@ -32,14 +32,14 @@ const config = {
       {
         test: /\.css(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         use: [
-          MiniCssExtractPlugin.loader,
+          'style-loader',
           'css-loader'
         ]
       },
       {
         test: /\.less$/,
         use: [
-          MiniCssExtractPlugin.loader,
+          'style-loader',
           'css-loader',
           'less-loader'
         ]
