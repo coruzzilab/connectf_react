@@ -33,7 +33,8 @@ import {
   removeEdge,
   clearEdges,
   setEdges,
-  clearRequestId
+  clearRequestId,
+  duplicateNode
 } from '../../actions';
 import {getQuery, getParentTfTree, getGrey} from "../../utils";
 
@@ -229,42 +230,49 @@ class ModBody extends React.Component {
     this.props.setModInnerOper(this.props.node.id, e.target.value);
   }
 
+  dragStart(value, e) {
+    e.stopPropagation();
+    e.dataTransfer.setData('id', this.props.node.id);
+
+    let rect = this.dropTarget.current.getBoundingClientRect();
+    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
+  }
+
+  dragOver(e) {
+    e.preventDefault();
+  }
+
+  drop(value, e) {
+    let {node, queryTree, moveItem, setParent} = this.props;
+
+    e.stopPropagation();
+    e.preventDefault();
+    let source_id = e.dataTransfer.getData('id');
+    if (source_id !== node.id) {
+      let source = _.find(queryTree, ['id', source_id]);
+      if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
+        let rect = this.dropTarget.current.getBoundingClientRect();
+        let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
+        moveItem(source_id, node.id, after);
+        if (source.parent !== node.parent) {
+          setParent(source_id, node.parent);
+        }
+      }
+    }
+  }
+
   render() {
     let {
-      first, node, addMod, addModGroup, removeNode, setQueryNot, setQueryOper, queryTree, moveItem, setParent
+      first, node, addMod, addModGroup, removeNode, setQueryNot, setQueryOper, duplicateNode
     } = this.props;
     let {dataSource, dataSourceValues} = this.state;
 
     return <QueryContext.Consumer>{value => {
       return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
                   id={node.id}
-                  onDragStart={(e) => {
-                    e.stopPropagation();
-                    e.dataTransfer.setData('id', node.id);
-
-                    let rect = this.dropTarget.current.getBoundingClientRect();
-                    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                  }}
-                  onDrop={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    let source_id = e.dataTransfer.getData('id');
-                    if (source_id !== node.id) {
-                      let source = _.find(queryTree, ['id', source_id]);
-                      if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
-                        let rect = this.dropTarget.current.getBoundingClientRect();
-                        let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
-                        moveItem(source_id, node.id, after);
-                        if (source.parent !== node.parent) {
-                          setParent(source_id, node.parent);
-                        }
-                      }
-                    }
-
-                  }}>
+                  onDragStart={this.dragStart.bind(this, value)}
+                  onDragOver={this.dragOver.bind(this)}
+                  onDrop={this.drop.bind(this, value)}>
         <div className="col">
           <div className="row m-2">
             <div className="col">
@@ -320,6 +328,11 @@ class ModBody extends React.Component {
                     <FontAwesomeIcon icon="minus-circle"/>
                   </button>
                 </div>
+                <div className="btn-group ml-auto">
+                  <button type="button" className="btn btn-light" onClick={duplicateNode.bind(undefined, node.id)}>
+                    <FontAwesomeIcon icon="clone"/>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -342,7 +355,8 @@ ModBody.propTypes = {
   setModValue: PropTypes.func,
   setModInnerOper: PropTypes.func,
   moveItem: PropTypes.func,
-  setParent: PropTypes.func
+  setParent: PropTypes.func,
+  duplicateNode: PropTypes.func
 };
 
 const Mod = connect(mapStateToProps, {
@@ -355,7 +369,8 @@ const Mod = connect(mapStateToProps, {
   setModValue,
   setModInnerOper,
   moveItem,
-  setParent
+  setParent,
+  duplicateNode
 })(ModBody);
 
 class ModGroupBody extends React.Component {
@@ -364,9 +379,65 @@ class ModGroupBody extends React.Component {
     this.dropTarget = React.createRef();
   }
 
+  dragStart(value, e) {
+    e.stopPropagation();
+    e.dataTransfer.setData('id', this.props.node.id);
+
+    let rect = this.dropTarget.current.getBoundingClientRect();
+    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
+  }
+
+  dragOver(e) {
+    e.preventDefault();
+  }
+
+  drop(value, e) {
+    let {node, queryTree, moveItem, setParent} = this.props;
+
+    e.stopPropagation();
+    e.preventDefault();
+    let source_id = e.dataTransfer.getData('id');
+    if (source_id !== node.id) {
+      let source = _.find(queryTree, ['id', source_id]);
+      if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
+        let target;
+        let after;
+        let currY = e.clientY - value.clientYOffset;
+        let _currNodes = _(queryTree)
+          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
+          .filter((o) => o.parent === node.id);
+        let _currNodesPos = _currNodes
+          .map('id')
+          .map(_.unary(document.getElementById.bind(document)))
+          .invokeMap('getBoundingClientRect')
+          .map((rect) => rect.top + rect.height / 2);
+
+
+        let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
+        let nextPos = _currNodesPos.findIndex((p) => p > currY);
+
+        if (prevPos === -1) {
+          target = _currNodes.head();
+          after = false;
+        } else if (nextPos === -1) {
+          target = _currNodes.last();
+          after = true;
+        } else {
+          let currNodes = _currNodes.value();
+          target = currNodes[prevPos];
+          after = true;
+        }
+        if (target) {
+          moveItem(source_id, target.id, after);
+        }
+        setParent(source_id, node.id);
+      }
+    }
+  }
+
   render() {
     let {
-      first, node, queryTree, removeNode, addMod, addModGroup, setQueryNot, setQueryOper, moveItem, setParent
+      first, node, queryTree, removeNode, addMod, addModGroup, setQueryNot, setQueryOper, duplicateNode
     } = this.props;
 
 
@@ -375,57 +446,9 @@ class ModGroupBody extends React.Component {
     return <QueryContext.Consumer>{value => {
       return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
                   id={node.id}
-                  onDragStart={(e) => {
-                    e.stopPropagation();
-                    e.dataTransfer.setData('id', node.id);
-
-                    let rect = this.dropTarget.current.getBoundingClientRect();
-                    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                  }}
-                  onDrop={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    let source_id = e.dataTransfer.getData('id');
-                    if (source_id !== node.id) {
-                      let source = _.find(queryTree, ['id', source_id]);
-                      if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
-                        let target;
-                        let after;
-                        let currY = e.clientY - value.clientYOffset;
-                        let _currNodes = _(queryTree)
-                          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
-                          .filter((o) => o.parent === node.id);
-                        let _currNodesPos = _currNodes
-                          .map('id')
-                          .map(_.unary(document.getElementById.bind(document)))
-                          .invokeMap('getBoundingClientRect')
-                          .map((rect) => rect.top + rect.height / 2);
-
-
-                        let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
-                        let nextPos = _currNodesPos.findIndex((p) => p > currY);
-
-                        if (prevPos === -1) {
-                          target = _currNodes.head();
-                          after = false;
-                        } else if (nextPos === -1) {
-                          target = _currNodes.last();
-                          after = true;
-                        } else {
-                          let currNodes = _currNodes.value();
-                          target = currNodes[prevPos];
-                          after = true;
-                        }
-                        if (target) {
-                          moveItem(source_id, target.id, after);
-                        }
-                        setParent(source_id, node.id);
-                      }
-                    }
-                  }}>
+                  onDragStart={this.dragStart.bind(this, value)}
+                  onDragOver={this.dragOver.bind(this)}
+                  onDrop={this.drop.bind(this, value)}>
         <div className="col">
           <div className="row m-2">
             <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
@@ -448,7 +471,7 @@ class ModGroupBody extends React.Component {
                   <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove Modifier Group
                 </button>
               </div>
-              <div className="btn-group ml-auto">
+              <div className="btn-group ml-auto mr-2">
                 <button type="button" className="btn btn-success"
                         onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding Modifier
@@ -456,6 +479,11 @@ class ModGroupBody extends React.Component {
                 <button type="button" className="btn btn-success"
                         onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
                   <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding Modifier Group
+                </button>
+              </div>
+              <div className="btn-group">
+                <button type="button" className="btn btn-light" onClick={duplicateNode.bind(undefined, node.id)}>
+                  <FontAwesomeIcon icon="clone"/>
                 </button>
               </div>
             </div>
@@ -493,7 +521,8 @@ ModGroupBody.propTypes = {
   setQueryOper: PropTypes.func,
   setQueryNot: PropTypes.func,
   moveItem: PropTypes.func,
-  setParent: PropTypes.func
+  setParent: PropTypes.func,
+  duplicateNode: PropTypes.func
 };
 
 const ModGroup = connect(mapStateToProps, {
@@ -504,7 +533,8 @@ const ModGroup = connect(mapStateToProps, {
   setQueryOper,
   setQueryNot,
   moveItem,
-  setParent
+  setParent,
+  duplicateNode
 })(ModGroupBody);
 
 class ValueBody extends React.Component {
@@ -534,10 +564,72 @@ class ValueBody extends React.Component {
     this.props.setQueryName(id, e.target.value);
   }
 
+  dragStart(value, e) {
+    e.stopPropagation();
+    e.dataTransfer.setData('id', this.props.node.id);
+
+    let rect = this.dropTarget.current.getBoundingClientRect();
+    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
+  }
+
+  dragOver(e) {
+    e.preventDefault();
+  }
+
+  drop(value, e) {
+    let {node, queryTree, moveItem, setParent} = this.props;
+    e.stopPropagation();
+    e.preventDefault();
+    let source_id = e.dataTransfer.getData('id');
+    if (source_id !== node.id) {
+      let source = _.find(queryTree, ['id', source_id]);
+      let rect = this.dropTarget.current.getBoundingClientRect();
+      let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
+      if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
+        moveItem(source_id, node.id, after);
+        if (source.parent !== node.parent) {
+          setParent(source_id, node.parent);
+        }
+      } else if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
+        let target;
+        let after;
+        let currY = e.clientY - value.clientYOffset;
+        let _currNodes = _(queryTree)
+          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
+          .filter((o) => o.parent === node.id);
+        let _currNodesPos = _currNodes
+          .map('id')
+          .map(_.unary(document.getElementById.bind(document)))
+          .invokeMap('getBoundingClientRect')
+          .map((rect) => rect.top + rect.height / 2);
+
+
+        let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
+        let nextPos = _currNodesPos.findIndex((p) => p > currY);
+
+        if (prevPos === -1) {
+          target = _currNodes.head();
+          after = false;
+        } else if (nextPos === -1) {
+          target = _currNodes.last();
+          after = true;
+        } else {
+          let currNodes = _currNodes.value();
+          target = currNodes[prevPos];
+          after = true;
+        }
+        if (target) {
+          moveItem(source_id, target.id, after);
+        }
+        setParent(source_id, node.id);
+      }
+    }
+  }
+
   render() {
     let {
-      first, node, addTF, addGroup, removeNode, setQueryNot, setQueryOper, addMod, addModGroup, queryTree, moveItem,
-      setParent
+      first, node, addTF, addGroup, removeNode, setQueryNot, setQueryOper, addMod, addModGroup, queryTree,
+      duplicateNode
     } = this.props;
     let {dataSource} = this.state;
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
@@ -547,65 +639,9 @@ class ValueBody extends React.Component {
       return <div draggable={value.draggable} className="row border border-dark rounded m-2 bg-white"
                   ref={this.dropTarget}
                   id={node.id}
-                  onDragStart={(e) => {
-                    e.stopPropagation();
-                    e.dataTransfer.setData('id', node.id);
-
-                    let rect = this.dropTarget.current.getBoundingClientRect();
-                    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                  }}
-                  onDrop={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    let source_id = e.dataTransfer.getData('id');
-                    if (source_id !== node.id) {
-                      let source = _.find(queryTree, ['id', source_id]);
-                      let rect = this.dropTarget.current.getBoundingClientRect();
-                      let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
-                      if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
-                        moveItem(source_id, node.id, after);
-                        if (source.parent !== node.parent) {
-                          setParent(source_id, node.parent);
-                        }
-                      } else if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
-                        let target;
-                        let after;
-                        let currY = e.clientY - value.clientYOffset;
-                        let _currNodes = _(queryTree)
-                          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
-                          .filter((o) => o.parent === node.id);
-                        let _currNodesPos = _currNodes
-                          .map('id')
-                          .map(_.unary(document.getElementById.bind(document)))
-                          .invokeMap('getBoundingClientRect')
-                          .map((rect) => rect.top + rect.height / 2);
-
-
-                        let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
-                        let nextPos = _currNodesPos.findIndex((p) => p > currY);
-
-                        if (prevPos === -1) {
-                          target = _currNodes.head();
-                          after = false;
-                        } else if (nextPos === -1) {
-                          target = _currNodes.last();
-                          after = true;
-                        } else {
-                          let currNodes = _currNodes.value();
-                          target = currNodes[prevPos];
-                          after = true;
-                        }
-                        if (target) {
-                          moveItem(source_id, target.id, after);
-                        }
-                        setParent(source_id, node.id);
-                      }
-                    }
-
-                  }}>
+                  onDragStart={this.dragStart.bind(this, value)}
+                  onDragOver={this.dragOver.bind(this)}
+                  onDrop={this.drop.bind(this, value)}>
         <div className="col">
           <div className="row m-2">
             <div className="col">
@@ -652,6 +688,11 @@ class ValueBody extends React.Component {
                   <FontAwesomeIcon icon="minus-circle"/>
                 </button>
               </div>
+              <div className="btn-group ml-auto">
+                <button type="button" className="btn btn-light" onClick={duplicateNode.bind(undefined, node.id)}>
+                  <FontAwesomeIcon icon="clone"/>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -685,7 +726,8 @@ ValueBody.propTypes = {
   addModGroup: PropTypes.func,
   queryTree: PropTypes.arrayOf(PropTypes.object),
   moveItem: PropTypes.func,
-  setParent: PropTypes.func
+  setParent: PropTypes.func,
+  duplicateNode: PropTypes.func
 };
 
 const Value = connect(mapStateToProps, {
@@ -698,7 +740,8 @@ const Value = connect(mapStateToProps, {
   addMod,
   addModGroup,
   moveItem,
-  setParent
+  setParent,
+  duplicateNode
 })(ValueBody);
 
 class GroupBody extends React.Component {
@@ -707,10 +750,73 @@ class GroupBody extends React.Component {
     this.dropTarget = React.createRef();
   }
 
+  dragStart(value, e) {
+    e.stopPropagation();
+    e.dataTransfer.setData('id', this.props.node.id);
+
+    let rect = this.dropTarget.current.getBoundingClientRect();
+    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
+  }
+
+  dragOver(e) {
+    e.preventDefault();
+  }
+
+  drop(value, e) {
+    let {node, queryTree, moveItem, setParent} = this.props;
+
+    e.stopPropagation();
+    e.preventDefault();
+    let source_id = e.dataTransfer.getData('id');
+    if (source_id !== node.id) {
+      let source = _.find(queryTree, ['id', source_id]);
+      let target;
+      let after;
+      let _currNodes;
+      let currY = e.clientY - value.clientYOffset;
+
+      if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
+        _currNodes = _(queryTree)
+          .filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP')
+          .filter((o) => o.parent === node.id);
+      } else {
+        _currNodes = _(queryTree)
+          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
+          .filter((o) => o.parent === node.id);
+      }
+
+      let _currNodesPos = _currNodes
+        .map('id')
+        .map(_.unary(document.getElementById.bind(document)))
+        .invokeMap('getBoundingClientRect')
+        .map((rect) => rect.top + rect.height / 2);
+
+
+      let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
+      let nextPos = _currNodesPos.findIndex((p) => p > currY);
+
+      if (prevPos === -1) {
+        target = _currNodes.head();
+        after = false;
+      } else if (nextPos === -1) {
+        target = _currNodes.last();
+        after = true;
+      } else {
+        let currNodes = _currNodes.value();
+        target = currNodes[prevPos];
+        after = true;
+      }
+      if (target) {
+        moveItem(source_id, target.id, after);
+      }
+      setParent(source_id, node.id);
+    }
+  }
+
   render() {
     let {
-      first, node, queryTree, removeNode, addTF, addGroup, addMod, addModGroup, setQueryNot, setQueryOper, moveItem,
-      setParent
+      first, node, queryTree, removeNode, addTF, addGroup, addMod, addModGroup, setQueryNot, setQueryOper,
+      duplicateNode
     } = this.props;
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
@@ -719,64 +825,9 @@ class GroupBody extends React.Component {
       return <div draggable={value.draggable} className="row border border-dark rounded m-2" ref={this.dropTarget}
                   style={{background: getGrey(queryTree, node)}}
                   id={node.id}
-                  onDragStart={(e) => {
-                    e.stopPropagation();
-                    e.dataTransfer.setData('id', node.id);
-
-                    let rect = this.dropTarget.current.getBoundingClientRect();
-                    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                  }}
-                  onDrop={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    let source_id = e.dataTransfer.getData('id');
-                    if (source_id !== node.id) {
-                      let source = _.find(queryTree, ['id', source_id]);
-                      let target;
-                      let after;
-                      let _currNodes;
-                      let currY = e.clientY - value.clientYOffset;
-
-                      if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
-                        _currNodes = _(queryTree)
-                          .filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP')
-                          .filter((o) => o.parent === node.id);
-                      } else {
-                        _currNodes = _(queryTree)
-                          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
-                          .filter((o) => o.parent === node.id);
-                      }
-
-                      let _currNodesPos = _currNodes
-                        .map('id')
-                        .map(_.unary(document.getElementById.bind(document)))
-                        .invokeMap('getBoundingClientRect')
-                        .map((rect) => rect.top + rect.height / 2);
-
-
-                      let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
-                      let nextPos = _currNodesPos.findIndex((p) => p > currY);
-
-                      if (prevPos === -1) {
-                        target = _currNodes.head();
-                        after = false;
-                      } else if (nextPos === -1) {
-                        target = _currNodes.last();
-                        after = true;
-                      } else {
-                        let currNodes = _currNodes.value();
-                        target = currNodes[prevPos];
-                        after = true;
-                      }
-                      if (target) {
-                        moveItem(source_id, target.id, after);
-                      }
-                      setParent(source_id, node.id);
-                    }
-                  }}>
+                  onDragStart={this.dragStart.bind(this, value)}
+                  onDragOver={this.dragOver.bind(this)}
+                  onDrop={this.drop.bind(this, value)}>
         <div className="col">
           <div className="row m-2">
             <AndOrSelect className="mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
@@ -809,7 +860,7 @@ class GroupBody extends React.Component {
                   <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove TF Group
                 </button>
               </div>
-              <div className="btn-group ml-auto">
+              <div className="btn-group ml-auto mr-2">
                 <button type="button" className="btn btn-success"
                         onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
                   <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding TF
@@ -817,6 +868,11 @@ class GroupBody extends React.Component {
                 <button type="button" className="btn btn-success"
                         onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
                   <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Proceeding TF Group
+                </button>
+              </div>
+              <div className="btn-group">
+                <button type="button" className="btn btn-light" onClick={duplicateNode.bind(undefined, node.id)}>
+                  <FontAwesomeIcon icon="clone"/>
                 </button>
               </div>
             </div>
@@ -871,7 +927,8 @@ GroupBody.propTypes = {
   setQueryOper: PropTypes.func,
   setQueryNot: PropTypes.func,
   moveItem: PropTypes.func,
-  setParent: PropTypes.func
+  setParent: PropTypes.func,
+  duplicateNode: PropTypes.func
 };
 
 const Group = connect(mapStateToProps, {
@@ -884,7 +941,8 @@ const Group = connect(mapStateToProps, {
   setQueryOper,
   setQueryNot,
   moveItem,
-  setParent
+  setParent,
+  duplicateNode
 })(GroupBody);
 
 class QueryBoxBody extends React.Component {

@@ -153,6 +153,13 @@ export const clearQueryTree = () => {
   };
 };
 
+export const duplicateNode = (id) => {
+  return {
+    type: 'DUPLICATE_NODE',
+    id
+  };
+};
+
 export const setRequestId = (requestId) => {
   return {
     type: 'SET_REQUEST_ID',
@@ -312,14 +319,14 @@ export const addEdge = (name) => {
   return {
     type: 'ADD_EDGE',
     name
-  }
+  };
 };
 
 export const removeEdge = (name) => {
   return {
     type: 'REMOVE_EDGE',
     name
-  }
+  };
 };
 
 export const removeEdges = (edges) => {
@@ -339,7 +346,7 @@ export const setEdges = (edges) => {
 export const clearEdges = () => {
   return {
     type: 'CLEAR_EDGE'
-  }
+  };
 };
 
 export const setStats = (data) => {

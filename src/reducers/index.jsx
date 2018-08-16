@@ -2,6 +2,7 @@
  * Created by zacharyjuang on 11/24/16.
  */
 import _ from 'lodash';
+import uuidv4 from 'uuid/v4';
 
 export const VALUE_NODE = 1;
 export const GROUP_NODE = 2;
@@ -30,13 +31,16 @@ function query(state = '', action) {
 
 function getDescendants(state, id) {
   let curr = _(state).filter((o) => o.id === id);
-  return curr.map('id').concat(_(state).filter((o) => o.parent === id).map((o) => {
+  return curr.concat(_(state).filter((o) => o.parent === id).map((o) => {
     return getDescendants(state, o.id);
   }).flatten().value()).uniq().value();
 }
 
 function addAfter(state, id, obj) {
   let prevLoc = _.findIndex(state, ['id', id]);
+  if (_.isArray(obj)) {
+    return [...state.slice(0, prevLoc + 1), ...obj, ...state.slice(prevLoc + 1)];
+  }
   return [...state.slice(0, prevLoc + 1), obj, ...state.slice(prevLoc + 1)];
 }
 
@@ -79,6 +83,24 @@ function moveItem(state, source, target, after = true) {
       ...state.slice(source_loc + 1)
     ];
   }
+}
+
+function duplicateNode(state, node) {
+  if (_.isString(node)) {
+    node = _.find(state, ['id', node]);
+  }
+
+  let children = _.filter(state, (o) => o.parent === node.id);
+  let newId = uuidv4();
+
+  return [
+    Object.assign({}, node, {id: newId}),
+    ..._(children)
+      .map((o) => Object.assign({}, o, {parent: newId}))
+      .map((o) => duplicateNode(state, o))
+      .flatten()
+      .value()
+  ]
 }
 
 function queryTree(state = [], action) {
@@ -187,7 +209,7 @@ function queryTree(state = [], action) {
       return o;
     });
   case 'REMOVE_NODE':
-    return _.differenceWith(state, getDescendants(state, action.id), (c, o) => c.id === o);
+    return _.differenceWith(state, getDescendants(state, action.id), (c, o) => c.id === o.id);
   case 'SET_QUERY_NAME':
     return _.map(state, (o) => {
       if (o.id === action.id) {
@@ -228,6 +250,8 @@ function queryTree(state = [], action) {
       }
       return o;
     });
+  case 'DUPLICATE_NODE':
+    return addAfter(state, action.id, duplicateNode(state, action.id));
   default:
     return state;
   }
