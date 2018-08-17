@@ -278,9 +278,11 @@ class ModBody extends React.Component {
           <div className="row my-2">
             <div className="col">
               <div className="form-row">
-                <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
+                <AndOrSelect className="col-1 mr-1" value={node.oper}
+                             handleChange={setQueryOper.bind(undefined, node.id)}
                              disable={first}/>
-                <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+                <NotSelect className="col-1 mr-1" value={node.not_}
+                           handleChange={setQueryNot.bind(undefined, node.id)}/>
                 <select
                   className={classNames("form-control mr-1",
                     node.key === 'pvalue' || node.key === 'fc' ? 'col-3' : 'col-4')}
@@ -648,9 +650,11 @@ class ValueBody extends React.Component {
           <div className="row my-2">
             <div className="col">
               <div className="form-row">
-                <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
+                <AndOrSelect className="col-1 mr-1" value={node.oper}
+                             handleChange={setQueryOper.bind(undefined, node.id)}
                              disable={first}/>
-                <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+                <NotSelect className="col-1 mr-1" value={node.not_}
+                           handleChange={setQueryNot.bind(undefined, node.id)}/>
                 <ImmobileInput className="form-control col"
                                type="text"
                                list={this.uuid}

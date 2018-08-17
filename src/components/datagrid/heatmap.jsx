@@ -86,9 +86,12 @@ class HeatmapTable extends React.Component {
   getTableData() {
     $.ajax({
       url: this.props.tableUrl
-    }).done((data) => {
-      this.setState({data});
-    });
+    })
+      .done((data) => {
+        this.setState({data});
+        this.props.onSuccess();
+      })
+      .fail(this.props.onError);
   }
 
   render() {
@@ -110,7 +113,7 @@ class HeatmapTable extends React.Component {
           <td>{row[3]}</td>
           <td>{row[4]}</td>
           <td>{row[5]}</td>
-        </tr>
+        </tr>;
       })}
       </tbody>
     </table>;
@@ -118,7 +121,14 @@ class HeatmapTable extends React.Component {
 }
 
 HeatmapTable.propTypes = {
-  tableUrl: PropTypes.string
+  tableUrl: PropTypes.string,
+  onError: PropTypes.func,
+  onSuccess: PropTypes.func
+};
+
+HeatmapTable.defaultProps = {
+  onError: _.noop,
+  onSuccess: _.noop
 };
 
 const mapStateToProps = (state) => {
@@ -147,9 +157,15 @@ class HeatMapBody extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    let {heatmap} = this.props;
+
     if (prevProps.requestId !== this.props.requestId) {
       this.props.getHeatmap(this.props.requestId);
       this.setImageSrc();
+    }
+
+    if (!_.isEqual(prevProps.heatmap, heatmap)) {
+      this.toggleSuccess(!heatmap.error);
     }
   }
 
@@ -215,6 +231,7 @@ class HeatMapBody extends React.Component {
     let [min, max] = getLogMinMax(_.get(heatmap, 'result', []));
 
     return <div>
+      {!success ? <div className="text-danger">Heatmap is not available for this query.</div> : null}
       <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
         <div className="form-group mb-2">
           <label>Lower Bound (-log10):</label>
@@ -291,13 +308,11 @@ class HeatMapBody extends React.Component {
                 <img src={imgSrc}
                      onError={this.toggleSuccess.bind(this, false)}
                      onLoad={this.toggleSuccess.bind(this, true)}/>
-
-                {!success ?
-                  <div>Heatmap is not available for this query.</div> :
-                  null}
               </div>
               <div className="col">
-                <HeatmapTable tableUrl={`${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}/legend/`}/>
+                <HeatmapTable tableUrl={`${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}/legend/`}
+                              onSuccess={this.toggleSuccess.bind(this, true)}
+                              onError={this.toggleSuccess.bind(this, false)}/>
               </div>
             </div>
           </div>
