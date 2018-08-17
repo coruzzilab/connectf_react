@@ -1,0 +1,35 @@
+%single-line {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.query-popover {
+  @extend %single-line;
+}
+
+.link {
+  cursor: pointer;
+}
+
+.query-name {
+  @extend %single-line;
+  max-width: 10em;
+}
+
+.first-input:disabled {
+  visibility: hidden;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.node {
+  animation: fadein 500ms;
+}

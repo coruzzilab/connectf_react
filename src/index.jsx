@@ -8,7 +8,7 @@ import {BrowserRouter as Router, withRouter} from 'react-router-dom';
 import $ from 'jquery';
 
 import 'bootstrap/dist/css/bootstrap.css';
-import './css/style.css';
+import './styles/style.scss';
 
 import './fontawesome';
 
