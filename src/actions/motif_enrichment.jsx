@@ -58,11 +58,9 @@ export const getMotifEnrichmentLegend = (requestId) => {
     })
       .done((data) => {
         dispatch(setMotifEnrichmentLegend(data));
-        dispatch(setError(false));
       })
       .fail(() => {
         dispatch(clearMotifEnrichmentLegend());
-        dispatch(setError(true));
       });
   };
 };
