@@ -199,34 +199,6 @@ export const clearError = () => {
   };
 };
 
-export const setHeatmap = (data) => {
-  return {
-    type: 'SET_HEATMAP',
-    data
-  };
-};
-
-export const clearHeatmap = () => {
-  return {
-    type: 'CLEAR_HEATMAP'
-  };
-};
-
-export const getHeatmap = (requestId) => {
-  return (dispatch) => {
-    return $.ajax({
-      url: `${BASE_URL}/queryapp/list_enrichment/${requestId}/`,
-      contentType: false
-    })
-      .done((data) => dispatch(setHeatmap(data)))
-      .catch(() => {
-        dispatch(setHeatmap({
-          'error': true
-        }));
-      });
-  };
-};
-
 export const setCytoscape = (data) => {
   return {
     type: 'SET_CYTOSCAPE',

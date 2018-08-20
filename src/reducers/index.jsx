@@ -3,9 +3,8 @@
  */
 import _ from 'lodash';
 import uuidv4 from 'uuid/v4';
-
-export const VALUE_NODE = 1;
-export const GROUP_NODE = 2;
+import heatmap from './heatmap';
+import {combineReducers} from 'redux';
 
 const busy = (state = false, action) => {
   switch (action.type) {
@@ -279,17 +278,6 @@ function result(state = [], action) {
   }
 }
 
-function heatmap(state = {}, action) {
-  switch (action.type) {
-  case 'SET_HEATMAP':
-    return action.data;
-  case 'CLEAR_HEATMAP':
-    return {};
-  default:
-    return state;
-  }
-}
-
 function cytoscape(state = [], action) {
   switch (action.type) {
   case 'SET_CYTOSCAPE':
@@ -358,7 +346,7 @@ const tgdbApp = {
   query,
   queryTree,
   result,
-  heatmap,
+  heatmap: combineReducers(heatmap),
   cytoscape,
   motifEnrichment,
   requestId,
@@ -367,4 +355,4 @@ const tgdbApp = {
   error
 };
 
-export default tgdbApp;
+export default combineReducers(tgdbApp);

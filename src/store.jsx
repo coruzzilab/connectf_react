@@ -7,7 +7,7 @@ import thunk from 'redux-thunk';
 import $ from 'jquery';
 import _ from 'lodash';
 
-import tgdbApp from './reducers';
+import reducers from './reducers';
 import {loadState, saveState} from "./local_storage";
 import {BASE_URL, clearRequestId, setResult, setBusy} from "./actions";
 
@@ -22,9 +22,7 @@ window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
 const persistedState = loadState();
 
 const store = createStore(
-  combineReducers({
-    ...tgdbApp
-  }),
+  reducers,
   persistedState,
   composeEnhancers(
     applyMiddleware(

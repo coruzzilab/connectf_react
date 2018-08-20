@@ -8,7 +8,7 @@ import _ from 'lodash';
 import $ from 'jquery';
 import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {BASE_URL, getHeatmap} from '../../actions';
+import {BASE_URL} from '../../actions';
 import {QueryNameCell} from "./motif_enrichment";
 import {
   TabContent,
@@ -23,6 +23,14 @@ import {
   Button
 } from 'reactstrap';
 import {blueShader, getLogMinMax} from "../../utils";
+import {getHeatmapTable, setError, getHeatmapLegend} from "../../actions/heatmap";
+
+const mapStateToProps = (state) => {
+  return {
+    requestId: state.requestId,
+    heatmap: state.heatmap
+  };
+};
 
 class RowHeader extends React.Component {
   constructor(props) {
@@ -64,55 +72,40 @@ RowHeader.propTypes = {
   children: PropTypes.node
 };
 
-class HeatmapTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: []
-    };
-  }
-
+class HeatmapTableBody extends React.Component {
   componentDidMount() {
-    this.getTableData();
+    this.props.getHeatmapLegend(this.props.requestId);
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.tableUrl !== this.props.tableUrl) {
-      this.getTableData();
+    if (prevProps.requestId !== this.props.requestId) {
+      this.props.getHeatmapLegend(this.props.requestId);
     }
   }
 
-
-  getTableData() {
-    $.ajax({
-      url: this.props.tableUrl
-    })
-      .done((data) => {
-        this.setState({data});
-        this.props.onSuccess();
-      })
-      .fail(this.props.onError);
-  }
-
   render() {
-    return <table className="table table-responsive table-sm">
+    let {heatmap} = this.props;
+
+    return <table className="table table-responsive table-sm table-bordered">
       <thead>
       <tr>
         <th>Index</th>
         <th>Name</th>
+        <th>Filter</th>
         <th>No. Targets</th>
         <th>Gene Name</th>
         <th>Analysis ID</th>
       </tr>
       </thead>
       <tbody>
-      {_.map(this.state.data, (row, i) => {
+      {_.map(heatmap.legend, (row, i) => {
         return <tr key={i}>
           <RowHeader info={row[0]}>{row[1]}</RowHeader>
-          <QueryNameCell>{row[2]}</QueryNameCell>
-          <td>{row[3]}</td>
+          <td>{row[2]}</td>
+          <QueryNameCell>{row[3]}</QueryNameCell>
           <td>{row[4]}</td>
-          <td>{row[5]}</td>
+          <QueryNameCell>{row[5]}</QueryNameCell>
+          <td>{row[6]}</td>
         </tr>;
       })}
       </tbody>
@@ -120,29 +113,18 @@ class HeatmapTable extends React.Component {
   }
 }
 
-HeatmapTable.propTypes = {
-  tableUrl: PropTypes.string,
-  onError: PropTypes.func,
-  onSuccess: PropTypes.func
+HeatmapTableBody.propTypes = {
+  requestId: PropTypes.string,
+  getHeatmapLegend: PropTypes.func,
+  heatmap: PropTypes.shape({legend: PropTypes.array})
 };
 
-HeatmapTable.defaultProps = {
-  onError: _.noop,
-  onSuccess: _.noop
-};
-
-const mapStateToProps = (state) => {
-  return {
-    requestId: state.requestId,
-    heatmap: state.heatmap
-  };
-};
+const HeatmapTable = connect(mapStateToProps, {getHeatmapLegend})(HeatmapTableBody);
 
 class HeatMapBody extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      success: true,
       upper: '',
       lower: '',
       imgSrc: `${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}.svg`,
@@ -153,24 +135,14 @@ class HeatMapBody extends React.Component {
   }
 
   componentDidMount() {
-    this.props.getHeatmap(this.props.requestId);
+    this.props.getHeatmapTable(this.props.requestId);
   }
 
   componentDidUpdate(prevProps) {
-    let {heatmap} = this.props;
-
     if (prevProps.requestId !== this.props.requestId) {
-      this.props.getHeatmap(this.props.requestId);
+      this.props.getHeatmapTable(this.props.requestId);
       this.setImageSrc();
     }
-
-    if (!_.isEqual(prevProps.heatmap, heatmap)) {
-      this.toggleSuccess(!heatmap.error);
-    }
-  }
-
-  toggleSuccess(success) {
-    this.setState({success});
   }
 
   handleSubmit(e) {
@@ -226,109 +198,113 @@ class HeatMapBody extends React.Component {
   }
 
   render() {
-    let {heatmap} = this.props;
-    let {success, lower, upper, imgSrc, key, sortCol, ascending} = this.state;
-    let [min, max] = getLogMinMax(_.get(heatmap, 'result', []));
+    let {heatmap, setError} = this.props;
+    let {lower, upper, imgSrc, key, sortCol, ascending} = this.state;
+    let [min, max] = getLogMinMax(_.get(heatmap.table, 'result', []));
 
     return <div>
-      {!success ? <div className="text-danger">Heatmap is not available for this query.</div> : null}
-      <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
-        <div className="form-group mb-2">
-          <label>Lower Bound (-log10):</label>
-          <input type="number" className="form-control" min={0} value={lower} step="any"
-                 onChange={this.handleLower.bind(this)}/>
-        </div>
-        <div className="form-group mb-2">
-          <label>Upper Bound (-log10):</label>
-          <input type="number" className="form-control" min={0} value={upper} step="any"
-                 onChange={this.handleUpper.bind(this)}/>
-        </div>
-        <button className="btn btn-primary" type="submit">Submit</button>
-      </form>
-
-      <Nav tabs>
-        <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"}>
-            Table
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "heatmap")} active={key === "heatmap"}>
-            Heat Map
-          </NavLink>
-        </NavItem>
-      </Nav>
-      <TabContent activeTab={key}>
-        <TabPane tabId="table">
-          <table className="table-responsive table-sm table-bordered">
-            <thead>
-            <tr>
-              <th/>
-              {_(_.get(heatmap, 'columns', {}))
-                .map((val, key) => [val, key])
-                .map(([val, key], i) => {
-                  return <th key={key}>
-                    <div className="container-fluid">
-                      <div className="row align-items-center">
-                        <div className="col">
-                          {val}
-                        </div>
-                        <div className="col-1" onClick={this.sortFunc.bind(this, i + 1)} style={{cursor: 'pointer'}}>
-                          {sortCol !== i + 1 ?
-                            <FontAwesomeIcon icon="sort"/> :
-                            (ascending ? <FontAwesomeIcon icon="sort-up"/> : <FontAwesomeIcon icon="sort-down"/>)}
-                        </div>
-                      </div>
-                    </div>
-                  </th>;
-                })
-                .value()}
-            </tr>
-            </thead>
-            <tbody>
-            {_(_.get(heatmap, 'result', []))
-              .orderBy((row) => _.isNull(row) ? row : row[sortCol], ascending ? 'asc' : 'desc')
-              .map((row, i) => {
-                return <tr key={i}>
-                  <RowHeader info={row[0]}>{row[0].name}</RowHeader>
-                  {_.map(row.slice(1), (cell, j) => {
-                    let [background, color] = blueShader(cell, min, max);
-                    return <td style={{background, color}} key={j}>{cell.toExponential(2)}</td>;
-                  })}
-                </tr>;
-              })
-              .value()}
-            </tbody>
-          </table>
-        </TabPane>
-        <TabPane tabId="heatmap">
-          <div className="container-fluid">
-            <div className="row">
-              <div className="col">
-                <img src={imgSrc}
-                     onError={this.toggleSuccess.bind(this, false)}
-                     onLoad={this.toggleSuccess.bind(this, true)}/>
-              </div>
-              <div className="col">
-                <HeatmapTable tableUrl={`${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}/legend/`}
-                              onSuccess={this.toggleSuccess.bind(this, true)}
-                              onError={this.toggleSuccess.bind(this, false)}/>
-              </div>
+      {heatmap.error ?
+        <div className="text-danger text-lg-left text-sm-center">Heatmap is not available for this query: No gene list
+          uploaded or no enrichment</div> :
+        <div>
+          <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
+            <div className="form-group mb-2">
+              <label>Lower Bound (-log10):</label>
+              <input type="number" className="form-control" min={0} value={lower} step="any"
+                     onChange={this.handleLower.bind(this)}/>
             </div>
-          </div>
-        </TabPane>
-      </TabContent>
+            <div className="form-group mb-2">
+              <label>Upper Bound (-log10):</label>
+              <input type="number" className="form-control" min={0} value={upper} step="any"
+                     onChange={this.handleUpper.bind(this)}/>
+            </div>
+            <button className="btn btn-primary" type="submit">Submit</button>
+          </form>
+
+          <Nav tabs>
+            <NavItem>
+              <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"}>
+                Table
+              </NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink onClick={this.onTabClick.bind(this, "heatmap")} active={key === "heatmap"}>
+                Heat Map
+              </NavLink>
+            </NavItem>
+          </Nav>
+          <TabContent activeTab={key}>
+            <TabPane tabId="table">
+              <table className="table-responsive table-sm table-bordered">
+                <thead>
+                <tr>
+                  <th/>
+                  {_(_.get(heatmap.table, 'columns', {}))
+                    .map((val, key) => [val, key])
+                    .map(([val, key], i) => {
+                      return <th key={key}>
+                        <div className="container-fluid">
+                          <div className="row align-items-center">
+                            <div className="col">
+                              {val}
+                            </div>
+                            <div className="col-1" onClick={this.sortFunc.bind(this, i + 1)}
+                                 style={{cursor: 'pointer'}}>
+                              {sortCol !== i + 1 ?
+                                <FontAwesomeIcon icon="sort"/> :
+                                (ascending ? <FontAwesomeIcon icon="sort-up"/> : <FontAwesomeIcon icon="sort-down"/>)}
+                            </div>
+                          </div>
+                        </div>
+                      </th>;
+                    })
+                    .value()}
+                </tr>
+                </thead>
+                <tbody>
+                {_(_.get(heatmap.table, 'result', []))
+                  .orderBy((row) => _.isNull(row) ? row : row[sortCol], ascending ? 'asc' : 'desc')
+                  .map((row, i) => {
+                    return <tr key={i}>
+                      <RowHeader info={row[0]}>{row[0].name}</RowHeader>
+                      {_.map(row.slice(1), (cell, j) => {
+                        let [background, color] = blueShader(cell, min, max);
+                        return <td style={{background, color}} key={j}>{cell.toExponential(2)}</td>;
+                      })}
+                    </tr>;
+                  })
+                  .value()}
+                </tbody>
+              </table>
+            </TabPane>
+            <TabPane tabId="heatmap">
+              <div className="container-fluid">
+                <div className="row">
+                  <div className="col">
+                    <img src={imgSrc}
+                         onError={setError.bind(undefined, true)}
+                         onLoad={setError.bind(undefined, false)}/>
+                  </div>
+                  <div className="col">
+                    <HeatmapTable/>
+                  </div>
+                </div>
+              </div>
+            </TabPane>
+          </TabContent>
+        </div>}
     </div>;
   }
 }
 
 HeatMapBody.propTypes = {
   requestId: PropTypes.string,
-  getHeatmap: PropTypes.func,
-  heatmap: PropTypes.object
+  getHeatmapTable: PropTypes.func,
+  heatmap: PropTypes.object,
+  setError: PropTypes.func
 };
 
-const HeatMap = connect(mapStateToProps, {getHeatmap})(HeatMapBody);
+const HeatMap = connect(mapStateToProps, {getHeatmapTable, setError})(HeatMapBody);
 
 export default HeatMap;
 
