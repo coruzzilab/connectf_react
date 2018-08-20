@@ -10,6 +10,7 @@ import uuidv4 from 'uuid/v4';
 import Clipboard from 'clipboard';
 import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from 'reactstrap';
 import {
   BASE_URL,
   postQuery,
@@ -133,6 +134,48 @@ NotSelect.propTypes = {
   className: PropTypes.string
 };
 
+class AddFollowing extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.toggle = this.toggle.bind(this);
+    this.state = {
+      dropdownOpen: false
+    };
+  }
+
+  toggle() {
+    this.setState(prevState => ({
+      dropdownOpen: !prevState.dropdownOpen
+    }));
+  }
+
+  render() {
+    return <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+      <DropdownToggle className="btn btn-light"><FontAwesomeIcon icon="plus-circle"/></DropdownToggle>
+      <DropdownMenu right>
+        <DropdownItem onClick={this.props.addNode}>
+          <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{this.props.addNodeText}
+        </DropdownItem>
+        <DropdownItem onClick={this.props.addGroup}>
+          <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{this.props.addGroupText}
+        </DropdownItem>
+      </DropdownMenu>
+    </Dropdown>;
+  }
+}
+
+AddFollowing.propTypes = {
+  addNode: PropTypes.func,
+  addNodeText: PropTypes.node,
+  addGroup: PropTypes.func,
+  addGroupText: PropTypes.node
+};
+
+AddFollowing.defaultProps = {
+  addNodeText: 'Add Following TF',
+  addGroupText: 'Add Following TF Group'
+};
 
 class ModBody extends React.Component {
   constructor(props) {
@@ -332,7 +375,9 @@ class ModBody extends React.Component {
                   </button>
                 </div>
                 <div className="btn-group ml-auto">
-                  <button type="button" className="btn btn-light" onClick={duplicateNode.bind(undefined, node.id)}>
+                  <button type="button" className="btn btn-light"
+                          onClick={duplicateNode.bind(undefined, node.id)}
+                          title="Duplicate Item">
                     <FontAwesomeIcon icon="clone"/>
                   </button>
                 </div>
@@ -476,17 +521,16 @@ class ModGroupBody extends React.Component {
                 </button>
               </div>
               <div className="btn-group ml-auto mr-1">
-                <button type="button" className="btn btn-success"
-                        onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Following Modifier
-                </button>
-                <button type="button" className="btn btn-success"
-                        onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Following Modifier Group
-                </button>
+                <AddFollowing
+                  addNode={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}
+                  addNodeText="Add Following Modifier"
+                  addGroup={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}
+                  addGroupText="Add Following Modifier Group"/>
               </div>
               <div className="btn-group">
-                <button type="button" className="btn btn-light" onClick={duplicateNode.bind(undefined, node.id)}>
+                <button type="button" className="btn btn-light"
+                        onClick={duplicateNode.bind(undefined, node.id)}
+                        title="Duplicate Item">
                   <FontAwesomeIcon icon="clone"/>
                 </button>
               </div>
@@ -695,7 +739,9 @@ class ValueBody extends React.Component {
                 </button>
               </div>
               <div className="btn-group ml-auto">
-                <button type="button" className="btn btn-light" onClick={duplicateNode.bind(undefined, node.id)}>
+                <button type="button" className="btn btn-light"
+                        onClick={duplicateNode.bind(undefined, node.id)}
+                        title="Duplicate Item">
                   <FontAwesomeIcon icon="clone"/>
                 </button>
               </div>
@@ -864,17 +910,13 @@ class GroupBody extends React.Component {
                 </button>
               </div>
               <div className="btn-group ml-auto mr-1">
-                <button type="button" className="btn btn-success"
-                        onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Following TF
-                </button>
-                <button type="button" className="btn btn-success"
-                        onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="chevron-circle-down" className="mr-1"/>Add Following TF Group
-                </button>
+                <AddFollowing addNode={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}
+                              addGroup={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}/>
               </div>
               <div className="btn-group">
-                <button type="button" className="btn btn-light" onClick={duplicateNode.bind(undefined, node.id)}>
+                <button type="button" className="btn btn-light"
+                        onClick={duplicateNode.bind(undefined, node.id)}
+                        title="Duplicate Item">
                   <FontAwesomeIcon icon="clone"/>
                 </button>
               </div>
@@ -1178,7 +1220,11 @@ class QuerybuilderBody extends React.Component {
     let {addTF, addGroup, queryTree, edges, query} = this.props;
 
     return <div>
-      <form onSubmit={this.handleSubmit.bind(this)}>
+      <form onSubmit={this.handleSubmit.bind(this)} onKeyPress={(e) => {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+        }
+      }}>
         <div className="container-fluid">
           <div className="row m-2">
             <h2>Query</h2>
