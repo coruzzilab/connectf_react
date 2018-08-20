@@ -134,7 +134,7 @@ class Datagrid extends React.Component {
           <div className="btn-toolbar">
             <div className="btn-group mr-2">
               <a className="btn btn-outline-dark" ref={this.query} onClick={this.togglePopover.bind(this)}>
-                <FontAwesomeIcon icon="info-circle" className="mr-1"/>Query
+                <FontAwesomeIcon icon="info-circle" className="mr-1"/>Show Query
               </a>
             </div>
             <div className="btn-group mr-1">

@@ -20,43 +20,33 @@ let mapStateToProps = (state) => {
   };
 };
 
-function renderTarget(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.TextRenderer.apply(this, arguments);
-  if (_.isString(value)) {
-    if (value.startsWith('INDUCED')) {
+function renderFc(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.NumericRenderer.apply(this, arguments);
+  if (_.isFinite(value)) {
+    if (value > 0) {
       td.style.background = 'lightgreen';
-    } else if (value.startsWith('REPRESSED')) {
+    } else if (value < 0) {
       td.style.background = 'lightcoral';
     }
-    // if (value) {
-    //   td.style.background = '#F6DB77';
-    // }
   }
+  renderNumber.apply(this, arguments);
 }
 
 function renderBold(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
-  td.style.fontWeight = 'bold';
   td.style.border = '1px solid black';
-  td.style.borderCollapse = 'collapse';
+  td.className += ' font-weight-bold';
 }
 
 function renderNumber(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.NumericRenderer.apply(this, arguments);
   if (_.isFinite(value)) {
-    let svalue = value.toString();
-    let isExp = svalue.indexOf("e") !== -1;
-
-    if ((!isExp && svalue.length > 5) || (isExp && svalue.length > 9)) {
-      td.textContent = value.toExponential(2);
-    } else {
-      td.textContent = value;
-    }
+    td.textContent = value.toExponential(2);
   }
 }
 
 Handsontable.renderers.registerRenderer('renderBold', renderBold);
-Handsontable.renderers.registerRenderer('renderTarget', renderTarget);
+Handsontable.renderers.registerRenderer('renderFc', renderFc);
 Handsontable.renderers.registerRenderer('renderNumber', renderNumber);
 
 function exponentialValidator(value, callback) {
@@ -82,7 +72,7 @@ Handsontable.validators.registerValidator('exponential', exponentialValidator);
 
 Handsontable.cellTypes.registerCellType('p_value', {
   renderer: 'renderNumber',
-  validator: 'exponentialValidator'
+  validator: 'exponential'
 });
 
 class DFBody extends React.Component {
@@ -127,6 +117,7 @@ class DFBody extends React.Component {
 
         if (row < 6) {
           cellProperties.type = 'text';
+          cellProperties.wordWrap = true;
         }
 
         if (col < 4) {
@@ -247,7 +238,6 @@ class DFBody extends React.Component {
           <div id="grid" ref={this.grid} style={{overflow: 'hidden', height}}/>
         </div>
       </div>
-
     </div>;
   }
 }
