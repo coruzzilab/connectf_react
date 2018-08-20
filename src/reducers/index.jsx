@@ -2,9 +2,10 @@
  * Created by zacharyjuang on 11/24/16.
  */
 import _ from 'lodash';
-import uuidv4 from 'uuid/v4';
 import heatmap from './heatmap';
 import {combineReducers} from 'redux';
+import motifEnrichment from "./motif_enrichment";
+import {addAfter, duplicateNode, moveItem, getDescendants} from "../utils";
 
 const busy = (state = false, action) => {
   switch (action.type) {
@@ -26,80 +27,6 @@ function query(state = '', action) {
   default:
     return state;
   }
-}
-
-function getDescendants(state, id) {
-  let curr = _(state).filter((o) => o.id === id);
-  return curr.concat(_(state).filter((o) => o.parent === id).map((o) => {
-    return getDescendants(state, o.id);
-  }).flatten().value()).uniq().value();
-}
-
-function addAfter(state, id, obj) {
-  let prevLoc = _.findIndex(state, ['id', id]);
-  if (_.isArray(obj)) {
-    return [...state.slice(0, prevLoc + 1), ...obj, ...state.slice(prevLoc + 1)];
-  }
-  return [...state.slice(0, prevLoc + 1), obj, ...state.slice(prevLoc + 1)];
-}
-
-function moveItem(state, source, target, after = true) {
-  let source_loc = _.findIndex(state, ['id', source]);
-  let target_loc = _.findIndex(state, ['id', target]);
-
-  if (source_loc === -1 || target_loc === -1) {
-    return state;
-  }
-
-  if (after) {
-    if (source_loc > target_loc) {
-      return [
-        ...state.slice(0, target_loc + 1),
-        state[source_loc],
-        ...state.slice(target_loc + 1, source_loc),
-        ...state.slice(source_loc + 1)
-      ];
-    }
-    return [
-      ...state.slice(0, source_loc),
-      ...state.slice(source_loc + 1, target_loc + 1),
-      state[source_loc],
-      ...state.slice(target_loc + 1)];
-
-  } else {
-    if (source_loc < target_loc) {
-      return [
-        ...state.slice(0, source_loc),
-        ...state.slice(source_loc + 1, target_loc),
-        state[source_loc],
-        ...state.slice(target_loc)
-      ];
-    }
-    return [
-      ...state.slice(0, target_loc),
-      state[source_loc],
-      ...state.slice(target_loc, source_loc),
-      ...state.slice(source_loc + 1)
-    ];
-  }
-}
-
-function duplicateNode(state, node) {
-  if (_.isString(node)) {
-    node = _.find(state, ['id', node]);
-  }
-
-  let children = _.filter(state, (o) => o.parent === node.id);
-  let newId = uuidv4();
-
-  return [
-    Object.assign({}, node, {id: newId}),
-    ..._(children)
-      .map((o) => Object.assign({}, o, {parent: newId}))
-      .map((o) => duplicateNode(state, o))
-      .flatten()
-      .value()
-  ]
 }
 
 function queryTree(state = [], action) {
@@ -289,17 +216,6 @@ function cytoscape(state = [], action) {
   }
 }
 
-function motifEnrichment(state = {}, action) {
-  switch (action.type) {
-  case 'SET_MOTIF_ENRICHMENT':
-    return action.data;
-  case 'CLEAR_MOTIF_ENRICHMENT':
-    return {};
-  default:
-    return state;
-  }
-}
-
 function stats(state = {}, action) {
   switch (action.type) {
   case 'SET_STATS':
@@ -348,7 +264,7 @@ const tgdbApp = {
   result,
   heatmap: combineReducers(heatmap),
   cytoscape,
-  motifEnrichment,
+  motifEnrichment: combineReducers(motifEnrichment),
   requestId,
   stats,
   edges,

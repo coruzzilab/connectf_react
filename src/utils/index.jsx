@@ -4,6 +4,7 @@
  */
 import _ from 'lodash';
 import moment from 'moment';
+import uuidv4 from "uuid/v4";
 
 export function blueShader(c, min, max) {
   let l = 48 + Math.round(52 * ((Math.log10(c) - min) / (max - min)));
@@ -87,12 +88,21 @@ export function getQuery(queryTree, id) {
   return query.replace(trimOper, '').replace(cleanMod, '');
 }
 
-function getDescendants(queryTree, node) {
-  let curr = _(queryTree).filter((o) => o.parent === node.id);
+export function getDescendants(queryTree, node) {
+  if (_.isString(node)) {
+    node = _.find(queryTree, ['id', node]);
+  }
 
-  return curr.concat(curr.map((o) => {
-    return getDescendants(queryTree, o);
-  }).flatten().value()).value();
+  let curr = _(queryTree).filter((o) => o.id === node.id);
+
+  return curr
+    .concat(_(queryTree)
+      .filter((o) => o.parent === node.id)
+      .map((o) => getDescendants(queryTree, o))
+      .flatten()
+      .value())
+    .uniq()
+    .value();
 }
 
 export function getParentTfTree(queryTree, node) {
@@ -131,3 +141,70 @@ export const getGrey = _.flow(
   _.partial(_.clamp, _, 0, 4),
   _.partial(_.get, GREYS, _, GREYS[4])
 );
+
+export function addAfter(state, id, obj) {
+  let prevLoc = _.findIndex(state, ['id', id]);
+  if (_.isArray(obj)) {
+    return [...state.slice(0, prevLoc + 1), ...obj, ...state.slice(prevLoc + 1)];
+  }
+  return [...state.slice(0, prevLoc + 1), obj, ...state.slice(prevLoc + 1)];
+}
+
+export function moveItem(state, source, target, after = true) {
+  let source_loc = _.findIndex(state, ['id', source]);
+  let target_loc = _.findIndex(state, ['id', target]);
+
+  if (source_loc === -1 || target_loc === -1) {
+    return state;
+  }
+
+  if (after) {
+    if (source_loc > target_loc) {
+      return [
+        ...state.slice(0, target_loc + 1),
+        state[source_loc],
+        ...state.slice(target_loc + 1, source_loc),
+        ...state.slice(source_loc + 1)
+      ];
+    }
+    return [
+      ...state.slice(0, source_loc),
+      ...state.slice(source_loc + 1, target_loc + 1),
+      state[source_loc],
+      ...state.slice(target_loc + 1)];
+
+  } else {
+    if (source_loc < target_loc) {
+      return [
+        ...state.slice(0, source_loc),
+        ...state.slice(source_loc + 1, target_loc),
+        state[source_loc],
+        ...state.slice(target_loc)
+      ];
+    }
+    return [
+      ...state.slice(0, target_loc),
+      state[source_loc],
+      ...state.slice(target_loc, source_loc),
+      ...state.slice(source_loc + 1)
+    ];
+  }
+}
+
+export function duplicateNode(state, node) {
+  if (_.isString(node)) {
+    node = _.find(state, ['id', node]);
+  }
+
+  let children = _.filter(state, (o) => o.parent === node.id);
+  let newId = uuidv4();
+
+  return [
+    Object.assign({}, node, {id: newId}),
+    ..._(children)
+      .map((o) => Object.assign({}, o, {parent: newId}))
+      .map((o) => duplicateNode(state, o))
+      .flatten()
+      .value()
+  ];
+}

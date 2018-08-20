@@ -21,8 +21,9 @@ import {
   NavLink,
   Tooltip
 } from 'reactstrap';
-import {getMotifEnrichment, BASE_URL} from "../../actions";
+import {BASE_URL} from "../../actions";
 import {blueShader, getLogMinMax} from '../../utils';
+import {getMotifEnrichment, getMotifEnrichmentLegend} from "../../actions/motif_enrichment";
 
 export const BASE_COLORS = {
   'a': '#59C83B',
@@ -221,35 +222,24 @@ QueryNameCell.propTypes = {
   children: PropTypes.node
 };
 
-class HeatmapTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: []
-    };
-  }
-
+class HeatmapTableBody extends React.Component {
   componentDidMount() {
     this.getTableData();
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.tableUrl !== this.props.tableUrl) {
+    if (prevProps.requestId !== this.props.requestId) {
       this.getTableData();
     }
   }
 
 
   getTableData() {
-    $.ajax({
-      url: this.props.tableUrl
-    }).done((data) => {
-      this.setState({data});
-    });
+    this.props.getMotifEnrichmentLegend(this.props.requestId);
   }
 
   render() {
-    return <table className="table table-responsive table-sm">
+    return <table className="table table-responsive table-sm table-bordered">
       <thead>
       <tr>
         <th>Index</th>
@@ -259,11 +249,11 @@ class HeatmapTable extends React.Component {
       </tr>
       </thead>
       <tbody>
-      {_.map(this.state.data, (row, i) => {
+      {_.map(this.props.motifEnrichment.legend, (row, i) => {
         return <tr key={i}>
           <ColHeader data={row[0]} sortable={false}>{row[1]}</ColHeader>
           <QueryNameCell>{row[2]}</QueryNameCell>
-          <td>{row[3]}</td>
+          <QueryNameCell>{row[3]}</QueryNameCell>
           <td>{row[4]}</td>
         </tr>;
       })}
@@ -272,9 +262,13 @@ class HeatmapTable extends React.Component {
   }
 }
 
-HeatmapTable.propTypes = {
-  tableUrl: PropTypes.string
+HeatmapTableBody.propTypes = {
+  requestId: PropTypes.string,
+  motifEnrichment: PropTypes.shape({legend: PropTypes.array}),
+  getMotifEnrichmentLegend: PropTypes.func
 };
+
+const HeatmapTable = connect(mapStateToProps, {getMotifEnrichmentLegend})(HeatmapTableBody);
 
 class MotifEnrichmentBody extends React.Component {
   constructor(props) {
@@ -381,9 +375,10 @@ class MotifEnrichmentBody extends React.Component {
   render() {
     let {motifEnrichment} = this.props;
     let {body, img, colSpan, key, lower, upper, sortCol, ascending} = this.state;
-    let [min, max] = getLogMinMax(_.get(motifEnrichment, 'result', []));
+    let [min, max] = getLogMinMax(_.get(motifEnrichment.table, 'result', []));
 
     return <div>
+      {motifEnrichment.error ? <div className="text-danger">No motifs enriched.</div> : null}
       <form onSubmit={this.handleMotifForm.bind(this)} className="m-2">
         <div className="form-group mb-2">
           <label>Alpha:</label>
@@ -435,7 +430,7 @@ class MotifEnrichmentBody extends React.Component {
             <thead>
             <tr>
               <th/>
-              {_(_.get(motifEnrichment, 'columns', {})).map((val, key) => [val, key]).map(([val, key], i) => {
+              {_(_.get(motifEnrichment.table, 'columns', {})).map((val, key) => [val, key]).map(([val, key], i) => {
                 let line1 = _(val).pick(['TRANSCRIPTION_FACTOR_ID', 'TRANSCRIPTION_FACTOR_NAME']).values().join('-');
                 let line2 = _(val).pick(['EXPRESSION_TYPE', 'ANALYSIS_METHOD']).values().join('-');
                 let line3 = _.get(val, 'list_name', '');
@@ -457,17 +452,17 @@ class MotifEnrichmentBody extends React.Component {
             <tr>
               <th/>
               {colSpan === 2 ?
-                _(_.get(motifEnrichment, 'columns', {})).map((val, key) => {
+                _(_.get(motifEnrichment.table, 'columns', {})).map((val, key) => {
                   return [<th key={key}>promoter (p-value)</th>, <th key={key + 1}>gene body (p-value)</th>];
                 }).flatten().value() :
-                _(_.get(motifEnrichment, 'columns', {})).map((val, key) => {
+                _(_.get(motifEnrichment.table, 'columns', {})).map((val, key) => {
                   return <th key={key}>promoter (p-value)</th>;
                 }).value()
               }
             </tr>
             </thead>
             <tbody>
-            {_(_.get(motifEnrichment, 'result', []))
+            {_(_.get(motifEnrichment.table, 'result', []))
               .orderBy(
                 _.isNull(sortCol) ?
                   (row) => parseInt(row[0].name.split('_')[1]) :
@@ -498,8 +493,7 @@ class MotifEnrichmentBody extends React.Component {
                      alt="heatmap"/>
               </div>
               <div className="col">
-                <HeatmapTable
-                  tableUrl={`${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap_table/`}/>
+                <HeatmapTable/>
               </div>
             </div>
           </div>
