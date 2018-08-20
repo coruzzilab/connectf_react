@@ -23,7 +23,7 @@ import {
 } from 'reactstrap';
 import {BASE_URL} from "../../actions";
 import {blueShader, getLogMinMax} from '../../utils';
-import {getMotifEnrichment, getMotifEnrichmentLegend} from "../../actions/motif_enrichment";
+import {getMotifEnrichment, getMotifEnrichmentLegend, setError} from "../../actions/motif_enrichment";
 
 export const BASE_COLORS = {
   'a': '#59C83B',
@@ -244,7 +244,8 @@ class HeatmapTableBody extends React.Component {
       <tr>
         <th>Index</th>
         <th>Gene ID</th>
-        <th>Name</th>
+        <th>Filter</th>
+        <th>Gene Name</th>
         <th>Analysis ID</th>
       </tr>
       </thead>
@@ -252,9 +253,10 @@ class HeatmapTableBody extends React.Component {
       {_.map(this.props.motifEnrichment.legend, (row, i) => {
         return <tr key={i}>
           <ColHeader data={row[0]} sortable={false}>{row[1]}</ColHeader>
-          <QueryNameCell>{row[2]}</QueryNameCell>
+          <td>{row[2]}</td>
           <QueryNameCell>{row[3]}</QueryNameCell>
-          <td>{row[4]}</td>
+          <QueryNameCell>{row[4]}</QueryNameCell>
+          <td>{row[5]}</td>
         </tr>;
       })}
       </tbody>
@@ -373,7 +375,7 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   render() {
-    let {motifEnrichment} = this.props;
+    let {motifEnrichment, setError} = this.props;
     let {body, img, colSpan, key, lower, upper, sortCol, ascending} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment.table, 'result', []));
 
@@ -490,6 +492,8 @@ class MotifEnrichmentBody extends React.Component {
               <div className="col">
                 <img className="img-fluid"
                      src={img}
+                     onLoad={setError.bind(undefined, false)}
+                     onError={setError.bind(undefined, true)}
                      alt="heatmap"/>
               </div>
               <div className="col">
@@ -507,9 +511,10 @@ class MotifEnrichmentBody extends React.Component {
 MotifEnrichmentBody.propTypes = {
   requestId: PropTypes.string,
   getMotifEnrichment: PropTypes.func,
-  motifEnrichment: PropTypes.object
+  motifEnrichment: PropTypes.object,
+  setError: PropTypes.func
 };
 
-const MotifEnrichment = connect(mapStateToProps, {getMotifEnrichment})(MotifEnrichmentBody);
+const MotifEnrichment = connect(mapStateToProps, {getMotifEnrichment, setError})(MotifEnrichmentBody);
 
 export default MotifEnrichment;

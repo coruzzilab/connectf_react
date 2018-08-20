@@ -90,7 +90,7 @@ class HeatmapTableBody extends React.Component {
       <thead>
       <tr>
         <th>Index</th>
-        <th>Name</th>
+        <th>Gene ID</th>
         <th>Filter</th>
         <th>No. Targets</th>
         <th>Gene Name</th>
@@ -281,7 +281,7 @@ class HeatMapBody extends React.Component {
               <div className="container-fluid">
                 <div className="row">
                   <div className="col">
-                    <img src={imgSrc}
+                    <img src={imgSrc} className="img-fluid"
                          onError={setError.bind(undefined, true)}
                          onLoad={setError.bind(undefined, false)}/>
                   </div>
