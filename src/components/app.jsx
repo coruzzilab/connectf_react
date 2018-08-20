@@ -12,8 +12,8 @@ import Datagrid from './datagrid';
 import QueryBuilder from './querybuilder';
 import Cytoscape from './cytoscape';
 import Feedback from './feedback';
-import UploadAnalysis from './upload_analysis';
-import UploadExperiment from './upload_experiment';
+// import UploadAnalysis from './upload_analysis';
+// import UploadExperiment from './upload_experiment';
 
 /**
  * Main app component
@@ -47,12 +47,12 @@ class App extends React.Component {
             <NavItem active={pathname === "/query"}>
               <Link to="/query" className="nav-link">Query</Link>
             </NavItem>
-            <NavItem active={pathname === "/upload_experiment"}>
-              <Link to="/upload_experiment" className="nav-link">Upload Experiment</Link>
-            </NavItem>
-            <NavItem active={pathname === "/upload_analysis"}>
-              <Link to="/upload_analysis" className="nav-link">Upload Analysis</Link>
-            </NavItem>
+            {/*<NavItem active={pathname === "/upload_experiment"}>*/}
+              {/*<Link to="/upload_experiment" className="nav-link">Upload Experiment</Link>*/}
+            {/*</NavItem>*/}
+            {/*<NavItem active={pathname === "/upload_analysis"}>*/}
+              {/*<Link to="/upload_analysis" className="nav-link">Upload Analysis</Link>*/}
+            {/*</NavItem>*/}
             <NavItem active={pathname === "/feedback"}>
               <Link to="/feedback" className="nav-link">Feedback</Link>
             </NavItem>
@@ -62,8 +62,8 @@ class App extends React.Component {
       <Switch>
         <Route exact path="/" component={About}/>
         <Route path="/query" component={QueryBuilder}/>
-        <Route path="/upload_analysis" component={UploadAnalysis}/>
-        <Route path="/upload_experiment" component={UploadExperiment}/>
+        {/*<Route path="/upload_analysis" component={UploadAnalysis}/>*/}
+        {/*<Route path="/upload_experiment" component={UploadExperiment}/>*/}
         <Route path="/feedback" component={Feedback}/>
         <Route path="/cytoscape" component={Cytoscape}/>
         <Route path="/datagrid" component={Datagrid}/>
