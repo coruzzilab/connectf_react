@@ -13,17 +13,17 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 const NON_ALPHANUMERIC = /^\W*|\W*$/g;
 
-let mapStateToProps = (state) => {
+let mapStateToProps = ({result, busy}) => {
   return {
-    result: state.result,
-    busy: state.busy
+    result,
+    busy
   };
 };
 
 function renderFc(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.NumericRenderer.apply(this, arguments);
   if (_.isFinite(value)) {
-    if (value > 0) {
+    if (value >= 0) {
       td.style.background = 'lightgreen';
     } else if (value < 0) {
       td.style.background = 'lightcoral';
@@ -125,7 +125,7 @@ class DFBody extends React.Component {
         }
 
         if (col > 7) {
-          cellProperties.colWidths = 115;
+          cellProperties.colWidths = 120;
         }
 
         return cellProperties;
@@ -180,7 +180,7 @@ class DFBody extends React.Component {
       } else {
         hot.loadData(data);
       }
-    }, 100));
+    }, 150));
 
     this.updateData();
 
@@ -202,6 +202,7 @@ class DFBody extends React.Component {
   updateData() {
     let {result} = this.props;
     let data = this.data = _.get(result, '0.data', []);
+
     this.hot.loadData(data);
     this.hot.updateSettings({
       mergeCells: _.get(result, '0.mergeCells', []),

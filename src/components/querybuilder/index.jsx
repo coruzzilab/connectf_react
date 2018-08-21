@@ -1012,51 +1012,58 @@ class QueryBoxBody extends React.Component {
     });
   }
 
+  dragOver(e) {
+    e.preventDefault();
+  }
+
+  drop(e) {
+    let {queryTree, moveItem, setParent} = this.props;
+    let {clientYOffset} = this.state;
+
+    e.stopPropagation();
+    e.preventDefault();
+    let source_id = e.dataTransfer.getData('id');
+    let source = _.find(queryTree, ['id', source_id]);
+    if ((source.nodeType === 'TF' || source.nodeType === 'GROUP')) {
+      let target;
+      let after;
+      let currY = e.clientY - clientYOffset;
+      let _currNodes = _(queryTree)
+        .filter((o) => !o.parent);
+      let _currNodesPos = _currNodes
+        .map('id')
+        .map(_.unary(document.getElementById.bind(document)))
+        .invokeMap('getBoundingClientRect')
+        .map((rect) => rect.top + rect.height / 2);
+
+
+      let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
+      let nextPos = _currNodesPos.findIndex((p) => p > currY);
+
+      if (prevPos === -1) {
+        target = _.head(queryTree);
+        after = false;
+      } else if (nextPos === -1) {
+        target = _.last(queryTree);
+        after = true;
+      } else {
+        let currNodes = _currNodes.value();
+        target = currNodes[prevPos];
+        after = true;
+      }
+      moveItem(source_id, target.id, after);
+      setParent(source_id, undefined);
+    }
+  }
+
   render() {
-    let {queryTree, setParent, moveItem} = this.props;
+    let {queryTree} = this.props;
     let {draggable, clientYOffset} = this.state;
 
     return <div className={classNames("form-row", queryTree.length ? "border border-dark rounded py-3 mx-1" : null)}
                 ref={this.dropTarget}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                }}
-                onDrop={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  let source_id = e.dataTransfer.getData('id');
-                  let source = _.find(queryTree, ['id', source_id]);
-                  if ((source.nodeType === 'TF' || source.nodeType === 'GROUP')) {
-                    let target;
-                    let after;
-                    let currY = e.clientY - clientYOffset;
-                    let _currNodes = _(queryTree)
-                      .filter((o) => !o.parent);
-                    let _currNodesPos = _currNodes
-                      .map('id')
-                      .map(_.unary(document.getElementById.bind(document)))
-                      .invokeMap('getBoundingClientRect')
-                      .map((rect) => rect.top + rect.height / 2);
-
-
-                    let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
-                    let nextPos = _currNodesPos.findIndex((p) => p > currY);
-
-                    if (prevPos === -1) {
-                      target = _.head(queryTree);
-                      after = false;
-                    } else if (nextPos === -1) {
-                      target = _.last(queryTree);
-                      after = true;
-                    } else {
-                      let currNodes = _currNodes.value();
-                      target = currNodes[prevPos];
-                      after = true;
-                    }
-                    moveItem(source_id, target.id, after);
-                    setParent(source_id, undefined);
-                  }
-                }}>
+                onDragOver={this.dragOver.bind(this)}
+                onDrop={this.drop.bind(this)}>
       <div className="col">
         <QueryContext.Provider value={{
           draggable,
@@ -1220,11 +1227,12 @@ class QuerybuilderBody extends React.Component {
     let {addTF, addGroup, queryTree, edges, query} = this.props;
 
     return <div>
-      <form onSubmit={this.handleSubmit.bind(this)} onKeyPress={(e) => {
-        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-          e.preventDefault();
-        }
-      }}>
+      <form onSubmit={this.handleSubmit.bind(this)}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+              }
+            }}>
         <div className="container-fluid">
           <div className="row m-2">
             <h2>Query</h2>
