@@ -44,6 +44,7 @@ class Cytoscape extends React.Component {
           <div className="col m-1">
             <p>There are {stats.num_edges.toLocaleString()} edges in the network,
               with {stats.num_targets.toLocaleString()} targets.</p>
+            <p>Duplicated edges are collapsed into one single edge.</p>
             <p className="text-warning">Warning! Graphs of over 3,000 edges might affect browser performance.</p>
           </div>
         </div> :
