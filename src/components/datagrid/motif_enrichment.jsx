@@ -20,7 +20,8 @@ import {
   Nav,
   NavItem,
   NavLink,
-  Tooltip
+  Tooltip,
+  UncontrolledTooltip
 } from 'reactstrap';
 import {BASE_URL} from "../../actions";
 import {blueShader, getLogMinMax, svgAddTable} from '../../utils';
@@ -32,6 +33,26 @@ export const BASE_COLORS = {
   'c': '#0012D3',
   'g': '#F5BD41',
   'other': '#888888'
+};
+
+class InfoTootip extends React.Component {
+  constructor(props) {
+    super(props);
+    this.target = React.createRef();
+  }
+
+  render() {
+    return <div>
+      <span className="text-secondary" ref={this.target}><FontAwesomeIcon icon="question-circle"/></span>
+      <UncontrolledTooltip target={() => this.target.current} placement="auto">
+        {this.props.children}
+      </UncontrolledTooltip>
+    </div>
+  }
+}
+
+InfoTootip.propTypes = {
+  children: PropTypes.node
 };
 
 const mapStateToProps = (state) => {
@@ -415,28 +436,43 @@ class MotifEnrichmentBody extends React.Component {
     return <div>
       {motifEnrichment.error ? <div className="text-danger">No motifs enriched.</div> : null}
       <form onSubmit={this.handleMotifForm.bind(this)} className="m-2">
-        <div className="form-group row">
+        <div className="form-group row align-items-center">
           <label className="col-sm-2 col-form-label">Alpha:</label>
-          <div className="col-sm-10">
+          <div className="col-sm-9">
             <input type="number" min={0} max={1} step="any" placeholder={0.05}
                    defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
           </div>
+          <div className="col-sm-1">
+            <InfoTootip>
+              P-value cutoff for cells in the table.
+            </InfoTootip>
+          </div>
         </div>
-        <div className="form-group row">
+        <div className="form-group row align-items-center">
           <label className="col-sm-2 col-form-label">Lower Bound (-log10):</label>
-          <div className="col-sm-10">
+          <div className="col-sm-9">
             <input type="number" className="form-control" min={0} value={lower} step="any"
                    onChange={this.handleLower.bind(this)}/>
           </div>
+          <div className="col-sm-1">
+            <InfoTootip>
+              Lower bound -log10 p-value for the color scale on the heat map.
+            </InfoTootip>
+          </div>
         </div>
-        <div className="form-group row">
+        <div className="form-group row align-items-center">
           <label className="col-sm-2 col-form-label">Upper Bound (-log10):</label>
-          <div className="col-sm-10">
+          <div className="col-sm-9">
             <input type="number" className="form-control" min={0} value={upper} step="any"
                    onChange={this.handleUpper.bind(this)}/>
           </div>
+          <div className="col-sm-1">
+            <InfoTootip>
+              Upper bound -log10 p-value for the color scale on the heat map.
+            </InfoTootip>
+          </div>
         </div>
-        <div className="form-group row">
+        <div className="form-group row align-items-center">
           <legend className="col-form-label col-sm-2">Show Enrichment of Gene Body:</legend>
           <div className="col-sm-10">
             <div className="form-check form-check-inline">

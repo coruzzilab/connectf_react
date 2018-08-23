@@ -32,7 +32,8 @@ import {
   faSortDown,
   faClone,
   faFileExport,
-  faHistory
+  faHistory,
+  faQuestionCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -62,5 +63,6 @@ library.add(
   faSortDown,
   faClone,
   faFileExport,
-  faHistory
+  faHistory,
+  faQuestionCircle
 );
