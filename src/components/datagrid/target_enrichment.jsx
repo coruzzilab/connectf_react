@@ -122,7 +122,7 @@ HeatmapTableBody.propTypes = {
 
 const HeatmapTable = connect(mapStateToProps, {getHeatmapLegend})(HeatmapTableBody);
 
-class HeatMapBody extends React.Component {
+class TargetEnrichmentBody extends React.Component {
   constructor(props) {
     super(props);
     this.heatmap = React.createRef();
@@ -240,8 +240,8 @@ class HeatMapBody extends React.Component {
 
     return <div>
       {heatmap.error ?
-        <div className="text-danger text-lg-left text-sm-center">Heatmap is not available for this query: No gene list
-          uploaded or no enrichment</div> :
+        <div className="text-danger text-lg-left text-sm-center">Target Enrichment is not available for this query: No
+          gene list uploaded or no enrichment.</div> :
         <div>
           <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
             <div className="form-group mb-2">
@@ -338,14 +338,14 @@ class HeatMapBody extends React.Component {
   }
 }
 
-HeatMapBody.propTypes = {
+TargetEnrichmentBody.propTypes = {
   requestId: PropTypes.string,
   getHeatmapTable: PropTypes.func,
   heatmap: PropTypes.object,
   setError: PropTypes.func
 };
 
-const HeatMap = connect(mapStateToProps, {getHeatmapTable, setError})(HeatMapBody);
+const TargetEnrichment = connect(mapStateToProps, {getHeatmapTable, setError})(TargetEnrichmentBody);
 
-export default HeatMap;
+export default TargetEnrichment;
 

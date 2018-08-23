@@ -13,7 +13,7 @@ import _ from 'lodash';
 import DF from './df';
 import Meta from './meta';
 import Extra from './extra';
-import HeatMap from './heatmap';
+import TargetEnrichment from './target_enrichment';
 import MotifEnrichment from './motif_enrichment';
 import Cytoscape from './cytoscape';
 
@@ -115,7 +115,7 @@ class Datagrid extends React.Component {
         <NavItem>
           <NavLink onClick={this.onTabClick.bind(this, "/datagrid/heatmap")}
                    active={pathname === "/datagrid/heatmap"}>
-            Heatmap
+            Target Enrichment
           </NavLink>
         </NavItem>
         <NavItem>
@@ -169,7 +169,7 @@ class Datagrid extends React.Component {
           }}/>
           <Route path={match.path + '/heatmap'} render={() => {
             return <TabPane tabId={pathname}>
-              <HeatMap/>
+              <TargetEnrichment/>
             </TabPane>;
           }}/>
           <Route path={match.path + '/motif'} render={() => {
