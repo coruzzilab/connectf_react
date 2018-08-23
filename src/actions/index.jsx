@@ -237,6 +237,7 @@ export const postQuery = (data) => {
       .done((result) => {
         dispatch(setRequestId(requestId));
         dispatch(setResult(result));
+        dispatch(addQueryHistory(data.get('query')));
       })
       .fail((xhr, textStatus, err) => {
         if (xhr.status >= 400 < 500) {
@@ -317,5 +318,18 @@ export const getStats = (requestId) => {
     }).fail(() => {
       dispatch(clearStats());
     });
+  };
+};
+
+export const addQueryHistory = (query) => {
+  return {
+    type: 'ADD_QUERY_HISTORY',
+    query
+  };
+};
+
+export const clearQueryHistory = () => {
+  return {
+    type: 'CLEAR_QUERY_HISTORY'
   };
 };

@@ -246,6 +246,17 @@ function edges(state = [], action) {
   }
 }
 
+function queryHistory(state = [], action) {
+  switch (action.type) {
+  case 'ADD_QUERY_HISTORY':
+    return [{query: action.query, time: new Date().toString()}, ...state].slice(0, 30);
+  case 'CLEAR_QUERY_HISTORY':
+    return [];
+  default:
+    return state;
+  }
+}
+
 function error(state = '', action) {
   switch (action.type) {
   case 'SET_ERROR':
@@ -268,6 +279,7 @@ const tgdbApp = {
   requestId,
   stats,
   edges,
+  queryHistory,
   error
 };
 

@@ -36,7 +36,8 @@ store.subscribe(_.throttle(function () {
     'query',
     'queryTree',
     'requestId',
-    'edges'
+    'edges',
+    'queryHistory'
   ]));
 }, 1000));
 

@@ -10,7 +10,7 @@ import uuidv4 from 'uuid/v4';
 import Clipboard from 'clipboard';
 import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {Dropdown, DropdownToggle, DropdownMenu, DropdownItem} from 'reactstrap';
+import {Dropdown, DropdownToggle, DropdownMenu, DropdownItem, UncontrolledDropdown} from 'reactstrap';
 import {
   BASE_URL,
   postQuery,
@@ -35,18 +35,20 @@ import {
   clearEdges,
   setEdges,
   clearRequestId,
-  duplicateNode
+  duplicateNode,
+  clearQueryHistory
 } from '../../actions';
 import {getQuery, getParentTfTree, getGrey} from "../../utils";
 
 const QueryContext = React.createContext();
 
-const mapStateToProps = ({busy, query, queryTree, edges}) => {
+const mapStateToProps = ({busy, query, queryTree, edges, queryHistory}) => {
   return {
     busy,
     query,
     queryTree,
-    edges
+    edges,
+    queryHistory
   };
 };
 
@@ -176,6 +178,39 @@ AddFollowing.defaultProps = {
   addNodeText: 'Add Following TF',
   addGroupText: 'Add Following TF Group'
 };
+
+class HistoryBody extends React.Component {
+  render() {
+    let {queryHistory, setQuery, clearQueryHistory} = this.props;
+    return <UncontrolledDropdown>
+      <DropdownToggle className="btn btn-secondary">
+        <FontAwesomeIcon icon="history" className="mr-1"/>Query History
+      </DropdownToggle>
+      <DropdownMenu right>
+        {queryHistory.length ?
+          _.map(queryHistory, (h, i) => {
+            return <DropdownItem key={i} onClick={setQuery.bind(undefined, h.query)}>
+              <div>{h.query}</div>
+              <div className="text-secondary">
+                <small>{h.time}</small>
+              </div>
+            </DropdownItem>;
+          }) :
+          <DropdownItem disabled>No History</DropdownItem>}
+        <DropdownItem divider/>
+        <DropdownItem onClick={clearQueryHistory}>Clear</DropdownItem>
+      </DropdownMenu>
+    </UncontrolledDropdown>;
+  }
+}
+
+HistoryBody.propTypes = {
+  queryHistory: PropTypes.arrayOf(PropTypes.shape({query: PropTypes.string, time: PropTypes.string})),
+  setQuery: PropTypes.func,
+  clearQueryHistory: PropTypes.func
+};
+
+const History = connect(mapStateToProps, {setQuery, clearQueryHistory})(HistoryBody);
 
 class ModBody extends React.Component {
   constructor(props) {
@@ -1060,7 +1095,7 @@ class QueryBoxBody extends React.Component {
     let {queryTree} = this.props;
     let {draggable, clientYOffset} = this.state;
 
-    return <div className={classNames("form-row", queryTree.length ? "border border-dark rounded py-3 mx-1" : null)}
+    return <div className={classNames("row", queryTree.length ? "border border-dark rounded py-3 m-2" : null)}
                 ref={this.dropTarget}
                 onDragOver={this.dragOver.bind(this)}
                 onDrop={this.drop.bind(this)}>
@@ -1248,6 +1283,9 @@ class QuerybuilderBody extends React.Component {
                         onClick={addGroup.bind(undefined, undefined, undefined, undefined, undefined)}>
                   <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
                 </button>
+              </div>
+              <div className="btn-group float-right">
+                <History/>
               </div>
             </div>
           </div>
