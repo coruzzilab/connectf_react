@@ -415,37 +415,47 @@ class MotifEnrichmentBody extends React.Component {
     return <div>
       {motifEnrichment.error ? <div className="text-danger">No motifs enriched.</div> : null}
       <form onSubmit={this.handleMotifForm.bind(this)} className="m-2">
-        <div className="form-group mb-2">
-          <label>Alpha:</label>
-          <input type="number" min={0} max={1} step="any" placeholder={0.05}
-                 defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label">Alpha:</label>
+          <div className="col-sm-10">
+            <input type="number" min={0} max={1} step="any" placeholder={0.05}
+                   defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
+          </div>
         </div>
-        <div className="form-group mb-2">
-          <div className="form-group mb-2">
-            <label>Lower Bound (-log10):</label>
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label">Lower Bound (-log10):</label>
+          <div className="col-sm-10">
             <input type="number" className="form-control" min={0} value={lower} step="any"
                    onChange={this.handleLower.bind(this)}/>
           </div>
-          <div className="form-group mb-2">
-            <label>Upper Bound (-log10):</label>
+        </div>
+        <div className="form-group row">
+          <label className="col-sm-2 col-form-label">Upper Bound (-log10):</label>
+          <div className="col-sm-10">
             <input type="number" className="form-control" min={0} value={upper} step="any"
                    onChange={this.handleUpper.bind(this)}/>
           </div>
         </div>
-        <div className="form-group mb-2">
-          <p className="col-form-label">Show Enrichment of Gene Body:</p>
-          <div className="form-check form-check-inline">
-            <input type='radio' value='yes' checked={body === 'yes'} className="form-check-input"
-                   onChange={this.handleBody.bind(this)}/>
-            <label className="form-check-label">Yes</label>
-          </div>
-          <div className="form-check form-check-inline">
-            <input type='radio' value='no' checked={body === 'no'} className="form-check-input"
-                   onChange={this.handleBody.bind(this)}/>
-            <label className="form-check-label">No</label>
+        <div className="form-group row">
+          <legend className="col-form-label col-sm-2">Show Enrichment of Gene Body:</legend>
+          <div className="col-sm-10">
+            <div className="form-check form-check-inline">
+              <input type='radio' value='yes' checked={body === 'yes'} className="form-check-input"
+                     onChange={this.handleBody.bind(this)}/>
+              <label className="form-check-label">Yes</label>
+            </div>
+            <div className="form-check form-check-inline">
+              <input type='radio' value='no' checked={body === 'no'} className="form-check-input"
+                     onChange={this.handleBody.bind(this)}/>
+              <label className="form-check-label">No</label>
+            </div>
           </div>
         </div>
-        <button type="submit" className="btn btn-primary">Submit</button>
+        <div className="form-group row">
+          <div className="col">
+            <button type="submit" className="btn btn-primary">Submit</button>
+          </div>
+        </div>
       </form>
       <Nav tabs>
         <NavItem>
@@ -523,7 +533,8 @@ class MotifEnrichmentBody extends React.Component {
           <div className="container-fluid">
             <div className="row">
               <div className="col my-1">
-                <a className="btn btn-primary float-right" download="motif_enrichment.svg" href="#" onClick={this.exportSVG.bind(this)}>
+                <a className="btn btn-primary float-right" download="motif_enrichment.svg" href="#"
+                   onClick={this.exportSVG.bind(this)}>
                   <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
               </div>
             </div>

@@ -244,17 +244,25 @@ class TargetEnrichmentBody extends React.Component {
           gene list uploaded or no enrichment.</div> :
         <div>
           <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
-            <div className="form-group mb-2">
-              <label>Lower Bound (-log10):</label>
-              <input type="number" className="form-control" min={0} value={lower} step="any"
-                     onChange={this.handleLower.bind(this)}/>
+            <div className="form-group row">
+              <label className="col-sm-2 col-form-label">Lower Bound (-log10):</label>
+              <div className="col-sm-10">
+                <input type="number" className="form-control" min={0} value={lower} step="any"
+                       onChange={this.handleLower.bind(this)}/>
+              </div>
             </div>
-            <div className="form-group mb-2">
-              <label>Upper Bound (-log10):</label>
-              <input type="number" className="form-control" min={0} value={upper} step="any"
-                     onChange={this.handleUpper.bind(this)}/>
+            <div className="form-group row">
+              <label className="col-sm-2 col-form-label">Upper Bound (-log10):</label>
+              <div className="col-sm-10">
+                <input type="number" className="form-control" min={0} value={upper} step="any"
+                       onChange={this.handleUpper.bind(this)}/>
+              </div>
             </div>
-            <button className="btn btn-primary" type="submit">Submit</button>
+            <div className="form-group row">
+              <div className="col">
+                <button className="btn btn-primary" type="submit">Submit</button>
+              </div>
+            </div>
           </form>
 
           <Nav tabs>
