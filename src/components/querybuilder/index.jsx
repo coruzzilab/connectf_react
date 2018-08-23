@@ -10,7 +10,7 @@ import uuidv4 from 'uuid/v4';
 import Clipboard from 'clipboard';
 import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {Dropdown, DropdownToggle, DropdownMenu, DropdownItem, UncontrolledDropdown} from 'reactstrap';
+import {DropdownToggle, DropdownMenu, DropdownItem, UncontrolledDropdown} from 'reactstrap';
 import {
   BASE_URL,
   postQuery,
@@ -137,23 +137,8 @@ NotSelect.propTypes = {
 };
 
 class AddFollowing extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.toggle = this.toggle.bind(this);
-    this.state = {
-      dropdownOpen: false
-    };
-  }
-
-  toggle() {
-    this.setState(prevState => ({
-      dropdownOpen: !prevState.dropdownOpen
-    }));
-  }
-
   render() {
-    return <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+    return <UncontrolledDropdown>
       <DropdownToggle className="btn btn-light"><FontAwesomeIcon icon="plus-circle"/></DropdownToggle>
       <DropdownMenu right>
         <DropdownItem onClick={this.props.addNode}>
@@ -163,7 +148,7 @@ class AddFollowing extends React.Component {
           <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{this.props.addGroupText}
         </DropdownItem>
       </DropdownMenu>
-    </Dropdown>;
+    </UncontrolledDropdown>;
   }
 }
 
