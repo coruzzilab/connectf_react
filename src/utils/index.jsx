@@ -208,3 +208,39 @@ export function duplicateNode(state, node) {
       .value()
   ];
 }
+
+export function svgAddTable(svg, table) {
+  svg = svg.cloneNode(true);
+  table = table.cloneNode(true);
+
+  let width = parseFloat(svg.getAttribute('width').replace(/pt$/i, ''));
+  let height = parseFloat(svg.getAttribute('height').replace(/pt$/i, ''));
+
+  let foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+  let html = document.createElementNS('http://www.w3.org/1999/xhtml', 'html');
+  let head = document.createElementNS('http://www.w3.org/1999/xhtml', 'head');
+  let style = document.createElementNS('http://www.w3.org/1999/xhtml', 'style');
+  let body = document.createElementNS('http://www.w3.org/1999/xhtml', 'body');
+
+  html.appendChild(head);
+  head.appendChild(style);
+
+  // foreignObject.setAttribute('requiredExtensions', "http://www.w3.org/1999/xhtml");
+  foreignObject.setAttribute('width', '1000');
+  foreignObject.setAttribute('height', height);
+  foreignObject.setAttribute('x', width);
+  foreignObject.setAttribute('y', '0');
+
+  html.appendChild(body);
+  body.appendChild(table);
+  foreignObject.appendChild(html);
+
+  svg.appendChild(foreignObject);
+  svg.setAttribute('viewBox', `0 0 ${width + 1000} ${height}`);
+  svg.removeAttribute('width');
+  svg.removeAttribute('height');
+
+  style.innerText += `table {border-collapse: collapse;max-width: 1000px;} table, th, td {border: 1px solid black;}`;
+
+  return svg;
+}

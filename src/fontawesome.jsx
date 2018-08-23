@@ -30,7 +30,8 @@ import {
   faSort,
   faSortUp,
   faSortDown,
-  faClone
+  faClone,
+  faFileExport
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -58,5 +59,6 @@ library.add(
   faSort,
   faSortUp,
   faSortDown,
-  faClone
+  faClone,
+  faFileExport
 );

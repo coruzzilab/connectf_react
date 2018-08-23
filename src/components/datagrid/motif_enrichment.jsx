@@ -3,6 +3,7 @@
  * 4/2/18
  */
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from "prop-types";
 import {connect} from 'react-redux';
 import _ from 'lodash';
@@ -22,7 +23,7 @@ import {
   Tooltip
 } from 'reactstrap';
 import {BASE_URL} from "../../actions";
-import {blueShader, getLogMinMax} from '../../utils';
+import {blueShader, getLogMinMax, svgAddTable} from '../../utils';
 import {getMotifEnrichment, getMotifEnrichmentLegend, setError} from "../../actions/motif_enrichment";
 
 export const BASE_COLORS = {
@@ -275,13 +276,17 @@ const HeatmapTable = connect(mapStateToProps, {getMotifEnrichmentLegend})(Heatma
 class MotifEnrichmentBody extends React.Component {
   constructor(props) {
     super(props);
+    this.heatmap = React.createRef();
+    this.legend = React.createRef();
+
     this.state = {
       alpha: 0.05,
       body: 'no',
       upper: '',
       lower: '',
       colSpan: 1,
-      img: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg`,
+      imgSrc: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg`,
+      imgData: null,
       key: "table",
       sortCol: null,
       ascending: true
@@ -301,7 +306,7 @@ class MotifEnrichmentBody extends React.Component {
     let {alpha, lower, upper} = this.state;
 
     this.setState({
-      img: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg?${$.param({
+      imgSrc: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg?${$.param({
         alpha,
         body: this.state.body === 'yes' ? 1 : 0,
         lower,
@@ -310,10 +315,14 @@ class MotifEnrichmentBody extends React.Component {
     });
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (prevProps.requestId !== this.props.requestId) {
       this.getMotifEnrichment();
       this.setImgURL();
+    }
+
+    if (prevState.imgSrc !== this.state.imgSrc) {
+      this.getImgData();
     }
   }
 
@@ -374,9 +383,33 @@ class MotifEnrichmentBody extends React.Component {
     }
   }
 
+  getImgData() {
+    let {setError} = this.props;
+
+    $.ajax(this.state.imgSrc)
+      .done((data) => {
+        this.setState({imgData: data});
+        this.heatmap.current.src = 'data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML);
+        setError(false);
+      })
+      .fail(() => {
+        setError(true);
+      });
+  }
+
+  exportSVG(e) {
+    let {imgData} = this.state;
+
+    if (imgData) {
+      let svg = svgAddTable(imgData.documentElement, ReactDOM.findDOMNode(this.legend.current));
+
+      e.currentTarget.href = 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML);
+    }
+  }
+
   render() {
-    let {motifEnrichment, setError} = this.props;
-    let {body, img, colSpan, key, lower, upper, sortCol, ascending} = this.state;
+    let {motifEnrichment} = this.props;
+    let {body, colSpan, key, lower, upper, sortCol, ascending} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment.table, 'result', []));
 
     return <div>
@@ -489,15 +522,17 @@ class MotifEnrichmentBody extends React.Component {
         <TabPane tabId="heatmap">
           <div className="container-fluid">
             <div className="row">
+              <div className="col my-1">
+                <a className="btn btn-primary float-right" download="motif_enrichment.svg" href="#" onClick={this.exportSVG.bind(this)}>
+                  <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
+              </div>
+            </div>
+            <div className="row">
               <div className="col">
-                <img className="img-fluid"
-                     src={img}
-                     onLoad={setError.bind(undefined, false)}
-                     onError={setError.bind(undefined, true)}
-                     alt="heatmap"/>
+                <img className="img-fluid" ref={this.heatmap}/>
               </div>
               <div className="col">
-                <HeatmapTable/>
+                <HeatmapTable ref={this.legend}/>
               </div>
             </div>
           </div>

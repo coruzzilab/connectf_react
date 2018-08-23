@@ -22,8 +22,9 @@ import {
   ModalFooter,
   Button
 } from 'reactstrap';
-import {blueShader, getLogMinMax} from "../../utils";
+import {blueShader, getLogMinMax, svgAddTable} from "../../utils";
 import {getHeatmapTable, setError, getHeatmapLegend} from "../../actions/heatmap";
+import ReactDOM from "react-dom";
 
 const mapStateToProps = (state) => {
   return {
@@ -124,24 +125,33 @@ const HeatmapTable = connect(mapStateToProps, {getHeatmapLegend})(HeatmapTableBo
 class HeatMapBody extends React.Component {
   constructor(props) {
     super(props);
+    this.heatmap = React.createRef();
+    this.legend = React.createRef();
+
     this.state = {
       upper: '',
       lower: '',
       imgSrc: `${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}.svg`,
       key: "table",
       sortCol: null,
-      ascending: true
+      ascending: true,
+      imgData: null
     };
   }
 
   componentDidMount() {
     this.props.getHeatmapTable(this.props.requestId);
+    this.getImgData();
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (prevProps.requestId !== this.props.requestId) {
       this.props.getHeatmapTable(this.props.requestId);
       this.setImageSrc();
+    }
+
+    if (prevState.imgSrc !== this.state.imgSrc) {
+      this.getImgData();
     }
   }
 
@@ -197,9 +207,35 @@ class HeatMapBody extends React.Component {
     }
   }
 
+  getImgData() {
+    let {setError} = this.props;
+
+    $.ajax(this.state.imgSrc)
+      .done((data) => {
+        this.setState({imgData: data});
+        this.heatmap.current.src = 'data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML);
+        setError(false);
+      })
+      .fail(() => {
+        setError(true);
+      });
+  }
+
+  exportSVG(e) {
+    let {imgData} = this.state;
+
+    if (imgData) {
+      let svg = svgAddTable(imgData.documentElement, ReactDOM.findDOMNode(this.legend.current));
+
+      e.currentTarget.href = 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML);
+    } else {
+      e.preventDefault();
+    }
+  }
+
   render() {
-    let {heatmap, setError} = this.props;
-    let {lower, upper, imgSrc, key, sortCol, ascending} = this.state;
+    let {heatmap} = this.props;
+    let {lower, upper, key, sortCol, ascending} = this.state;
     let [min, max] = getLogMinMax(_.get(heatmap.table, 'result', []));
 
     return <div>
@@ -280,13 +316,18 @@ class HeatMapBody extends React.Component {
             <TabPane tabId="heatmap">
               <div className="container-fluid">
                 <div className="row">
+                  <div className="col my-1">
+                    <a className="btn btn-primary float-right" onClick={this.exportSVG.bind(this)}
+                       download="list_enrichment.svg" href="#">
+                      <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
+                  </div>
+                </div>
+                <div className="row">
                   <div className="col">
-                    <img src={imgSrc} className="img-fluid"
-                         onError={setError.bind(undefined, true)}
-                         onLoad={setError.bind(undefined, false)}/>
+                    <img className="img-fluid" ref={this.heatmap}/>
                   </div>
                   <div className="col">
-                    <HeatmapTable/>
+                    <HeatmapTable ref={this.legend}/>
                   </div>
                 </div>
               </div>
