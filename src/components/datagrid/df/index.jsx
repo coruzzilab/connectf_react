@@ -28,16 +28,21 @@ function renderFc(instance, td, row, col, prop, value, cellProperties) {
       td.style.background = 'lightcoral';
     }
   }
-  renderNumber.apply(this, arguments);
+  renderExp.apply(this, arguments);
 }
 
 function renderBold(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  if (_.isNumber(value)) {
+    Handsontable.renderers.NumericRenderer.apply(this, arguments);
+  } else {
+    Handsontable.renderers.TextRenderer.apply(this, arguments);
+  }
+
   td.style.border = '1px solid black';
   td.className += ' font-weight-bold';
 }
 
-function renderNumber(instance, td, row, col, prop, value, cellProperties) {
+function renderExp(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.NumericRenderer.apply(this, arguments);
   if (_.isFinite(value)) {
     td.textContent = value.toExponential(2);
@@ -46,7 +51,7 @@ function renderNumber(instance, td, row, col, prop, value, cellProperties) {
 
 Handsontable.renderers.registerRenderer('renderBold', renderBold);
 Handsontable.renderers.registerRenderer('renderFc', renderFc);
-Handsontable.renderers.registerRenderer('renderNumber', renderNumber);
+Handsontable.renderers.registerRenderer('renderExp', renderExp);
 
 function exponentialValidator(value, callback) {
   if (value == null) {
@@ -70,7 +75,7 @@ function normalizeSearchString(value) {
 Handsontable.validators.registerValidator('exponential', exponentialValidator);
 
 Handsontable.cellTypes.registerCellType('p_value', {
-  renderer: 'renderNumber',
+  renderer: 'renderExp',
   validator: 'exponential'
 });
 
