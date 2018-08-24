@@ -10,22 +10,22 @@ import _ from 'lodash';
 import $ from 'jquery';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
+  Button,
   Modal,
-  ModalHeader,
   ModalBody,
   ModalFooter,
-  Button,
-  TabContent,
-  TabPane,
+  ModalHeader,
   Nav,
   NavItem,
   NavLink,
-  Tooltip,
-  UncontrolledTooltip
+  TabContent,
+  TabPane
 } from 'reactstrap';
 import {BASE_URL} from "../../actions";
 import {blueShader, getLogMinMax, svgAddTable} from '../../utils';
 import {getMotifEnrichment, getMotifEnrichmentLegend, setError} from "../../actions/motif_enrichment";
+import {InfoTootip, QueryNameCell, SortButton} from "./common";
+
 
 export const BASE_COLORS = {
   'a': '#59C83B',
@@ -33,26 +33,6 @@ export const BASE_COLORS = {
   'c': '#0012D3',
   'g': '#F5BD41',
   'other': '#888888'
-};
-
-class InfoTootip extends React.Component {
-  constructor(props) {
-    super(props);
-    this.target = React.createRef();
-  }
-
-  render() {
-    return <div>
-      <span className="text-secondary" ref={this.target}><FontAwesomeIcon icon="question-circle"/></span>
-      <UncontrolledTooltip target={() => this.target.current} placement="auto">
-        {this.props.children}
-      </UncontrolledTooltip>
-    </div>
-  }
-}
-
-InfoTootip.propTypes = {
-  children: PropTypes.node
 };
 
 const mapStateToProps = (state) => {
@@ -92,14 +72,11 @@ export class ColHeader extends React.Component {
           <div className="col">
             <a className="text-primary link" onClick={this.showModal.bind(this)}>{this.props.children}</a>
           </div>
-          {sortable ? <div className="col-1" style={{cursor: 'pointer'}}>
-            <a onClick={sortFunc}>
-              {sorted ?
-                (ascending ? <FontAwesomeIcon icon="sort-up"/> : <FontAwesomeIcon icon="sort-down"/>) :
-                <FontAwesomeIcon icon="sort"/>}
-            </a>
-
-          </div> : null}
+          {sortable ?
+            <div className="col-1" style={{cursor: 'pointer'}}>
+              <SortButton sortFunc={sortFunc} ascending={ascending} sorted={sorted}/>
+            </div> :
+            null}
         </div>
       </div>
 
@@ -214,36 +191,6 @@ RowHeader.propTypes = {
   children: PropTypes.node
 };
 
-export class QueryNameCell extends React.Component {
-  constructor(props) {
-    super(props);
-    this.name = React.createRef();
-    this.state = {
-      tooltipOpen: false
-    };
-  }
-
-  toggleTooltip() {
-    this.setState({
-      tooltipOpen: !this.state.tooltipOpen && (this.name.current.offsetWidth < this.name.current.scrollWidth)
-    });
-  }
-
-  render() {
-    return <td className="p-0 align-middle">
-      <div className="query-name h-100" ref={this.name}>
-        {this.props.children}
-      </div>
-      <Tooltip target={() => this.name.current} placement="right" isOpen={this.state.tooltipOpen} autohide={false}
-               toggle={this.toggleTooltip.bind(this)}>{this.props.children}</Tooltip>
-    </td>;
-  }
-}
-
-QueryNameCell.propTypes = {
-  children: PropTypes.node
-};
-
 class HeatmapTableBody extends React.Component {
   componentDidMount() {
     this.getTableData();
@@ -342,7 +289,7 @@ class MotifEnrichmentBody extends React.Component {
       this.setImgURL();
     }
 
-    if (prevState.imgSrc !== this.state.imgSrc) {
+    if (this.state.imgSrc && prevState.imgSrc !== this.state.imgSrc) {
       this.getImgData();
     }
   }
@@ -520,6 +467,7 @@ class MotifEnrichmentBody extends React.Component {
                                   colSpan={colSpan}
                                   sortFunc={this.sortFunc.bind(this, i + 1)}
                                   sorted={sortCol === i + 1}
+                                  sortable={colSpan === 1}
                                   ascending={ascending}>
                   {!_.isEmpty(val) ?
                     <div>{line1 ? <p className="m-0">{line1}</p> : null}
@@ -533,8 +481,22 @@ class MotifEnrichmentBody extends React.Component {
             <tr>
               <th/>
               {colSpan === 2 ?
-                _(_.get(motifEnrichment.table, 'columns', {})).map((val, key) => {
-                  return [<th key={key}>promoter (p-value)</th>, <th key={key + 1}>gene body (p-value)</th>];
+                _(_.get(motifEnrichment.table, 'columns', [])).map((val, i) => {
+                  let [first, second] = [i * 2 + 1, i * 2 + 2];
+                  return [
+                    <th key={first}>
+                      <span className="mr-1">promoter (p-value)</span>
+                      <SortButton sorted={sortCol === first}
+                                  sortFunc={this.sortFunc.bind(this, first)}
+                                  ascending={ascending}/>
+                    </th>,
+                    <th key={second}>
+                      <span className="mr-1">gene body (p-value)</span>
+                      <SortButton sorted={sortCol === second}
+                                  sortFunc={this.sortFunc.bind(this, second)}
+                                  ascending={ascending}/>
+                    </th>
+                  ];
                 }).flatten().value() :
                 _(_.get(motifEnrichment.table, 'columns', {})).map((val, key) => {
                   return <th key={key}>promoter (p-value)</th>;

@@ -9,7 +9,7 @@ import $ from 'jquery';
 import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {BASE_URL} from '../../actions';
-import {QueryNameCell} from "./motif_enrichment";
+import {QueryNameCell, SortButton} from "./common";
 import {
   TabContent,
   TabPane,
@@ -150,7 +150,7 @@ class TargetEnrichmentBody extends React.Component {
       this.setImageSrc();
     }
 
-    if (prevState.imgSrc !== this.state.imgSrc) {
+    if (this.state.imgSrc && prevState.imgSrc !== this.state.imgSrc) {
       this.getImgData();
     }
   }
@@ -292,11 +292,9 @@ class TargetEnrichmentBody extends React.Component {
                             <div className="col">
                               {val}
                             </div>
-                            <div className="col-1" onClick={this.sortFunc.bind(this, i + 1)}
-                                 style={{cursor: 'pointer'}}>
-                              {sortCol !== i + 1 ?
-                                <FontAwesomeIcon icon="sort"/> :
-                                (ascending ? <FontAwesomeIcon icon="sort-up"/> : <FontAwesomeIcon icon="sort-down"/>)}
+                            <div className="col-1">
+                              <SortButton sorted={sortCol === i + 1} sortFunc={this.sortFunc.bind(this, i + 1)}
+                                          ascending={ascending} style={{cursor: 'pointer'}}/>
                             </div>
                           </div>
                         </div>
