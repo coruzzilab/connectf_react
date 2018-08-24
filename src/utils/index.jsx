@@ -215,6 +215,8 @@ export function svgAddTable(svg, table) {
 
   let width = parseFloat(svg.getAttribute('width').replace(/pt$/i, ''));
   let height = parseFloat(svg.getAttribute('height').replace(/pt$/i, ''));
+  let tableHeight = table.getElementsByTagName('tr').length * 21;
+  let totalHeight = Math.max(height, tableHeight);
 
   let foreignObject = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
   let html = document.createElementNS('http://www.w3.org/1999/xhtml', 'html');
@@ -227,7 +229,7 @@ export function svgAddTable(svg, table) {
 
   // foreignObject.setAttribute('requiredExtensions', "http://www.w3.org/1999/xhtml");
   foreignObject.setAttribute('width', '1000');
-  foreignObject.setAttribute('height', height);
+  foreignObject.setAttribute('height', totalHeight);
   foreignObject.setAttribute('x', width);
   foreignObject.setAttribute('y', '0');
 
@@ -236,11 +238,11 @@ export function svgAddTable(svg, table) {
   foreignObject.appendChild(html);
 
   svg.appendChild(foreignObject);
-  svg.setAttribute('viewBox', `0 0 ${width + 1000} ${height}`);
+  svg.setAttribute('viewBox', `0 0 ${width + 1000} ${totalHeight}`);
   svg.removeAttribute('width');
   svg.removeAttribute('height');
 
-  style.innerText += `table {border-collapse: collapse;max-width: 1000px;} table, th, td {border: 1px solid black;}`;
+  style.innerText += `table {border-collapse: collapse;max-width: 1000px;} table, th, td {border: 1px solid black;} body {margin: 0;} tr {height: 21px}`;
 
   return svg;
 }
