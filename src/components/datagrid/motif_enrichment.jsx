@@ -401,7 +401,7 @@ class MotifEnrichmentBody extends React.Component {
           </div>
           <div className="col-sm-1">
             <InfoTootip>
-              P-value cutoff for cells in the table.
+              P-value cutoff for motif enrichment.
             </InfoTootip>
           </div>
         </div>

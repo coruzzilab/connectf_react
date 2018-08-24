@@ -3,28 +3,28 @@
  * 6/24/17
  */
 import React from 'react';
+import ReactDOM from "react-dom";
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import $ from 'jquery';
 import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {BASE_URL} from '../../actions';
-import {QueryNameCell, SortButton} from "./common";
+import {QueryNameCell, SortButton, InfoTootip} from "./common";
 import {
-  TabContent,
-  TabPane,
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   Nav,
   NavItem,
   NavLink,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button
+  TabContent,
+  TabPane
 } from 'reactstrap';
 import {blueShader, getLogMinMax, svgAddTable} from "../../utils";
-import {getHeatmapTable, setError, getHeatmapLegend} from "../../actions/heatmap";
-import ReactDOM from "react-dom";
+import {getHeatmapLegend, getHeatmapTable, setError} from "../../actions/heatmap";
 
 const mapStateToProps = (state) => {
   return {
@@ -254,18 +254,28 @@ class TargetEnrichmentBody extends React.Component {
           gene list uploaded or no enrichment.</div> :
         <div>
           <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
-            <div className="form-group row">
+            <div className="form-group row align-items-center">
               <label className="col-sm-2 col-form-label">Lower Bound (-log10):</label>
-              <div className="col-sm-10">
+              <div className="col-sm-9">
                 <input type="number" className="form-control" min={0} value={lower} step="any"
                        onChange={this.handleLower.bind(this)}/>
               </div>
+              <div className="col-sm-1">
+                <InfoTootip>
+                  Lower bound -log10 p-value for the color scale on the heat map.
+                </InfoTootip>
+              </div>
             </div>
-            <div className="form-group row">
+            <div className="form-group row align-items-center">
               <label className="col-sm-2 col-form-label">Upper Bound (-log10):</label>
-              <div className="col-sm-10">
+              <div className="col-sm-9">
                 <input type="number" className="form-control" min={0} value={upper} step="any"
                        onChange={this.handleUpper.bind(this)}/>
+              </div>
+              <div className="col-sm-1">
+                <InfoTootip>
+                  Upper bound -log10 p-value for the color scale on the heat map.
+                </InfoTootip>
               </div>
             </div>
             <div className="form-group row">
