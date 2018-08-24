@@ -171,7 +171,9 @@ class DFBody extends React.Component {
     });
 
     Handsontable.dom.addEvent(this.search.current, 'keyup', _.debounce(function () {
-      let {data} = self;
+      let {result} = this.props;
+      let data = _.get(result, '0.data', []);
+
       if (this.value.length > 0) {
         hot.loadData([
           ...data.slice(0, 6),
@@ -205,13 +207,16 @@ class DFBody extends React.Component {
 
   updateData() {
     let {result} = this.props;
-    let data = this.data = _.get(result, '0.data', []);
+    let data = _.get(result, '0.data', []);
 
-    this.hot.loadData(data);
-    this.hot.updateSettings({
-      mergeCells: _.get(result, '0.mergeCells', []),
-      columns: _.get(result, '0.columns', [])
+    _.defer(() => {
+      this.hot.loadData(data);
+      this.hot.updateSettings({
+        mergeCells: _.get(result, '0.mergeCells', []),
+        columns: _.get(result, '0.columns', [])
+      });
     });
+
   }
 
   setHeight() {
@@ -222,8 +227,8 @@ class DFBody extends React.Component {
     let {height} = this.state;
 
     return <div className="container-fluid">
-      <div className="row my-1">
-        <div className="col-4">
+      <div className="row my-1 align-items-center">
+        <div className="col-lg-4 col-sm">
           <div className="input-group">
             <div className="input-group-prepend">
               <span className="input-group-text">
