@@ -244,8 +244,10 @@ const HeatmapTable = connect(mapStateToProps, {getMotifEnrichmentLegend})(Heatma
 class MotifEnrichmentBody extends React.Component {
   constructor(props) {
     super(props);
-    this.heatmap = React.createRef();
     this.legend = React.createRef();
+
+    this.imgData = null;
+    this.xhr = null;
 
     this.state = {
       alpha: 0.05,
@@ -254,7 +256,7 @@ class MotifEnrichmentBody extends React.Component {
       lower: '',
       colSpan: 1,
       imgSrc: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg`,
-      imgData: null,
+      imgDataUri: null,
       key: "table",
       sortCol: null,
       ascending: true
@@ -264,6 +266,12 @@ class MotifEnrichmentBody extends React.Component {
   componentDidMount() {
     this.getMotifEnrichment();
     this.setImgURL();
+  }
+
+  componentWillUnmount() {
+    if (this.xhr) {
+      this.xhr.abort();
+    }
   }
 
   getMotifEnrichment() {
@@ -354,10 +362,12 @@ class MotifEnrichmentBody extends React.Component {
   getImgData() {
     let {setError} = this.props;
 
-    $.ajax(this.state.imgSrc)
+    this.xhr = $.ajax(this.state.imgSrc)
       .done((data) => {
-        this.setState({imgData: data});
-        this.heatmap.current.src = 'data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML);
+        this.imgData = data;
+        this.setState({
+          imgDataUri: 'data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML)
+        });
         setError(false);
       })
       .fail(() => {
@@ -366,7 +376,7 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   exportSVG(e) {
-    let {imgData} = this.state;
+    let {imgData} = this;
 
     if (imgData) {
       let svg = svgAddTable(imgData.documentElement, ReactDOM.findDOMNode(this.legend.current));
@@ -377,7 +387,7 @@ class MotifEnrichmentBody extends React.Component {
 
   render() {
     let {motifEnrichment} = this.props;
-    let {body, colSpan, key, lower, upper, sortCol, ascending} = this.state;
+    let {body, colSpan, key, lower, upper, sortCol, ascending, imgDataUri} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment.table, 'result', []));
 
     return <div>
@@ -538,7 +548,7 @@ class MotifEnrichmentBody extends React.Component {
             </div>
             <div className="row">
               <div className="col">
-                <img className="img-fluid" ref={this.heatmap}/>
+                <img className="img-fluid" src={imgDataUri}/>
               </div>
               <div className="col">
                 <HeatmapTable ref={this.legend}/>

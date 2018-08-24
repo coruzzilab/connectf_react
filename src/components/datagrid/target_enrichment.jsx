@@ -125,23 +125,31 @@ const HeatmapTable = connect(mapStateToProps, {getHeatmapLegend})(HeatmapTableBo
 class TargetEnrichmentBody extends React.Component {
   constructor(props) {
     super(props);
-    this.heatmap = React.createRef();
     this.legend = React.createRef();
+
+    this.imgData = null;
+    this.xhr = null;
 
     this.state = {
       upper: '',
       lower: '',
       imgSrc: `${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}.svg`,
+      imgDataUri: null,
       key: "table",
       sortCol: null,
-      ascending: true,
-      imgData: null
+      ascending: true
     };
   }
 
   componentDidMount() {
     this.props.getHeatmapTable(this.props.requestId);
     this.getImgData();
+  }
+
+  componentWillUnmount() {
+    if (this.xhr) {
+      this.xhr.abort();
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -210,10 +218,12 @@ class TargetEnrichmentBody extends React.Component {
   getImgData() {
     let {setError} = this.props;
 
-    $.ajax(this.state.imgSrc)
+    this.xhr = $.ajax(this.state.imgSrc)
       .done((data) => {
-        this.setState({imgData: data});
-        this.heatmap.current.src = 'data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML);
+        this.imgData = data;
+        this.setState({
+          imgDataUri: 'data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML)
+        });
         setError(false);
       })
       .fail(() => {
@@ -222,7 +232,7 @@ class TargetEnrichmentBody extends React.Component {
   }
 
   exportSVG(e) {
-    let {imgData} = this.state;
+    let {imgData} = this;
 
     if (imgData) {
       let svg = svgAddTable(imgData.documentElement, ReactDOM.findDOMNode(this.legend.current));
@@ -235,7 +245,7 @@ class TargetEnrichmentBody extends React.Component {
 
   render() {
     let {heatmap} = this.props;
-    let {lower, upper, key, sortCol, ascending} = this.state;
+    let {lower, upper, key, sortCol, ascending, imgDataUri} = this.state;
     let [min, max] = getLogMinMax(_.get(heatmap.table, 'result', []));
 
     return <div>
@@ -330,7 +340,7 @@ class TargetEnrichmentBody extends React.Component {
                 </div>
                 <div className="row">
                   <div className="col">
-                    <img className="img-fluid" ref={this.heatmap}/>
+                    <img className="img-fluid" src={imgDataUri}/>
                   </div>
                   <div className="col">
                     <HeatmapTable ref={this.legend}/>
