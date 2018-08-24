@@ -36,19 +36,21 @@ import {
   setEdges,
   clearRequestId,
   duplicateNode,
-  clearQueryHistory
+  clearQueryHistory,
+  clearQueryError
 } from '../../actions';
 import {getQuery, getParentTfTree, getGrey} from "../../utils";
 
 const QueryContext = React.createContext();
 
-const mapStateToProps = ({busy, query, queryTree, edges, queryHistory}) => {
+const mapStateToProps = ({busy, query, queryTree, edges, queryHistory, queryError}) => {
   return {
     busy,
     query,
     queryTree,
     edges,
-    queryHistory
+    queryHistory,
+    queryError
   };
 };
 
@@ -1147,6 +1149,7 @@ class QuerybuilderBody extends React.Component {
       }
     });
     this.checkShouldBuild();
+    this.props.clearQueryError();
   }
 
   componentDidUpdate(prevProps) {
@@ -1188,8 +1191,11 @@ class QuerybuilderBody extends React.Component {
       data.set('targetgenes', targetGene);
     }
 
-    this.props.postQuery(data);
-    this.props.history.push('/datagrid/table');
+    this.props.postQuery(
+      data,
+      () => {
+        this.props.history.push('/datagrid/table');
+      });
   }
 
   reset() {
@@ -1244,7 +1250,7 @@ class QuerybuilderBody extends React.Component {
 
   render() {
     let {targetGenes, targetGene, edgeList, shouldBuild} = this.state;
-    let {addTF, addGroup, queryTree, edges, query} = this.props;
+    let {addTF, addGroup, queryTree, edges, query, busy, queryError} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}
@@ -1303,15 +1309,24 @@ class QuerybuilderBody extends React.Component {
                 <textarea className="form-control" value={query}
                           onChange={this.handleQuery.bind(this)} autoComplete="on"/>
                 <div className="input-group-append">
-                  <button type="submit" className="btn btn-primary btn-lg">
-                    <FontAwesomeIcon icon="arrow-circle-up" className="mr-2"/>Submit
-                  </button>
+                  {busy ?
+                    <button type="button" className="btn btn-warning btn-lg">
+                      <FontAwesomeIcon icon="circle-notch" spin size="lg" className="mr-2"/>Querying
+                    </button> :
+                    <button type="submit"
+                            className={classNames("btn btn-lg", queryError.error ? "btn-danger" : "btn-primary")}>
+                      <FontAwesomeIcon icon="arrow-circle-up" className="mr-2"/>Submit
+                    </button>}
                   <button type="button" className="btn btn-outline-danger btn-lg" onClick={this.reset.bind(this)}>
                     <FontAwesomeIcon icon="redo" className="mr-2"/>Reset
                   </button>
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="row m-2">
+            <span className="text-danger">{queryError.message}</span>
           </div>
 
           <div className="row m-2">
@@ -1372,7 +1387,9 @@ QuerybuilderBody.propTypes = {
   clearEdges: PropTypes.func,
   edges: PropTypes.arrayOf(PropTypes.string),
   setEdges: PropTypes.func,
-  clearRequestId: PropTypes.func
+  clearRequestId: PropTypes.func,
+  queryError: PropTypes.shape({error: PropTypes.bool, message: PropTypes.string}),
+  clearQueryError: PropTypes.func
 };
 
 const Querybuilder = connect(mapStateToProps, {
@@ -1386,7 +1403,8 @@ const Querybuilder = connect(mapStateToProps, {
   removeEdge,
   clearEdges,
   setEdges,
-  clearRequestId
+  clearRequestId,
+  clearQueryError
 })(QuerybuilderBody);
 
 export default Querybuilder;

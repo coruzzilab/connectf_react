@@ -257,12 +257,14 @@ function queryHistory(state = [], action) {
   }
 }
 
-function error(state = '', action) {
+const INIT_QUERY_ERROR = {error: false, message: ''};
+
+function queryError(state = INIT_QUERY_ERROR, action) {
   switch (action.type) {
-  case 'SET_ERROR':
-    return action.message;
-  case 'CLEAR_ERROR':
-    return '';
+  case 'SET_QUERY_ERROR':
+    return Object.assign({}, state, {error: action.error, message: action.message});
+  case 'CLEAR_QUERY_ERROR':
+    return INIT_QUERY_ERROR;
   default:
     return state;
   }
@@ -280,7 +282,7 @@ const tgdbApp = {
   stats,
   edges,
   queryHistory,
-  error
+  queryError
 };
 
 export default combineReducers(tgdbApp);

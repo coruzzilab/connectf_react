@@ -4,6 +4,7 @@
 import $ from 'jquery';
 import {generateRequestId} from "../utils";
 import uuidv4 from "uuid/v4";
+import _ from 'lodash';
 
 export const BASE_URL = window.location.origin;
 
@@ -186,19 +187,6 @@ export const setResult = (data) => {
   };
 };
 
-export const setError = (message) => {
-  return {
-    type: 'SET_ERROR',
-    message
-  };
-};
-
-export const clearError = () => {
-  return {
-    type: 'CLEAR_ERROR'
-  };
-};
-
 export const setCytoscape = (data) => {
   return {
     type: 'SET_CYTOSCAPE',
@@ -217,7 +205,7 @@ export const getCytoscape = (requestId) => {
   };
 };
 
-export const postQuery = (data) => {
+export const postQuery = (data, onSuccess, onError) => {
   return (dispatch) => {
     let requestId = generateRequestId();
 
@@ -234,10 +222,15 @@ export const postQuery = (data) => {
       processData: false,
       data
     })
-      .done((result) => {
+      .done((result, textStatus, xhr) => {
         dispatch(setRequestId(requestId));
         dispatch(setResult(result));
         dispatch(addQueryHistory(data.get('query')));
+        dispatch(clearQueryError());
+
+        if (_.isFunction(onSuccess)) {
+          onSuccess(result, textStatus, xhr);
+        }
       })
       .fail((xhr, textStatus, err) => {
         if (xhr.status >= 400 < 500) {
@@ -253,7 +246,18 @@ export const postQuery = (data) => {
         }
 
         dispatch(clearRequestId());
-        dispatch(setError(textStatus));
+
+        if (xhr.status === 400) {
+          dispatch(setQueryError(true, 'Problem with query.'));
+        } else if (xhr.status === 404) {
+          dispatch(setQueryError(true, 'Empty result.'));
+        } else {
+          dispatch(setQueryError(true, textStatus));
+        }
+
+        if (_.isFunction(onError)) {
+          onError(xhr, textStatus, err);
+        }
       })
       .always(() => {
         dispatch(setBusy(false));
@@ -331,5 +335,19 @@ export const addQueryHistory = (query) => {
 export const clearQueryHistory = () => {
   return {
     type: 'CLEAR_QUERY_HISTORY'
+  };
+};
+
+export const setQueryError = (error, message = '') => {
+  return {
+    type: 'SET_QUERY_ERROR',
+    error,
+    message
+  };
+};
+
+export const clearQueryError = () => {
+  return {
+    type: 'CLEAR_QUERY_ERROR'
   };
 };

@@ -13,10 +13,9 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 const NON_ALPHANUMERIC = /^\W*|\W*$/g;
 
-let mapStateToProps = ({result, busy}) => {
+let mapStateToProps = ({result}) => {
   return {
-    result,
-    busy
+    result
   };
 };
 
@@ -215,7 +214,6 @@ class DFBody extends React.Component {
   }
 
   render() {
-    let {busy} = this.props;
     let {height} = this.state;
 
     return <div className="container-fluid">
@@ -230,9 +228,6 @@ class DFBody extends React.Component {
             <input type="text" placeholder="Search" ref={this.search} className="form-control"/>
           </div>
         </div>
-        <div className="col">
-          {busy ? <FontAwesomeIcon icon="circle-notch" spin size="2x"/> : null}
-        </div>
       </div>
       <div className="row">
         <div className="col">
@@ -244,8 +239,7 @@ class DFBody extends React.Component {
 }
 
 DFBody.propTypes = {
-  result: PropTypes.arrayOf(PropTypes.object),
-  busy: PropTypes.bool
+  result: PropTypes.arrayOf(PropTypes.object)
 };
 
 const DF = connect(mapStateToProps)(DFBody);

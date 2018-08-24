@@ -54,8 +54,8 @@ store.dispatch(function (dispatch) {
           } else {
             dispatch(clearRequestId());
           }
-          dispatch(setBusy(false));
         }
+        dispatch(setBusy(false));
       });
   }
 });
