@@ -10,7 +10,7 @@ import $ from 'jquery';
 import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {BASE_URL} from '../../actions';
-import {QueryNameCell, SortButton, InfoTootip} from "./common";
+import {QueryNameCell, SortButton, InfoTootip, SVGWarningTooltip} from "./common";
 import {
   Button,
   Modal,
@@ -341,11 +341,14 @@ class TargetEnrichmentBody extends React.Component {
             </TabPane>
             <TabPane tabId="heatmap">
               <div className="container-fluid">
-                <div className="row">
-                  <div className="col my-1">
-                    <a className="btn btn-primary float-right" onClick={this.exportSVG.bind(this)}
-                       download="list_enrichment.svg" href="#">
+                <div className="row my-1 align-items-center">
+                  <div className="col">
+                    <div className="float-right">
+                      <SVGWarningTooltip/>
+                      <a className="btn btn-primary" onClick={this.exportSVG.bind(this)}
+                                      download="list_enrichment.svg" href="#">
                       <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
+                    </div>
                   </div>
                 </div>
                 <div className="row">

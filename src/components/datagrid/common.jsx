@@ -1,7 +1,8 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import React from "react";
-import {UncontrolledTooltip, Tooltip} from "reactstrap";
+import {Tooltip, UncontrolledTooltip} from "reactstrap";
+import classNames from 'classnames';
 
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
   return <a onClick={sortFunc} {...props}>
@@ -23,17 +24,23 @@ export class InfoTootip extends React.Component {
   }
 
   render() {
-    return <div>
-      <span className="text-secondary" ref={this.target}><FontAwesomeIcon icon="question-circle"/></span>
+    return <this.props.tag className={classNames("d-inline-block", this.props.className)}>
+      <span ref={this.target}><FontAwesomeIcon icon="question-circle"/></span>
       <UncontrolledTooltip target={() => this.target.current} placement="auto">
         {this.props.children}
       </UncontrolledTooltip>
-    </div>;
+    </this.props.tag>;
   }
 }
 
 InfoTootip.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node,
+  className: PropTypes.string,
+  tag: PropTypes.oneOfType([PropTypes.string, PropTypes.func])
+};
+
+InfoTootip.defaultProps = {
+  tag: 'div'
 };
 
 export class QueryNameCell extends React.Component {
@@ -65,3 +72,8 @@ export class QueryNameCell extends React.Component {
 QueryNameCell.propTypes = {
   children: PropTypes.node
 };
+
+export const SVGWarningTooltip = () => <InfoTootip className="mx-2">
+  Open the SVG image with a browser to view the complete image. The table in the image might not render correctly
+  in image editing software.
+</InfoTootip>;

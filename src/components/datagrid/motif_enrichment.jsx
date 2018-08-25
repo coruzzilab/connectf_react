@@ -24,7 +24,7 @@ import {
 import {BASE_URL} from "../../actions";
 import {blueShader, getLogMinMax, svgAddTable} from '../../utils';
 import {getMotifEnrichment, getMotifEnrichmentLegend, setError} from "../../actions/motif_enrichment";
-import {InfoTootip, QueryNameCell, SortButton} from "./common";
+import {InfoTootip, QueryNameCell, SortButton, SVGWarningTooltip} from "./common";
 
 
 export const BASE_COLORS = {
@@ -539,11 +539,15 @@ class MotifEnrichmentBody extends React.Component {
         </TabPane>
         <TabPane tabId="heatmap">
           <div className="container-fluid">
-            <div className="row">
-              <div className="col my-1">
-                <a className="btn btn-primary float-right" download="motif_enrichment.svg" href="#"
-                   onClick={this.exportSVG.bind(this)}>
-                  <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
+            <div className="row my-1 align-items-center">
+              <div className="col">
+                <div className="float-right">
+                  <SVGWarningTooltip/>
+                  <a className="btn btn-primary" download="motif_enrichment.svg" href="#"
+                     onClick={this.exportSVG.bind(this)}>
+                    <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
+
+                </div>
               </div>
             </div>
             <div className="row">
