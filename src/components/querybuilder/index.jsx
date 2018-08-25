@@ -10,36 +10,36 @@ import uuidv4 from 'uuid/v4';
 import Clipboard from 'clipboard';
 import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {DropdownToggle, DropdownMenu, DropdownItem, UncontrolledDropdown} from 'reactstrap';
+import {DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown} from 'reactstrap';
 import {
-  BASE_URL,
-  postQuery,
-  clearQuery,
-  setQuery,
-  addTF,
+  addEdge,
   addGroup,
-  setQueryName,
-  removeNode,
-  setQueryOper,
-  setQueryNot,
   addMod,
   addModGroup,
-  setModKey,
-  setModValue,
-  setModInnerOper,
-  clearQueryTree,
-  moveItem,
-  setParent,
-  addEdge,
-  removeEdge,
+  addTF,
+  BASE_URL,
   clearEdges,
-  setEdges,
+  clearQuery,
+  clearQueryError,
+  clearQueryHistory,
+  clearQueryTree,
   clearRequestId,
   duplicateNode,
-  clearQueryHistory,
-  clearQueryError
+  moveItem,
+  postQuery,
+  removeEdge,
+  removeNode,
+  setEdges,
+  setModInnerOper,
+  setModKey,
+  setModValue,
+  setParent,
+  setQuery,
+  setQueryName,
+  setQueryNot,
+  setQueryOper
 } from '../../actions';
-import {getQuery, getParentTfTree, getGrey} from "../../utils";
+import {getParentTfTree, getQuery} from "../../utils";
 
 const QueryContext = React.createContext();
 
@@ -199,6 +199,55 @@ HistoryBody.propTypes = {
 
 const History = connect(mapStateToProps, {setQuery, clearQueryHistory})(HistoryBody);
 
+class DragContainerBody extends React.Component {
+  constructor(props) {
+    super(props);
+    this.dropTarget = props.forwardedRef || React.createRef();
+  }
+
+  dragStart(value, e) {
+    e.stopPropagation();
+    e.dataTransfer.setData('id', this.props.node.id);
+
+    let rect = this.dropTarget.current.getBoundingClientRect();
+    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
+  }
+
+  dragOver(e) {
+    e.preventDefault();
+  }
+
+  onDrop(clientYOffset, e) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    this.props.onDrop(clientYOffset, e);
+  }
+
+  render() {
+    return <QueryContext.Consumer>{value => {
+      return <div draggable={value.draggable} className={this.props.className}
+                  ref={this.dropTarget}
+                  id={this.props.node.id}
+                  onDragStart={this.dragStart.bind(this, value)}
+                  onDragOver={this.dragOver.bind(this)}
+                  onDrop={this.onDrop.bind(this, value.clientYOffset)}>{this.props.children}</div>;
+    }}</QueryContext.Consumer>;
+  }
+}
+
+DragContainerBody.propTypes = {
+  children: PropTypes.node,
+  node: PropTypes.object.isRequired,
+  onDrop: PropTypes.func.isRequired,
+  className: PropTypes.string,
+  forwardedRef: PropTypes.object
+};
+
+const DragContainer = React.forwardRef((props, ref) => {
+  return <DragContainerBody {...props} forwardedRef={ref}/>;
+});
+
 class ModBody extends React.Component {
   constructor(props) {
     super(props);
@@ -295,32 +344,18 @@ class ModBody extends React.Component {
     this.props.setModInnerOper(this.props.node.id, e.target.value);
   }
 
-  dragStart(value, e) {
-    e.stopPropagation();
-    e.dataTransfer.setData('id', this.props.node.id);
-
-    let rect = this.dropTarget.current.getBoundingClientRect();
-    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
-  }
-
-  dragOver(e) {
-    e.preventDefault();
-  }
-
-  drop(value, e) {
+  drop(clientYOffset, e) {
     let {node, queryTree, moveItem, setParent} = this.props;
 
-    e.stopPropagation();
-    e.preventDefault();
-    let source_id = e.dataTransfer.getData('id');
-    if (source_id !== node.id) {
-      let source = _.find(queryTree, ['id', source_id]);
+    let sourceId = e.dataTransfer.getData('id');
+    if (sourceId !== node.id) {
+      let source = _.find(queryTree, ['id', sourceId]);
       if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
         let rect = this.dropTarget.current.getBoundingClientRect();
-        let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
-        moveItem(source_id, node.id, after);
+        let after = e.clientY - clientYOffset - rect.top - rect.height / 2 >= 0;
+        moveItem(sourceId, node.id, after);
         if (source.parent !== node.parent) {
-          setParent(source_id, node.parent);
+          setParent(sourceId, node.parent);
         }
       }
     }
@@ -332,83 +367,77 @@ class ModBody extends React.Component {
     } = this.props;
     let {dataSource, dataSourceValues} = this.state;
 
-    return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className="row border border-dark rounded m-2 node"
-                  ref={this.dropTarget}
-                  id={node.id}
-                  onDragStart={this.dragStart.bind(this, value)}
-                  onDragOver={this.dragOver.bind(this)}
-                  onDrop={this.drop.bind(this, value)}>
-        <div className="col">
-          <div className="row my-2">
-            <div className="col">
-              <div className="form-row">
-                <AndOrSelect className="col-1 mr-1" value={node.oper}
-                             handleChange={setQueryOper.bind(undefined, node.id)}
-                             disable={first}/>
-                <NotSelect className="col-1 mr-1" value={node.not_}
-                           handleChange={setQueryNot.bind(undefined, node.id)}/>
-                <select
-                  className={classNames("form-control mr-1",
-                    node.key === 'pvalue' || node.key === 'fc' ? 'col-3' : 'col-4')}
-                  onChange={this.setModKey.bind(this)} value={node.key}>
-                  {_.map(dataSource, (o, i) => {
-                    return <option key={i}>{o}</option>;
-                  })}
-                </select>
-                {node.key === 'pvalue' || node.key === 'fc' ?
-                  <select className="form-control col-1 mr-1" value={node.innerOper}
-                          onChange={this.setModInnerOper.bind(this)}>
-                    <option>=</option>
-                    <option>&lt;</option>
-                    <option>&gt;</option>
-                    <option>&lt;=</option>
-                    <option>&gt;=</option>
-                  </select> :
-                  null}
-                <ImmobileInput className="form-control col"
-                               type="text"
-                               list={this.uuid}
-                               onChange={this.setModValue.bind(this)}
-                               value={node.value}/>
-              </div>
-              <datalist id={this.uuid}>
-                {_.map(dataSourceValues, (o, i) => {
+    return <DragContainer node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node"
+                          ref={this.dropTarget}>
+      <div className="col">
+        <div className="row my-2">
+          <div className="col">
+            <div className="form-row">
+              <AndOrSelect className="col-1 mr-1" value={node.oper}
+                           handleChange={setQueryOper.bind(undefined, node.id)}
+                           disable={first}/>
+              <NotSelect className="col-1 mr-1" value={node.not_}
+                         handleChange={setQueryNot.bind(undefined, node.id)}/>
+              <select
+                className={classNames("form-control mr-1",
+                  node.key === 'pvalue' || node.key === 'fc' ? 'col-3' : 'col-4')}
+                onChange={this.setModKey.bind(this)} value={node.key}>
+                {_.map(dataSource, (o, i) => {
                   return <option key={i}>{o}</option>;
                 })}
-              </datalist>
+              </select>
+              {node.key === 'pvalue' || node.key === 'fc' ?
+                <select className="form-control col-1 mr-1" value={node.innerOper}
+                        onChange={this.setModInnerOper.bind(this)}>
+                  <option>=</option>
+                  <option>&lt;</option>
+                  <option>&gt;</option>
+                  <option>&lt;=</option>
+                  <option>&gt;=</option>
+                </select> :
+                null}
+              <ImmobileInput className="form-control col"
+                             type="text"
+                             list={this.uuid}
+                             onChange={this.setModValue.bind(this)}
+                             value={node.value}/>
             </div>
-            <div className="col">
-              <div className="btn-toolbar">
-                <div className="btn-group mr-1">
-                  <button type="button" className="btn btn-success"
-                          onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
-                    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
-                  </button>
-                  <button type="button" className="btn btn-success"
-                          onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
-                  </button>
-                </div>
-                <div className="btn-group">
-                  <button type="button" className="btn btn-danger"
-                          onClick={removeNode.bind(undefined, node.id)}>
-                    <FontAwesomeIcon icon="minus-circle"/>
-                  </button>
-                </div>
-                <div className="btn-group ml-auto">
-                  <button type="button" className="btn btn-light"
-                          onClick={duplicateNode.bind(undefined, node.id)}
-                          title="Duplicate Item">
-                    <FontAwesomeIcon icon="clone"/>
-                  </button>
-                </div>
+            <datalist id={this.uuid}>
+              {_.map(dataSourceValues, (o, i) => {
+                return <option key={i}>{o}</option>;
+              })}
+            </datalist>
+          </div>
+          <div className="col">
+            <div className="btn-toolbar">
+              <div className="btn-group mr-1">
+                <button type="button" className="btn btn-success"
+                        onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
+                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+                </button>
+                <button type="button" className="btn btn-success"
+                        onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
+                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+                </button>
+              </div>
+              <div className="btn-group">
+                <button type="button" className="btn btn-danger"
+                        onClick={removeNode.bind(undefined, node.id)}>
+                  <FontAwesomeIcon icon="minus-circle"/>
+                </button>
+              </div>
+              <div className="btn-group ml-auto">
+                <button type="button" className="btn btn-light"
+                        onClick={duplicateNode.bind(undefined, node.id)}
+                        title="Duplicate Item">
+                  <FontAwesomeIcon icon="clone"/>
+                </button>
               </div>
             </div>
           </div>
         </div>
-      </div>;
-    }}</QueryContext.Consumer>;
+      </div>
+    </DragContainer>;
   }
 }
 
@@ -444,35 +473,16 @@ const Mod = connect(mapStateToProps, {
 })(ModBody);
 
 class ModGroupBody extends React.Component {
-  constructor(props) {
-    super(props);
-    this.dropTarget = React.createRef();
-  }
-
-  dragStart(value, e) {
-    e.stopPropagation();
-    e.dataTransfer.setData('id', this.props.node.id);
-
-    let rect = this.dropTarget.current.getBoundingClientRect();
-    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
-  }
-
-  dragOver(e) {
-    e.preventDefault();
-  }
-
-  drop(value, e) {
+  drop(clientYOffset, e) {
     let {node, queryTree, moveItem, setParent} = this.props;
 
-    e.stopPropagation();
-    e.preventDefault();
-    let source_id = e.dataTransfer.getData('id');
-    if (source_id !== node.id) {
-      let source = _.find(queryTree, ['id', source_id]);
+    let sourceId = e.dataTransfer.getData('id');
+    if (sourceId !== node.id) {
+      let source = _.find(queryTree, ['id', sourceId]);
       if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
         let target;
         let after;
-        let currY = e.clientY - value.clientYOffset;
+        let currY = e.clientY - clientYOffset;
         let _currNodes = _(queryTree)
           .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
           .filter((o) => o.parent === node.id);
@@ -498,9 +508,9 @@ class ModGroupBody extends React.Component {
           after = true;
         }
         if (target) {
-          moveItem(source_id, target.id, after);
+          moveItem(sourceId, target.id, after);
         }
-        setParent(source_id, node.id);
+        setParent(sourceId, node.id);
       }
     }
   }
@@ -513,70 +523,63 @@ class ModGroupBody extends React.Component {
 
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
 
-    return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className="row border border-dark rounded m-2 node"
-                  ref={this.dropTarget}
-                  id={node.id}
-                  onDragStart={this.dragStart.bind(this, value)}
-                  onDragOver={this.dragOver.bind(this)}
-                  onDrop={this.drop.bind(this, value)}>
-        <div className="col">
-          <div className="form-row my-2">
-            <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
-                         disable={first}/>
-            <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-            <div className="btn-toolbar col">
-              <div className="btn-group mr-1">
-                <button type="button" className="btn btn-success"
-                        onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
-                </button>
-                <button type="button" className="btn btn-success"
-                        onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
-                </button>
-              </div>
-              <div className="btn-group">
-                <button type="button" className="btn btn-danger"
-                        onClick={removeNode.bind(undefined, node.id)}>
-                  <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove Modifier Group
-                </button>
-              </div>
-              <div className="btn-group ml-auto mr-1">
-                <AddFollowing
-                  addNode={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}
-                  addNodeText="Add Following Modifier"
-                  addGroup={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}
-                  addGroupText="Add Following Modifier Group"/>
-              </div>
-              <div className="btn-group">
-                <button type="button" className="btn btn-light"
-                        onClick={duplicateNode.bind(undefined, node.id)}
-                        title="Duplicate Item">
-                  <FontAwesomeIcon icon="clone"/>
-                </button>
-              </div>
+    return <DragContainer node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node">
+      <div className="col">
+        <div className="form-row my-2">
+          <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
+                       disable={first}/>
+          <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+          <div className="btn-toolbar col">
+            <div className="btn-group mr-1">
+              <button type="button" className="btn btn-success"
+                      onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+              </button>
             </div>
-          </div>
-          <div className="row">
-            <div className="col">
-              {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
-                let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-                if (o.nodeType === 'MOD') {
-                  return <Mod key={o.id}
-                              first={first}
-                              node={o}/>;
-                } else if (o.nodeType === 'MOD_GROUP') {
-                  return <ModGroup key={o.id}
-                                   first={first}
-                                   node={o}/>;
-                }
-              }).value()}
+            <div className="btn-group">
+              <button type="button" className="btn btn-danger"
+                      onClick={removeNode.bind(undefined, node.id)}>
+                <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove Modifier Group
+              </button>
+            </div>
+            <div className="btn-group ml-auto mr-1">
+              <AddFollowing
+                addNode={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}
+                addNodeText="Add Following Modifier"
+                addGroup={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}
+                addGroupText="Add Following Modifier Group"/>
+            </div>
+            <div className="btn-group">
+              <button type="button" className="btn btn-light"
+                      onClick={duplicateNode.bind(undefined, node.id)}
+                      title="Duplicate Item">
+                <FontAwesomeIcon icon="clone"/>
+              </button>
             </div>
           </div>
         </div>
-      </div>;
-    }}</QueryContext.Consumer>;
+        <div className="row">
+          <div className="col">
+            {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
+              let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+              if (o.nodeType === 'MOD') {
+                return <Mod key={o.id}
+                            first={first}
+                            node={o}/>;
+              } else if (o.nodeType === 'MOD_GROUP') {
+                return <ModGroup key={o.id}
+                                 first={first}
+                                 node={o}/>;
+              }
+            }).value()}
+          </div>
+        </div>
+      </div>
+    </DragContainer>;
   }
 }
 
@@ -634,36 +637,23 @@ class ValueBody extends React.Component {
     this.props.setQueryName(id, e.target.value);
   }
 
-  dragStart(value, e) {
-    e.stopPropagation();
-    e.dataTransfer.setData('id', this.props.node.id);
-
-    let rect = this.dropTarget.current.getBoundingClientRect();
-    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
-  }
-
-  dragOver(e) {
-    e.preventDefault();
-  }
-
-  drop(value, e) {
+  drop(clientYOffset, e) {
     let {node, queryTree, moveItem, setParent} = this.props;
-    e.stopPropagation();
-    e.preventDefault();
-    let source_id = e.dataTransfer.getData('id');
-    if (source_id !== node.id) {
-      let source = _.find(queryTree, ['id', source_id]);
+
+    let sourceId = e.dataTransfer.getData('id');
+    if (sourceId !== node.id) {
+      let source = _.find(queryTree, ['id', sourceId]);
       let rect = this.dropTarget.current.getBoundingClientRect();
-      let after = e.clientY - value.clientYOffset - rect.top - rect.height / 2 >= 0;
+      let after = e.clientY - clientYOffset - rect.top - rect.height / 2 >= 0;
       if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
-        moveItem(source_id, node.id, after);
+        moveItem(sourceId, node.id, after);
         if (source.parent !== node.parent) {
-          setParent(source_id, node.parent);
+          setParent(sourceId, node.parent);
         }
       } else if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
         let target;
         let after;
-        let currY = e.clientY - value.clientYOffset;
+        let currY = e.clientY - clientYOffset;
         let _currNodes = _(queryTree)
           .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
           .filter((o) => o.parent === node.id);
@@ -689,9 +679,9 @@ class ValueBody extends React.Component {
           after = true;
         }
         if (target) {
-          moveItem(source_id, target.id, after);
+          moveItem(sourceId, target.id, after);
         }
-        setParent(source_id, node.id);
+        setParent(sourceId, node.id);
       }
     }
   }
@@ -705,81 +695,75 @@ class ValueBody extends React.Component {
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
-    return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className="row border border-dark rounded m-2 bg-white node"
-                  ref={this.dropTarget}
-                  id={node.id}
-                  onDragStart={this.dragStart.bind(this, value)}
-                  onDragOver={this.dragOver.bind(this)}
-                  onDrop={this.drop.bind(this, value)}>
-        <div className="col">
-          <div className="row my-2">
-            <div className="col">
-              <div className="form-row">
-                <AndOrSelect className="col-1 mr-1" value={node.oper}
-                             handleChange={setQueryOper.bind(undefined, node.id)}
-                             disable={first}/>
-                <NotSelect className="col-1 mr-1" value={node.not_}
-                           handleChange={setQueryNot.bind(undefined, node.id)}/>
-                <ImmobileInput className="form-control col"
-                               type="text"
-                               list={this.uuid}
-                               onChange={this.handleQueryName.bind(this, node.id)}
-                               value={node.name}/>
-              </div>
-            </div>
-            <datalist id={this.uuid}>
-              {_.map(dataSource, (o, i) => {
-                return <option value={o.value} key={i}>{o.name}</option>;
-              })}
-            </datalist>
-            <div className="btn-toolbar col">
-              <div className="btn-group mr-1">
-                <button type="button" className="btn btn-success"
-                        onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
-                </button>
-                <button type="button" className="btn btn-success"
-                        onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
-                </button>
-              </div>
-              <div className="btn-group mr-1">
-                <button type="button" className="btn btn-success"
-                        onClick={addMod.bind(undefined, '', '', node.id, undefined, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
-                </button>
-                <button type="button" className="btn btn-success"
-                        onClick={addModGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
-                </button>
-              </div>
-              <div className="btn-group">
-                <button type="button" className="btn btn-danger"
-                        onClick={removeNode.bind(undefined, node.id)}>
-                  <FontAwesomeIcon icon="minus-circle"/>
-                </button>
-              </div>
-              <div className="btn-group ml-auto">
-                <button type="button" className="btn btn-light"
-                        onClick={duplicateNode.bind(undefined, node.id)}
-                        title="Duplicate Item">
-                  <FontAwesomeIcon icon="clone"/>
-                </button>
-              </div>
+    return <DragContainer node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node"
+                          ref={this.dropTarget}>
+      <div className="col">
+        <div className="row my-2">
+          <div className="col">
+            <div className="form-row">
+              <AndOrSelect className="col-1 mr-1" value={node.oper}
+                           handleChange={setQueryOper.bind(undefined, node.id)}
+                           disable={first}/>
+              <NotSelect className="col-1 mr-1" value={node.not_}
+                         handleChange={setQueryNot.bind(undefined, node.id)}/>
+              <ImmobileInput className="form-control col"
+                             type="text"
+                             list={this.uuid}
+                             onChange={this.handleQueryName.bind(this, node.id)}
+                             value={node.name}/>
             </div>
           </div>
-          {mods.map((o, i, a) => {
-            let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-            if (o.nodeType === 'MOD') {
-              return <Mod key={o.id} first={first} node={o}/>;
-            } else if (o.nodeType === 'MOD_GROUP') {
-              return <ModGroup key={o.id} first={first} node={o}/>;
-            }
-          }).value()}
+          <datalist id={this.uuid}>
+            {_.map(dataSource, (o, i) => {
+              return <option value={o.value} key={i}>{o.name}</option>;
+            })}
+          </datalist>
+          <div className="btn-toolbar col">
+            <div className="btn-group mr-1">
+              <button type="button" className="btn btn-success"
+                      onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
+              </button>
+            </div>
+            <div className="btn-group mr-1">
+              <button type="button" className="btn btn-success"
+                      onClick={addMod.bind(undefined, '', '', node.id, undefined, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addModGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+              </button>
+            </div>
+            <div className="btn-group">
+              <button type="button" className="btn btn-danger"
+                      onClick={removeNode.bind(undefined, node.id)}>
+                <FontAwesomeIcon icon="minus-circle"/>
+              </button>
+            </div>
+            <div className="btn-group ml-auto">
+              <button type="button" className="btn btn-light"
+                      onClick={duplicateNode.bind(undefined, node.id)}
+                      title="Duplicate Item">
+                <FontAwesomeIcon icon="clone"/>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>;
-    }}</QueryContext.Consumer>;
+        {mods.map((o, i, a) => {
+          let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+          if (o.nodeType === 'MOD') {
+            return <Mod key={o.id} first={first} node={o}/>;
+          } else if (o.nodeType === 'MOD_GROUP') {
+            return <ModGroup key={o.id} first={first} node={o}/>;
+          }
+        }).value()}
+      </div>
+    </DragContainer>;
   }
 }
 
@@ -815,35 +799,16 @@ const Value = connect(mapStateToProps, {
 })(ValueBody);
 
 class GroupBody extends React.Component {
-  constructor(props) {
-    super(props);
-    this.dropTarget = React.createRef();
-  }
-
-  dragStart(value, e) {
-    e.stopPropagation();
-    e.dataTransfer.setData('id', this.props.node.id);
-
-    let rect = this.dropTarget.current.getBoundingClientRect();
-    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
-  }
-
-  dragOver(e) {
-    e.preventDefault();
-  }
-
-  drop(value, e) {
+  drop(clientYOffset, e) {
     let {node, queryTree, moveItem, setParent} = this.props;
 
-    e.stopPropagation();
-    e.preventDefault();
-    let source_id = e.dataTransfer.getData('id');
-    if (source_id !== node.id) {
-      let source = _.find(queryTree, ['id', source_id]);
+    let sourceId = e.dataTransfer.getData('id');
+    if (sourceId !== node.id) {
+      let source = _.find(queryTree, ['id', sourceId]);
       let target;
       let after;
       let _currNodes;
-      let currY = e.clientY - value.clientYOffset;
+      let currY = e.clientY - clientYOffset;
 
       if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
         _currNodes = _(queryTree)
@@ -877,9 +842,9 @@ class GroupBody extends React.Component {
         after = true;
       }
       if (target) {
-        moveItem(source_id, target.id, after);
+        moveItem(sourceId, target.id, after);
       }
-      setParent(source_id, node.id);
+      setParent(sourceId, node.id);
     }
   }
 
@@ -891,93 +856,85 @@ class GroupBody extends React.Component {
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
-    return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className="row border border-dark rounded m-2 node"
-                  ref={this.dropTarget}
-                  style={{background: getGrey(queryTree, node)}}
-                  id={node.id}
-                  onDragStart={this.dragStart.bind(this, value)}
-                  onDragOver={this.dragOver.bind(this)}
-                  onDrop={this.drop.bind(this, value)}>
-        <div className="col">
-          <div className="form-row my-2">
-            <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
-                         disable={first}/>
-            <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
-            <div className="btn-toolbar col">
-              <div className="btn-group mr-1">
-                <button type="button" className="btn btn-success"
-                        onClick={addTF.bind(undefined, '', node.id, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
-                </button>
-                <button type="button" className="btn btn-success"
-                        onClick={addGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
-                </button>
-              </div>
-              <div className="btn-group mr-1">
-                <button type="button" className="btn btn-success"
-                        onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
-                </button>
-                <button type="button" className="btn btn-success"
-                        onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
-                </button>
-              </div>
-              <div className="btn-group">
-                <button type="button" className="btn btn-danger"
-                        onClick={removeNode.bind(undefined, node.id)}>
-                  <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove TF Group
-                </button>
-              </div>
-              <div className="btn-group ml-auto mr-1">
-                <AddFollowing addNode={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}
-                              addGroup={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}/>
-              </div>
-              <div className="btn-group">
-                <button type="button" className="btn btn-light"
-                        onClick={duplicateNode.bind(undefined, node.id)}
-                        title="Duplicate Item">
-                  <FontAwesomeIcon icon="clone"/>
-                </button>
-              </div>
+    return <DragContainer node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node">
+      <div className="col">
+        <div className="form-row my-2">
+          <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
+                       disable={first}/>
+          <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
+          <div className="btn-toolbar col">
+            <div className="btn-group mr-1">
+              <button type="button" className="btn btn-success"
+                      onClick={addTF.bind(undefined, '', node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
+              </button>
             </div>
-          </div>
-          <div className="row">
-            <div className="col">
-              {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
-                let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-                if (o.nodeType === 'TF') {
-                  return <Value key={o.id}
-                                first={first}
-                                node={o}/>;
-                } else if (o.nodeType === 'GROUP') {
-                  return <Group key={o.id}
-                                first={first}
-                                node={o}/>;
-                }
-              }).value()}
+            <div className="btn-group mr-1">
+              <button type="button" className="btn btn-success"
+                      onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+              </button>
+              <button type="button" className="btn btn-success"
+                      onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+              </button>
             </div>
-          </div>
-          <div className="row">
-            {mods.size() ?
-              <div className="col border border-light rounded bg-light m-2 node">
-                <h3>Modifiers</h3>
-                {mods.map((o, i, a) => {
-                  let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-                  if (o.nodeType === 'MOD') {
-                    return <Mod key={o.id} first={first} node={o}/>;
-                  } else if (o.nodeType === 'MOD_GROUP') {
-                    return <ModGroup key={o.id} first={first} node={o}/>;
-                  }
-                }).value()}
-              </div> :
-              null}
+            <div className="btn-group">
+              <button type="button" className="btn btn-danger"
+                      onClick={removeNode.bind(undefined, node.id)}>
+                <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove TF Group
+              </button>
+            </div>
+            <div className="btn-group ml-auto mr-1">
+              <AddFollowing addNode={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}
+                            addGroup={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}/>
+            </div>
+            <div className="btn-group">
+              <button type="button" className="btn btn-light"
+                      onClick={duplicateNode.bind(undefined, node.id)}
+                      title="Duplicate Item">
+                <FontAwesomeIcon icon="clone"/>
+              </button>
+            </div>
           </div>
         </div>
-      </div>;
-    }}</QueryContext.Consumer>;
+        <div className="row">
+          <div className="col">
+            {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
+              let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+              if (o.nodeType === 'TF') {
+                return <Value key={o.id}
+                              first={first}
+                              node={o}/>;
+              } else if (o.nodeType === 'GROUP') {
+                return <Group key={o.id}
+                              first={first}
+                              node={o}/>;
+              }
+            }).value()}
+          </div>
+        </div>
+        <div className="row">
+          {mods.size() ?
+            <div className="col border border-light rounded bg-light m-2 node">
+              <h3>Modifiers</h3>
+              {mods.map((o, i, a) => {
+                let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
+                if (o.nodeType === 'MOD') {
+                  return <Mod key={o.id} first={first} node={o}/>;
+                } else if (o.nodeType === 'MOD_GROUP') {
+                  return <ModGroup key={o.id} first={first} node={o}/>;
+                }
+              }).value()}
+            </div> :
+            null}
+        </div>
+      </div>
+    </DragContainer>;
   }
 }
 
