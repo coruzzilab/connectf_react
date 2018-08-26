@@ -3,9 +3,8 @@
  * 1/28/17
  */
 import React from 'react';
-import Handsontable from 'handsontable';
+import Handsontable from '../../../utils/handsontable';
 import defaultSort from 'handsontable/src/plugins/columnSorting/sortFunction/default';
-import 'handsontable/dist/handsontable.full.css';
 import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -19,67 +18,11 @@ let mapStateToProps = ({result}) => {
   };
 };
 
-function renderFc(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  if (_.isFinite(value)) {
-    if (value >= 0) {
-      td.style.background = 'lightgreen';
-    } else if (value < 0) {
-      td.style.background = 'lightcoral';
-    }
-  }
-  renderExp.apply(this, arguments);
-}
-
-function renderBold(instance, td, row, col, prop, value, cellProperties) {
-  if (_.isNumber(value)) {
-    Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  } else {
-    Handsontable.renderers.TextRenderer.apply(this, arguments);
-  }
-
-  td.style.border = '1px solid black';
-  td.className += ' font-weight-bold';
-}
-
-function renderExp(instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.NumericRenderer.apply(this, arguments);
-  if (_.isFinite(value)) {
-    td.textContent = value.toExponential(2);
-  }
-}
-
-Handsontable.renderers.registerRenderer('renderBold', renderBold);
-Handsontable.renderers.registerRenderer('renderFc', renderFc);
-Handsontable.renderers.registerRenderer('renderExp', renderExp);
-
-function exponentialValidator(value, callback) {
-  if (value == null) {
-    value = '';
-  }
-  if (this.allowEmpty && value === '') {
-    callback(true);
-
-  } else if (value === '') {
-    callback(false);
-
-  } else {
-    callback(/^-?\d+(\.\d+)?(e[+-]\d+)?$/.test(value));
-  }
-}
-
 function normalizeSearchString(value) {
   return _.isString(value) ? value.replace(NON_ALPHANUMERIC, '') : value;
 }
 
-Handsontable.validators.registerValidator('exponential', exponentialValidator);
-
-Handsontable.cellTypes.registerCellType('p_value', {
-  renderer: 'renderExp',
-  validator: 'exponential'
-});
-
-class DFBody extends React.Component {
+class TableBody extends React.Component {
   constructor(props) {
     super(props);
 
@@ -94,7 +37,6 @@ class DFBody extends React.Component {
   }
 
   componentDidMount() {
-    let self = this;
     let hot = this.hot = new Handsontable(this.grid.current, {
       rowHeaders: function (idx) {
         if (idx < 6) {
@@ -248,10 +190,10 @@ class DFBody extends React.Component {
   }
 }
 
-DFBody.propTypes = {
+TableBody.propTypes = {
   result: PropTypes.arrayOf(PropTypes.object)
 };
 
-const DF = connect(mapStateToProps)(DFBody);
+const Table = connect(mapStateToProps)(TableBody);
 
-export default DF;
+export default Table;

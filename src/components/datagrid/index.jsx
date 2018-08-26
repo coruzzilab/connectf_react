@@ -10,7 +10,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {clearQuery, clearQueryTree, clearEdges, clearRequestId} from "../../actions";
 import _ from 'lodash';
 
-import DF from './df';
+import Table from './table';
 import Meta from './meta';
 import Extra from './extra';
 import TargetEnrichment from './target_enrichment';
@@ -154,7 +154,7 @@ class Datagrid extends React.Component {
         <Switch>
           <Route path={match.path + '/table'} render={() => {
             return <TabPane tabId={pathname}>
-              <DF/>
+              <Table/>
             </TabPane>;
           }}/>
           <Route path={match.path + '/meta'} render={() => {

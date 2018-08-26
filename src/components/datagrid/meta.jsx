@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import {connect} from 'react-redux';
-import Handsontable from 'handsontable/dist/handsontable.full';
+import Handsontable from '../../utils/handsontable';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
