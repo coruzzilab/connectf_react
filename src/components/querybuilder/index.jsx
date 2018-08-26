@@ -10,7 +10,6 @@ import uuidv4 from 'uuid/v4';
 import Clipboard from 'clipboard';
 import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown} from 'reactstrap';
 import {
   addEdge,
   addGroup,
@@ -21,7 +20,6 @@ import {
   clearEdges,
   clearQuery,
   clearQueryError,
-  clearQueryHistory,
   clearQueryTree,
   clearRequestId,
   duplicateNode,
@@ -40,213 +38,19 @@ import {
   setQueryOper
 } from '../../actions';
 import {getParentTfTree, getQuery} from "../../utils";
+import {AddFollowing, AndOrSelect, NotSelect, TargetGenesFile} from "./common";
+import History from "./history";
+import {DragContainer, DragItem, ImmobileInput} from "./drag";
 
-const QueryContext = React.createContext();
-
-const mapStateToProps = ({busy, query, queryTree, edges, queryHistory, queryError}) => {
+const mapStateToProps = ({busy, query, queryTree, edges, queryError}) => {
   return {
     busy,
     query,
     queryTree,
     edges,
-    queryHistory,
     queryError
   };
 };
-
-class ImmobileInput extends React.Component {
-  render() {
-    return <QueryContext.Consumer>{value => {
-      return <input onFocus={value.setDraggable.bind(undefined, false)}
-                    onBlur={value.setDraggable.bind(undefined, true)}
-                    autoFocus
-                    {...this.props}/>;
-    }}</QueryContext.Consumer>;
-  }
-}
-
-class TargetGenesFile extends React.Component {
-  constructor(props) {
-    super(props);
-    this.targetGenes = React.createRef();
-  }
-
-  componentDidMount() {
-    this.targetGenes.current.scrollIntoView();
-  }
-
-  handleChange(e) {
-    this.props.handleChange(e.target.files);
-  }
-
-  render() {
-    return <input type="file" className="form-control-file"
-                  onChange={this.handleChange.bind(this)}
-                  ref={this.targetGenes}/>;
-  }
-}
-
-TargetGenesFile.propTypes = {
-  handleChange: PropTypes.func
-};
-
-
-class AndOrSelect extends React.Component {
-  handleChange(e) {
-    this.props.handleChange(e.target.value);
-  }
-
-  render() {
-    let {value, className, disable} = this.props;
-    return <select className={classNames("form-control first-input", className)} value={value}
-                   onChange={this.handleChange.bind(this)}
-                   disabled={disable}>
-      <option>or</option>
-      <option>and</option>
-    </select>;
-  }
-}
-
-AndOrSelect.propTypes = {
-  value: PropTypes.string.isRequired,
-  handleChange: PropTypes.func.isRequired,
-  className: PropTypes.string,
-  disable: PropTypes.bool
-};
-
-
-class NotSelect extends React.Component {
-  handleChange(e) {
-    this.props.handleChange(e.target.value === 'not');
-  }
-
-  render() {
-    let {value, className} = this.props;
-
-    return <select className={classNames("form-control", className)}
-                   onChange={this.handleChange.bind(this)}
-                   value={value ? 'not' : '-'}>
-      <option>-</option>
-      <option>not</option>
-    </select>;
-  }
-}
-
-NotSelect.propTypes = {
-  value: PropTypes.bool.isRequired,
-  handleChange: PropTypes.func.isRequired,
-  className: PropTypes.string
-};
-
-class AddFollowing extends React.Component {
-  render() {
-    return <UncontrolledDropdown>
-      <DropdownToggle className="btn btn-light"><FontAwesomeIcon icon="plus-circle"/></DropdownToggle>
-      <DropdownMenu right>
-        <DropdownItem onClick={this.props.addNode}>
-          <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{this.props.addNodeText}
-        </DropdownItem>
-        <DropdownItem onClick={this.props.addGroup}>
-          <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{this.props.addGroupText}
-        </DropdownItem>
-      </DropdownMenu>
-    </UncontrolledDropdown>;
-  }
-}
-
-AddFollowing.propTypes = {
-  addNode: PropTypes.func,
-  addNodeText: PropTypes.node,
-  addGroup: PropTypes.func,
-  addGroupText: PropTypes.node
-};
-
-AddFollowing.defaultProps = {
-  addNodeText: 'Add Following TF',
-  addGroupText: 'Add Following TF Group'
-};
-
-class HistoryBody extends React.Component {
-  render() {
-    let {queryHistory, setQuery, clearQueryHistory} = this.props;
-    return <UncontrolledDropdown>
-      <DropdownToggle className="btn btn-secondary">
-        <FontAwesomeIcon icon="history" className="mr-1"/>Query History
-      </DropdownToggle>
-      <DropdownMenu right>
-        {queryHistory.length ?
-          _.map(queryHistory, (h, i) => {
-            return <DropdownItem key={i} onClick={setQuery.bind(undefined, h.query)}>
-              <div>{h.query}</div>
-              <div className="text-secondary">
-                <small>{h.time}</small>
-              </div>
-            </DropdownItem>;
-          }) :
-          <DropdownItem disabled>No History</DropdownItem>}
-        <DropdownItem divider/>
-        <DropdownItem onClick={clearQueryHistory}>Clear</DropdownItem>
-      </DropdownMenu>
-    </UncontrolledDropdown>;
-  }
-}
-
-HistoryBody.propTypes = {
-  queryHistory: PropTypes.arrayOf(PropTypes.shape({query: PropTypes.string, time: PropTypes.string})),
-  setQuery: PropTypes.func,
-  clearQueryHistory: PropTypes.func
-};
-
-const History = connect(mapStateToProps, {setQuery, clearQueryHistory})(HistoryBody);
-
-class DragContainerBody extends React.Component {
-  constructor(props) {
-    super(props);
-    this.dropTarget = props.forwardedRef || React.createRef();
-  }
-
-  dragStart(value, e) {
-    e.stopPropagation();
-    e.dataTransfer.setData('id', this.props.node.id);
-
-    let rect = this.dropTarget.current.getBoundingClientRect();
-    value.setClientYOffset(e.clientY - rect.top - rect.height / 2);
-  }
-
-  dragOver(e) {
-    e.preventDefault();
-  }
-
-  onDrop(clientYOffset, e) {
-    e.stopPropagation();
-    e.preventDefault();
-
-    this.props.onDrop(clientYOffset, e);
-  }
-
-  render() {
-    return <QueryContext.Consumer>{value => {
-      return <div draggable={value.draggable} className={this.props.className}
-                  ref={this.dropTarget}
-                  id={this.props.node.id}
-                  onDragStart={this.dragStart.bind(this, value)}
-                  onDragOver={this.dragOver.bind(this)}
-                  onDrop={this.onDrop.bind(this, value.clientYOffset)}>{this.props.children}</div>;
-    }}</QueryContext.Consumer>;
-  }
-}
-
-DragContainerBody.propTypes = {
-  children: PropTypes.node,
-  node: PropTypes.object.isRequired,
-  onDrop: PropTypes.func.isRequired,
-  className: PropTypes.string,
-  forwardedRef: PropTypes.object
-};
-
-const DragContainer = React.forwardRef((props, ref) => {
-  return <DragContainerBody {...props} forwardedRef={ref}/>;
-});
 
 class ModBody extends React.Component {
   constructor(props) {
@@ -367,8 +171,8 @@ class ModBody extends React.Component {
     } = this.props;
     let {dataSource, dataSourceValues} = this.state;
 
-    return <DragContainer node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node"
-                          ref={this.dropTarget}>
+    return <DragItem node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node"
+                     ref={this.dropTarget}>
       <div className="col">
         <div className="row my-2">
           <div className="col">
@@ -437,7 +241,7 @@ class ModBody extends React.Component {
           </div>
         </div>
       </div>
-    </DragContainer>;
+    </DragItem>;
   }
 }
 
@@ -523,7 +327,7 @@ class ModGroupBody extends React.Component {
 
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
 
-    return <DragContainer node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node">
+    return <DragItem node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node">
       <div className="col">
         <div className="form-row my-2">
           <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
@@ -579,7 +383,7 @@ class ModGroupBody extends React.Component {
           </div>
         </div>
       </div>
-    </DragContainer>;
+    </DragItem>;
   }
 }
 
@@ -695,8 +499,8 @@ class ValueBody extends React.Component {
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
-    return <DragContainer node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node"
-                          ref={this.dropTarget}>
+    return <DragItem node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node"
+                     ref={this.dropTarget}>
       <div className="col">
         <div className="row my-2">
           <div className="col">
@@ -763,7 +567,7 @@ class ValueBody extends React.Component {
           }
         }).value()}
       </div>
-    </DragContainer>;
+    </DragItem>;
   }
 }
 
@@ -856,7 +660,7 @@ class GroupBody extends React.Component {
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
     let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
 
-    return <DragContainer node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node">
+    return <DragItem node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node">
       <div className="col">
         <div className="form-row my-2">
           <AndOrSelect className="col-1 mr-1" value={node.oper} handleChange={setQueryOper.bind(undefined, node.id)}
@@ -934,7 +738,7 @@ class GroupBody extends React.Component {
             null}
         </div>
       </div>
-    </DragContainer>;
+    </DragItem>;
   }
 }
 
@@ -970,39 +774,11 @@ const Group = connect(mapStateToProps, {
 })(GroupBody);
 
 class QueryBoxBody extends React.Component {
-  constructor(props) {
-    super(props);
-    this.dropTarget = React.createRef();
-    this.state = {
-      draggable: true,
-      clientYOffset: 0
-    };
-  }
-
-  setDraggable(draggable) {
-    this.setState({
-      draggable
-    });
-  }
-
-  setClientYOffset(clientYOffset) {
-    this.setState({
-      clientYOffset
-    });
-  }
-
-  dragOver(e) {
-    e.preventDefault();
-  }
-
-  drop(e) {
+  drop(clientYOffset, e) {
     let {queryTree, moveItem, setParent} = this.props;
-    let {clientYOffset} = this.state;
 
-    e.stopPropagation();
-    e.preventDefault();
-    let source_id = e.dataTransfer.getData('id');
-    let source = _.find(queryTree, ['id', source_id]);
+    let sourceId = e.dataTransfer.getData('id');
+    let source = _.find(queryTree, ['id', sourceId]);
     if ((source.nodeType === 'TF' || source.nodeType === 'GROUP')) {
       let target;
       let after;
@@ -1030,30 +806,19 @@ class QueryBoxBody extends React.Component {
         target = currNodes[prevPos];
         after = true;
       }
-      moveItem(source_id, target.id, after);
-      setParent(source_id, undefined);
+      moveItem(sourceId, target.id, after);
+      setParent(sourceId, undefined);
     }
   }
 
   render() {
     let {queryTree} = this.props;
-    let {draggable, clientYOffset} = this.state;
 
-    return <div className={classNames("row", queryTree.length ? "border border-dark rounded py-3 m-2" : null)}
-                ref={this.dropTarget}
-                onDragOver={this.dragOver.bind(this)}
-                onDrop={this.drop.bind(this)}>
-      <div className="col">
-        <QueryContext.Provider value={{
-          draggable,
-          setDraggable: this.setDraggable.bind(this),
-          clientYOffset,
-          setClientYOffset: this.setClientYOffset.bind(this)
-        }}>
-          {this.props.children}
-        </QueryContext.Provider>
-      </div>
-    </div>;
+    return <DragContainer
+      className={classNames("row", queryTree.length ? "border border-dark rounded py-3 m-2" : null)}
+      onDrop={this.drop.bind(this)}>
+      {this.props.children}
+    </DragContainer>;
   }
 }
 
@@ -1267,7 +1032,7 @@ class QuerybuilderBody extends React.Component {
                           onChange={this.handleQuery.bind(this)} autoComplete="on"/>
                 <div className="input-group-append">
                   {busy ?
-                    <button type="button" className="btn btn-warning btn-lg">
+                    <button type="submit" className="btn btn-warning btn-lg">
                       <FontAwesomeIcon icon="circle-notch" spin size="lg" className="mr-2"/>Querying
                     </button> :
                     <button type="submit"
