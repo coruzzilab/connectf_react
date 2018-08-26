@@ -3,7 +3,6 @@
  * 4/2/18
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from "prop-types";
 import {connect} from 'react-redux';
 import _ from 'lodash';
@@ -208,7 +207,7 @@ class HeatmapTableBody extends React.Component {
   }
 
   render() {
-    return <table className="table table-responsive table-sm table-bordered">
+    return <table className="table table-responsive table-sm table-bordered" ref={this.props.forwardedRef}>
       <thead>
       <tr>
         <th>Index</th>
@@ -236,7 +235,8 @@ class HeatmapTableBody extends React.Component {
 HeatmapTableBody.propTypes = {
   requestId: PropTypes.string,
   motifEnrichment: PropTypes.shape({legend: PropTypes.array}),
-  getMotifEnrichmentLegend: PropTypes.func
+  getMotifEnrichmentLegend: PropTypes.func,
+  forwardedRef: PropTypes.object
 };
 
 const HeatmapTable = connect(mapStateToProps, {getMotifEnrichmentLegend})(HeatmapTableBody);
@@ -379,7 +379,7 @@ class MotifEnrichmentBody extends React.Component {
     let {imgData} = this;
 
     if (imgData) {
-      let svg = svgAddTable(imgData.documentElement, ReactDOM.findDOMNode(this.legend.current));
+      let svg = svgAddTable(imgData.documentElement, this.legend.current);
 
       e.currentTarget.href = 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML);
     }
@@ -555,7 +555,7 @@ class MotifEnrichmentBody extends React.Component {
                 <img className="img-fluid" src={imgDataUri}/>
               </div>
               <div className="col">
-                <HeatmapTable ref={this.legend}/>
+                <HeatmapTable forwardedRef={this.legend}/>
               </div>
             </div>
           </div>

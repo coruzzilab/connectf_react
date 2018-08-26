@@ -3,14 +3,13 @@
  * 6/24/17
  */
 import React from 'react';
-import ReactDOM from "react-dom";
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import $ from 'jquery';
 import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {BASE_URL} from '../../actions';
-import {QueryNameCell, SortButton, InfoTootip, SVGWarningTooltip} from "./common";
+import {InfoTootip, QueryNameCell, SortButton, SVGWarningTooltip} from "./common";
 import {
   Button,
   Modal,
@@ -87,7 +86,7 @@ class HeatmapTableBody extends React.Component {
   render() {
     let {heatmap} = this.props;
 
-    return <table className="table table-responsive table-sm table-bordered">
+    return <table className="table table-responsive table-sm table-bordered" ref={this.props.forwardedRef}>
       <thead>
       <tr>
         <th>Index</th>
@@ -117,7 +116,8 @@ class HeatmapTableBody extends React.Component {
 HeatmapTableBody.propTypes = {
   requestId: PropTypes.string,
   getHeatmapLegend: PropTypes.func,
-  heatmap: PropTypes.shape({legend: PropTypes.array})
+  heatmap: PropTypes.shape({legend: PropTypes.array}),
+  forwardedRef: PropTypes.object
 };
 
 const HeatmapTable = connect(mapStateToProps, {getHeatmapLegend})(HeatmapTableBody);
@@ -235,7 +235,7 @@ class TargetEnrichmentBody extends React.Component {
     let {imgData} = this;
 
     if (imgData) {
-      let svg = svgAddTable(imgData.documentElement, ReactDOM.findDOMNode(this.legend.current));
+      let svg = svgAddTable(imgData.documentElement, this.legend.current);
 
       e.currentTarget.href = 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML);
     } else {
@@ -346,8 +346,8 @@ class TargetEnrichmentBody extends React.Component {
                     <div className="float-right">
                       <SVGWarningTooltip/>
                       <a className="btn btn-primary" onClick={this.exportSVG.bind(this)}
-                                      download="list_enrichment.svg" href="#">
-                      <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
+                         download="list_enrichment.svg" href="#">
+                        <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
                     </div>
                   </div>
                 </div>
@@ -356,7 +356,7 @@ class TargetEnrichmentBody extends React.Component {
                     <img className="img-fluid" src={imgDataUri}/>
                   </div>
                   <div className="col">
-                    <HeatmapTable ref={this.legend}/>
+                    <HeatmapTable forwardedRef={this.legend}/>
                   </div>
                 </div>
               </div>
