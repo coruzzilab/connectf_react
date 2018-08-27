@@ -394,39 +394,40 @@ class MotifEnrichmentBody extends React.Component {
       {motifEnrichment.error ? <div className="text-danger">No motifs enriched.</div> : null}
       <form onSubmit={this.handleMotifForm.bind(this)} className="m-2">
         <div className="form-group row align-items-center">
-          <label className="col-sm-2 col-form-label">Alpha:</label>
-          <div className="col-sm-9">
+          <label className="col-sm-2 col-form-label">
+            Alpha:
+            <InfoTootip className="ml-1 d-inline">
+              P-value cutoff for motif enrichment.
+            </InfoTootip>
+          </label>
+          <div className="col-sm">
             <input type="number" min={0} max={1} step="any" placeholder={0.05}
                    defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
           </div>
-          <div className="col-sm-1">
-            <InfoTootip>
-              P-value cutoff for motif enrichment.
-            </InfoTootip>
-          </div>
+
         </div>
         <div className="form-group row align-items-center">
-          <label className="col-sm-2 col-form-label">Lower Bound (-log10):</label>
-          <div className="col-sm-9">
+          <label className="col-sm-2 col-form-label">
+            Lower Bound (-log10):
+            <InfoTootip className="ml-1 d-inline">
+              Lower bound -log10 p-value for the color scale on the heat map.
+            </InfoTootip>
+          </label>
+          <div className="col-sm">
             <input type="number" className="form-control" min={0} value={lower} step="any"
                    onChange={this.handleLower.bind(this)}/>
           </div>
-          <div className="col-sm-1">
-            <InfoTootip>
-              Lower bound -log10 p-value for the color scale on the heat map.
-            </InfoTootip>
-          </div>
         </div>
         <div className="form-group row align-items-center">
-          <label className="col-sm-2 col-form-label">Upper Bound (-log10):</label>
-          <div className="col-sm-9">
-            <input type="number" className="form-control" min={0} value={upper} step="any"
-                   onChange={this.handleUpper.bind(this)}/>
-          </div>
-          <div className="col-sm-1">
-            <InfoTootip>
+          <label className="col-sm-2 col-form-label">
+            Upper Bound (-log10):
+            <InfoTootip className="ml-1 d-inline">
               Upper bound -log10 p-value for the color scale on the heat map.
             </InfoTootip>
+          </label>
+          <div className="col-sm">
+            <input type="number" className="form-control" min={0} value={upper} step="any"
+                   onChange={this.handleUpper.bind(this)}/>
           </div>
         </div>
         <div className="form-group row align-items-center">
@@ -539,15 +540,13 @@ class MotifEnrichmentBody extends React.Component {
         </TabPane>
         <TabPane tabId="heatmap">
           <div className="container-fluid">
-            <div className="row my-1 align-items-center">
+            <div className="row my-1">
               <div className="col">
-                <div className="float-right">
-                  <SVGWarningTooltip/>
+                <SVGWarningTooltip className="float-right">
                   <a className="btn btn-primary" download="motif_enrichment.svg" href="#"
                      onClick={this.exportSVG.bind(this)}>
                     <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
-
-                </div>
+                </SVGWarningTooltip>
               </div>
             </div>
             <div className="row">

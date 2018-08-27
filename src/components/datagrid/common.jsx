@@ -24,8 +24,8 @@ export class InfoTootip extends React.Component {
   }
 
   render() {
-    return <this.props.tag className={classNames("d-inline-block", this.props.className)}>
-      <span ref={this.target}><FontAwesomeIcon icon="question-circle"/></span>
+    return <this.props.tag className={this.props.className}>
+      <span ref={this.target}>{this.props.text || <FontAwesomeIcon icon="question-circle"/>}</span>
       <UncontrolledTooltip target={() => this.target.current} placement="auto">
         {this.props.children}
       </UncontrolledTooltip>
@@ -36,7 +36,8 @@ export class InfoTootip extends React.Component {
 InfoTootip.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string,
-  tag: PropTypes.oneOfType([PropTypes.string, PropTypes.func])
+  tag: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
+  text: PropTypes.node
 };
 
 InfoTootip.defaultProps = {
@@ -73,7 +74,12 @@ QueryNameCell.propTypes = {
   children: PropTypes.node
 };
 
-export const SVGWarningTooltip = () => <InfoTootip className="mx-2">
+export const SVGWarningTooltip = ({children, className}) => <InfoTootip className={className} text={children}>
   Open the SVG image with a browser to view the complete image. The table in the image might not render correctly
   in image editing software.
 </InfoTootip>;
+
+SVGWarningTooltip.propTypes = {
+  children: PropTypes.node,
+  className: PropTypes.string
+};
