@@ -4,7 +4,10 @@
       "env",
       {
         "modules": false,
-        "useBuiltIns": true
+        "useBuiltIns": true,
+        "targets": {
+          "browsers": ["> 1%", "last 2 versions", "Firefox ESR", "not dead"]
+        }
       }
     ],
     "react"
