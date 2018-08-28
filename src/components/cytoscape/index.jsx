@@ -9,7 +9,7 @@ import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import _ from 'lodash';
 import DropZone from 'react-dropzone';
-import {Popover, PopoverHeader, PopoverBody, Alert} from 'reactstrap';
+import {Alert, Popover, PopoverBody, PopoverHeader} from 'reactstrap';
 import classNames from 'classnames';
 import uuid4 from 'uuid/v4';
 
@@ -69,6 +69,8 @@ class CytoscapeBody extends React.Component {
   }
 
   componentDidMount() {
+    let self = this;
+
     this.cy = cytoscape({
       container: this.cyRef.current,
       boxSelectionEnabled: true,
@@ -176,6 +178,12 @@ class CytoscapeBody extends React.Component {
 
     this.cy.on('unselect', 'node', function (event) {
       event.target.removeStyle('border-width border-color');
+    });
+
+    this.cy.on('click', function (event) {
+      if (self.cyRef.current !== document.activeElement) {
+        self.cyRef.current.focus();
+      }
     });
 
     this.setHeight();
@@ -423,6 +431,16 @@ class CytoscapeBody extends React.Component {
     this.searchNode(e.target.value);
   }
 
+  handleZoom(e) {
+    let zoomLevel = this.cy.zoom();
+
+    if (e.key === '+') {
+      this.cy.zoom(zoomLevel + 0.01);
+    } else if (e.key === '-') {
+      this.cy.zoom(zoomLevel - 0.01);
+    }
+  }
+
   render() {
     let {height, popoverOpen, busy, color, alertOpen, alertMessage} = this.state;
 
@@ -481,7 +499,10 @@ class CytoscapeBody extends React.Component {
           </div>
         </div>
       </div>
-      <div className="row" ref={this.cyRef} style={{height}}/>
+      <div className="row" style={{height}}>
+        <div className="col h-100" ref={this.cyRef} tabIndex="0" style={{outline: 'none'}}
+             onKeyPress={this.handleZoom.bind(this)}/>
+      </div>
     </div>;
   }
 }
