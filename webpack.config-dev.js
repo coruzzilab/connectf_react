@@ -52,8 +52,8 @@ const config = {
         ]
       },
       {
-        test: /\.(ttf|eot|svg|gif|woff(2)?)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader'
+        test: /\.(ttf|eot|svg|gif|woff(2)?|png)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        loader: 'file-loader?name=[name].[ext]'
       }
     ]
   },
