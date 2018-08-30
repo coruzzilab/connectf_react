@@ -73,7 +73,7 @@ class ModBody extends React.Component {
 
   componentDidUpdate(prevProps) {
     let {node, setModInnerOper, queryTree, setModValue} = this.props;
-    if (node.key !== prevProps.node.key) {
+    if (node.key && node.key !== prevProps.node.key) {
       this._getKeyAutoComplete();
     }
 
@@ -850,6 +850,8 @@ class QuerybuilderBody extends React.Component {
 
     this.copy = React.createRef();
 
+    this.xhr = null;
+
     this.checkShouldBuild = _.debounce(this.checkShouldBuild.bind(this), 100);
   }
 
@@ -894,6 +896,10 @@ class QuerybuilderBody extends React.Component {
     let {targetGene, files} = this.state;
     let data = new FormData();
 
+    if (this.xhr) {
+      this.xhr.abort();
+    }
+
     if (!this.props.query) {
       query = this.buildQuery();
       setQuery(query);
@@ -913,10 +919,14 @@ class QuerybuilderBody extends React.Component {
       data.set('targetgenes', targetGene);
     }
 
-    this.props.postQuery(
+    this.xhr = this.props.postQuery(
       data,
       () => {
         this.props.history.push('/datagrid/table');
+      },
+      undefined,
+      () => {
+        this.xhr = null;
       });
   }
 
@@ -926,6 +936,10 @@ class QuerybuilderBody extends React.Component {
       this.targetGenes.current.value = null;
     } catch (e) {
       // Ignore for now
+    }
+
+    if (this.xhr) {
+      this.xhr.abort();
     }
 
     this.props.clearQuery();

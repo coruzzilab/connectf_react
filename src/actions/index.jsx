@@ -205,7 +205,7 @@ export const getCytoscape = (requestId) => {
   };
 };
 
-export const postQuery = (data, onSuccess, onError) => {
+export const postQuery = (data, onSuccess, onError, always) => {
   return (dispatch) => {
     let requestId = generateRequestId();
 
@@ -261,6 +261,10 @@ export const postQuery = (data, onSuccess, onError) => {
       })
       .always(() => {
         dispatch(setBusy(false));
+
+        if (_.isFunction(always)) {
+          always();
+        }
       });
   };
 };
