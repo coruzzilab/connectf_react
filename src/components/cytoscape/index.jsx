@@ -260,14 +260,14 @@ class CytoscapeBody extends React.Component {
   }
 
   exportJSON(e) {
-    let {cytoscapeData} = this.props;
+    let elements = this.cy.elements().jsons();
 
     let data = {
       "format_version": "1.0",
       "generated_by": "tf2targetdb",
       elements: {
-        nodes: _.filter(cytoscapeData, ['group', 'nodes']),
-        edges: _.filter(cytoscapeData, ['group', 'edges'])
+        nodes: _.filter(elements, ['group', 'nodes']),
+        edges: _.filter(elements, ['group', 'edges'])
       }
     };
 
