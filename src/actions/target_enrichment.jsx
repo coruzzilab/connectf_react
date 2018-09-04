@@ -5,60 +5,60 @@ import {BASE_URL} from "./index";
  * @author zacharyjuang
  * 8/20/18
  */
-export const setHeatmap = (data) => {
+export const setTargetEnrichment = (data) => {
   return {
-    type: 'SET_HEATMAP',
+    type: 'SET_TARGET_ENRICHMENT',
     data
   };
 };
 
-export const clearHeatmap = () => {
+export const clearTargetEnrichment = () => {
   return {
-    type: 'CLEAR_HEATMAP'
+    type: 'CLEAR_TARGET_ENRICHMENT'
   };
 };
 
-export const getHeatmapTable = (requestId) => {
+export const getTargetEnrichmentTable = (requestId) => {
   return (dispatch) => {
     return $.ajax({
       url: `${BASE_URL}/queryapp/list_enrichment/${requestId}/`,
       contentType: false
     })
       .done((data) => {
-        dispatch(setHeatmap(data));
+        dispatch(setTargetEnrichment(data));
         dispatch(setError(false));
       })
       .catch(() => {
-        dispatch(clearHeatmap());
+        dispatch(clearTargetEnrichment());
         dispatch(setError(true));
       });
   };
 };
 
-export const setHeatmapLegend = (data) => {
+export const setTargetEnrichmentLegend = (data) => {
   return {
-    type: 'SET_HEATMAP_LEGEND',
+    type: 'SET_TARGET_ENRICHMENT_LEGEND',
     data
   };
 };
 
-export const clearHeatmapLegend = () => {
+export const clearTargetEnrichmentLegend = () => {
   return {
-    type: 'CLEAR_HEATMAP_LEGEND'
+    type: 'CLEAR_TARGET_ENRICHMENT_LEGEND'
   };
 };
 
-export const getHeatmapLegend = (requestId) => {
+export const getTargetEnrichmentLegend = (requestId) => {
   return (dispatch) => {
     return $.ajax({
       url: `${BASE_URL}/queryapp/list_enrichment/${requestId}/legend/`
     })
       .done((data) => {
-        dispatch(setHeatmapLegend(data));
+        dispatch(setTargetEnrichmentLegend(data));
         dispatch(setError(false));
       })
       .fail(() => {
-        dispatch(clearHeatmapLegend());
+        dispatch(clearTargetEnrichmentLegend());
         dispatch(setError(true));
       });
   };
@@ -66,19 +66,19 @@ export const getHeatmapLegend = (requestId) => {
 
 export const setError = (error) => {
   return {
-    type: 'SET_HEATMAP_ERROR',
+    type: 'SET_TARGET_ENRICHMENT_ERROR',
     error
   };
 };
 
 export const toggleError = () => {
   return {
-    type: 'TOGGLE_HEATMAP_ERROR'
+    type: 'TOGGLE_TARGET_ENRICHMENT_ERROR'
   };
 };
 
 export const clearError = () => {
   return {
-    type: 'CLEAR_HEATMAP_ERROR'
+    type: 'CLEAR_TARGET_ENRICHMENT_ERROR'
   };
 };

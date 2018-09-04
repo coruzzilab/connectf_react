@@ -2,7 +2,7 @@
  * Created by zacharyjuang on 11/24/16.
  */
 import _ from 'lodash';
-import heatmap from './heatmap';
+import targetEnrichment from './target_enrichment';
 import {combineReducers} from 'redux';
 import motifEnrichment from "./motif_enrichment";
 import {addAfter, duplicateNode, moveItem, getDescendants} from "../utils";
@@ -278,7 +278,7 @@ const tgdbApp = {
   query,
   queryTree,
   result,
-  heatmap: combineReducers(heatmap),
+  targetEnrichment: combineReducers(targetEnrichment),
   cytoscape,
   motifEnrichment: combineReducers(motifEnrichment),
   requestId,

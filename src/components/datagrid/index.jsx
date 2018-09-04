@@ -12,7 +12,7 @@ import _ from 'lodash';
 
 import Table from './table';
 import Meta from './meta';
-import Extra from './extra';
+import Download from './download';
 import TargetEnrichment from './target_enrichment';
 import MotifEnrichment from './motif_enrichment';
 import Cytoscape from './cytoscape';
@@ -125,9 +125,9 @@ class Datagrid extends React.Component {
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "/datagrid/extra")}
-                   active={pathname === "/datagrid/extra"}>
-            Extra
+          <NavLink onClick={this.onTabClick.bind(this, "/datagrid/download")}
+                   active={pathname === "/datagrid/download"}>
+            Download
           </NavLink>
         </NavItem>
         <NavItem className="ml-auto">
@@ -177,9 +177,9 @@ class Datagrid extends React.Component {
               <MotifEnrichment/>
             </TabPane>;
           }}/>
-          <Route path={match.path + '/extra'} render={() => {
+          <Route path={match.path + '/download'} render={() => {
             return <TabPane tabId={pathname}>
-              <Extra/>
+              <Download/>
             </TabPane>;
           }}/>
           <Redirect to="/datagrid/table"/>

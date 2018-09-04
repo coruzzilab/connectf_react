@@ -41,6 +41,6 @@ ExtraBody.propTypes = {
   requestId: PropTypes.string
 };
 
-const Extra = connect(mapStateToProps)(ExtraBody);
+const Download = connect(mapStateToProps)(ExtraBody);
 
-export default Extra;
+export default Download;

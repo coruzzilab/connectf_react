@@ -4,9 +4,9 @@
  */
 function table(state = {}, action) {
   switch (action.type) {
-  case 'SET_HEATMAP':
+  case 'SET_TARGET_ENRICHMENT':
     return action.data;
-  case 'CLEAR_HEATMAP':
+  case 'CLEAR_TARGET_ENRICHMENT':
     return {};
   default:
     return state;
@@ -15,9 +15,9 @@ function table(state = {}, action) {
 
 function legend(state = [], action) {
   switch (action.type) {
-  case 'SET_HEATMAP_LEGEND':
+  case 'SET_TARGET_ENRICHMENT_LEGEND':
     return action.data;
-  case 'CLEAR_HEATMAP_LEGEND':
+  case 'CLEAR_TARGET_ENRICHMENT_LEGEND':
     return [];
   default:
     return state;
@@ -26,11 +26,11 @@ function legend(state = [], action) {
 
 function error(state = false, action) {
   switch (action.type) {
-  case 'SET_HEATMAP_ERROR':
+  case 'SET_TARGET_ENRICHMENT_ERROR':
     return action.error;
-  case 'TOGGLE_HEATMAP_ERROR':
+  case 'TOGGLE_TARGET_ENRICHMENT_ERROR':
     return !state;
-  case 'CLEAR_HEATMAP_ERROR':
+  case 'CLEAR_TARGET_ENRICHMENT_ERROR':
     return false;
   default:
     return state;
