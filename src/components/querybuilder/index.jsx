@@ -38,7 +38,7 @@ import {
   setQueryOper
 } from '../../actions';
 import {getParentTfTree, getQuery} from "../../utils";
-import {AddFollowing, AndOrSelect, NotSelect, TargetGenesFile} from "./common";
+import {AddFollowing, AndOrSelect, NotSelect, TargetGeneInfo, TargetGenesFile} from "./common";
 import History from "./history";
 import {DragContainer, DragItem, ImmobileInput} from "./drag";
 
@@ -1081,8 +1081,9 @@ class QuerybuilderBody extends React.Component {
             </div>
           </div>
 
-          <div className="row m-2">
-            <h2>TargetGenes</h2>
+          <div className="row m-2 align-items-center">
+            <h2>Target Genes</h2>
+            <TargetGeneInfo/>
           </div>
           <div className="form-row m-2">
             <select className="form-control mr-1" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
@@ -1090,7 +1091,7 @@ class QuerybuilderBody extends React.Component {
               {_.map(targetGenes, (l, i) => {
                 return <option key={i} value={l}>{l}</option>;
               })}
-              <option value="other">Other</option>
+              <option value="other">Upload Target Genes</option>
             </select>
           </div>
           {targetGene === "other" ?

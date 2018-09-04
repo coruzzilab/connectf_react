@@ -3,7 +3,15 @@
  * 8/25/18
  */
 import React from "react";
-import {DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown} from "reactstrap";
+import {
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Popover,
+  PopoverBody,
+  PopoverHeader,
+  UncontrolledDropdown
+} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import classNames from "classnames";
@@ -106,3 +114,45 @@ export class TargetGenesFile extends React.Component {
 TargetGenesFile.propTypes = {
   handleChange: PropTypes.func
 };
+
+const TARGET_GENES_FILE = ">list 1 name\nAT1G00100\nAT1G00200\n...\n>list 2 name (optional)\nAT2G00100\nAT2G00200\n...\n";
+
+export class TargetGeneInfo extends React.Component {
+  constructor(props) {
+    super(props);
+    this.info = React.createRef();
+
+    this.state = {
+      popoverOpen: false
+    };
+  }
+
+  toggle() {
+    this.setState({
+      popoverOpen: !this.state.popoverOpen
+    });
+  }
+
+  render() {
+    return <div className="ml-2 ">
+      <div className="link info-link" ref={this.info} onClick={this.toggle.bind(this)}>
+        <FontAwesomeIcon icon="question-circle"/></div>
+      <Popover target={() => this.info.current} isOpen={this.state.popoverOpen} toggle={this.toggle.bind(this)}>
+        <PopoverHeader>Target Genes</PopoverHeader>
+        <PopoverBody>
+          <p>Choose from predefined gene lists or upload your own.</p>
+          <p>Target Gene List file format:</p>
+          <pre className="code">
+            <code>
+              {TARGET_GENES_FILE}
+            </code>
+          </pre>
+          <a href={"data:text/plain," + encodeURIComponent(TARGET_GENES_FILE)}
+             className="btn btn-primary btn-sm" download>
+            <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example
+          </a>
+        </PopoverBody>
+      </Popover>
+    </div>;
+  }
+}
