@@ -2,7 +2,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import React from "react";
 import {Tooltip, UncontrolledTooltip} from "reactstrap";
-import classNames from 'classnames';
 
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
   return <a onClick={sortFunc} {...props}>
@@ -25,7 +24,8 @@ export class InfoTootip extends React.Component {
 
   render() {
     return <this.props.tag className={this.props.className}>
-      <span ref={this.target}>{this.props.text || <FontAwesomeIcon icon="question-circle"/>}</span>
+      <div className="d-inline-block" ref={this.target}>{this.props.text ||
+      <span className="link info-link"><FontAwesomeIcon icon="question-circle"/></span>}</div>
       <UncontrolledTooltip target={() => this.target.current} placement="auto">
         {this.props.children}
       </UncontrolledTooltip>

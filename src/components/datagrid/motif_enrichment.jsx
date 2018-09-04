@@ -18,7 +18,8 @@ import {
   NavItem,
   NavLink,
   TabContent,
-  TabPane
+  TabPane,
+  Collapse
 } from 'reactstrap';
 import {BASE_URL} from "../../actions";
 import {blueShader, getLogMinMax, svgAddTable} from '../../utils';
@@ -34,10 +35,10 @@ export const BASE_COLORS = {
   'other': '#888888'
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({requestId, motifEnrichment}) => {
   return {
-    requestId: state.requestId,
-    motifEnrichment: state.motifEnrichment
+    requestId,
+    motifEnrichment
   };
 };
 
@@ -259,7 +260,8 @@ class MotifEnrichmentBody extends React.Component {
       imgDataUri: null,
       key: "table",
       sortCol: null,
-      ascending: true
+      ascending: true,
+      collapse: false
     };
   }
 
@@ -274,8 +276,17 @@ class MotifEnrichmentBody extends React.Component {
     }
   }
 
+  toggle() {
+    this.setState({collapse: !this.state.collapse});
+  }
+
   getMotifEnrichment() {
-    this.props.getMotifEnrichment(this.props.requestId, this.state.alpha, this.state.body === 'yes');
+    this.props.getMotifEnrichment(this.props.requestId, this.state.alpha, this.state.body === 'yes')
+      .then(() => {
+        this.setState({
+          colSpan: this.state.body === 'yes' ? 2 : 1
+        });
+      });
   }
 
   setImgURL() {
@@ -306,9 +317,7 @@ class MotifEnrichmentBody extends React.Component {
     e.preventDefault();
     this.getMotifEnrichment();
     this.setImgURL();
-    this.setState({
-      colSpan: this.state.body === 'yes' ? 2 : 1
-    });
+    this.toggle()
   }
 
   handleAlpha(e) {
@@ -387,70 +396,77 @@ class MotifEnrichmentBody extends React.Component {
 
   render() {
     let {motifEnrichment} = this.props;
-    let {body, colSpan, key, lower, upper, sortCol, ascending, imgDataUri} = this.state;
+    let {body, colSpan, key, lower, upper, sortCol, ascending, imgDataUri, collapse} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment.table, 'result', []));
 
     return <div>
       {motifEnrichment.error ? <div className="text-danger">No motifs enriched.</div> : null}
-      <form onSubmit={this.handleMotifForm.bind(this)} className="m-2">
-        <div className="form-group row align-items-center">
-          <label className="col-sm-2 col-form-label">
-            Alpha:
-            <InfoTootip className="ml-1 d-inline">
-              P-value cutoff for motif enrichment.
-            </InfoTootip>
-          </label>
-          <div className="col-sm">
-            <input type="number" min={0} max={1} step="any" placeholder={0.05}
-                   defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
-          </div>
+      <button type="button" className="btn btn-primary m-2" onClick={this.toggle.bind(this)}>
+        <FontAwesomeIcon icon="cog" className="mr-1"/>Options</button>
+      <Collapse isOpen={collapse}>
+        <form onSubmit={this.handleMotifForm.bind(this)} className="m-2">
+          <div className="container-fluid">
+            <div className="form-group row align-items-center">
+              <label className="col-sm-2 col-form-label">
+                Alpha:
+                <InfoTootip className="ml-1 d-inline">
+                  P-value cutoff for motif enrichment.
+                </InfoTootip>
+              </label>
+              <div className="col-sm">
+                <input type="number" min={0} max={1} step="any" placeholder={0.05}
+                       defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
+              </div>
 
-        </div>
-        <div className="form-group row align-items-center">
-          <label className="col-sm-2 col-form-label">
-            Lower Bound (-log10):
-            <InfoTootip className="ml-1 d-inline">
-              Lower bound -log10 p-value for the color scale on the heat map.
-            </InfoTootip>
-          </label>
-          <div className="col-sm">
-            <input type="number" className="form-control" min={0} value={lower} step="any"
-                   onChange={this.handleLower.bind(this)}/>
-          </div>
-        </div>
-        <div className="form-group row align-items-center">
-          <label className="col-sm-2 col-form-label">
-            Upper Bound (-log10):
-            <InfoTootip className="ml-1 d-inline">
-              Upper bound -log10 p-value for the color scale on the heat map.
-            </InfoTootip>
-          </label>
-          <div className="col-sm">
-            <input type="number" className="form-control" min={0} value={upper} step="any"
-                   onChange={this.handleUpper.bind(this)}/>
-          </div>
-        </div>
-        <div className="form-group row align-items-center">
-          <legend className="col-form-label col-sm-2">Show Enrichment of Gene Body:</legend>
-          <div className="col-sm-10">
-            <div className="form-check form-check-inline">
-              <input type='radio' value='yes' checked={body === 'yes'} className="form-check-input"
-                     onChange={this.handleBody.bind(this)}/>
-              <label className="form-check-label">Yes</label>
             </div>
-            <div className="form-check form-check-inline">
-              <input type='radio' value='no' checked={body === 'no'} className="form-check-input"
-                     onChange={this.handleBody.bind(this)}/>
-              <label className="form-check-label">No</label>
+            <div className="form-group row align-items-center">
+              <label className="col-sm-2 col-form-label">
+                Lower Bound (-log10):
+                <InfoTootip className="ml-1 d-inline">
+                  Lower bound -log10 p-value for the color scale on the heat map.
+                </InfoTootip>
+              </label>
+              <div className="col-sm">
+                <input type="number" className="form-control" min={0} value={lower} step="any"
+                       onChange={this.handleLower.bind(this)}/>
+              </div>
+            </div>
+            <div className="form-group row align-items-center">
+              <label className="col-sm-2 col-form-label">
+                Upper Bound (-log10):
+                <InfoTootip className="ml-1 d-inline">
+                  Upper bound -log10 p-value for the color scale on the heat map.
+                </InfoTootip>
+              </label>
+              <div className="col-sm">
+                <input type="number" className="form-control" min={0} value={upper} step="any"
+                       onChange={this.handleUpper.bind(this)}/>
+              </div>
+            </div>
+            <div className="form-group row align-items-center">
+              <legend className="col-form-label col-sm-2">Show Enrichment of Gene Body:</legend>
+              <div className="col-sm-10">
+                <div className="form-check form-check-inline">
+                  <input type='radio' value='yes' checked={body === 'yes'} className="form-check-input"
+                         onChange={this.handleBody.bind(this)}/>
+                  <label className="form-check-label">Yes</label>
+                </div>
+                <div className="form-check form-check-inline">
+                  <input type='radio' value='no' checked={body === 'no'} className="form-check-input"
+                         onChange={this.handleBody.bind(this)}/>
+                  <label className="form-check-label">No</label>
+                </div>
+              </div>
+            </div>
+            <div className="form-group row">
+              <div className="col">
+                <button type="submit" className="btn btn-primary">Submit</button>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="form-group row">
-          <div className="col">
-            <button type="submit" className="btn btn-primary">Submit</button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </Collapse>
+
       <Nav tabs>
         <NavItem>
           <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"}>
@@ -528,9 +544,14 @@ class MotifEnrichmentBody extends React.Component {
                 return <tr key={i}>
                   <RowHeader data={row[0]}/>
                   {_.map(row.slice(1), (c, j) => {
-                    let [background, color] = blueShader(c, min, max);
-                    return <td key={j}
-                               style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>;
+                    if (typeof c === 'number') {
+                      let [background, color] = blueShader(c, min, max);
+
+                      return <td key={j}
+                                 style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>
+                    }
+
+                    return <td key={j}/>;
                   })}
                 </tr>;
               })
@@ -550,17 +571,16 @@ class MotifEnrichmentBody extends React.Component {
               </div>
             </div>
             <div className="row">
-              <div className="col">
+              <div className="col-8">
                 <img className="img-fluid" src={imgDataUri}/>
               </div>
-              <div className="col">
+              <div className="col-4">
                 <HeatmapTable forwardedRef={this.legend}/>
               </div>
             </div>
           </div>
         </TabPane>
       </TabContent>
-
     </div>;
   }
 }

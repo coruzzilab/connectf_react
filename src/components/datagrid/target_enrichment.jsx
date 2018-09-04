@@ -12,6 +12,7 @@ import {BASE_URL} from '../../actions';
 import {InfoTootip, QueryNameCell, SortButton, SVGWarningTooltip} from "./common";
 import {
   Button,
+  Collapse,
   Modal,
   ModalBody,
   ModalFooter,
@@ -23,12 +24,12 @@ import {
   TabPane
 } from 'reactstrap';
 import {blueShader, getLogMinMax, svgAddTable} from "../../utils";
-import {getHeatmapLegend, getHeatmapTable, setError} from "../../actions/heatmap";
+import {getTargetEnrichmentLegend, getTargetEnrichmentTable, setError} from "../../actions/target_enrichment";
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({requestId, targetEnrichment}) => {
   return {
-    requestId: state.requestId,
-    heatmap: state.heatmap
+    requestId,
+    targetEnrichment
   };
 };
 
@@ -84,7 +85,7 @@ class HeatmapTableBody extends React.Component {
   }
 
   render() {
-    let {heatmap} = this.props;
+    let {targetEnrichment} = this.props;
 
     return <table className="table table-responsive table-sm table-bordered" ref={this.props.forwardedRef}>
       <thead>
@@ -98,7 +99,7 @@ class HeatmapTableBody extends React.Component {
       </tr>
       </thead>
       <tbody>
-      {_.map(heatmap.legend, (row, i) => {
+      {_.map(targetEnrichment.legend, (row, i) => {
         return <tr key={i}>
           <RowHeader info={row[0]}>{row[1]}</RowHeader>
           <td>{row[2]}</td>
@@ -116,16 +117,21 @@ class HeatmapTableBody extends React.Component {
 HeatmapTableBody.propTypes = {
   requestId: PropTypes.string,
   getHeatmapLegend: PropTypes.func,
-  heatmap: PropTypes.shape({legend: PropTypes.array}),
+  targetEnrichment: PropTypes.shape({legend: PropTypes.array}),
   forwardedRef: PropTypes.object
 };
 
-const HeatmapTable = connect(mapStateToProps, {getHeatmapLegend})(HeatmapTableBody);
+const HeatmapTable = connect(mapStateToProps, {getHeatmapLegend: getTargetEnrichmentLegend})(HeatmapTableBody);
+
+const TargetEnrichmentWarning = () => (
+  <div className="text-danger text-lg-left text-sm-center">Target Enrichment is not available for this query: No
+    gene list uploaded or no enrichment.</div>);
 
 class TargetEnrichmentBody extends React.Component {
   constructor(props) {
     super(props);
     this.legend = React.createRef();
+    this.options = React.createRef();
 
     this.imgData = null;
     this.xhr = null;
@@ -137,12 +143,13 @@ class TargetEnrichmentBody extends React.Component {
       imgDataUri: null,
       key: "table",
       sortCol: null,
-      ascending: true
+      ascending: true,
+      collapse: false
     };
   }
 
   componentDidMount() {
-    this.props.getHeatmapTable(this.props.requestId);
+    this.props.getTargetEnrichmentTable(this.props.requestId);
     this.getImgData();
   }
 
@@ -154,7 +161,7 @@ class TargetEnrichmentBody extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.requestId !== this.props.requestId) {
-      this.props.getHeatmapTable(this.props.requestId);
+      this.props.getTargetEnrichmentTable(this.props.requestId);
       this.setImageSrc();
     }
 
@@ -163,9 +170,14 @@ class TargetEnrichmentBody extends React.Component {
     }
   }
 
+  toggle() {
+    this.setState({collapse: !this.state.collapse});
+  }
+
   handleSubmit(e) {
     e.preventDefault();
     this.setImageSrc();
+    this.toggle();
   }
 
   handleUpper(e) {
@@ -218,6 +230,7 @@ class TargetEnrichmentBody extends React.Component {
   getImgData() {
     let {setError} = this.props;
 
+
     this.xhr = $.ajax(this.state.imgSrc)
       .done((data) => {
         this.imgData = data;
@@ -244,45 +257,51 @@ class TargetEnrichmentBody extends React.Component {
   }
 
   render() {
-    let {heatmap} = this.props;
-    let {lower, upper, key, sortCol, ascending, imgDataUri} = this.state;
-    let [min, max] = getLogMinMax(_.get(heatmap.table, 'result', []));
+    let {targetEnrichment} = this.props;
+    let {lower, upper, key, sortCol, ascending, imgDataUri, collapse} = this.state;
+    let [min, max] = getLogMinMax(_.get(targetEnrichment.table, 'result', []));
 
     return <div>
-      {heatmap.error ?
-        <div className="text-danger text-lg-left text-sm-center">Target Enrichment is not available for this query: No
-          gene list uploaded or no enrichment.</div> :
+      {targetEnrichment.error ?
+        <TargetEnrichmentWarning/> :
         <div>
-          <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
-            <div className="form-group row align-items-center">
-              <label className="col-sm-2 col-form-label">
-                Lower Bound (-log10):
-                <InfoTootip className="ml-1 d-inline">
-                  Lower bound -log10 p-value for the color scale on the heat map.
-                </InfoTootip>
-              </label>
-              <div className="col-sm">
-                <input type="number" className="form-control" min={0} value={lower} step="any"
-                       onChange={this.handleLower.bind(this)}/>
+          <button type="button" className="btn btn-primary m-2" onClick={this.toggle.bind(this)}>
+            <FontAwesomeIcon icon="cog" className="mr-1"/>Options
+          </button>
+          <Collapse isOpen={collapse}>
+            <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
+              <div className="container-fluid">
+                <div className="form-group row align-items-center">
+                  <label className="col-sm-2 col-form-label">
+                    Lower Bound (-log10):
+                    <InfoTootip className="ml-1 d-inline">
+                      Lower bound -log10 p-value for the color scale on the heat map.
+                    </InfoTootip>
+                  </label>
+                  <div className="col-sm">
+                    <input type="number" className="form-control" min={0} value={lower} step="any"
+                           onChange={this.handleLower.bind(this)}/>
+                  </div>
+                </div>
+                <div className="form-group row align-items-center">
+                  <label className="col-sm-2 col-form-label">Upper Bound (-log10):
+                    <InfoTootip className="ml-1 d-inline">
+                      Upper bound -log10 p-value for the color scale on the heat map.
+                    </InfoTootip>
+                  </label>
+                  <div className="col-sm">
+                    <input type="number" className="form-control" min={0} value={upper} step="any"
+                           onChange={this.handleUpper.bind(this)}/>
+                  </div>
+                </div>
+                <div className="form-group row">
+                  <div className="col">
+                    <button className="btn btn-primary" type="submit">Submit</button>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="form-group row align-items-center">
-              <label className="col-sm-2 col-form-label">Upper Bound (-log10):
-                <InfoTootip className="ml-1 d-inline">
-                  Upper bound -log10 p-value for the color scale on the heat map.
-                </InfoTootip>
-              </label>
-              <div className="col-sm">
-                <input type="number" className="form-control" min={0} value={upper} step="any"
-                       onChange={this.handleUpper.bind(this)}/>
-              </div>
-            </div>
-            <div className="form-group row">
-              <div className="col">
-                <button className="btn btn-primary" type="submit">Submit</button>
-              </div>
-            </div>
-          </form>
+            </form>
+          </Collapse>
 
           <Nav tabs>
             <NavItem>
@@ -302,7 +321,7 @@ class TargetEnrichmentBody extends React.Component {
                 <thead>
                 <tr>
                   <th/>
-                  {_(_.get(heatmap.table, 'columns', {}))
+                  {_(_.get(targetEnrichment.table, 'columns', {}))
                     .map((val, key) => [val, key])
                     .map(([val, key], i) => {
                       return <th key={key}>
@@ -323,7 +342,7 @@ class TargetEnrichmentBody extends React.Component {
                 </tr>
                 </thead>
                 <tbody>
-                {_(_.get(heatmap.table, 'result', []))
+                {_(_.get(targetEnrichment.table, 'result', []))
                   .orderBy((row) => _.isNull(row) ? row : row[sortCol], ascending ? 'asc' : 'desc')
                   .map((row, i) => {
                     return <tr key={i}>
@@ -350,10 +369,10 @@ class TargetEnrichmentBody extends React.Component {
                   </div>
                 </div>
                 <div className="row">
-                  <div className="col">
+                  <div className="col-8">
                     <img className="img-fluid" src={imgDataUri}/>
                   </div>
-                  <div className="col">
+                  <div className="col-4">
                     <HeatmapTable forwardedRef={this.legend}/>
                   </div>
                 </div>
@@ -367,12 +386,12 @@ class TargetEnrichmentBody extends React.Component {
 
 TargetEnrichmentBody.propTypes = {
   requestId: PropTypes.string,
-  getHeatmapTable: PropTypes.func,
-  heatmap: PropTypes.object,
+  getTargetEnrichmentTable: PropTypes.func,
+  targetEnrichment: PropTypes.object,
   setError: PropTypes.func
 };
 
-const TargetEnrichment = connect(mapStateToProps, {getHeatmapTable, setError})(TargetEnrichmentBody);
+const TargetEnrichment = connect(mapStateToProps, {getTargetEnrichmentTable, setError})(TargetEnrichmentBody);
 
 export default TargetEnrichment;
 

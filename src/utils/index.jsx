@@ -8,17 +8,21 @@ import uuidv4 from "uuid/v4";
 
 export function blueShader(c, min, max) {
   let l = 48 + Math.round(52 * ((Math.log10(c) - min) / (max - min)));
-  l = l < 48 ? 48 : l;
-  let background = c ? `hsl(228,89%,${l}%)` : '#FFFFFF';
+  l = _.clamp(l, 48, 100);
+  let background = `hsl(228,89%,${l}%)`;
   let color = l <= 65 && l >= 48 ? 'white' : 'black';
 
   return [background, color];
 }
 
+const clampExp = _.unary(_.partial(_.clamp, _, -308, 0));
+const clampMin = _.flow(Math.log10, Math.floor, clampExp);
+const clampMax = _.flow(Math.log10, Math.ceil, clampExp);
+
 export function getLogMinMax(data) {
   let res = _(data).flatten().filter((n) => typeof n === 'number');
 
-  return [Math.floor(Math.log10(res.min())), Math.ceil(Math.log10(res.max()))];
+  return [clampMin(res.min()), clampMax(res.max())];
 }
 
 export function generateRequestId() {
