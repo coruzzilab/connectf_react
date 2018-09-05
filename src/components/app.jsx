@@ -11,6 +11,7 @@ import Datagrid from './datagrid';
 import QueryBuilder from './querybuilder';
 import Cytoscape from './cytoscape';
 import Feedback from './feedback';
+import Tutorial from './tutorial';
 import {NavItem} from "./common";
 // import UploadAnalysis from './upload_analysis';
 // import UploadExperiment from './upload_experiment';
@@ -54,6 +55,7 @@ class App extends React.Component {
       </Navbar>
       <Switch>
         <Route exact path="/" component={About}/>
+        <Route path="/tutorial" component={Tutorial}/>
         <Route path="/query" component={QueryBuilder}/>
         {/*<Route path="/upload_analysis" component={UploadAnalysis}/>*/}
         {/*<Route path="/upload_experiment" component={UploadExperiment}/>*/}
