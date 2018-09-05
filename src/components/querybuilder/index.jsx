@@ -979,8 +979,10 @@ class QuerybuilderBody extends React.Component {
   }
 
   checkShouldBuild() {
+    let query = getQuery(this.props.queryTree);
+
     this.setState({
-      shouldBuild: this.props.query !== getQuery(this.props.queryTree)
+      shouldBuild: query && this.props.query !== query
     });
   }
 
