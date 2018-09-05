@@ -3,6 +3,8 @@
  */
 import $ from 'jquery';
 import {generateRequestId} from "../utils";
+import * as motifEnrichment from "./motif_enrichment";
+import * as targetEnrichment from "./target_enrichment";
 import uuidv4 from "uuid/v4";
 import _ from 'lodash';
 
@@ -226,7 +228,7 @@ export const postQuery = (data, onSuccess, onError, always) => {
         dispatch(setRequestId(requestId));
         dispatch(setResult(result));
         dispatch(addQueryHistory(data.get('query')));
-        dispatch(clearQueryError());
+        dispatch(clearAllErrors());
 
         if (_.isFunction(onSuccess)) {
           onSuccess(result, textStatus, xhr);
@@ -353,5 +355,13 @@ export const setQueryError = (error, message = '') => {
 export const clearQueryError = () => {
   return {
     type: 'CLEAR_QUERY_ERROR'
+  };
+};
+
+export const clearAllErrors = () => {
+  return (dispatch) => {
+    dispatch(clearQueryError());
+    dispatch(motifEnrichment.clearError());
+    dispatch(targetEnrichment.clearError());
   };
 };
