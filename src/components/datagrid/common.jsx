@@ -1,7 +1,8 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import React from "react";
-import {Tooltip, UncontrolledTooltip} from "reactstrap";
+import {NavLink as BSNavLink, Tooltip, UncontrolledTooltip} from "reactstrap";
+import {withRouter} from "react-router-dom";
 
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
   return <a onClick={sortFunc} {...props}>
@@ -82,4 +83,29 @@ export const SVGWarningTooltip = ({children, className}) => <InfoTootip classNam
 SVGWarningTooltip.propTypes = {
   children: PropTypes.node,
   className: PropTypes.string
+};
+
+class NavLinkBody extends React.Component {
+  handleClick() {
+    this.props.history.push(this.props.to);
+  }
+
+  render() {
+    return <BSNavLink active={this.props.location.pathname === this.props.to}
+                      onClick={this.handleClick.bind(this)}>
+      {this.props.children}
+    </BSNavLink>;
+  }
+}
+
+NavLinkBody.propTypes = {
+  children: PropTypes.node,
+  location: PropTypes.object,
+  history: PropTypes.object,
+  to: PropTypes.string
+};
+export const NavLink = withRouter(NavLinkBody);
+
+NavLink.propTypes = {
+  to: PropTypes.string.isRequired
 };

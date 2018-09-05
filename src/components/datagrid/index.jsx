@@ -4,18 +4,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
-import {Route, Redirect, Switch} from 'react-router-dom';
-import {TabContent, TabPane, Nav, NavItem, NavLink, Popover, PopoverBody} from 'reactstrap';
+import {Redirect, Route, Switch} from 'react-router-dom';
+import {Nav, NavItem, Popover, PopoverBody, TabContent, TabPane} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {clearQuery, clearQueryTree, clearEdges, clearRequestId} from "../../actions";
+import {clearEdges, clearQuery, clearQueryTree, clearRequestId} from "../../actions";
 import _ from 'lodash';
-
 import Table from './table';
 import Meta from './meta';
 import Download from './download';
 import TargetEnrichment from './target_enrichment';
 import MotifEnrichment from './motif_enrichment';
 import Cytoscape from './cytoscape';
+import {NavLink} from "./common";
+
 
 function mapStateToProps({heatmap}) {
   return {
@@ -71,10 +72,6 @@ class Datagrid extends React.Component {
     });
   }
 
-  onTabClick(key) {
-    this.props.history.push(key);
-  }
-
   back() {
     this.props.history.push('/query');
   }
@@ -95,38 +92,32 @@ class Datagrid extends React.Component {
     return <div>
       <Nav tabs>
         <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "/datagrid/table")}
-                   active={pathname === "/datagrid/table"}>
+          <NavLink to={"/datagrid/table"}>
             Table
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "/datagrid/meta")}
-                   active={pathname === "/datagrid/meta"}>
+          <NavLink to={"/datagrid/meta"}>
             Metadata
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "/datagrid/cytoscape")}
-                   active={pathname === "/datagrid/cytoscape"}>
+          <NavLink to={"/datagrid/cytoscape"}>
             Cytoscape
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "/datagrid/heatmap")}
-                   active={pathname === "/datagrid/heatmap"}>
+          <NavLink to={"/datagrid/heatmap"}>
             Target Enrichment
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "/datagrid/motif")}
-                   active={pathname === "/datagrid/motif"}>
+          <NavLink to={"/datagrid/motif"}>
             Motif Enrichment
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "/datagrid/download")}
-                   active={pathname === "/datagrid/download"}>
+          <NavLink to={"/datagrid/download"}>
             Download
           </NavLink>
         </NavItem>

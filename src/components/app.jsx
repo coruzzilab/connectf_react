@@ -2,9 +2,8 @@
  * @author zacharyjuang
  */
 import React from 'react';
-import {Link, Switch, Route, Redirect} from 'react-router-dom';
-import PropTypes from 'prop-types';
-import {Navbar, Nav, NavItem, Collapse, NavbarToggler, NavbarBrand} from 'reactstrap';
+import {Redirect, Route, Switch} from 'react-router-dom';
+import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 import About from './about';
@@ -12,6 +11,7 @@ import Datagrid from './datagrid';
 import QueryBuilder from './querybuilder';
 import Cytoscape from './cytoscape';
 import Feedback from './feedback';
+import {NavItem} from "./common";
 // import UploadAnalysis from './upload_analysis';
 // import UploadExperiment from './upload_experiment';
 
@@ -33,29 +33,22 @@ class App extends React.Component {
   }
 
   render() {
-    let {pathname} = this.props.location;
-
     return <div>
       <Navbar color="light" light expand="md">
         <NavbarBrand><FontAwesomeIcon icon="dna" className="mr-1"/>TF2TargetDB</NavbarBrand>
         <NavbarToggler onClick={this.toggle.bind(this)}/>
         <Collapse isOpen={this.state.isOpen} navbar>
           <Nav className="ml-auto" navbar>
-            <NavItem active={pathname === "/"}>
-              <Link to="/" className="nav-link">About</Link>
-            </NavItem>
-            <NavItem active={pathname === "/query"}>
-              <Link to="/query" className="nav-link">Query</Link>
-            </NavItem>
+            <NavItem to={"/"}>About</NavItem>
+            <NavItem to={"/tutorial"}>Tutorial</NavItem>
+            <NavItem to={"/query"}>Query</NavItem>
             {/*<NavItem active={pathname === "/upload_experiment"}>*/}
-              {/*<Link to="/upload_experiment" className="nav-link">Upload Experiment</Link>*/}
+            {/*<Link to="/upload_experiment" className="nav-link">Upload Experiment</Link>*/}
             {/*</NavItem>*/}
             {/*<NavItem active={pathname === "/upload_analysis"}>*/}
-              {/*<Link to="/upload_analysis" className="nav-link">Upload Analysis</Link>*/}
+            {/*<Link to="/upload_analysis" className="nav-link">Upload Analysis</Link>*/}
             {/*</NavItem>*/}
-            <NavItem active={pathname === "/feedback"}>
-              <Link to="/feedback" className="nav-link">Feedback</Link>
-            </NavItem>
+            <NavItem to={"/feedback"}>Feedback</NavItem>
           </Nav>
         </Collapse>
       </Navbar>
@@ -72,15 +65,5 @@ class App extends React.Component {
     </div>;
   }
 }
-
-/**
- * Receives router object from react-router
- * @memberOf App
- * @type {{router: (*)}}
- */
-App.propTypes = {
-  children: PropTypes.node,
-  location: PropTypes.object
-};
 
 export default App;
