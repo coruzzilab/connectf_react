@@ -1112,7 +1112,7 @@ class QuerybuilderBody extends React.Component {
  */
 QuerybuilderBody.propTypes = {
   history: PropTypes.object.isRequired,
-  busy: PropTypes.bool,
+  busy: PropTypes.number,
   query: PropTypes.string,
   queryTree: PropTypes.arrayOf(PropTypes.object),
   addTF: PropTypes.func,

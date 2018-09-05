@@ -1,5 +1,5 @@
 import $ from "jquery";
-import {BASE_URL} from "./index";
+import {BASE_URL, setBusy} from "./index";
 
 /**
  * @author zacharyjuang
@@ -20,6 +20,7 @@ export const clearTargetEnrichment = () => {
 
 export const getTargetEnrichmentTable = (requestId) => {
   return (dispatch) => {
+    dispatch(setBusy(true));
     return $.ajax({
       url: `${BASE_URL}/queryapp/list_enrichment/${requestId}/`,
       contentType: false
@@ -28,9 +29,45 @@ export const getTargetEnrichmentTable = (requestId) => {
         dispatch(setTargetEnrichment(data));
         dispatch(setError(false));
       })
-      .catch(() => {
+      .fail(() => {
         dispatch(clearTargetEnrichment());
         dispatch(setError(true));
+      })
+      .always(() => {
+        dispatch(setBusy(false));
+      });
+  };
+};
+
+export const setTargetEnrichmentImage = (data) => {
+  return {
+    type: 'SET_TARGET_ENRICHMENT_IMAGE',
+    data
+  };
+};
+
+export const clearTargetEnrichmentImage = () => {
+  return {
+    type: 'CLEAR_TARGET_ENRICHMENT_IMAGE'
+  };
+};
+
+export const getTargetEnrichmentImage = (requestId, params = {}) => {
+  return (dispatch) => {
+    dispatch(setBusy(true));
+    return $.ajax({
+      url: `${BASE_URL}/queryapp/list_enrichment/${requestId}.svg?` + $.param(params)
+    })
+      .done((data) => {
+        dispatch(setError(false));
+        dispatch(setTargetEnrichmentImage('data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML)));
+      })
+      .fail(() => {
+        dispatch(setError(true));
+        dispatch(clearTargetEnrichmentImage());
+      })
+      .always(() => {
+        dispatch(setBusy(false));
       });
   };
 };
@@ -50,6 +87,7 @@ export const clearTargetEnrichmentLegend = () => {
 
 export const getTargetEnrichmentLegend = (requestId) => {
   return (dispatch) => {
+    dispatch(setBusy(true));
     return $.ajax({
       url: `${BASE_URL}/queryapp/list_enrichment/${requestId}/legend/`
     })
@@ -60,6 +98,9 @@ export const getTargetEnrichmentLegend = (requestId) => {
       .fail(() => {
         dispatch(clearTargetEnrichmentLegend());
         dispatch(setError(true));
+      })
+      .always(() => {
+        dispatch(setBusy(false));
       });
   };
 };

@@ -13,6 +13,17 @@ function table(state = {}, action) {
   }
 }
 
+function image(state = null, action) {
+  switch (action.type) {
+  case 'SET_TARGET_ENRICHMENT_IMAGE':
+    return action.data;
+  case 'CLEAR_TARGET_ENRICHMENT_IMAGE':
+    return null;
+  default:
+    return state;
+  }
+}
+
 function legend(state = [], action) {
   switch (action.type) {
   case 'SET_TARGET_ENRICHMENT_LEGEND':
@@ -40,6 +51,7 @@ function error(state = false, action) {
 
 export default {
   table,
+  image,
   legend,
   error
 };

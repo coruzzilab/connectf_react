@@ -7,12 +7,12 @@ import {combineReducers} from 'redux';
 import motifEnrichment from "./motif_enrichment";
 import {addAfter, duplicateNode, moveItem, getDescendants} from "../utils";
 
-const busy = (state = false, action) => {
+const busy = (state = 0, action) => {
   switch (action.type) {
   case 'SET_BUSY':
-    return action.busy;
-  case 'TOGGLE_BUSY':
-    return !state;
+    return action.busy ? state + 1 : Math.max(0, state - 1);
+  case 'CLEAR_BUSY':
+    return 0;
   default:
     return state;
   }

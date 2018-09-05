@@ -2,14 +2,14 @@
  * @author zacharyjuang
  * 7/26/18
  */
-import {createStore, applyMiddleware, compose, combineReducers} from 'redux';
+import {applyMiddleware, compose, createStore} from 'redux';
 import thunk from 'redux-thunk';
 import $ from 'jquery';
 import _ from 'lodash';
 
 import reducers from './reducers';
 import {loadState, saveState} from "./local_storage";
-import {BASE_URL, clearRequestId, setResult, setBusy} from "./actions";
+import {BASE_URL, clearRequestId, setBusy, setResult} from "./actions";
 
 /*
  * Enhancer composer for development. Connects to redux browser extension.

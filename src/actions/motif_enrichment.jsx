@@ -3,7 +3,7 @@
  * 8/20/18
  */
 import $ from "jquery";
-import {BASE_URL} from "./index";
+import {BASE_URL, setBusy} from "./index";
 
 export const setMotifEnrichment = (data) => {
   return {
@@ -20,6 +20,7 @@ export const clearMotifEnrichment = () => {
 
 export const getMotifEnrichment = (requestId, alpha = 0.05, body = false) => {
   return (dispatch) => {
+    dispatch(setBusy(true));
     return $.ajax({
       url: `${BASE_URL}/queryapp/motif_enrichment/${requestId}/?${$.param({
         alpha,
@@ -31,9 +32,45 @@ export const getMotifEnrichment = (requestId, alpha = 0.05, body = false) => {
         dispatch(setMotifEnrichment(data));
         dispatch(clearError());
       })
-      .catch(() => {
+      .fail(() => {
         dispatch(clearMotifEnrichment());
         dispatch(setError(true));
+      })
+      .always(() => {
+        dispatch(setBusy(false));
+      });
+  };
+};
+
+export const setMotifEnrichmentImage = (data) => {
+  return {
+    type: 'SET_MOTIF_ENRICHMENT_IMAGE',
+    data
+  };
+};
+
+export const clearMotifEnrichmentImage = () => {
+  return {
+    type: 'CLEAR_MOTIF_ENRICHMENT_IMAGE'
+  };
+};
+
+export const getMotifEnrichmentImage = (requestId, params = {}) => {
+  return (dispatch) => {
+    dispatch(setBusy(true));
+    return $.ajax({
+      url: `${BASE_URL}/queryapp/motif_enrichment/${requestId}/heatmap.svg?` + $.param(params)
+    })
+      .done((data) => {
+        dispatch(setError(false));
+        dispatch(setMotifEnrichmentImage('data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML)));
+      })
+      .fail(() => {
+        dispatch(setError(true));
+        dispatch(clearMotifEnrichmentImage());
+      })
+      .always(() => {
+        dispatch(setBusy(false));
       });
   };
 };
@@ -53,6 +90,7 @@ export const clearMotifEnrichmentLegend = () => {
 
 export const getMotifEnrichmentLegend = (requestId) => {
   return (dispatch) => {
+    dispatch(setBusy(true));
     return $.ajax({
       url: `${BASE_URL}/queryapp/motif_enrichment/${requestId}/heatmap_table/`
     })
@@ -61,6 +99,9 @@ export const getMotifEnrichmentLegend = (requestId) => {
       })
       .fail(() => {
         dispatch(clearMotifEnrichmentLegend());
+      })
+      .always(() => {
+        dispatch(setBusy(false));
       });
   };
 };

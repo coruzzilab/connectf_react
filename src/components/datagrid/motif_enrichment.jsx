@@ -6,10 +6,10 @@ import React from 'react';
 import PropTypes from "prop-types";
 import {connect} from 'react-redux';
 import _ from 'lodash';
-import $ from 'jquery';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
   Button,
+  Collapse,
   Modal,
   ModalBody,
   ModalFooter,
@@ -18,12 +18,16 @@ import {
   NavItem,
   NavLink,
   TabContent,
-  TabPane,
-  Collapse
+  TabPane
 } from 'reactstrap';
-import {BASE_URL} from "../../actions";
+import {setBusy} from "../../actions";
 import {blueShader, getLogMinMax, svgAddTable} from '../../utils';
-import {getMotifEnrichment, getMotifEnrichmentLegend, setError} from "../../actions/motif_enrichment";
+import {
+  getMotifEnrichment,
+  getMotifEnrichmentImage,
+  getMotifEnrichmentLegend,
+  setError
+} from "../../actions/motif_enrichment";
 import {InfoTootip, QueryNameCell, SortButton, SVGWarningTooltip} from "./common";
 
 
@@ -35,8 +39,9 @@ export const BASE_COLORS = {
   'other': '#888888'
 };
 
-const mapStateToProps = ({requestId, motifEnrichment}) => {
+const mapStateToProps = ({busy, requestId, motifEnrichment}) => {
   return {
+    busy,
     requestId,
     motifEnrichment
   };
@@ -192,21 +197,6 @@ RowHeader.propTypes = {
 };
 
 class HeatmapTableBody extends React.Component {
-  componentDidMount() {
-    this.getTableData();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.requestId !== this.props.requestId) {
-      this.getTableData();
-    }
-  }
-
-
-  getTableData() {
-    this.props.getMotifEnrichmentLegend(this.props.requestId);
-  }
-
   render() {
     return <table className="table table-responsive table-sm table-bordered" ref={this.props.forwardedRef}>
       <thead>
@@ -234,21 +224,16 @@ class HeatmapTableBody extends React.Component {
 }
 
 HeatmapTableBody.propTypes = {
-  requestId: PropTypes.string,
   motifEnrichment: PropTypes.shape({legend: PropTypes.array}),
-  getMotifEnrichmentLegend: PropTypes.func,
   forwardedRef: PropTypes.object
 };
 
-const HeatmapTable = connect(mapStateToProps, {getMotifEnrichmentLegend})(HeatmapTableBody);
+const HeatmapTable = connect(mapStateToProps)(HeatmapTableBody);
 
 class MotifEnrichmentBody extends React.Component {
   constructor(props) {
     super(props);
     this.legend = React.createRef();
-
-    this.imgData = null;
-    this.xhr = null;
 
     this.state = {
       alpha: 0.05,
@@ -256,24 +241,17 @@ class MotifEnrichmentBody extends React.Component {
       upper: '',
       lower: '',
       colSpan: 1,
-      imgSrc: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg`,
-      imgDataUri: null,
       key: "table",
       sortCol: null,
       ascending: true,
-      collapse: false
+      collapse: false,
+      exportSrc: null
     };
   }
 
   componentDidMount() {
     this.getMotifEnrichment();
-    this.setImgURL();
-  }
-
-  componentWillUnmount() {
-    if (this.xhr) {
-      this.xhr.abort();
-    }
+    this.getImgData();
   }
 
   toggle() {
@@ -289,26 +267,9 @@ class MotifEnrichmentBody extends React.Component {
       });
   }
 
-  setImgURL() {
-    let {alpha, lower, upper} = this.state;
-
-    this.setState({
-      imgSrc: `${BASE_URL}/queryapp/motif_enrichment/${this.props.requestId}/heatmap.svg?${$.param({
-        alpha,
-        body: this.state.body === 'yes' ? 1 : 0,
-        lower,
-        upper
-      })}`
-    });
-  }
-
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (prevProps.requestId !== this.props.requestId) {
       this.getMotifEnrichment();
-      this.setImgURL();
-    }
-
-    if (this.state.imgSrc && prevState.imgSrc !== this.state.imgSrc) {
       this.getImgData();
     }
   }
@@ -316,8 +277,8 @@ class MotifEnrichmentBody extends React.Component {
   handleMotifForm(e) {
     e.preventDefault();
     this.getMotifEnrichment();
-    this.setImgURL();
-    this.toggle()
+    this.getImgData();
+    this.toggle();
   }
 
   handleAlpha(e) {
@@ -369,40 +330,36 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   getImgData() {
-    let {setError} = this.props;
+    let {alpha, body, lower, upper} = this.state;
+    let {requestId, getMotifEnrichmentImage, getMotifEnrichmentLegend} = this.props;
 
-    this.xhr = $.ajax(this.state.imgSrc)
-      .done((data) => {
-        this.imgData = data;
-        this.setState({
-          imgDataUri: 'data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML)
-        });
-        setError(false);
-      })
-      .fail(() => {
-        setError(true);
+    return Promise.all([
+      getMotifEnrichmentImage(requestId, {
+        alpha,
+        body: body === 'yes' ? 1 : 0,
+        lower,
+        upper
+      }),
+      getMotifEnrichmentLegend(requestId)
+    ]).then((data) => {
+      let svg = svgAddTable(data[0].documentElement, this.legend.current);
+      this.setState({
+        exportSrc: 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML)
       });
-  }
-
-  exportSVG(e) {
-    let {imgData} = this;
-
-    if (imgData) {
-      let svg = svgAddTable(imgData.documentElement, this.legend.current);
-
-      e.currentTarget.href = 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML);
-    }
+    });
   }
 
   render() {
-    let {motifEnrichment} = this.props;
-    let {body, colSpan, key, lower, upper, sortCol, ascending, imgDataUri, collapse} = this.state;
+    let {motifEnrichment, busy} = this.props;
+    let {body, colSpan, key, lower, upper, sortCol, ascending, collapse, exportSrc} = this.state;
     let [min, max] = getLogMinMax(_.get(motifEnrichment.table, 'result', []));
 
     return <div>
       {motifEnrichment.error ? <div className="text-danger">No motifs enriched.</div> : null}
       <button type="button" className="btn btn-primary m-2" onClick={this.toggle.bind(this)}>
-        <FontAwesomeIcon icon="cog" className="mr-1"/>Options</button>
+        <FontAwesomeIcon icon="cog" className="mr-1"/>Options
+      </button>
+      {busy ? <FontAwesomeIcon icon="circle-notch" spin size="lg"/> : null}
       <Collapse isOpen={collapse}>
         <form onSubmit={this.handleMotifForm.bind(this)} className="m-2">
           <div className="container-fluid">
@@ -548,7 +505,7 @@ class MotifEnrichmentBody extends React.Component {
                       let [background, color] = blueShader(c, min, max);
 
                       return <td key={j}
-                                 style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>
+                                 style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>;
                     }
 
                     return <td key={j}/>;
@@ -564,15 +521,15 @@ class MotifEnrichmentBody extends React.Component {
             <div className="row my-1">
               <div className="col">
                 <SVGWarningTooltip className="float-right">
-                  <a className="btn btn-primary" download="motif_enrichment.svg" href="#"
-                     onClick={this.exportSVG.bind(this)}>
+                  <a className="btn btn-primary" download="motif_enrichment.svg" href={exportSrc}
+                     aria-disabled={!exportSrc}>
                     <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
                 </SVGWarningTooltip>
               </div>
             </div>
             <div className="row">
               <div className="col-8">
-                <img className="img-fluid" src={imgDataUri}/>
+                <img className="img-fluid" src={motifEnrichment.image}/>
               </div>
               <div className="col-4">
                 <HeatmapTable forwardedRef={this.legend}/>
@@ -586,12 +543,22 @@ class MotifEnrichmentBody extends React.Component {
 }
 
 MotifEnrichmentBody.propTypes = {
+  busy: PropTypes.number,
   requestId: PropTypes.string,
   getMotifEnrichment: PropTypes.func,
   motifEnrichment: PropTypes.object,
-  setError: PropTypes.func
+  setError: PropTypes.func,
+  setBusy: PropTypes.func,
+  getMotifEnrichmentImage: PropTypes.func,
+  getMotifEnrichmentLegend: PropTypes.func
 };
 
-const MotifEnrichment = connect(mapStateToProps, {getMotifEnrichment, setError})(MotifEnrichmentBody);
+const MotifEnrichment = connect(mapStateToProps, {
+  getMotifEnrichment,
+  setError,
+  setBusy,
+  getMotifEnrichmentImage,
+  getMotifEnrichmentLegend
+})(MotifEnrichmentBody);
 
 export default MotifEnrichment;

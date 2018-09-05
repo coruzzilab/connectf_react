@@ -5,10 +5,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import $ from 'jquery';
 import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {BASE_URL} from '../../actions';
+import {setBusy} from '../../actions';
 import {InfoTootip, QueryNameCell, SortButton, SVGWarningTooltip} from "./common";
 import {
   Button,
@@ -24,10 +23,16 @@ import {
   TabPane
 } from 'reactstrap';
 import {blueShader, getLogMinMax, svgAddTable} from "../../utils";
-import {getTargetEnrichmentLegend, getTargetEnrichmentTable, setError} from "../../actions/target_enrichment";
+import {
+  getTargetEnrichmentImage,
+  getTargetEnrichmentLegend,
+  getTargetEnrichmentTable,
+  setError
+} from "../../actions/target_enrichment";
 
-const mapStateToProps = ({requestId, targetEnrichment}) => {
+const mapStateToProps = ({busy, requestId, targetEnrichment}) => {
   return {
+    busy,
     requestId,
     targetEnrichment
   };
@@ -74,16 +79,6 @@ RowHeader.propTypes = {
 };
 
 class HeatmapTableBody extends React.Component {
-  componentDidMount() {
-    this.props.getHeatmapLegend(this.props.requestId);
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.requestId !== this.props.requestId) {
-      this.props.getHeatmapLegend(this.props.requestId);
-    }
-  }
-
   render() {
     let {targetEnrichment} = this.props;
 
@@ -116,12 +111,11 @@ class HeatmapTableBody extends React.Component {
 
 HeatmapTableBody.propTypes = {
   requestId: PropTypes.string,
-  getHeatmapLegend: PropTypes.func,
   targetEnrichment: PropTypes.shape({legend: PropTypes.array}),
   forwardedRef: PropTypes.object
 };
 
-const HeatmapTable = connect(mapStateToProps, {getHeatmapLegend: getTargetEnrichmentLegend})(HeatmapTableBody);
+const HeatmapTable = connect(mapStateToProps)(HeatmapTableBody);
 
 const TargetEnrichmentWarning = () => (
   <div className="text-danger text-lg-left text-sm-center">Target Enrichment is not available for this query: No
@@ -131,20 +125,15 @@ class TargetEnrichmentBody extends React.Component {
   constructor(props) {
     super(props);
     this.legend = React.createRef();
-    this.options = React.createRef();
-
-    this.imgData = null;
-    this.xhr = null;
 
     this.state = {
       upper: '',
       lower: '',
-      imgSrc: `${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}.svg`,
-      imgDataUri: null,
       key: "table",
       sortCol: null,
       ascending: true,
-      collapse: false
+      collapse: false,
+      exportSrc: null
     };
   }
 
@@ -153,19 +142,9 @@ class TargetEnrichmentBody extends React.Component {
     this.getImgData();
   }
 
-  componentWillUnmount() {
-    if (this.xhr) {
-      this.xhr.abort();
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (prevProps.requestId !== this.props.requestId) {
       this.props.getTargetEnrichmentTable(this.props.requestId);
-      this.setImageSrc();
-    }
-
-    if (this.state.imgSrc && prevState.imgSrc !== this.state.imgSrc) {
       this.getImgData();
     }
   }
@@ -176,7 +155,7 @@ class TargetEnrichmentBody extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    this.setImageSrc();
+    this.getImgData();
     this.toggle();
   }
 
@@ -189,17 +168,6 @@ class TargetEnrichmentBody extends React.Component {
   handleLower(e) {
     this.setState({
       lower: e.target.value
-    });
-  }
-
-  setImageSrc() {
-    let {upper, lower} = this.state;
-
-    this.setState({
-      imgSrc: `${BASE_URL}/queryapp/list_enrichment/${this.props.requestId}.svg?${$.param({
-        upper,
-        lower
-      })}`
     });
   }
 
@@ -228,37 +196,24 @@ class TargetEnrichmentBody extends React.Component {
   }
 
   getImgData() {
-    let {setError} = this.props;
+    let {requestId, getTargetEnrichmentImage, getTargetEnrichmentLegend} = this.props;
+    let {lower, upper} = this.state;
 
+    return Promise.all([
+      getTargetEnrichmentImage(requestId, {lower, upper}),
+      getTargetEnrichmentLegend(requestId)
+    ]).then((data) => {
+      let svg = svgAddTable(data[0].documentElement, this.legend.current);
 
-    this.xhr = $.ajax(this.state.imgSrc)
-      .done((data) => {
-        this.imgData = data;
-        this.setState({
-          imgDataUri: 'data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML)
-        });
-        setError(false);
-      })
-      .fail(() => {
-        setError(true);
+      this.setState({
+        exportSrc: 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML)
       });
-  }
-
-  exportSVG(e) {
-    let {imgData} = this;
-
-    if (imgData) {
-      let svg = svgAddTable(imgData.documentElement, this.legend.current);
-
-      e.currentTarget.href = 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML);
-    } else {
-      e.preventDefault();
-    }
+    });
   }
 
   render() {
-    let {targetEnrichment} = this.props;
-    let {lower, upper, key, sortCol, ascending, imgDataUri, collapse} = this.state;
+    let {targetEnrichment, busy} = this.props;
+    let {lower, upper, key, sortCol, ascending, collapse, exportSrc} = this.state;
     let [min, max] = getLogMinMax(_.get(targetEnrichment.table, 'result', []));
 
     return <div>
@@ -268,6 +223,7 @@ class TargetEnrichmentBody extends React.Component {
           <button type="button" className="btn btn-primary m-2" onClick={this.toggle.bind(this)}>
             <FontAwesomeIcon icon="cog" className="mr-1"/>Options
           </button>
+          {busy ? <FontAwesomeIcon icon="circle-notch" spin size="lg"/> : null}
           <Collapse isOpen={collapse}>
             <form onSubmit={this.handleSubmit.bind(this)} className="m-2">
               <div className="container-fluid">
@@ -362,15 +318,14 @@ class TargetEnrichmentBody extends React.Component {
                 <div className="row my-1">
                   <div className="col">
                     <SVGWarningTooltip className="float-right">
-                      <a className="btn btn-primary" onClick={this.exportSVG.bind(this)}
-                         download="list_enrichment.svg" href="#">
+                      <a className="btn btn-primary" download="list_enrichment.svg" href={exportSrc}>
                         <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
                     </SVGWarningTooltip>
                   </div>
                 </div>
                 <div className="row">
                   <div className="col-8">
-                    <img className="img-fluid" src={imgDataUri}/>
+                    <img className="img-fluid" src={targetEnrichment.image}/>
                   </div>
                   <div className="col-4">
                     <HeatmapTable forwardedRef={this.legend}/>
@@ -385,13 +340,23 @@ class TargetEnrichmentBody extends React.Component {
 }
 
 TargetEnrichmentBody.propTypes = {
+  busy: PropTypes.number,
   requestId: PropTypes.string,
   getTargetEnrichmentTable: PropTypes.func,
   targetEnrichment: PropTypes.object,
-  setError: PropTypes.func
+  setError: PropTypes.func,
+  setBusy: PropTypes.func,
+  getTargetEnrichmentImage: PropTypes.func,
+  getTargetEnrichmentLegend: PropTypes.func
 };
 
-const TargetEnrichment = connect(mapStateToProps, {getTargetEnrichmentTable, setError})(TargetEnrichmentBody);
+const TargetEnrichment = connect(mapStateToProps, {
+  getTargetEnrichmentTable,
+  setError,
+  setBusy,
+  getTargetEnrichmentImage,
+  getTargetEnrichmentLegend
+})(TargetEnrichmentBody);
 
 export default TargetEnrichment;
 

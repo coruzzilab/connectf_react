@@ -17,6 +17,12 @@ export const setBusy = (busy) => {
   };
 };
 
+export const clearBusy = () => {
+  return {
+    type: 'CLEAR_BUSY'
+  };
+};
+
 export const setQuery = (query) => {
   return {
     type: 'SET_QUERY',

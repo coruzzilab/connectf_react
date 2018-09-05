@@ -9,6 +9,7 @@ import {Nav, NavItem, Popover, PopoverBody, TabContent, TabPane} from 'reactstra
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {clearEdges, clearQuery, clearQueryTree, clearRequestId} from "../../actions";
 import _ from 'lodash';
+
 import Table from './table';
 import Meta from './meta';
 import Download from './download';
