@@ -8,11 +8,13 @@ import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import classNames from 'classnames';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 import {getStats} from '../../actions';
 
-function mapStateToProps({requestId, stats}) {
+function mapStateToProps({busy, requestId, stats}) {
   return {
+    busy,
     requestId,
     stats
   };
@@ -36,9 +38,16 @@ class Cytoscape extends React.Component {
   }
 
   render() {
-    let {stats} = this.props;
+    let {busy, stats} = this.props;
 
     return <div className="container-fluid">
+      {busy ?
+        <div className="row">
+          <div className="col">
+            <FontAwesomeIcon icon="circle-notch" spin/>
+          </div>
+        </div> :
+        null}
       {!_.isEmpty(stats) ?
         <div className="row">
           <div className="col m-1">
@@ -60,6 +69,7 @@ class Cytoscape extends React.Component {
 }
 
 Cytoscape.propTypes = {
+  busy: PropTypes.number,
   requestId: PropTypes.string,
   stats: PropTypes.object,
   getStats: PropTypes.func

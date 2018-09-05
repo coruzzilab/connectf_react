@@ -9,11 +9,12 @@ import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import _ from 'lodash';
 import DropZone from 'react-dropzone';
-import {Alert, Popover, PopoverBody, PopoverHeader} from 'reactstrap';
+import {Alert} from 'reactstrap';
 import classNames from 'classnames';
 import uuid4 from 'uuid/v4';
 
 import {getCytoscape, setCytoscape} from '../../actions';
+import {UploadSifInfoPopover} from "./common";
 
 const clampWeight = _.memoize(_.partial(_.clamp, _, 1, 5));
 
@@ -22,31 +23,13 @@ const edge_compare = (s, o) => {
   return _.isEqual(edge_value(s), edge_value(o));
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = ({busy, requestId, cytoscape}) => {
   return {
-    requestId: state.requestId,
-    cytoscapeData: state.cytoscape
+    busy,
+    requestId,
+    cytoscapeData: cytoscape
   };
 };
-
-class UploadSifInfoPopover extends React.Component {
-  render() {
-    return <Popover {...this.props}>
-      <PopoverHeader>Upload Edges</PopoverHeader>
-      <PopoverBody>
-        <p>Accepts tab (<span className="text-monospace">&#34;\t&#34;</span>) delimited text file with 3 columns. In
-          order: source, edge name, and target. <a target="_blank" rel="noopener noreferrer"
-                                                   href="http://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#sif-format">More
-            info.</a>
-        </p>
-        <p>Only creates new edges on the current network. Does <b>not</b> create new nodes.</p>
-        <p><a href={"data:text/plain,source1\tedge_name\ttarget1\nsource2\tedge_name\ttarget2\n...\t...\t...\n"}
-              download="example.sif" className="btn btn-primary btn-sm">
-          <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example File</a></p>
-      </PopoverBody>
-    </Popover>;
-  }
-}
 
 class CytoscapeBody extends React.Component {
   constructor(props) {
@@ -180,7 +163,7 @@ class CytoscapeBody extends React.Component {
       event.target.removeStyle('border-width border-color');
     });
 
-    this.cy.on('click', function (event) {
+    this.cy.on('click', function () {
       if (self.cyRef.current !== document.activeElement) {
         self.cyRef.current.focus();
       }
@@ -447,7 +430,7 @@ class CytoscapeBody extends React.Component {
     return <div className="container-fluid">
       <Alert color="danger" isOpen={alertOpen} toggle={this.toggleAlert.bind(this)}>{alertMessage}</Alert>
       <div className="row">
-        <div className="btn-toolbar m-1 col">
+        <div className="btn-toolbar m-1 col align-items-center">
           <div className="btn-group mr-2">
             <button onClick={this.back.bind(this)} className="btn btn-warning">
               <FontAwesomeIcon icon="arrow-circle-left" className="mr-1"/>Back
@@ -483,13 +466,14 @@ class CytoscapeBody extends React.Component {
             <UploadSifInfoPopover target={() => this.info.current} placement="right" isOpen={popoverOpen}
                                   toggle={this.togglePopover.bind(this)}/>
           </div>
-          <div className="btn-group">
+          <div className="btn-group mr-1">
             <button type="button" className="btn btn-danger"
                     title="remove user uploaded edges"
                     onClick={this.deleteEdges.bind(this)}>
               <FontAwesomeIcon icon="trash-alt" className="mr-1"/>Remove Edges
             </button>
           </div>
+          {this.props.busy ? <FontAwesomeIcon icon="circle-notch" spin size="lg" className="d-block"/> : null}
           <div className="input-group ml-auto">
             <div className="input-group-prepend">
               <span className="input-group-text"><FontAwesomeIcon icon="search"/></span>
@@ -508,6 +492,7 @@ class CytoscapeBody extends React.Component {
 }
 
 CytoscapeBody.propTypes = {
+  busy: PropTypes.number,
   history: PropTypes.object,
   requestId: PropTypes.string,
   cytoscapeData: PropTypes.array,

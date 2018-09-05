@@ -202,14 +202,28 @@ export const setCytoscape = (data) => {
   };
 };
 
+export const clearCytoscape = () => {
+  return {
+    type: 'CLEAR_CYTOSCAPE'
+  };
+};
+
 export const getCytoscape = (requestId) => {
   return (dispatch) => {
+    dispatch(setBusy(true));
     return $.ajax({
       url: `${BASE_URL}/queryapp/cytoscape/${requestId}/`,
       contentType: false
     })
-      .done((data) => dispatch(setCytoscape(data)))
-      .catch(() => dispatch(setCytoscape([])));
+      .done((data) => {
+        dispatch(setCytoscape(data));
+      })
+      .fail(() => {
+        dispatch(clearCytoscape());
+      })
+      .always(() => {
+        dispatch(setBusy(false));
+      });
   };
 };
 
@@ -326,6 +340,7 @@ export const clearStats = () => {
 
 export const getStats = (requestId) => {
   return (dispatch) => {
+    dispatch(setBusy(true));
     $.ajax({
       url: `${BASE_URL}/queryapp/stats/${requestId}/`,
       method: 'GET'
@@ -333,6 +348,8 @@ export const getStats = (requestId) => {
       dispatch(setStats(data));
     }).fail(() => {
       dispatch(clearStats());
+    }).always(() => {
+      dispatch(setBusy(false));
     });
   };
 };
