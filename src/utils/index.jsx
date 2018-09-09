@@ -5,24 +5,34 @@
 import _ from 'lodash';
 import moment from 'moment';
 import uuidv4 from "uuid/v4";
+import convert from "color-convert";
 
-export function blueShader(c, min, max) {
-  let l = 48 + Math.round(52 * ((Math.log10(c) - min) / (max - min)));
-  l = _.clamp(l, 48, 100);
-  let background = `hsl(228,89%,${l}%)`;
-  let color = l <= 65 && l >= 48 ? 'white' : 'black';
+const lightClamp = _.partial(_.clamp, _, 0, 51);
 
-  return [background, color];
+export function blueShader(v, min, max) {
+  v = Math.log10(v);
+
+  if (v > max) {
+    return ['white', 'black'];
+  } else {
+    let l = 48 + lightClamp(51 * ((v - min) / (max - min)));
+
+    let c = convert.hsl.rgb.raw(228, 89, l);
+
+    let background = '#' + convert.rgb.hex(c);
+
+    let color = (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255 < 0.5 ? 'white' : 'black';
+
+    return [background, color];
+  }
 }
 
-const clampExp = _.unary(_.partial(_.clamp, _, -308, 0));
-const clampMin = _.flow(Math.log10, Math.floor, clampExp);
-const clampMax = _.flow(Math.log10, Math.ceil, clampExp);
+const clampExp = _.flow(_.partial(_.clamp, _, Number.MIN_VALUE, Number.MAX_VALUE), Math.log10);
 
-export function getLogMinMax(data) {
+export function getLogMinMax(data, cutoff = 0.05) {
   let res = _(data).flatten().filter((n) => typeof n === 'number');
 
-  return [clampMin(res.min()), clampMax(res.max())];
+  return [clampExp(res.min()), Math.min(clampExp(res.max()), clampExp(cutoff))];
 }
 
 export function generateRequestId() {
