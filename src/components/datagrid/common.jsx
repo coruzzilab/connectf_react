@@ -1,8 +1,8 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import React from "react";
-import {NavLink as BSNavLink, Tooltip, UncontrolledTooltip} from "reactstrap";
-import {withRouter} from "react-router-dom";
+import {NavLink as BSNavLink, TabPane, Tooltip, UncontrolledTooltip} from "reactstrap";
+import {Route, withRouter} from "react-router-dom";
 
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
   return <a onClick={sortFunc} {...props}>
@@ -108,4 +108,16 @@ export const NavLink = withRouter(NavLinkBody);
 
 NavLink.propTypes = {
   to: PropTypes.string.isRequired
+};
+
+export const RouteTabPane = ({path, tabId, children}) => (<Route path={path} render={() => {
+  return <TabPane tabId={tabId}>
+    {children}
+  </TabPane>;
+}}/>);
+
+RouteTabPane.propTypes = {
+  path: PropTypes.string.isRequired,
+  tabId: PropTypes.string.isRequired,
+  children: PropTypes.node
 };

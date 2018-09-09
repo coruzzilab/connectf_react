@@ -4,8 +4,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
-import {Redirect, Route, Switch} from 'react-router-dom';
-import {Nav, NavItem, Popover, PopoverBody, TabContent, TabPane} from 'reactstrap';
+import {Redirect, Switch} from 'react-router-dom';
+import {Nav, NavItem, Popover, PopoverBody, TabContent} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {clearEdges, clearQuery, clearQueryTree, clearRequestId} from "../../actions";
 import _ from 'lodash';
@@ -15,8 +15,9 @@ import Meta from './meta';
 import Download from './download';
 import TargetEnrichment from './target_enrichment';
 import MotifEnrichment from './motif_enrichment';
+import AnalysisEnrichment from './analysis_enrichment';
 import Cytoscape from './cytoscape';
-import {NavLink} from "./common";
+import {NavLink, RouteTabPane} from "./common";
 
 
 function mapStateToProps({heatmap}) {
@@ -44,7 +45,6 @@ class QueryPopoverBody extends React.Component {
             </ul>
           </div> :
           null}
-
       </PopoverBody>
     </Popover>;
   }
@@ -108,13 +108,18 @@ class Datagrid extends React.Component {
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={"/datagrid/heatmap"}>
+          <NavLink to={"/datagrid/target"}>
             Target Enrichment
           </NavLink>
         </NavItem>
         <NavItem>
           <NavLink to={"/datagrid/motif"}>
             Motif Enrichment
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink to={"/datagrid/analysis"}>
+            Analysis Enrichment
           </NavLink>
         </NavItem>
         <NavItem>
@@ -144,36 +149,27 @@ class Datagrid extends React.Component {
 
       <TabContent activeTab={pathname}>
         <Switch>
-          <Route path={match.path + '/table'} render={() => {
-            return <TabPane tabId={pathname}>
-              <Table/>
-            </TabPane>;
-          }}/>
-          <Route path={match.path + '/meta'} render={() => {
-            return <TabPane tabId={pathname}>
-              <Meta/>
-            </TabPane>;
-          }}/>
-          <Route path={match.path + '/cytoscape'} render={() => {
-            return <TabPane tabId={pathname}>
-              <Cytoscape/>
-            </TabPane>;
-          }}/>
-          <Route path={match.path + '/heatmap'} render={() => {
-            return <TabPane tabId={pathname}>
-              <TargetEnrichment/>
-            </TabPane>;
-          }}/>
-          <Route path={match.path + '/motif'} render={() => {
-            return <TabPane tabId={pathname}>
-              <MotifEnrichment/>
-            </TabPane>;
-          }}/>
-          <Route path={match.path + '/download'} render={() => {
-            return <TabPane tabId={pathname}>
-              <Download/>
-            </TabPane>;
-          }}/>
+          <RouteTabPane path={match.path + '/table'} tabId={pathname}>
+            <Table/>
+          </RouteTabPane>
+          <RouteTabPane path={match.path + '/meta'} tabId={pathname}>
+            <Meta/>
+          </RouteTabPane>
+          <RouteTabPane path={match.path + '/cytoscape'} tabId={pathname}>
+            <Cytoscape/>
+          </RouteTabPane>
+          <RouteTabPane path={match.path + '/target'} tabId={pathname}>
+            <TargetEnrichment/>
+          </RouteTabPane>
+          <RouteTabPane path={match.path + '/motif'} tabId={pathname}>
+            <MotifEnrichment/>
+          </RouteTabPane>
+          <RouteTabPane path={match.path + '/analysis'} tabId={pathname}>
+            <AnalysisEnrichment/>
+          </RouteTabPane>
+          <RouteTabPane path={match.path + '/download'} tabId={pathname}>
+            <Download/>
+          </RouteTabPane>
           <Redirect to="/datagrid/table"/>
         </Switch>
       </TabContent>
