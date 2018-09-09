@@ -203,11 +203,12 @@ class TargetEnrichmentBody extends React.Component {
       getTargetEnrichmentImage(requestId, {lower, upper}),
       getTargetEnrichmentLegend(requestId)
     ]).then((data) => {
-      let svg = svgAddTable(data[0].documentElement, this.legend.current);
-
-      this.setState({
-        exportSrc: 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML)
-      });
+      if (this.legend.current) {
+        let svg = svgAddTable(data[0].documentElement, this.legend.current);
+        this.setState({
+          exportSrc: 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML)
+        });
+      }
     });
   }
 
