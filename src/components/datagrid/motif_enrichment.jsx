@@ -443,9 +443,8 @@ class MotifEnrichmentBody extends React.Component {
             <tr>
               <th/>
               {_(_.get(motifEnrichment.table, 'columns', {})).map((val, key) => [val, key]).map(([val, key], i) => {
-                let line1 = _(val).pick(['TRANSCRIPTION_FACTOR_ID', 'TRANSCRIPTION_FACTOR_NAME']).values().join('-');
+                let line1 = _(val).pick(['name', 'TRANSCRIPTION_FACTOR_NAME']).values().join('-');
                 let line2 = _(val).pick(['EXPRESSION_TYPE', 'ANALYSIS_METHOD']).values().join('-');
-                let line3 = _.get(val, 'list_name', '');
                 return <ColHeader key={key}
                                   data={val}
                                   colSpan={colSpan}
@@ -454,9 +453,9 @@ class MotifEnrichmentBody extends React.Component {
                                   sortable={colSpan === 1}
                                   ascending={ascending}>
                   {!_.isEmpty(val) ?
-                    <div>{line1 ? <p className="m-0">{line1}</p> : null}
+                    <div>
+                      <p className="m-0">{line1}</p>
                       {line2 ? <p className="m-0">{line2}</p> : null}
-                      <p className="m-0">{line3}</p>
                     </div> :
                     key}
                 </ColHeader>;
