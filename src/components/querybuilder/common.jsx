@@ -159,6 +159,7 @@ export class TargetGeneInfo extends React.Component {
 
 export const AddTFButton = ({onClick, large}) => (
   <button type="button"
+          title="Add Transcription Factor"
           className={classNames("btn btn-success", large ? "btn-lg" : null)}
           onClick={onClick}>
     <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
@@ -171,6 +172,7 @@ AddTFButton.propTypes = {
 
 export const AddTFGroupButton = ({onClick, large}) => (
   <button type="button"
+          title="Add Transcription Factor Group"
           className={classNames("btn btn-success", large ? "btn-lg" : null)}
           onClick={onClick}>
     <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
@@ -209,5 +211,15 @@ export const DuplicateButton = ({onClick}) => (
   </button>);
 
 DuplicateButton.propTypes = {
+  onClick: PropTypes.func.isRequired
+};
+
+export const RemoveButton = ({onClick}) => (
+  <button type="button" className="btn btn-danger" title="Remove"
+          onClick={onClick}>
+    <FontAwesomeIcon icon="minus-circle"/>
+  </button>);
+
+RemoveButton.propTypes = {
   onClick: PropTypes.func.isRequired
 };

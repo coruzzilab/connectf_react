@@ -45,6 +45,7 @@ import {
   AndOrSelect,
   DuplicateButton,
   NotSelect,
+  RemoveButton,
   TargetGeneInfo,
   TargetGenesFile
 } from "./common";
@@ -63,6 +64,14 @@ const mapStateToProps = ({busy, query, queryTree, edges, queryError}) => {
     queryError
   };
 };
+
+function isMod(node) {
+  return node.nodeType === 'MOD' || node.nodeType === 'MOD_GROUP';
+}
+
+function isTF(node) {
+  return node.nodeType === 'TF' || node.nodeType === 'GROUP';
+}
 
 class ModBody extends React.Component {
   constructor(props) {
@@ -158,7 +167,7 @@ class ModBody extends React.Component {
     let sourceId = e.dataTransfer.getData('id');
     if (sourceId !== node.id) {
       let source = _.find(queryTree, ['id', sourceId]);
-      if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
+      if (isMod(source)) {
         let rect = this.dropTarget.current.getBoundingClientRect();
         let after = e.clientY - clientYOffset - rect.top - rect.height / 2 >= 0;
         moveItem(sourceId, node.id, after);
@@ -226,10 +235,7 @@ class ModBody extends React.Component {
                 <AddModGroupButton onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}/>
               </div>
               <div className="btn-group">
-                <button type="button" className="btn btn-danger"
-                        onClick={removeNode.bind(undefined, node.id)}>
-                  <FontAwesomeIcon icon="minus-circle"/>
-                </button>
+                <RemoveButton onClick={removeNode.bind(undefined, node.id)}/>
               </div>
               <div className="btn-group ml-auto">
                 <DuplicateButton onClick={duplicateNode.bind(undefined, node.id)}/>
@@ -280,12 +286,12 @@ class ModGroupBody extends React.Component {
     let sourceId = e.dataTransfer.getData('id');
     if (sourceId !== node.id) {
       let source = _.find(queryTree, ['id', sourceId]);
-      if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
+      if (isMod(source)) {
         let target;
         let after;
         let currY = e.clientY - clientYOffset;
         let _currNodes = _(queryTree)
-          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
+          .filter(isMod)
           .filter((o) => o.parent === node.id);
         let _currNodesPos = _currNodes
           .map('id')
@@ -337,10 +343,7 @@ class ModGroupBody extends React.Component {
               <AddModGroupButton onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}/>
             </div>
             <div className="btn-group">
-              <button type="button" className="btn btn-danger"
-                      onClick={removeNode.bind(undefined, node.id)}>
-                <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove Modifier Group
-              </button>
+              <RemoveButton onClick={removeNode.bind(undefined, node.id)}/>
             </div>
             <div className="btn-group ml-auto mr-1">
               <AddFollowing
@@ -356,7 +359,7 @@ class ModGroupBody extends React.Component {
         </div>
         <div className="row">
           <div className="col">
-            {subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP').map((o, i, a) => {
+            {subTree.filter(isMod).map((o, i, a) => {
               let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
               if (o.nodeType === 'MOD') {
                 return <Mod key={o.id}
@@ -434,17 +437,17 @@ class ValueBody extends React.Component {
       let source = _.find(queryTree, ['id', sourceId]);
       let rect = this.dropTarget.current.getBoundingClientRect();
       let after = e.clientY - clientYOffset - rect.top - rect.height / 2 >= 0;
-      if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
+      if (isTF(source)) {
         moveItem(sourceId, node.id, after);
         if (source.parent !== node.parent) {
           setParent(sourceId, node.parent);
         }
-      } else if (source.nodeType === 'MOD' || source.nodeType === 'MOD_GROUP') {
+      } else if (isMod(source)) {
         let target;
         let after;
         let currY = e.clientY - clientYOffset;
         let _currNodes = _(queryTree)
-          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
+          .filter(isMod)
           .filter((o) => o.parent === node.id);
         let _currNodesPos = _currNodes
           .map('id')
@@ -482,7 +485,7 @@ class ValueBody extends React.Component {
     } = this.props;
     let {dataSource} = this.state;
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
-    let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
+    let mods = subTree.filter(isMod);
 
     return <DragItem node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node"
                      ref={this.dropTarget}>
@@ -517,10 +520,7 @@ class ValueBody extends React.Component {
               <AddModGroupButton onClick={addModGroup.bind(undefined, node.id, undefined, undefined, undefined)}/>
             </div>
             <div className="btn-group">
-              <button type="button" className="btn btn-danger"
-                      onClick={removeNode.bind(undefined, node.id)}>
-                <FontAwesomeIcon icon="minus-circle"/>
-              </button>
+              <RemoveButton onClick={removeNode.bind(undefined, node.id)}/>
             </div>
             <div className="btn-group ml-auto">
               <DuplicateButton onClick={duplicateNode.bind(undefined, node.id)}/>
@@ -583,13 +583,13 @@ class GroupBody extends React.Component {
       let _currNodes;
       let currY = e.clientY - clientYOffset;
 
-      if (source.nodeType === 'TF' || source.nodeType === 'GROUP') {
+      if (isTF(source)) {
         _currNodes = _(queryTree)
-          .filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP')
+          .filter(isTF)
           .filter((o) => o.parent === node.id);
       } else {
         _currNodes = _(queryTree)
-          .filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP')
+          .filter(isMod)
           .filter((o) => o.parent === node.id);
       }
 
@@ -627,7 +627,7 @@ class GroupBody extends React.Component {
       duplicateNode
     } = this.props;
     let subTree = _(queryTree).filter((o) => o.parent === node.id);
-    let mods = subTree.filter((o) => o.nodeType === 'MOD' || o.nodeType === 'MOD_GROUP');
+    let mods = subTree.filter(isMod);
 
     return <DragItem node={node} onDrop={this.drop.bind(this)} className="row border border-dark rounded m-2 node">
       <div className="col">
@@ -646,10 +646,7 @@ class GroupBody extends React.Component {
               <AddModGroupButton onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}/>
             </div>
             <div className="btn-group">
-              <button type="button" className="btn btn-danger"
-                      onClick={removeNode.bind(undefined, node.id)}>
-                <FontAwesomeIcon icon="minus-circle" className="mr-1"/>Remove TF Group
-              </button>
+              <RemoveButton onClick={removeNode.bind(undefined, node.id)}/>
             </div>
             <div className="btn-group ml-auto mr-1">
               <AddFollowing addNode={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}
@@ -662,7 +659,7 @@ class GroupBody extends React.Component {
         </div>
         <div className="row">
           <div className="col">
-            {subTree.filter((o) => o.nodeType === 'TF' || o.nodeType === 'GROUP').map((o, i, a) => {
+            {subTree.filter(isTF).map((o, i, a) => {
               let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
               if (o.nodeType === 'TF') {
                 return <Value key={o.id}
@@ -733,7 +730,7 @@ class QueryBoxBody extends React.Component {
 
     let sourceId = e.dataTransfer.getData('id');
     let source = _.find(queryTree, ['id', sourceId]);
-    if ((source.nodeType === 'TF' || source.nodeType === 'GROUP')) {
+    if (isTF(source)) {
       let target;
       let after;
       let currY = e.clientY - clientYOffset;

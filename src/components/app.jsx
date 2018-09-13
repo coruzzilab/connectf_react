@@ -41,12 +41,6 @@ class App extends React.Component {
             <NavItem to={"/"}>About</NavItem>
             <NavItem to={"/tutorial"}>Tutorial</NavItem>
             <NavItem to={"/query"}>Query</NavItem>
-            {/*<NavItem active={pathname === "/upload_experiment"}>*/}
-            {/*<Link to="/upload_experiment" className="nav-link">Upload Experiment</Link>*/}
-            {/*</NavItem>*/}
-            {/*<NavItem active={pathname === "/upload_analysis"}>*/}
-            {/*<Link to="/upload_analysis" className="nav-link">Upload Analysis</Link>*/}
-            {/*</NavItem>*/}
             <NavItem to={"/feedback"}>Feedback</NavItem>
           </Nav>
         </Collapse>
