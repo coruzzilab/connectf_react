@@ -200,3 +200,14 @@ export const AddModGroupButton = ({onClick}) => (
 AddModGroupButton.propTypes = {
   onClick: PropTypes.func.isRequired
 };
+
+export const DuplicateButton = ({onClick}) => (
+  <button type="button" className="btn btn-light"
+          onClick={onClick}
+          title="Duplicate Item">
+    <FontAwesomeIcon icon="clone"/>
+  </button>);
+
+DuplicateButton.propTypes = {
+  onClick: PropTypes.func.isRequired
+};

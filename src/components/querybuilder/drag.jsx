@@ -4,19 +4,24 @@
  */
 import React from "react";
 import PropTypes from "prop-types";
+import classNames from "classnames";
 
 const QueryContext = React.createContext();
 
-export class ImmobileInput extends React.Component {
-  render() {
-    return <QueryContext.Consumer>{value => {
-      return <input onFocus={value.setDraggable.bind(undefined, false)}
-                    onBlur={value.setDraggable.bind(undefined, true)}
-                    autoFocus
-                    {...this.props}/>;
-    }}</QueryContext.Consumer>;
-  }
-}
+export const ImmobileInput = ({className, ...props}) => {
+  return <QueryContext.Consumer>{value => {
+    return <input onFocus={value.setDraggable.bind(undefined, false)}
+                  onBlur={value.setDraggable.bind(undefined, true)}
+                  className={classNames("form-control", className)}
+                  type="text"
+                  autoFocus
+                  {...props}/>;
+  }}</QueryContext.Consumer>;
+};
+
+ImmobileInput.propTypes = {
+  className: PropTypes.string
+};
 
 class DragItemBody extends React.Component {
   constructor(props) {

@@ -45,6 +45,7 @@ import {
   AddTFButton,
   AddTFGroupButton,
   AndOrSelect,
+  DuplicateButton,
   NotSelect,
   TargetGeneInfo,
   TargetGenesFile
@@ -176,6 +177,10 @@ class ModBody extends React.Component {
     }
   }
 
+  isNumericKey() {
+    return this.props.node.key === 'pvalue' || this.props.node.key === 'fc';
+  }
+
   render() {
     let {
       first, node, addMod, addModGroup, removeNode, setQueryNot, setQueryOper, duplicateNode
@@ -194,14 +199,13 @@ class ModBody extends React.Component {
               <NotSelect className="col-1 mr-1" value={node.not_}
                          handleChange={setQueryNot.bind(undefined, node.id)}/>
               <select
-                className={classNames("form-control mr-1",
-                  node.key === 'pvalue' || node.key === 'fc' ? 'col-3' : 'col-4')}
+                className={classNames("form-control mr-1", this.isNumericKey() ? 'col-3' : 'col-4')}
                 onChange={this.setModKey.bind(this)} value={node.key}>
                 {_.map(dataSource, (o, i) => {
                   return <option key={i}>{o}</option>;
                 })}
               </select>
-              {node.key === 'pvalue' || node.key === 'fc' ?
+              {this.isNumericKey() ?
                 <select className="form-control col-1 mr-1" value={node.innerOper}
                         onChange={this.setModInnerOper.bind(this)}>
                   <option>=</option>
@@ -211,8 +215,7 @@ class ModBody extends React.Component {
                   <option>&gt;=</option>
                 </select> :
                 null}
-              <ImmobileInput className="form-control col"
-                             type="text"
+              <ImmobileInput className="col"
                              list={this.uuid}
                              onChange={this.setModValue.bind(this)}
                              value={node.value}/>
@@ -237,11 +240,7 @@ class ModBody extends React.Component {
                 </button>
               </div>
               <div className="btn-group ml-auto">
-                <button type="button" className="btn btn-light"
-                        onClick={duplicateNode.bind(undefined, node.id)}
-                        title="Duplicate Item">
-                  <FontAwesomeIcon icon="clone"/>
-                </button>
+                <DuplicateButton onClick={duplicateNode.bind(undefined, node.id)}/>
               </div>
             </div>
           </div>
@@ -359,11 +358,7 @@ class ModGroupBody extends React.Component {
                 addGroupText="Add Following Modifier Group"/>
             </div>
             <div className="btn-group">
-              <button type="button" className="btn btn-light"
-                      onClick={duplicateNode.bind(undefined, node.id)}
-                      title="Duplicate Item">
-                <FontAwesomeIcon icon="clone"/>
-              </button>
+              <DuplicateButton onClick={duplicateNode.bind(undefined, node.id)}/>
             </div>
           </div>
         </div>
@@ -511,8 +506,7 @@ class ValueBody extends React.Component {
                            disable={first}/>
               <NotSelect className="col-1 mr-1" value={node.not_}
                          handleChange={setQueryNot.bind(undefined, node.id)}/>
-              <ImmobileInput className="form-control col"
-                             type="text"
+              <ImmobileInput className="col"
                              list={this.uuid}
                              onChange={this.handleQueryName.bind(this, node.id)}
                              value={node.name}/>
@@ -540,11 +534,7 @@ class ValueBody extends React.Component {
               </button>
             </div>
             <div className="btn-group ml-auto">
-              <button type="button" className="btn btn-light"
-                      onClick={duplicateNode.bind(undefined, node.id)}
-                      title="Duplicate Item">
-                <FontAwesomeIcon icon="clone"/>
-              </button>
+              <DuplicateButton onClick={duplicateNode.bind(undefined, node.id)}/>
             </div>
           </div>
         </div>
@@ -677,11 +667,7 @@ class GroupBody extends React.Component {
                             addGroup={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}/>
             </div>
             <div className="btn-group">
-              <button type="button" className="btn btn-light"
-                      onClick={duplicateNode.bind(undefined, node.id)}
-                      title="Duplicate Item">
-                <FontAwesomeIcon icon="clone"/>
-              </button>
+              <DuplicateButton onClick={duplicateNode.bind(undefined, node.id)}/>
             </div>
           </div>
         </div>
@@ -865,10 +851,6 @@ class QuerybuilderBody extends React.Component {
     this.clipboard.destroy();
   }
 
-  handleQuery(e) {
-    this.props.setQuery(e.target.value);
-  }
-
   handleSubmit(e) {
     e.preventDefault();
     let {query, setQuery, edges} = this.props;
@@ -1012,7 +994,7 @@ class QuerybuilderBody extends React.Component {
                     <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
                   </button>
                 </div>
-                <QueryAutocomplete value={query} onChange={this.handleQuery.bind(this)} setQuery={setQuery}/>
+                <QueryAutocomplete value={query} setQuery={setQuery}/>
                 <div className="input-group-append">
                   {busy ?
                     <button type="submit" className="btn btn-warning btn-lg">
