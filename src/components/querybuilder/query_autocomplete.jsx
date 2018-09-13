@@ -11,13 +11,16 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 
 const qRegex = /(\s*)\w+$/;
+const qEndRegex = /^\w+/;
 
 class QueryAutocomplete extends React.Component {
   constructor(props) {
     super(props);
+    this.textArea = React.createRef();
 
     this.state = {
-      tfs: []
+      tfs: [],
+      selectionEnd: undefined
     };
   }
 
@@ -32,13 +35,19 @@ class QueryAutocomplete extends React.Component {
 
   render() {
     return <Autocomplete
-      renderInput={(props) => <textarea {...props} className="form-control rounded-0" value={this.props.value}
-                                        placeholder="Search Transcription Factor..."
-                                        style={{width: '100%', height: '100%'}}
-                                        onChange={(e) => {
-                                          this.props.onChange(e);
-                                          props.onChange(e);
-                                        }}/>}
+      ref={this.textArea}
+      renderInput={({onChange, ...props}) => (
+        <textarea {...props} className="form-control rounded-0"
+                  value={this.props.value}
+                  placeholder="Search Transcription Factor..."
+                  style={{width: '100%', height: '100%'}}
+                  onChange={(e) => {
+                    this.props.setQuery(e.target.value);
+                    onChange(e);
+                  }}
+                  onSelect={(e) => {
+                    this.setState({selectionEnd: e.currentTarget.selectionEnd});
+                  }}/>)}
       renderItem={(item, isHighlighted) =>
         <div className={classNames('dropdown-item', {active: isHighlighted})}
              key={item.value}>{item.value} {item.name ?
@@ -47,35 +56,59 @@ class QueryAutocomplete extends React.Component {
       wrapperProps={{className: 'form-control p-0 d-inline-block border-0'}}
       wrapperStyle={{height: 'auto'}}
       renderMenu={function (items, value, {minWidth, top}) {
-        return <div style={{minWidth, height: document.documentElement.clientHeight - top, overflowY: 'scroll'}}
+        return <div style={{minWidth, maxHeight: document.documentElement.clientHeight - top || 0, overflowY: 'scroll'}}
                     className={classNames("dropdown-menu", {show: items.length})}>
           {items}
         </div>;
       }}
       onSelect={(item) => {
-        if (this.props.value) {
-          this.props.setQuery(this.props.value.replace(qRegex, '$1' + item));
+        let {value, setQuery} = this.props;
+        let {selectionEnd} = this.state;
+
+        if (value) {
+          setQuery(value.slice(0, selectionEnd).replace(qRegex, '$1' + item) + value.slice(selectionEnd).replace(qEndRegex, ''));
+          try {
+            if (value.length > selectionEnd) {
+              _.defer(() => {
+                this.textArea.current.refs.input.setSelectionRange(selectionEnd, selectionEnd);
+              });
+            }
+          } catch (e) {
+            // do nothing
+          }
         } else {
-          this.props.setQuery(item);
+          setQuery(item);
         }
       }}
       items={this.state.tfs}
       shouldItemRender={(item) => {
-        let m = qRegex.exec(this.props.value);
+        let {selectionEnd} = this.state;
+        let searchVal = this.props.value.slice(0, selectionEnd);
 
-        if (m) {
-          let r = new RegExp(_.escapeRegExp(m[0].trim()), 'i');
+        {
+          let m = /\[[^[\]]+$/.exec(searchVal);
 
-          return item.value.search(r) !== -1 || (item.name && item.name.search(r) !== -1);
+          if (m) {
+            return false;
+          }
         }
 
-        return !this.props.value;
+        {
+          let m = qRegex.exec(searchVal);
+
+          if (m) {
+            let r = new RegExp(_.escapeRegExp(m[0].trim()), 'i');
+
+            return item.value.search(r) !== -1 || (item.name && item.name.search(r) !== -1);
+          }
+        }
+
+        return !this.props.value.slice(0, selectionEnd);
       }}/>;
   }
 }
 
 QueryAutocomplete.propTypes = {
-  onChange: PropTypes.func.isRequired,
   value: PropTypes.string.isRequired,
   setQuery: PropTypes.func.isRequired
 };
