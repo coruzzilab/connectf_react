@@ -1,8 +1,10 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import React from "react";
-import {NavLink as BSNavLink, TabPane, Tooltip, UncontrolledTooltip} from "reactstrap";
+import {NavLink as BSNavLink, Popover, PopoverBody, TabPane, Tooltip, UncontrolledTooltip} from "reactstrap";
 import {Route, withRouter} from "react-router-dom";
+import connect from "react-redux/es/connect/connect";
+import _ from "lodash";
 
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
   return <a onClick={sortFunc} {...props}>
@@ -121,3 +123,34 @@ RouteTabPane.propTypes = {
   tabId: PropTypes.string.isRequired,
   children: PropTypes.node
 };
+
+class QueryPopoverBody extends React.Component {
+  render() {
+    let {edges, query} = this.props;
+    return <Popover className="mw-100" {..._.omit(this.props, ['query', 'dispatch', 'edges'])}>
+      <PopoverBody>
+        <h6>Query</h6>
+        <div className="query-popover text-monospace mb-1 border rounded border-light bg-light">
+          {query}
+        </div>
+        {edges.length ?
+          <div>
+            <h6>Additional Edges</h6>
+            <ul>
+              {_.map(edges, (e, i) => {
+                return <li key={i}>{e}</li>;
+              })}
+            </ul>
+          </div> :
+          null}
+      </PopoverBody>
+    </Popover>;
+  }
+}
+
+QueryPopoverBody.propTypes = {
+  query: PropTypes.string,
+  edges: PropTypes.arrayOf(PropTypes.string)
+};
+
+export const QueryPopover = connect(({query, edges}) => ({query, edges}))(QueryPopoverBody);

@@ -5,10 +5,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import {Redirect, Switch} from 'react-router-dom';
-import {Nav, NavItem, Popover, PopoverBody, TabContent} from 'reactstrap';
+import {Nav, NavItem, TabContent} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {clearEdges, clearQuery, clearQueryTree, clearRequestId} from "../../actions";
-import _ from 'lodash';
 
 import Table from './table';
 import Meta from './meta';
@@ -17,8 +16,7 @@ import TargetEnrichment from './target_enrichment';
 import MotifEnrichment from './motif_enrichment';
 import AnalysisEnrichment from './analysis_enrichment';
 import Cytoscape from './cytoscape';
-import {NavLink, RouteTabPane} from "./common";
-
+import {NavLink, QueryPopover, RouteTabPane} from "./common";
 
 function mapStateToProps({heatmap}) {
   return {
@@ -26,38 +24,7 @@ function mapStateToProps({heatmap}) {
   };
 }
 
-class QueryPopoverBody extends React.Component {
-  render() {
-    let {edges, query} = this.props;
-    return <Popover className="mw-100" {..._.omit(this.props, ['query', 'dispatch', 'edges'])}>
-      <PopoverBody>
-        <h6>Query</h6>
-        <div className="query-popover text-monospace mb-1 border rounded border-light bg-light">
-          {query}
-        </div>
-        {edges.length ?
-          <div>
-            <h6>Additional Edges</h6>
-            <ul>
-              {_.map(edges, (e, i) => {
-                return <li key={i}>{e}</li>;
-              })}
-            </ul>
-          </div> :
-          null}
-      </PopoverBody>
-    </Popover>;
-  }
-}
-
-QueryPopoverBody.propTypes = {
-  query: PropTypes.string,
-  edges: PropTypes.arrayOf(PropTypes.string)
-};
-
-const QueryPopover = connect(({query, edges}) => ({query, edges}))(QueryPopoverBody);
-
-class Datagrid extends React.Component {
+class ResultBody extends React.Component {
   constructor(props) {
     super(props);
     this.query = React.createRef();
@@ -93,37 +60,37 @@ class Datagrid extends React.Component {
     return <div>
       <Nav tabs>
         <NavItem>
-          <NavLink to={"/datagrid/table"}>
+          <NavLink to={"/result/table"}>
             Table
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={"/datagrid/meta"}>
+          <NavLink to={"/result/meta"}>
             Metadata
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={"/datagrid/cytoscape"}>
+          <NavLink to={"/result/cytoscape"}>
             Cytoscape
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={"/datagrid/target"}>
+          <NavLink to={"/result/target"}>
             Target Enrichment
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={"/datagrid/motif"}>
+          <NavLink to={"/result/motif"}>
             Motif Enrichment
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={"/datagrid/analysis"}>
+          <NavLink to={"/result/analysis"}>
             Analysis Enrichment
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={"/datagrid/download"}>
+          <NavLink to={"/result/download"}>
             Download
           </NavLink>
         </NavItem>
@@ -170,7 +137,7 @@ class Datagrid extends React.Component {
           <RouteTabPane path={match.path + '/download'} tabId={pathname}>
             <Download/>
           </RouteTabPane>
-          <Redirect to="/datagrid/table"/>
+          <Redirect to="/result/table"/>
         </Switch>
       </TabContent>
       <QueryPopover target={() => this.query.current} placement="auto" isOpen={popoverOpen}
@@ -179,7 +146,7 @@ class Datagrid extends React.Component {
   }
 }
 
-Datagrid.propTypes = {
+ResultBody.propTypes = {
   location: PropTypes.object,
   match: PropTypes.object,
   history: PropTypes.object,
@@ -190,4 +157,6 @@ Datagrid.propTypes = {
   clearRequestId: PropTypes.func
 };
 
-export default connect(mapStateToProps, {clearQuery, clearQueryTree, clearEdges, clearRequestId})(Datagrid);
+const Result = connect(mapStateToProps, {clearQuery, clearQueryTree, clearEdges, clearRequestId})(ResultBody);
+
+export default Result;

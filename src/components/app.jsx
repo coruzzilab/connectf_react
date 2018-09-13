@@ -7,14 +7,12 @@ import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 import About from './about';
-import Datagrid from './datagrid';
+import Result from './result';
 import QueryBuilder from './querybuilder';
 import Cytoscape from './cytoscape';
 import Feedback from './feedback';
 import Tutorial from './tutorial';
 import {NavItem} from "./common";
-// import UploadAnalysis from './upload_analysis';
-// import UploadExperiment from './upload_experiment';
 
 /**
  * Main app component
@@ -57,11 +55,9 @@ class App extends React.Component {
         <Route exact path="/" component={About}/>
         <Route path="/tutorial" component={Tutorial}/>
         <Route path="/query" component={QueryBuilder}/>
-        {/*<Route path="/upload_analysis" component={UploadAnalysis}/>*/}
-        {/*<Route path="/upload_experiment" component={UploadExperiment}/>*/}
         <Route path="/feedback" component={Feedback}/>
         <Route path="/cytoscape" component={Cytoscape}/>
-        <Route path="/datagrid" component={Datagrid}/>
+        <Route path="/result" component={Result}/>
         <Redirect to="/"/>
       </Switch>
     </div>;

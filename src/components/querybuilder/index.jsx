@@ -884,7 +884,7 @@ class QuerybuilderBody extends React.Component {
         })
       },
       () => {
-        this.props.history.push('/datagrid/table');
+        this.props.history.push('/result/table');
       });
   }
 

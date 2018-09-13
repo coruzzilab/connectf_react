@@ -271,7 +271,7 @@ class CytoscapeBody extends React.Component {
   }
 
   back() {
-    this.props.history.push('/datagrid/cytoscape');
+    this.props.history.push('/result/cytoscape');
   }
 
   togglePopover() {
