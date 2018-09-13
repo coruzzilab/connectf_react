@@ -156,3 +156,47 @@ export class TargetGeneInfo extends React.Component {
     </div>;
   }
 }
+
+export const AddTFButton = ({onClick, large}) => (
+  <button type="button"
+          className={classNames("btn btn-success", large ? "btn-lg" : null)}
+          onClick={onClick}>
+    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
+  </button>);
+
+AddTFButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  large: PropTypes.bool
+};
+
+export const AddTFGroupButton = ({onClick, large}) => (
+  <button type="button"
+          className={classNames("btn btn-success", large ? "btn-lg" : null)}
+          onClick={onClick}>
+    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
+  </button>);
+
+AddTFGroupButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  large: PropTypes.bool
+};
+
+export const AddModButton = ({onClick}) => (
+  <button type="button" className="btn btn-success"
+          onClick={onClick}>
+    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+  </button>);
+
+AddModButton.propTypes = {
+  onClick: PropTypes.func.isRequired
+};
+
+export const AddModGroupButton = ({onClick}) => (
+  <button type="button" className="btn btn-success"
+          onClick={onClick}>
+    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+  </button>);
+
+AddModGroupButton.propTypes = {
+  onClick: PropTypes.func.isRequired
+};

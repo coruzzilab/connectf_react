@@ -38,7 +38,17 @@ import {
   setQueryOper
 } from '../../actions';
 import {getParentTfTree, getQuery} from "../../utils";
-import {AddFollowing, AndOrSelect, NotSelect, TargetGeneInfo, TargetGenesFile} from "./common";
+import {
+  AddFollowing,
+  AddModButton,
+  AddModGroupButton,
+  AddTFButton,
+  AddTFGroupButton,
+  AndOrSelect,
+  NotSelect,
+  TargetGeneInfo,
+  TargetGenesFile
+} from "./common";
 import History from "./history";
 import {DragContainer, DragItem, ImmobileInput} from "./drag";
 import QueryAutocomplete from "./query_autocomplete";
@@ -216,14 +226,9 @@ class ModBody extends React.Component {
           <div className="col">
             <div className="btn-toolbar">
               <div className="btn-group mr-1">
-                <button type="button" className="btn btn-success"
-                        onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
-                </button>
-                <button type="button" className="btn btn-success"
-                        onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
-                </button>
+                <AddModButton
+                  onClick={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}/>
+                <AddModGroupButton onClick={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}/>
               </div>
               <div className="btn-group">
                 <button type="button" className="btn btn-danger"
@@ -336,14 +341,9 @@ class ModGroupBody extends React.Component {
           <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
           <div className="btn-toolbar col">
             <div className="btn-group mr-1">
-              <button type="button" className="btn btn-success"
-                      onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
-              </button>
-              <button type="button" className="btn btn-success"
-                      onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
-              </button>
+              <AddModButton
+                onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}/>
+              <AddModGroupButton onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}/>
             </div>
             <div className="btn-group">
               <button type="button" className="btn btn-danger"
@@ -525,24 +525,13 @@ class ValueBody extends React.Component {
           </datalist>
           <div className="btn-toolbar col">
             <div className="btn-group mr-1">
-              <button type="button" className="btn btn-success"
-                      onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
-              </button>
-              <button type="button" className="btn btn-success"
-                      onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
-              </button>
+              <AddTFButton onClick={addTF.bind(undefined, '', node.parent, node.id, undefined, undefined)}/>
+              <AddTFGroupButton onClick={addGroup.bind(undefined, node.parent, node.id, undefined, undefined)}/>
             </div>
             <div className="btn-group mr-1">
-              <button type="button" className="btn btn-success"
-                      onClick={addMod.bind(undefined, '', '', node.id, undefined, undefined, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
-              </button>
-              <button type="button" className="btn btn-success"
-                      onClick={addModGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
-              </button>
+              <AddModButton
+                onClick={addMod.bind(undefined, '', '', node.id, undefined, undefined, undefined, undefined)}/>
+              <AddModGroupButton onClick={addModGroup.bind(undefined, node.id, undefined, undefined, undefined)}/>
             </div>
             <div className="btn-group">
               <button type="button" className="btn btn-danger"
@@ -669,24 +658,13 @@ class GroupBody extends React.Component {
           <NotSelect className="col-1 mr-1" value={node.not_} handleChange={setQueryNot.bind(undefined, node.id)}/>
           <div className="btn-toolbar col">
             <div className="btn-group mr-1">
-              <button type="button" className="btn btn-success"
-                      onClick={addTF.bind(undefined, '', node.id, undefined, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
-              </button>
-              <button type="button" className="btn btn-success"
-                      onClick={addGroup.bind(undefined, node.id, undefined, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
-              </button>
+              <AddTFButton onClick={addTF.bind(undefined, '', node.id, undefined, undefined, undefined)}/>
+              <AddTFGroupButton onClick={addGroup.bind(undefined, node.id, undefined, undefined, undefined)}/>
             </div>
             <div className="btn-group mr-1">
-              <button type="button" className="btn btn-success"
-                      onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
-              </button>
-              <button type="button" className="btn btn-success"
-                      onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}>
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
-              </button>
+              <AddModButton
+                onClick={addMod.bind(undefined, '', '', node.id, node.id, undefined, undefined, undefined)}/>
+              <AddModGroupButton onClick={addModGroup.bind(undefined, node.id, node.id, undefined, undefined)}/>
             </div>
             <div className="btn-group">
               <button type="button" className="btn btn-danger"
@@ -1000,14 +978,8 @@ class QuerybuilderBody extends React.Component {
           <div className="form-row m-1">
             <div className="col">
               <div className="btn-group">
-                <button type="button" className="btn btn-success btn-lg"
-                        onClick={addTF.bind(undefined, '', undefined, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
-                </button>
-                <button type="button" className="btn btn-success btn-lg"
-                        onClick={addGroup.bind(undefined, undefined, undefined, undefined, undefined)}>
-                  <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
-                </button>
+                <AddTFButton onClick={addTF.bind(undefined, '', undefined, undefined, undefined, undefined)} large/>
+                <AddTFGroupButton onClick={addGroup.bind(undefined, undefined, undefined, undefined, undefined)} large/>
               </div>
               <div className="btn-group float-right">
                 <History/>
