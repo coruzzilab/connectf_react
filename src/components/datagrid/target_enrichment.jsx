@@ -30,6 +30,10 @@ import {
   setError
 } from "../../actions/target_enrichment";
 
+function surround(s, p = '"', pre = ' ', default_ = '') {
+  return s ? pre + p + s + p : default_;
+}
+
 const mapStateToProps = ({busy, requestId, targetEnrichment}) => {
   return {
     busy,
@@ -303,7 +307,7 @@ class TargetEnrichmentBody extends React.Component {
                   .orderBy((row) => _.isNull(row) ? row : row[sortCol], ascending ? 'asc' : 'desc')
                   .map((row, i) => {
                     return <tr key={i}>
-                      <RowHeader info={row[0]}>{row[0].name}</RowHeader>
+                      <RowHeader info={row[0]}>{row[0].name + surround(row[0].filter)}</RowHeader>
                       {_.map(row.slice(1), (cell, j) => {
                         let [background, color] = blueShader(cell, min, max);
                         return <td style={{background, color}} key={j}>{cell.toExponential(2)}</td>;
