@@ -902,6 +902,7 @@ class QuerybuilderBody extends React.Component {
     this.props.clearQueryTree();
     this.props.clearEdges();
     this.props.clearRequestId();
+    this.props.clearQueryError();
     this.setState({
       targetGene: ""
     });
