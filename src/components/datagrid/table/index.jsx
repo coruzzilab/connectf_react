@@ -37,6 +37,7 @@ class TableBody extends React.Component {
   }
 
   componentDidMount() {
+    let self = this;
     let hot = this.hot = new Handsontable(this.grid.current, {
       rowHeaders: function (idx) {
         if (idx < 6) {
@@ -113,7 +114,7 @@ class TableBody extends React.Component {
     });
 
     Handsontable.dom.addEvent(this.search.current, 'keyup', _.debounce(function () {
-      let {result} = this.props;
+      let {result} = self.props;
       let data = _.get(result, '0.data', []);
 
       if (this.value.length > 0) {
