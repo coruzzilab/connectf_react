@@ -4,8 +4,7 @@
  */
 
 import React from 'react';
-import $ from 'jquery';
-import {BASE_URL} from '../actions';
+import {getKeyValues, getTFs, submitExperiment} from '../utils/axios';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -76,26 +75,22 @@ class UploadExperiment extends React.Component {
   }
 
   componentDidMount() {
-    $.ajax({
-      url: `${BASE_URL}/api/tfs/`,
-      method: 'GET',
-      dataType: 'json',
-      data: {all: 0}
-    }).done((tf_id_list) => {
+    getTFs({all: 0})
+      .then(({data}) => {
+        this.setState({
+          tf_id_list: data
+        });
+      });
+
+    getKeyValues('Genotype').then(({data}) => {
       this.setState({
-        tf_id_list
+        genotype_list: data
       });
     });
 
-    $.getJSON(`${BASE_URL}/api/key/Genotype/`).done((genotype_list) => {
+    getKeyValues('experimenter').then(({data}) => {
       this.setState({
-        genotype_list
-      });
-    });
-
-    $.getJSON(`${BASE_URL}/api/key/experimenter/`).done((experimenter_list) => {
-      this.setState({
-        experimenter_list
+        experimenter_list: data
       });
     });
   }
@@ -152,9 +147,9 @@ class UploadExperiment extends React.Component {
   submit(e, event, auto = false) {
     let data = new FormData();
     let {control, control_other, analysis_method, analysis_method_other, tissue, tissue_other} = this.state;
-    let url = `${BASE_URL}/upload/`;
+    let params = {};
     if (auto) {
-      url += '?auto=1';
+      params.auto = 1;
     }
 
     e.preventDefault();
@@ -179,24 +174,17 @@ class UploadExperiment extends React.Component {
     data.set('expression_values', _.get(this.expressionValues.current, 'files.0'));
     data.set('design', _.get(this.design.current, 'files.0'));
 
-    $.ajax({
-      url,
-      data,
-      cache: false,
-      contentType: false,
-      processData: false,
-      type: 'POST'
-    })
-      .done(() => {
+    submitExperiment(data, params)
+      .then(() => {
         alert("Data Submitted!");
 
         this.form.current.reset();
 
         this.setState(initialFormData);
       })
-      .fail((res) => {
+      .catch((err) => {
         this.setState({
-          errors: res.responseJSON
+          errors: err.response.responseJSON
         });
       });
   }

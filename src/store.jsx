@@ -4,12 +4,12 @@
  */
 import {applyMiddleware, compose, createStore} from 'redux';
 import thunk from 'redux-thunk';
-import $ from 'jquery';
 import _ from 'lodash';
 
 import reducers from './reducers';
 import {loadState, saveState} from "./local_storage";
-import {BASE_URL, clearRequestId, setBusy, setResult} from "./actions";
+import {clearRequestId, setBusy, setResult} from "./actions";
+import {getTable} from "./utils/axios";
 
 /*
  * Enhancer composer for development. Connects to redux browser extension.
@@ -46,15 +46,18 @@ store.dispatch(function (dispatch) {
 
   if (state.requestId && _.isEmpty(state.result)) {
     dispatch(setBusy(true));
-    $.ajax(`${BASE_URL}/queryapp/${state.requestId}/`)
-      .always((data, textStatus) => {
+    getTable(state.requestId)
+      .then((response) => {
         if (state.requestId === store.getState().requestId) {
-          if (textStatus === 'success') {
-            dispatch(setResult(data));
-          } else {
-            dispatch(clearRequestId());
-          }
+          dispatch(setResult(response.data));
         }
+      })
+      .catch(() => {
+        if (state.requestId === store.getState().requestId) {
+          dispatch(clearRequestId());
+        }
+      })
+      .finally(() => {
         dispatch(setBusy(false));
       });
   }

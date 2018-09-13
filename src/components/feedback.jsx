@@ -3,8 +3,7 @@
  * 7/13/17
  */
 import React from 'react';
-import {BASE_URL} from '../actions';
-import $ from 'jquery';
+import instance from '../utils/axios';
 
 export default class Feedback extends React.Component {
   constructor(props) {
@@ -31,25 +30,27 @@ export default class Feedback extends React.Component {
     this.setState({
       name: '',
       feedback: ''
-    })
+    });
   }
 
   submit(e) {
     let {name, feedback} = this.state;
     e.preventDefault();
-    $.ajax(BASE_URL + '/api/feedback/', {
+    instance('/api/feedback/', {
       data: JSON.stringify({name, feedback}),
-      contentType: 'application/json',
-      type: 'POST'
-    }).done(() => {
-      alert("Feedback recorded!");
-      this.setState({
-        name: '',
-        feedback: ''
+      headers: {'Content-Type': 'application/json'},
+      method: 'POST'
+    })
+      .then(() => {
+        alert("Feedback recorded!");
+        this.setState({
+          name: '',
+          feedback: ''
+        });
+      })
+      .catch(() => {
+        alert("Something went wrong.");
       });
-    }).fail(() => {
-      alert("Something went wrong.");
-    });
   }
 
   render() {

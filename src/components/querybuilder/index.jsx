@@ -5,7 +5,6 @@ import React from "react";
 import {connect} from "react-redux";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import $ from 'jquery';
 import uuidv4 from 'uuid/v4';
 import Clipboard from 'clipboard';
 import classNames from 'classnames';
@@ -16,7 +15,6 @@ import {
   addMod,
   addModGroup,
   addTF,
-  BASE_URL,
   clearEdges,
   clearQuery,
   clearQueryError,
@@ -53,6 +51,8 @@ import {
 import History from "./history";
 import {DragContainer, DragItem, ImmobileInput} from "./drag";
 import QueryAutocomplete from "./query_autocomplete";
+import {getAdditionalEdges, getKeys, getKeyValues, getTargetGeneLists, getTFs} from "../../utils/axios";
+import {CancelToken} from "axios";
 
 const mapStateToProps = ({busy, query, queryTree, edges, queryError}) => {
   return {
@@ -115,14 +115,10 @@ class ModBody extends React.Component {
       data.tf = tfs;
     }
 
-    $.ajax({
-      url: `${BASE_URL}/api/key/`,
-      contentType: false,
-      data
-    }).done((dataSource) => {
-      this.setState({dataSource});
+    getKeys(data).then(({data}) => {
+      this.setState({dataSource: data});
       if (!node.key) {
-        this.props.setModKey(node.id, _.head(dataSource));
+        this.props.setModKey(node.id, _.head(data));
       }
     });
   }
@@ -139,12 +135,8 @@ class ModBody extends React.Component {
       data.tf = tfs;
     }
 
-    $.ajax({
-      url: `${BASE_URL}/api/key/${this.props.node.key}/`,
-      contentType: false,
-      data
-    }).done((dataSourceValues) => {
-      this.setState({dataSourceValues});
+    getKeyValues(this.props.node.key, data).then((response) => {
+      this.setState({dataSourceValues: response.data});
     });
   }
 
@@ -425,11 +417,8 @@ class ValueBody extends React.Component {
   }
 
   getAutoComplete() {
-    $.ajax({
-      url: `${BASE_URL}/api/tfs/`,
-      contentType: false
-    }).done((dataSource) => {
-      this.setState({dataSource});
+    getTFs().then(({data}) => {
+      this.setState({dataSource: data});
     });
   }
 
@@ -815,21 +804,21 @@ class QuerybuilderBody extends React.Component {
 
     this.copy = React.createRef();
 
-    this.xhr = null;
+    this.cancels = [];
 
     this.checkShouldBuild = _.debounce(this.checkShouldBuild.bind(this), 100);
   }
 
   componentDidMount() {
-    $.getJSON(`${BASE_URL}/api/lists/`)
-      .done((targetGenes) => {
-        this.setState({targetGenes});
+    getTargetGeneLists()
+      .then(({data}) => {
+        this.setState({targetGenes: data});
       });
 
-    $.getJSON(`${BASE_URL}/api/edges/`)
-      .done((edgeList) => {
-        this.setState({edgeList});
-        this.props.setEdges(_.intersection(this.props.edges, edgeList));
+    getAdditionalEdges()
+      .then(({data}) => {
+        this.setState({edgeList: data});
+        this.props.setEdges(_.intersection(this.props.edges, data));
       });
 
     this.clipboard = new Clipboard(this.copy.current, {
@@ -851,15 +840,22 @@ class QuerybuilderBody extends React.Component {
     this.clipboard.destroy();
   }
 
+  cancelRequests() {
+    if (this.cancels.length) {
+      for (let c of this.cancels) {
+        c();
+      }
+      this.cancels = [];
+    }
+  }
+
   handleSubmit(e) {
     e.preventDefault();
     let {query, setQuery, edges} = this.props;
     let {targetGene, files} = this.state;
     let data = new FormData();
 
-    if (this.xhr) {
-      this.xhr.abort();
-    }
+    this.cancelRequests();
 
     if (!this.props.query) {
       query = this.buildQuery();
@@ -880,14 +876,15 @@ class QuerybuilderBody extends React.Component {
       data.set('targetgenes', targetGene);
     }
 
-    this.xhr = this.props.postQuery(
-      data,
+    this.props.postQuery(
+      {
+        data,
+        cancelToken: new CancelToken((c) => {
+          this.cancels.push(c);
+        })
+      },
       () => {
         this.props.history.push('/datagrid/table');
-      },
-      undefined,
-      () => {
-        this.xhr = null;
       });
   }
 
@@ -899,9 +896,7 @@ class QuerybuilderBody extends React.Component {
       // Ignore for now
     }
 
-    if (this.xhr) {
-      this.xhr.abort();
-    }
+    this.cancelRequests();
 
     this.props.clearQuery();
     this.props.clearQueryTree();

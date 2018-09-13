@@ -1,5 +1,5 @@
-import $ from "jquery";
-import {BASE_URL, setBusy} from "./index";
+import {setBusy} from "./index";
+import * as api from "../utils/axios";
 
 /**
  * @author zacharyjuang
@@ -21,19 +21,16 @@ export const clearTargetEnrichment = () => {
 export const getTargetEnrichmentTable = (requestId) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return $.ajax({
-      url: `${BASE_URL}/queryapp/list_enrichment/${requestId}/`,
-      contentType: false
-    })
-      .done((data) => {
-        dispatch(setTargetEnrichment(data));
+    return api.getTargetEnrichmentTable(requestId)
+      .then((response) => {
+        dispatch(setTargetEnrichment(response.data));
         dispatch(setError(false));
       })
-      .fail(() => {
+      .catch(() => {
         dispatch(clearTargetEnrichment());
         dispatch(setError(true));
       })
-      .always(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };
@@ -55,18 +52,16 @@ export const clearTargetEnrichmentImage = () => {
 export const getTargetEnrichmentImage = (requestId, params = {}) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return $.ajax({
-      url: `${BASE_URL}/queryapp/list_enrichment/${requestId}.svg?` + $.param(params)
-    })
-      .done((data) => {
+    return api.getTargetEnrichmentImage(requestId, params)
+      .then((response) => {
         dispatch(setError(false));
-        dispatch(setTargetEnrichmentImage('data:image/svg+xml,' + encodeURIComponent(data.documentElement.outerHTML)));
+        dispatch(setTargetEnrichmentImage('data:image/svg+xml,' + encodeURIComponent(response.data.documentElement.outerHTML)));
       })
-      .fail(() => {
+      .catch(() => {
         dispatch(setError(true));
         dispatch(clearTargetEnrichmentImage());
       })
-      .always(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };
@@ -88,18 +83,16 @@ export const clearTargetEnrichmentLegend = () => {
 export const getTargetEnrichmentLegend = (requestId) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return $.ajax({
-      url: `${BASE_URL}/queryapp/list_enrichment/${requestId}/legend/`
-    })
-      .done((data) => {
-        dispatch(setTargetEnrichmentLegend(data));
+    return api.getTargetEnrichmentLegend(requestId)
+      .done((response) => {
+        dispatch(setTargetEnrichmentLegend(response.data));
         dispatch(setError(false));
       })
-      .fail(() => {
+      .catch(() => {
         dispatch(clearTargetEnrichmentLegend());
         dispatch(setError(true));
       })
-      .always(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };

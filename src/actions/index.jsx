@@ -1,14 +1,12 @@
 /**
  * Created by zacharyjuang on 11/26/16.
  */
-import $ from 'jquery';
 import {generateRequestId} from "../utils";
 import * as motifEnrichment from "./motif_enrichment";
 import * as targetEnrichment from "./target_enrichment";
 import uuidv4 from "uuid/v4";
 import _ from 'lodash';
-
-export const BASE_URL = window.location.origin;
+import * as api from "../utils/axios";
 
 export const setBusy = (busy) => {
   return {
@@ -211,77 +209,71 @@ export const clearCytoscape = () => {
 export const getCytoscape = (requestId) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return $.ajax({
-      url: `${BASE_URL}/queryapp/cytoscape/${requestId}/`,
-      contentType: false
-    })
-      .done((data) => {
-        dispatch(setCytoscape(data));
+    return api.getCytoscape(requestId)
+      .then((response) => {
+        dispatch(setCytoscape(response.data));
       })
-      .fail(() => {
+      .catch(() => {
         dispatch(clearCytoscape());
       })
-      .always(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };
 };
 
-export const postQuery = (data, onSuccess, onError, always) => {
+export const postQuery = (config, onSuccess, onError, always) => {
   return (dispatch) => {
     let requestId = generateRequestId();
 
-    data.append('requestId', requestId);
+    config.data.append('requestId', requestId);
 
     dispatch(setBusy(true));
     dispatch(clearResult());
 
-    return $.ajax({
-      url: `${BASE_URL}/queryapp/`,
-      type: 'POST',
-      cache: false,
-      contentType: false,
-      processData: false,
-      data
-    })
-      .done((result, textStatus, xhr) => {
+    return api.postQuery(config)
+      .then((response) => {
         dispatch(setRequestId(requestId));
-        dispatch(setResult(result));
-        dispatch(addQueryHistory(data.get('query')));
+        dispatch(setResult(response.data));
+        dispatch(addQueryHistory(config.data.get('query')));
         dispatch(clearAllErrors());
 
         if (_.isFunction(onSuccess)) {
-          onSuccess(result, textStatus, xhr);
+          onSuccess(response);
         }
       })
-      .fail((xhr, textStatus, err) => {
-        if (xhr.status >= 400 < 500) {
-          dispatch(setResult([{
-            data: [['No Data Matched Your Query']],
-            columns: [{type: 'text'}]
-          }, {}]));
-        } else {
-          dispatch(setResult([{
-            data: [['Something went wrong with the server. Please report to the development team.']],
-            columns: [{type: 'text'}]
-          }, {}]));
+      .catch((err) => {
+        let {response} = err;
+
+        if (response) {
+          if (response.status >= 400 < 500) {
+            dispatch(setResult([{
+              data: [['No Data Matched Your Query']],
+              columns: [{type: 'text'}]
+            }, {}]));
+          } else {
+            dispatch(setResult([{
+              data: [['Something went wrong with the server. Please report to the development team.']],
+              columns: [{type: 'text'}]
+            }, {}]));
+          }
+
+          if (response.status === 400) {
+            dispatch(setQueryError(true, 'Problem with query.'));
+          } else if (response.status === 404) {
+            dispatch(setQueryError(true, 'Empty result.'));
+          } else {
+            dispatch(setQueryError(true, response.statusText));
+          }
         }
 
         dispatch(clearRequestId());
 
-        if (xhr.status === 400) {
-          dispatch(setQueryError(true, 'Problem with query.'));
-        } else if (xhr.status === 404) {
-          dispatch(setQueryError(true, 'Empty result.'));
-        } else {
-          dispatch(setQueryError(true, textStatus));
-        }
-
         if (_.isFunction(onError)) {
-          onError(xhr, textStatus, err);
+          onError(err);
         }
       })
-      .always(() => {
+      .finally(() => {
         dispatch(setBusy(false));
 
         if (_.isFunction(always)) {
@@ -341,16 +333,16 @@ export const clearStats = () => {
 export const getStats = (requestId) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    $.ajax({
-      url: `${BASE_URL}/queryapp/stats/${requestId}/`,
-      method: 'GET'
-    }).done((data) => {
-      dispatch(setStats(data));
-    }).fail(() => {
-      dispatch(clearStats());
-    }).always(() => {
-      dispatch(setBusy(false));
-    });
+    api.getStats(requestId)
+      .then((response) => {
+        dispatch(setStats(response.data));
+      })
+      .catch(() => {
+        dispatch(clearStats());
+      })
+      .finally(() => {
+        dispatch(setBusy(false));
+      });
   };
 };
 

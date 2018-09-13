@@ -3,12 +3,11 @@
  * 9/12/18
  */
 import React from "react";
-import $ from "jquery";
-import {BASE_URL} from "../../actions";
 import Autocomplete from "react-autocomplete";
 import classNames from "classnames";
 import _ from "lodash";
 import PropTypes from "prop-types";
+import {getTFs} from "../../utils/axios";
 
 const qRegex = /(\s*)\w+$/;
 const qEndRegex = /^\w+/;
@@ -25,12 +24,10 @@ class QueryAutocomplete extends React.Component {
   }
 
   componentDidMount() {
-    $.ajax({
-      url: `${BASE_URL}/api/tfs/`,
-      contentType: false
-    }).done((tfs) => {
-      this.setState({tfs});
-    });
+    getTFs()
+      .then((response) => {
+        this.setState({tfs: response.data});
+      });
   }
 
   render() {

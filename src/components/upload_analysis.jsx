@@ -3,9 +3,8 @@
  * 8/10/17
  */
 import React from 'react';
-import $ from 'jquery';
 import _ from 'lodash';
-import {BASE_URL} from '../actions';
+import {getExperiments, getTFs, submitAnalysis} from '../utils/axios';
 import classNames from 'classnames';
 
 const pickIdData = _.partial(_.pick, _, ['tf', 'analysisMethod', 'analysisMethodOther', 'analysisCutoff']);
@@ -36,36 +35,23 @@ class UploadAnalysis extends React.Component {
   }
 
   getTfs() {
-    return $.ajax({
-      url: `${BASE_URL}/api/tfs/`,
-      method: 'GET',
-      data: {
-        all: 0
-      },
-      dataType: 'json'
-    })
-      .done((tfs) => {
+    return getTFs({all: 0})
+      .then((response) => {
         this.setState({
-          tfs,
-          tf: _.get(tfs, '0.value', '')
+          tfs: response.data,
+          tf: _.get(response.data, '0.value', '')
         });
-      }).then(this.getExperiments.bind(this));
+      })
+      .then(this.getExperiments.bind(this));
   }
 
   getExperiments() {
     let {tf} = this.state;
-    return $.ajax({
-      url: `${BASE_URL}/api/experiments/`,
-      method: 'GET',
-      data: {
-        tf
-      },
-      dataType: 'json'
-    })
-      .done((experiments) => {
+    return getExperiments({tf})
+      .done((response) => {
         this.setState({
-          experiment: experiments[0],
-          experiments
+          experiment: response.data[0],
+          experiments: response.data
         });
       });
   }
@@ -111,24 +97,17 @@ class UploadAnalysis extends React.Component {
     data.set('gene_list', this.geneList.files[0]);
     data.set('experimental_design', this.experimentalDesign.files[0]);
 
-    $.ajax({
-      url: `${BASE_URL}/upload/analysis/`,
-      data,
-      cache: false,
-      contentType: false,
-      processData: false,
-      type: 'POST'
-    })
-      .done(() => {
+    submitAnalysis(data)
+      .then(() => {
         alert("Data Submitted!");
 
         this.form.reset();
 
         this.setState(Object.assign({}, initialState));
       })
-      .fail((res) => {
+      .catch((err) => {
         this.setState({
-          errors: res.responseJSON
+          errors: err.response.responseJSON
         });
       });
   }
