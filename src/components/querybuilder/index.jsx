@@ -41,6 +41,7 @@ import {getParentTfTree, getQuery} from "../../utils";
 import {AddFollowing, AndOrSelect, NotSelect, TargetGeneInfo, TargetGenesFile} from "./common";
 import History from "./history";
 import {DragContainer, DragItem, ImmobileInput} from "./drag";
+import QueryAutocomplete from "./query_autocomplete";
 
 const mapStateToProps = ({busy, query, queryTree, edges, queryError}) => {
   return {
@@ -988,15 +989,10 @@ class QuerybuilderBody extends React.Component {
 
   render() {
     let {targetGenes, targetGene, edgeList, shouldBuild} = this.state;
-    let {addTF, addGroup, queryTree, edges, query, busy, queryError} = this.props;
+    let {addTF, addGroup, queryTree, edges, query, busy, queryError, setQuery} = this.props;
 
     return <div>
-      <form onSubmit={this.handleSubmit.bind(this)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-                e.preventDefault();
-              }
-            }}>
+      <form onSubmit={this.handleSubmit.bind(this)}>
         <div className="container-fluid">
           <div className="row m-2">
             <h2>Query</h2>
@@ -1044,8 +1040,7 @@ class QuerybuilderBody extends React.Component {
                     <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
                   </button>
                 </div>
-                <textarea className="form-control" value={query}
-                          onChange={this.handleQuery.bind(this)} autoComplete="on"/>
+                <QueryAutocomplete value={query} onChange={this.handleQuery.bind(this)} setQuery={setQuery}/>
                 <div className="input-group-append">
                   {busy ?
                     <button type="submit" className="btn btn-warning btn-lg">
