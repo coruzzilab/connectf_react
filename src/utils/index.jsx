@@ -7,25 +7,30 @@ import moment from 'moment';
 import uuidv4 from "uuid/v4";
 import convert from "color-convert";
 
-const lightClamp = _.partial(_.clamp, _, 0, 51);
+function brightness(r, g, b) {
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+}
 
-export function blueShader(v, min, max) {
+export function colorShader(h, s, l, v, min, max) {
   v = Math.log10(v);
 
   if (v > max) {
-    return ['white', 'black'];
+    return {background: 'white', color: 'black'};
   } else {
-    let l = 48 + lightClamp(51 * ((v - min) / (max - min)));
+    let lMax = 99 - l;
+    let vl = l + _.clamp(lMax * ((v - min) / (max - min)), 0, lMax);
 
-    let c = convert.hsl.rgb.raw(228, 89, l);
+    let c = convert.hsl.rgb.raw(h, s, vl);
 
     let background = '#' + convert.rgb.hex(c);
 
-    let color = (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255 < 0.5 ? 'white' : 'black';
+    let color = brightness(...c) < 0.5 ? 'white' : 'black';
 
-    return [background, color];
+    return {background, color};
   }
 }
+
+export const blueShader = _.partial(colorShader, 228, 89, 48);
 
 const clampExp = _.flow(_.partial(_.clamp, _, Number.MIN_VALUE, Number.MAX_VALUE), Math.log10);
 

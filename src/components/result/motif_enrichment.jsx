@@ -503,10 +503,9 @@ class MotifEnrichmentBody extends React.Component {
                   <RowHeader data={row[0]}/>
                   {_.map(row.slice(1), (c, j) => {
                     if (typeof c === 'number') {
-                      let [background, color] = blueShader(c, min, max);
 
                       return <td key={j}
-                                 style={{background, color}}>{typeof c === 'number' ? c.toExponential(5) : null}</td>;
+                                 style={blueShader(c, min, max)}>{typeof c === 'number' ? c.toExponential(5) : null}</td>;
                     }
 
                     return <td key={j}/>;

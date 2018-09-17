@@ -309,8 +309,7 @@ class TargetEnrichmentBody extends React.Component {
                     return <tr key={i}>
                       <RowHeader info={row[0]}>{row[0].name + surround(row[0].filter)}</RowHeader>
                       {_.map(row.slice(1), (cell, j) => {
-                        let [background, color] = blueShader(cell, min, max);
-                        return <td style={{background, color}} key={j}>{cell.toExponential(2)}</td>;
+                        return <td style={blueShader(cell, min, max)} key={j}>{cell.toExponential(2)}</td>;
                       })}
                     </tr>;
                   })
