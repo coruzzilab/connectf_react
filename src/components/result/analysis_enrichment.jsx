@@ -5,6 +5,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
+import {Button, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
 import _ from "lodash";
 import {getAnalysisEnrichment} from "../../actions/analysis_enrichment";
 import {colorShader, getLogMinMax} from "../../utils";
@@ -19,6 +20,56 @@ function mapStateToProps({requestId, analysisEnrichment: {data, error}}) {
     error
   };
 }
+
+class Cell extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modal: false
+    };
+
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    this.setState({
+      modal: !this.state.modal
+    });
+  }
+
+  render() {
+    let {children, genes, ...props} = this.props;
+
+    return <div className="col p-0 cell border" {...props}>
+      {genes ?
+        [
+          <div key={0} className="w-100 h-100" onClick={this.toggle}>
+            {children}
+          </div>,
+          <Modal key={1} isOpen={this.state.modal} toggle={this.toggle}>
+            <ModalHeader toggle={this.toggle}>Genes</ModalHeader>
+            <ModalBody>
+              {_.size(genes) ?
+                <ul>
+                  {_.map(genes, (g, i) => <li key={i}>{g}</li>)}
+                </ul> :
+                <span className="text-danger">No genes in common.</span>
+              }
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.toggle}>OK</Button>
+            </ModalFooter>
+          </Modal>
+        ] :
+        children}
+    </div>;
+  }
+}
+
+Cell.propTypes = {
+  children: PropTypes.node,
+  genes: PropTypes.arrayOf(PropTypes.string)
+};
 
 class AnalysisEnrichmentBody extends React.Component {
   constructor(props) {
@@ -73,6 +124,7 @@ class AnalysisEnrichmentBody extends React.Component {
                   .map((j) => {
                     let style = {flexBasis: side, height: side};
                     let content;
+                    let genes;
 
                     if (i === j) {
                       style['background'] = 'grey';
@@ -90,23 +142,28 @@ class AnalysisEnrichmentBody extends React.Component {
                         return _.isEqual(c, [c1, c2]) || _.isEqual(c, [c2, c1]);
                       });
                       let d = data.data[idx];
+                      genes = d['genes'];
 
                       if (j > i) {
-                        content = [<div key={0}>greater:</div>,
-                          <div key={1}>{d['greater_adj'].toExponential(2)}</div>,
-                          <div key={2}>({d['greater'].toExponential(2)})</div>];
+                        content = <div>
+                          <div>greater:</div>
+                          <div>{d['greater_adj'].toExponential(2)}</div>
+                          <div>({d['greater'].toExponential(2)})</div>
+                        </div>;
                         style = {...style, ...orangeShader(d['greater_adj'], gMin, gMax)};
                       } else {
-                        content = [<div key={0}>less:</div>,
-                          <div key={1}>{d['less_adj'].toExponential(2)}</div>,
-                          <div key={2}>({d['less'].toExponential(2)})</div>];
+                        content = <div>
+                          <div>less:</div>
+                          <div>{d['less_adj'].toExponential(2)}</div>
+                          <div>({d['less'].toExponential(2)})</div>
+                        </div>;
                         style = {...style, ...blueShader(d['less_adj'], lMin, lMax)};
                       }
                     }
 
-                    return <div className="col p-0 cell border" key={j} style={style}>
+                    return <Cell key={j} style={style} genes={genes}>
                       {content}
-                    </div>;
+                    </Cell>;
                   })
                   .value()}
               </div>;
