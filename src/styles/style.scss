@@ -58,3 +58,11 @@
 .code {
   background-color: #eff0f1;
 }
+
+.cell {
+  flex: 0 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+}

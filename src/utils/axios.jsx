@@ -98,4 +98,8 @@ export function getTargetEnrichmentLegend(requestId) {
   return instance.get(`/queryapp/list_enrichment/${requestId}/legend/`);
 }
 
+export function getAnalysisEnrichment(requestId) {
+  return instance.get(`/queryapp/analysis_enrichment/${requestId}/`);
+}
+
 export default instance;

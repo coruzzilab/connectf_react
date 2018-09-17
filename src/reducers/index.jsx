@@ -5,6 +5,7 @@ import _ from 'lodash';
 import targetEnrichment from './target_enrichment';
 import {combineReducers} from 'redux';
 import motifEnrichment from "./motif_enrichment";
+import analysisEnrichment from "./analysis_enrichment";
 import {addAfter, duplicateNode, moveItem, getDescendants} from "../utils";
 
 const busy = (state = 0, action) => {
@@ -281,6 +282,7 @@ const tgdbApp = {
   targetEnrichment: combineReducers(targetEnrichment),
   cytoscape,
   motifEnrichment: combineReducers(motifEnrichment),
+  analysisEnrichment: combineReducers(analysisEnrichment),
   requestId,
   stats,
   edges,

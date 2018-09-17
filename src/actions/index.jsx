@@ -4,6 +4,7 @@
 import {generateRequestId} from "../utils";
 import * as motifEnrichment from "./motif_enrichment";
 import * as targetEnrichment from "./target_enrichment";
+import * as analysisEnrichment from "./analysis_enrichment";
 import uuidv4 from "uuid/v4";
 import _ from 'lodash';
 import * as api from "../utils/axios";
@@ -378,5 +379,6 @@ export const clearAllErrors = () => {
     dispatch(clearQueryError());
     dispatch(motifEnrichment.clearError());
     dispatch(targetEnrichment.clearError());
+    dispatch(analysisEnrichment.clearError());
   };
 };
