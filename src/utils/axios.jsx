@@ -19,19 +19,19 @@ export function getTFs(params) {
 }
 
 export function getKeys(params) {
-  return instance.get('/api/key/', {params})
+  return instance.get('/api/key/', {params});
 }
 
-export function getKeyValues(key,  params) {
-  return instance.get(`/api/key/${key}/`, {params})
+export function getKeyValues(key, params) {
+  return instance.get(`/api/key/${key}/`, {params});
 }
 
 export function getTargetGeneLists() {
-  return instance.get('/api/lists/')
+  return instance.get('/api/lists/');
 }
 
 export function getAdditionalEdges() {
-  return instance.get('/api/edges/')
+  return instance.get('/api/edges/');
 }
 
 export function getExperiments(params = {}) {
@@ -39,7 +39,7 @@ export function getExperiments(params = {}) {
 }
 
 export function submitExperiment(data, params) {
-  return instance.post('/upload/', data, {params})
+  return instance.post('/upload/', data, {params});
 }
 
 export function submitAnalysis(data) {
