@@ -5,6 +5,7 @@ import {NavLink as BSNavLink, Popover, PopoverBody, TabPane, Tooltip, Uncontroll
 import {Route, withRouter} from "react-router-dom";
 import connect from "react-redux/es/connect/connect";
 import _ from "lodash";
+import Clipboard from 'clipboard';
 
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
   return <a onClick={sortFunc} {...props}>
@@ -124,15 +125,56 @@ RouteTabPane.propTypes = {
   children: PropTypes.node
 };
 
+class CopyButton extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.copy = React.createRef();
+  }
+
+  componentDidMount() {
+    this.clipboard = new Clipboard(this.copy.current, {
+      text: () => {
+        return this.props.query;
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    this.clipboard.destroy();
+  }
+
+  render() {
+    return <button type="button" className="btn btn-sm btn-outline-secondary" ref={this.copy}
+                   title="Copy query to clipboard">
+      <FontAwesomeIcon icon="copy"/>
+    </button>;
+  }
+}
+
+CopyButton.propTypes = {
+  query: PropTypes.string.isRequired
+};
+
 class QueryPopoverBody extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
   render() {
     let {edges, query} = this.props;
     return <Popover className="mw-100" {..._.omit(this.props, ['query', 'dispatch', 'edges'])}>
       <PopoverBody>
         <h6>Query</h6>
-        <div className="query-popover text-monospace mb-1 border rounded border-light bg-light">
-          {query}
+        <div className="d-flex mb-1 align-items-center">
+          <div className="query-popover text-monospace border rounded border-light bg-light mr-1">
+            {query}
+          </div>
+          <div>
+            <CopyButton query={query}/>
+          </div>
         </div>
+
         {edges.length ?
           <div>
             <h6>Additional Edges</h6>
