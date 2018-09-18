@@ -8,11 +8,18 @@ import {connect} from "react-redux";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import _ from "lodash";
 import classNames from "classnames";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {getAnalysisEnrichment} from "../../actions/analysis_enrichment";
-import {colorShader, getLogMinMax} from "../../utils";
+import {blobFromString, colorShader, getLogMinMax} from "../../utils";
 
 const orangeShader = _.partial(colorShader, 40, 89.4, 52);
 const blueShader = _.partial(colorShader, 229, 100, 25.9);
+
+const geneListLink = _.flow(
+  _.partial(_.join, _, "\n"),
+  _.partial(blobFromString, _, "text/plain"),
+  URL.createObjectURL
+);
 
 function mapStateToProps({requestId, analysisEnrichment: {data, error}}) {
   return {
@@ -62,7 +69,12 @@ export class Cell extends React.Component {
               }
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onClick={this.toggle}>OK</Button>
+              <Button color="primary" onClick={this.toggle} className="mr-1">Close</Button>
+              <a className="btn btn-secondary"
+                 download="genelist.txt"
+                 href={_.size(genes) ? geneListLink(genes) : null}>
+                <FontAwesomeIcon icon="file-export" className="mr-1"/>Export
+              </a>
             </ModalFooter>
           </Modal>
         ] :
