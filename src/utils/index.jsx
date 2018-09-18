@@ -265,3 +265,22 @@ export function svgAddTable(svg, table) {
 
   return svg;
 }
+
+export function blobFromString(byteChars, type) {
+  let byteArrays = [];
+
+  for (let offset = 0; offset < byteChars.length; offset += 512) {
+    let slice = byteChars.slice(offset, offset + 512);
+
+    let byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    let byteArray = new Uint8Array(byteNumbers);
+
+    byteArrays.push(byteArray);
+  }
+
+  return new Blob(byteArrays, {type});
+}

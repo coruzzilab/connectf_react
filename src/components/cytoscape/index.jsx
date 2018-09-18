@@ -15,6 +15,7 @@ import uuid4 from 'uuid/v4';
 
 import {getCytoscape, setCytoscape} from '../../actions';
 import {UploadSifInfoPopover} from "./common";
+import {blobFromString} from "../../utils";
 
 const clampWeight = _.memoize(_.partial(_.clamp, _, 1, 5));
 
@@ -22,6 +23,12 @@ const edge_value = _.unary(_.partial(_.pick, _, ['data.source', 'data.target', '
 const edge_compare = (s, o) => {
   return _.isEqual(edge_value(s), edge_value(o));
 };
+
+const cytoscapePNG = _.flow(
+  atob,
+  _.partial(blobFromString, _, 'image/png'),
+  URL.createObjectURL
+);
 
 const mapStateToProps = ({busy, requestId, cytoscape}) => {
   return {
@@ -213,33 +220,7 @@ class CytoscapeBody extends React.Component {
   }
 
   exportCytoscape(e) {
-    let png64 = this.cy.png();
-    e.currentTarget.download = 'query.png';
-
-    if (png64.length < 2097152) {
-      e.currentTarget.href = png64;
-    } else {
-      let byteCharacters = atob(this.cy.png().split(',', 2)[1]);
-      let byteArrays = [];
-
-      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-        let slice = byteCharacters.slice(offset, offset + 512);
-
-        let byteNumbers = new Array(slice.length);
-        for (let i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-        }
-
-        let byteArray = new Uint8Array(byteNumbers);
-
-        byteArrays.push(byteArray);
-      }
-
-      let blob = new Blob(byteArrays, {type: 'image/png'});
-
-      e.currentTarget.href = URL.createObjectURL(blob);
-    }
-
+    e.currentTarget.href = cytoscapePNG(this.cy.png().split(',', 2)[1]);
   }
 
   exportJSON(e) {
@@ -441,7 +422,7 @@ class CytoscapeBody extends React.Component {
             <button className="btn btn-light" onClick={this.fitCytoscape.bind(this)}>
               <FontAwesomeIcon icon="expand" className="mr-1"/>Fit
             </button>
-            <a className="btn btn-light" onClick={this.exportCytoscape.bind(this)}>
+            <a className="btn btn-light" download="query.png" onClick={this.exportCytoscape.bind(this)}>
               <FontAwesomeIcon icon="image" className="mr-1"/>Export Image</a>
             <a className="btn btn-light" onClick={this.exportJSON.bind(this)}>
               <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a>
