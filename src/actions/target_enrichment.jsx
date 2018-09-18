@@ -84,8 +84,8 @@ export const getTargetEnrichmentLegend = (requestId) => {
   return (dispatch) => {
     dispatch(setBusy(true));
     return api.getTargetEnrichmentLegend(requestId)
-      .done((response) => {
-        dispatch(setTargetEnrichmentLegend(response.data));
+      .then(({data}) => {
+        dispatch(setTargetEnrichmentLegend(data));
         dispatch(setError(false));
       })
       .catch(() => {

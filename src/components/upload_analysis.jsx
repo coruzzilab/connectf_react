@@ -48,7 +48,7 @@ class UploadAnalysis extends React.Component {
   getExperiments() {
     let {tf} = this.state;
     return getExperiments({tf})
-      .done((response) => {
+      .then((response) => {
         this.setState({
           experiment: response.data[0],
           experiments: response.data
