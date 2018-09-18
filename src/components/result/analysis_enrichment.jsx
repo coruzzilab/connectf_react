@@ -5,8 +5,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-import {Button, Modal, ModalHeader, ModalBody, ModalFooter} from "reactstrap";
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import _ from "lodash";
+import classNames from "classnames";
 import {getAnalysisEnrichment} from "../../actions/analysis_enrichment";
 import {colorShader, getLogMinMax} from "../../utils";
 
@@ -21,7 +22,7 @@ function mapStateToProps({requestId, analysisEnrichment: {data, error}}) {
   };
 }
 
-class Cell extends React.Component {
+export class Cell extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -38,12 +39,16 @@ class Cell extends React.Component {
   }
 
   render() {
-    let {children, genes, ...props} = this.props;
+    let {children, genes, modal, className, style, ...props} = this.props;
+    let {background} = style;
+    // pass background from style to inner div, CSS trickery involved
 
-    return <div className="col p-0 cell border" {...props}>
-      {genes ?
+    return <div className={classNames("col p-0 cell border", modal ? 'gene-modal' : null, className)}
+                style={style}
+                {...props}>
+      {modal ?
         [
-          <div key={0} className="w-100 h-100" onClick={this.toggle}>
+          <div key={0} className="w-100 h-100" style={{background}} onClick={this.toggle}>
             {children}
           </div>,
           <Modal key={1} isOpen={this.state.modal} toggle={this.toggle}>
@@ -68,7 +73,13 @@ class Cell extends React.Component {
 
 Cell.propTypes = {
   children: PropTypes.node,
-  genes: PropTypes.arrayOf(PropTypes.string)
+  genes: PropTypes.arrayOf(PropTypes.string),
+  modal: PropTypes.bool,
+  className: PropTypes.string
+};
+
+Cell.defaultProps = {
+  modal: false
 };
 
 class AnalysisEnrichmentBody extends React.Component {
@@ -123,26 +134,32 @@ class AnalysisEnrichmentBody extends React.Component {
                 {_(_.range(0, rows + 1))
                   .map((j) => {
                     let style = {flexBasis: side, height: side};
-                    let content;
-                    let genes;
 
                     if (i === j) {
-                      style['background'] = 'grey';
+                      return <Cell key={j} style={style} className='diagonal'/>;
                     }
 
-                    if (i === 0 && j > 0) {
-                      content = data.info[j - 1][0].join(', ');
-                    } else if (j === 0 && i > 0) {
-                      content = data.info[i - 1][0].join(', ');
+                    if (i === 0 || j === 0) {
+                      let content;
+
+                      if (j > 0) {
+                        content = data.info[j - 1][0].join(', ');
+                      } else if (i > 0) {
+                        content = data.info[i - 1][0].join(', ');
+                      }
+
+                      return <Cell key={j} style={style}>
+                        {content}
+                      </Cell>;
                     }
 
                     if (i !== j && i > 0 && j > 0) {
+                      let content;
                       let idx = _.findIndex(data.columns, (c) => {
                         let [c1, c2] = [data.info[i - 1][0], data.info[j - 1][0]];
                         return _.isEqual(c, [c1, c2]) || _.isEqual(c, [c2, c1]);
                       });
-                      let d = data.data[idx];
-                      genes = d['genes'];
+                      let {genes, ...d} = data.data[idx];
 
                       if (j > i) {
                         content = <div>
@@ -159,11 +176,14 @@ class AnalysisEnrichmentBody extends React.Component {
                         </div>;
                         style = {...style, ...blueShader(d['less_adj'], lMin, lMax)};
                       }
+
+                      return <Cell key={j} style={style} genes={genes} modal>
+                        {content}
+                      </Cell>;
                     }
 
-                    return <Cell key={j} style={style} genes={genes}>
-                      {content}
-                    </Cell>;
+                    // eslint-disable-next-line no-console
+                    console.assert(false, "Should not reach here");
                   })
                   .value()}
               </div>;

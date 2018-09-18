@@ -65,4 +65,16 @@
   white-space: nowrap;
   text-overflow: ellipsis;
   text-align: center;
+
+  &.gene-modal {
+    cursor: pointer;
+
+    > :hover {
+      filter: brightness(0.8);
+    }
+  }
+
+  &.diagonal {
+    background: grey;
+  }
 }
