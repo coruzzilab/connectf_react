@@ -20,6 +20,10 @@ export function colorShader(h, s, l, v, min, max) {
     let lMax = 99 - l;
     let vl = l + _.clamp(lMax * ((v - min) / (max - min)), 0, lMax);
 
+    if (_.isNaN(vl)) {
+      vl = l;
+    }
+
     let c = convert.hsl.rgb.raw(h, s, vl);
 
     let background = '#' + convert.rgb.hex(c);

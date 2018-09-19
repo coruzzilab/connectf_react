@@ -91,7 +91,7 @@ class QueryAutocomplete extends React.Component {
         let searchVal = this.props.value.slice(0, selectionEnd);
 
         {
-          let m = /\[[^[\]]+$/.exec(searchVal);
+          let m = /\[[^[\]]*$/.exec(searchVal);
 
           if (m) {
             return false;

@@ -25,6 +25,8 @@ const edge_compare = (s, o) => {
 };
 
 const cytoscapePNG = _.flow(
+  _.partial(_.split, _, ',', 2),
+  _.partial(_.get, _, 1),
   atob,
   _.partial(blobFromString, _, 'image/png'),
   URL.createObjectURL
@@ -220,7 +222,7 @@ class CytoscapeBody extends React.Component {
   }
 
   exportCytoscape(e) {
-    e.currentTarget.href = cytoscapePNG(this.cy.png().split(',', 2)[1]);
+    e.currentTarget.href = cytoscapePNG(this.cy.png());
   }
 
   exportJSON(e) {
