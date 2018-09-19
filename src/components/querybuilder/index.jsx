@@ -1030,6 +1030,12 @@ class QuerybuilderBody extends React.Component {
             <TargetGeneInfo/>
           </div>
           <div className="form-row m-2">
+            <p className="text-secondary">
+              By default, all targets of each transcription factor is displayed. Select a
+              Target Gene List (or upload your own) to filter the results.
+            </p>
+          </div>
+          <div className="form-row m-2">
             <select className="form-control mr-1" value={targetGene} onChange={this.handleTargetGene.bind(this)}>
               <option value="">----</option>
               {_.map(targetGenes, (l, i) => {
