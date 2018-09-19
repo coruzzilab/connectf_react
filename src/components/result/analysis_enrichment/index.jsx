@@ -5,21 +5,13 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import _ from "lodash";
-import classNames from "classnames";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {getAnalysisEnrichment} from "../../actions/analysis_enrichment";
-import {blobFromString, colorShader, getLogMinMax} from "../../utils";
+import {getAnalysisEnrichment} from "../../../actions/analysis_enrichment";
+import {colorShader, getLogMinMax} from "../../../utils";
+import Cell from "./cell";
 
 const orangeShader = _.partial(colorShader, 40, 89.4, 52);
 const blueShader = _.partial(colorShader, 229, 100, 25.9);
-
-const geneListLink = _.flow(
-  _.partial(_.join, _, "\n"),
-  _.partial(blobFromString, _, "text/plain"),
-  URL.createObjectURL
-);
 
 function mapStateToProps({requestId, analysisEnrichment: {data, error}}) {
   return {
@@ -28,71 +20,6 @@ function mapStateToProps({requestId, analysisEnrichment: {data, error}}) {
     error
   };
 }
-
-export class Cell extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      modal: false
-    };
-
-    this.toggle = this.toggle.bind(this);
-  }
-
-  toggle() {
-    this.setState({
-      modal: !this.state.modal
-    });
-  }
-
-  render() {
-    let {children, genes, modal, className, style, ...props} = this.props;
-    let {background} = style;
-    // pass background from style to inner div, CSS trickery involved
-
-    return <div className={classNames("col p-0 cell border", modal ? 'gene-modal' : null, className)}
-                style={style}
-                {...props}>
-      {modal ?
-        [
-          <div key={0} className="w-100 h-100" style={{background}} onClick={this.toggle}>
-            {children}
-          </div>,
-          <Modal key={1} isOpen={this.state.modal} toggle={this.toggle}>
-            <ModalHeader toggle={this.toggle}>Genes</ModalHeader>
-            <ModalBody>
-              {_.size(genes) ?
-                <ul>
-                  {_.map(genes, (g, i) => <li key={i}>{g}</li>)}
-                </ul> :
-                <span className="text-danger">No genes in common.</span>
-              }
-            </ModalBody>
-            <ModalFooter>
-              <Button color="primary" onClick={this.toggle} className="mr-1">Close</Button>
-              <a className="btn btn-secondary"
-                 download="genelist.txt"
-                 href={_.size(genes) ? geneListLink(genes) : null}>
-                <FontAwesomeIcon icon="file-export" className="mr-1"/>Export
-              </a>
-            </ModalFooter>
-          </Modal>
-        ] :
-        children}
-    </div>;
-  }
-}
-
-Cell.propTypes = {
-  children: PropTypes.node,
-  genes: PropTypes.arrayOf(PropTypes.string),
-  modal: PropTypes.bool,
-  className: PropTypes.string
-};
-
-Cell.defaultProps = {
-  modal: false
-};
 
 class AnalysisEnrichmentBody extends React.Component {
   constructor(props) {
@@ -120,10 +47,10 @@ class AnalysisEnrichmentBody extends React.Component {
   }
 
   setSize() {
-    let rect = this.container.current.getBoundingClientRect();
+    let {top, width} = this.container.current.getBoundingClientRect();
     this.setState({
-      height: document.documentElement.clientHeight - rect.top,
-      width: rect.width
+      height: document.documentElement.clientHeight - top,
+      width
     });
   }
 
@@ -145,22 +72,26 @@ class AnalysisEnrichmentBody extends React.Component {
               return <div className="row d-flex justify-content-center" key={i}>
                 {_(_.range(0, rows + 1))
                   .map((j) => {
-                    let style = {flexBasis: side, height: side};
+                    let style = {};
 
                     if (i === j) {
-                      return <Cell key={j} style={style} className='diagonal'/>;
+                      return <Cell key={j} style={style} className='diagonal' side={side}/>;
                     }
 
                     if (i === 0 || j === 0) {
-                      let content;
+                      let content, info;
+                      style = {...style, fontSize: side * 0.3};
 
                       if (j > 0) {
-                        content = data.info[j - 1][0].join(', ');
+                        info = data.info[j - 1];
+                        content = <div>{String.fromCharCode(j + 64)}</div>;
                       } else if (i > 0) {
-                        content = data.info[i - 1][0].join(', ');
+                        info = data.info[i - 1];
+                        content = <div>{String.fromCharCode(i + 64)}</div>;
                       }
 
-                      return <Cell key={j} style={style}>
+                      return <Cell key={j} style={style} side={side} info={info} modal
+                                   innerClassName="d-flex align-items-center justify-content-center">
                         {content}
                       </Cell>;
                     }
@@ -189,7 +120,9 @@ class AnalysisEnrichmentBody extends React.Component {
                         style = {...style, ...blueShader(d['less_adj'], lMin, lMax)};
                       }
 
-                      return <Cell key={j} style={style} genes={genes} modal>
+                      return <Cell key={j} style={style} side={side} genes={genes}
+                                   innerClassName="d-flex flex-column align-items-center justify-content-center"
+                                   modal>
                         {content}
                       </Cell>;
                     }
@@ -203,7 +136,22 @@ class AnalysisEnrichmentBody extends React.Component {
             .value()}
         </div>
         <div className="col">
-          hmm
+          <table className="table table-responsive">
+            <thead>
+            <tr>
+              <th>Index</th>
+              <th>Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            {_.map(data.info, (info, i) => {
+              return <tr key={i}>
+                <th>{String.fromCharCode(i + 65)}</th>
+                <td>{info[0].join(', ')}</td>
+              </tr>
+            })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>;
