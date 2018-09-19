@@ -33,7 +33,7 @@ class Cell extends React.Component {
   }
 
   render() {
-    let {children, genes, modal, className, innerClassName, style, side, info, ...props} = this.props;
+    let {children, data: {genes, ...d}, modal, className, innerClassName, style, side, info, ...props} = this.props;
     let {background} = style;
     // pass background from style to inner div, CSS trickery involved
 
@@ -54,21 +54,28 @@ class Cell extends React.Component {
                 info ?
                   <div>
                     <p>Name: {info[0][0]}</p>
-                    <p>Experiment ID: {info[0][1]}</p>
-                    <p>Analysis ID: {info[0][2]}</p>
+                    <p>Filter: {info[0][1]}</p>
+                    <p>Experiment ID: {info[0][2]}</p>
+                    <p>Analysis ID: {info[0][3]}</p>
                     {_.map(info[1], (val, key) => <p key={key}>{key}: {val}</p>)}
                   </div> :
-                  (geneLen ?
-                    <div>
-                      <p>Number of genes in common: {geneLen}</p>
-                      <div style={{height: '30vh', overflowY: 'scroll'}}
-                           className="text-monospace border border-light rounded">
-                        <ul>
-                          {_.map(genes, (g, i) => <li key={i}>{g}</li>)}
-                        </ul>
-                      </div>
-                    </div> :
-                    <span className="text-danger">No genes in common.</span>)
+                  <div>
+                    <p>Greater: {d['greater'].toExponential(2)}</p>
+                    <p>Greater Adjusted: {d['greater_adj'].toExponential(2)}</p>
+                    <p>Less: {d['less'].toExponential(2)}</p>
+                    <p>Less Adjusted: {d['less_adj'].toExponential(2)}</p>
+                    {(geneLen ?
+                      <div>
+                        <p>Number of genes in common: {geneLen}</p>
+                        <div style={{height: '30vh', overflowY: 'scroll'}}
+                             className="text-monospace border border-light rounded">
+                          <ul>
+                            {_.map(genes, (g, i) => <li key={i}>{g}</li>)}
+                          </ul>
+                        </div>
+                      </div> :
+                      <p className="text-danger">No genes in common.</p>)}
+                  </div>
               }
             </ModalBody>
             <ModalFooter>
@@ -90,7 +97,7 @@ class Cell extends React.Component {
 
 Cell.propTypes = {
   children: PropTypes.node,
-  genes: PropTypes.arrayOf(PropTypes.string),
+  data: PropTypes.object,
   modal: PropTypes.bool,
   className: PropTypes.string,
   innerClassName: PropTypes.string,
@@ -100,7 +107,7 @@ Cell.propTypes = {
 
 Cell.defaultProps = {
   modal: false,
-  genes: []
+  data: {genes: []}
 };
 
 export default Cell;

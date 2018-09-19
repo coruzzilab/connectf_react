@@ -7,8 +7,9 @@ import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import _ from "lodash";
 import {getAnalysisEnrichment} from "../../../actions/analysis_enrichment";
-import {colorShader, getLogMinMax} from "../../../utils";
+import {colorShader, column_string, getLogMinMax} from "../../../utils";
 import Cell from "./cell";
+import {RowHeader} from "./common";
 
 const orangeShader = _.partial(colorShader, 40, 89.4, 52);
 const blueShader = _.partial(colorShader, 229, 100, 25.9);
@@ -84,10 +85,10 @@ class AnalysisEnrichmentBody extends React.Component {
 
                       if (j > 0) {
                         info = data.info[j - 1];
-                        content = <div>{String.fromCharCode(j + 64)}</div>;
+                        content = <div>{column_string(j - 1)}</div>;
                       } else if (i > 0) {
                         info = data.info[i - 1];
-                        content = <div>{String.fromCharCode(i + 64)}</div>;
+                        content = <div>{column_string(i - 1)}</div>;
                       }
 
                       return <Cell key={j} style={style} side={side} info={info} modal
@@ -102,25 +103,25 @@ class AnalysisEnrichmentBody extends React.Component {
                         let [c1, c2] = [data.info[i - 1][0], data.info[j - 1][0]];
                         return _.isEqual(c, [c1, c2]) || _.isEqual(c, [c2, c1]);
                       });
-                      let {genes, ...d} = data.data[idx];
+                      let d = data.data[idx];
 
                       if (j > i) {
                         content = <div>
                           <div>greater:</div>
                           <div>{d['greater_adj'].toExponential(2)}</div>
-                          <div>({d['greater'].toExponential(2)})</div>
+                          <div>({d.genes.length})</div>
                         </div>;
                         style = {...style, ...orangeShader(d['greater_adj'], gMin, gMax)};
                       } else {
                         content = <div>
                           <div>less:</div>
                           <div>{d['less_adj'].toExponential(2)}</div>
-                          <div>({d['less'].toExponential(2)})</div>
+                          <div>({d.genes.length})</div>
                         </div>;
                         style = {...style, ...blueShader(d['less_adj'], lMin, lMax)};
                       }
 
-                      return <Cell key={j} style={style} side={side} genes={genes}
+                      return <Cell key={j} style={style} side={side} data={d}
                                    innerClassName="d-flex flex-column align-items-center justify-content-center"
                                    modal>
                         {content}
@@ -140,15 +141,18 @@ class AnalysisEnrichmentBody extends React.Component {
             <thead>
             <tr>
               <th>Index</th>
-              <th>Name</th>
+              <th>Gene</th>
+              <th>Filter</th>
+              <th>Experiment ID</th>
+              <th>Analysis ID</th>
             </tr>
             </thead>
             <tbody>
             {_.map(data.info, (info, i) => {
               return <tr key={i}>
-                <th>{String.fromCharCode(i + 65)}</th>
-                <td>{info[0].join(', ')}</td>
-              </tr>
+                <RowHeader info={info}>{column_string(i)}</RowHeader>
+                {_.map(info[0], (c, j) => <td key={j}>{c}</td>)}
+              </tr>;
             })}
             </tbody>
           </table>

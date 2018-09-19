@@ -288,3 +288,15 @@ export function blobFromString(byteChars, type) {
 
   return new Blob(byteArrays, {type});
 }
+
+export function column_string(n) {
+  let s = '';
+
+  do {
+    let remainder = n % 26;
+    n = (n / 26) >> 0;
+    s = String.fromCharCode(65 + remainder) + s;
+  } while (n > 0);
+
+  return s;
+}
