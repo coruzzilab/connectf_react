@@ -15,7 +15,7 @@ import uuid4 from 'uuid/v4';
 
 import {getCytoscape, setCytoscape} from '../../actions';
 import {UploadSifInfoPopover} from "./common";
-import {blobFromString} from "../../utils";
+import {blobFromString, cytoscapeJSONStringify} from "../../utils";
 
 const clampWeight = _.memoize(_.partial(_.clamp, _, 1, 5));
 
@@ -180,8 +180,10 @@ class CytoscapeBody extends React.Component {
 
     this.setHeight();
 
-    if (this.props.requestId) {
+    if (_.isEmpty(this.props.cytoscapeData)) {
       this.props.getCytoscape(this.props.requestId);
+    } else {
+      this.resetCytoscape();
     }
 
     window.addEventListener("resize", this.setHeight);
@@ -226,19 +228,8 @@ class CytoscapeBody extends React.Component {
   }
 
   exportJSON(e) {
-    let elements = this.cy.elements().jsons();
-
-    let data = {
-      "format_version": "1.0",
-      "generated_by": "ConnecTF",
-      elements: {
-        nodes: _.filter(elements, ['group', 'nodes']),
-        edges: _.filter(elements, ['group', 'edges'])
-      }
-    };
-
     e.currentTarget.download = 'cytoscape.cyjs';
-    e.currentTarget.href = 'data:application/json,' + JSON.stringify(data);
+    e.currentTarget.href = 'data:application/json,' + cytoscapeJSONStringify(this.cy.elements().jsons());
   }
 
   setData(data) {

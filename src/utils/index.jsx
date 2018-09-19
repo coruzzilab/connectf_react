@@ -300,3 +300,19 @@ export function column_string(n) {
 
   return s;
 }
+
+export function buildCytoscapeJSON(data) {
+  return {
+    "format_version": "1.0",
+    "generated_by": "ConnecTF",
+    elements: {
+      nodes: _.filter(data, ['group', 'nodes']),
+      edges: _.filter(data, ['group', 'edges'])
+    }
+  };
+}
+
+export const cytoscapeJSONStringify = _.flow(
+  buildCytoscapeJSON,
+  JSON.stringify
+);

@@ -10,35 +10,39 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
-import {getStats} from '../../actions';
+import {getCytoscape, getStats} from '../../actions';
+import {cytoscapeJSONStringify} from "../../utils";
 
-function mapStateToProps({busy, requestId, stats}) {
+function mapStateToProps({busy, requestId, stats, cytoscape}) {
   return {
     busy,
     requestId,
-    stats
+    stats,
+    cytoscape
   };
 }
 
 class Cytoscape extends React.Component {
   componentDidMount() {
-    let {requestId, getStats, stats} = this.props;
+    let {requestId, getStats, getCytoscape} = this.props;
 
-    if (requestId || _.isEmpty(stats)) {
+    if (requestId) {
       getStats(requestId);
+      getCytoscape(requestId);
     }
   }
 
   componentDidUpdate(prevProps) {
-    let {requestId, getStats} = this.props;
+    let {requestId, getStats, getCytoscape} = this.props;
 
     if (prevProps.requestId !== requestId) {
       getStats(requestId);
+      getCytoscape(requestId);
     }
   }
 
   render() {
-    let {busy, stats} = this.props;
+    let {busy, stats, cytoscape} = this.props;
 
     return <div className="container-fluid">
       {busy ?
@@ -60,8 +64,14 @@ class Cytoscape extends React.Component {
         null}
       <div className="row">
         <div className="col m-1">
-          <Link to="/cytoscape" className={classNames("btn", stats.num_edges > 3000 ? "btn-warning" : "btn-primary")}>Open
+          <Link to="/cytoscape"
+                className={classNames("btn mr-2", stats.num_edges > 3000 ? "btn-warning" : "btn-primary")}>Open
             Cytoscape</Link>
+          {!_.isEmpty(cytoscape) ?
+            <a className="btn btn-light" download="query.cyjs"
+               href={"data:application/json," + cytoscapeJSONStringify(cytoscape)}>
+              <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a> :
+            null}
         </div>
       </div>
     </div>;
@@ -72,7 +82,9 @@ Cytoscape.propTypes = {
   busy: PropTypes.number,
   requestId: PropTypes.string,
   stats: PropTypes.object,
-  getStats: PropTypes.func
+  getStats: PropTypes.func,
+  getCytoscape: PropTypes.func,
+  cytoscape: PropTypes.array
 };
 
-export default connect(mapStateToProps, {getStats})(Cytoscape);
+export default connect(mapStateToProps, {getStats, getCytoscape})(Cytoscape);
