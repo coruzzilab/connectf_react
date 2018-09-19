@@ -48,16 +48,18 @@ class AnalysisEnrichmentBody extends React.Component {
   }
 
   setSize() {
-    let {top, width} = this.container.current.getBoundingClientRect();
-    this.setState({
-      height: document.documentElement.clientHeight - top,
-      width
-    });
+    if (this.container.current) {
+      let {top, width} = this.container.current.getBoundingClientRect();
+      this.setState({
+        height: document.documentElement.clientHeight - top,
+        width
+      });
+    }
   }
 
   render() {
     let {height, width} = this.state;
-    let {data} = this.props;
+    let {data, error} = this.props;
 
     let rows = _.size(data.info);
     let side = Math.min(height, width) / (rows + 1);
@@ -66,98 +68,103 @@ class AnalysisEnrichmentBody extends React.Component {
     let [lMin, lMax] = getLogMinMax(_(data.data).map('less_adj'));
 
     return <div className="container-fluid">
-      <div className="row">
-        <div className="col p-0" ref={this.container}>
-          {_(_.range(0, rows + 1))
-            .map((i) => {
-              return <div className="row d-flex justify-content-center" key={i}>
-                {_(_.range(0, rows + 1))
-                  .map((j) => {
-                    let style = {};
+      {error ?
+        <p className="text-danger">
+          Analysis Enrichment unavailable. Please query more than 1 analysis to see results
+        </p> :
+        <div className="row">
+          <div className="col p-0" ref={this.container}>
+            {_(_.range(0, rows + 1))
+              .map((i) => {
+                return <div className="row d-flex justify-content-center" key={i}>
+                  {_(_.range(0, rows + 1))
+                    .map((j) => {
+                      let style = {};
 
-                    if (i === j) {
-                      return <Cell key={j} style={style} className='diagonal' side={side}/>;
-                    }
-
-                    if (i === 0 || j === 0) {
-                      let content, info;
-                      style = {...style, fontSize: side * 0.3};
-
-                      if (j > 0) {
-                        info = data.info[j - 1];
-                        content = <div>{column_string(j - 1)}</div>;
-                      } else if (i > 0) {
-                        info = data.info[i - 1];
-                        content = <div>{column_string(i - 1)}</div>;
+                      if (i === j) {
+                        return <Cell key={j} style={style} className='diagonal' side={side}/>;
                       }
 
-                      return <Cell key={j} style={style} side={side} info={info} modal
-                                   innerClassName="d-flex align-items-center justify-content-center">
-                        {content}
-                      </Cell>;
-                    }
+                      if (i === 0 || j === 0) {
+                        let content, info;
+                        style = {...style, fontSize: side * 0.3};
 
-                    if (i !== j && i > 0 && j > 0) {
-                      let content;
-                      let idx = _.findIndex(data.columns, (c) => {
-                        let [c1, c2] = [data.info[i - 1][0], data.info[j - 1][0]];
-                        return _.isEqual(c, [c1, c2]) || _.isEqual(c, [c2, c1]);
-                      });
-                      let d = data.data[idx];
+                        if (j > 0) {
+                          info = data.info[j - 1];
+                          content = <div>{column_string(j - 1)}</div>;
+                        } else if (i > 0) {
+                          info = data.info[i - 1];
+                          content = <div>{column_string(i - 1)}</div>;
+                        }
 
-                      if (j > i) {
-                        content = <div>
-                          <div>greater:</div>
-                          <div>{d['greater_adj'].toExponential(2)}</div>
-                          <div>({d.genes.length})</div>
-                        </div>;
-                        style = {...style, ...orangeShader(d['greater_adj'], gMin, gMax)};
-                      } else {
-                        content = <div>
-                          <div>less:</div>
-                          <div>{d['less_adj'].toExponential(2)}</div>
-                          <div>({d.genes.length})</div>
-                        </div>;
-                        style = {...style, ...blueShader(d['less_adj'], lMin, lMax)};
+                        return <Cell key={j} style={style} side={side} info={info} modal
+                                     innerClassName="d-flex align-items-center justify-content-center">
+                          {content}
+                        </Cell>;
                       }
 
-                      return <Cell key={j} style={style} side={side} data={d}
-                                   innerClassName="d-flex flex-column align-items-center justify-content-center"
-                                   modal>
-                        {content}
-                      </Cell>;
-                    }
+                      if (i !== j && i > 0 && j > 0) {
+                        let content;
+                        let idx = _.findIndex(data.columns, (c) => {
+                          let [c1, c2] = [data.info[i - 1][0], data.info[j - 1][0]];
+                          return _.isEqual(c, [c1, c2]) || _.isEqual(c, [c2, c1]);
+                        });
+                        let d = data.data[idx];
 
-                    // eslint-disable-next-line no-console
-                    console.assert(false, "Should not reach here");
-                  })
-                  .value()}
-              </div>;
-            })
-            .value()}
+                        if (j > i) {
+                          content = <div>
+                            <div>greater:</div>
+                            <div>{d['greater_adj'].toExponential(2)}</div>
+                            <div>({d.genes.length})</div>
+                          </div>;
+                          style = {...style, ...orangeShader(d['greater_adj'], gMin, gMax)};
+                        } else {
+                          content = <div>
+                            <div>less:</div>
+                            <div>{d['less_adj'].toExponential(2)}</div>
+                            <div>({d.genes.length})</div>
+                          </div>;
+                          style = {...style, ...blueShader(d['less_adj'], lMin, lMax)};
+                        }
+
+                        return <Cell key={j} style={style} side={side} data={d}
+                                     innerClassName="d-flex flex-column align-items-center justify-content-center"
+                                     modal>
+                          {content}
+                        </Cell>;
+                      }
+
+                      // eslint-disable-next-line no-console
+                      console.assert(false, "Should not reach here");
+                    })
+                    .value()}
+                </div>;
+              })
+              .value()}
+          </div>
+          <div className="col">
+            <table className="table table-responsive">
+              <thead>
+              <tr>
+                <th>Index</th>
+                <th>Gene</th>
+                <th>Filter</th>
+                <th>Experiment ID</th>
+                <th>Analysis ID</th>
+              </tr>
+              </thead>
+              <tbody>
+              {_.map(data.info, (info, i) => {
+                return <tr key={i}>
+                  <RowHeader info={info}>{column_string(i)}</RowHeader>
+                  {_.map(info[0], (c, j) => <td key={j}>{c}</td>)}
+                </tr>;
+              })}
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div className="col">
-          <table className="table table-responsive">
-            <thead>
-            <tr>
-              <th>Index</th>
-              <th>Gene</th>
-              <th>Filter</th>
-              <th>Experiment ID</th>
-              <th>Analysis ID</th>
-            </tr>
-            </thead>
-            <tbody>
-            {_.map(data.info, (info, i) => {
-              return <tr key={i}>
-                <RowHeader info={info}>{column_string(i)}</RowHeader>
-                {_.map(info[0], (c, j) => <td key={j}>{c}</td>)}
-              </tr>;
-            })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      }
     </div>;
   }
 }
