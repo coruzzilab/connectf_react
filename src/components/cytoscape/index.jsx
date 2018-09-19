@@ -230,7 +230,7 @@ class CytoscapeBody extends React.Component {
 
     let data = {
       "format_version": "1.0",
-      "generated_by": "tf2targetdb",
+      "generated_by": "ConnecTF",
       elements: {
         nodes: _.filter(elements, ['group', 'nodes']),
         edges: _.filter(elements, ['group', 'edges'])

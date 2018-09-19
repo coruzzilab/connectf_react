@@ -1,7 +1,7 @@
 {
   "name": "tgdb_react",
   "version": "1.0.0",
-  "description": "TargetDB",
+  "description": "ConnecTF Website",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

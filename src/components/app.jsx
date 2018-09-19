@@ -34,7 +34,7 @@ class App extends React.Component {
   render() {
     return <div>
       <Navbar color="light" light expand="md">
-        <NavbarBrand><FontAwesomeIcon icon="dna" className="mr-1"/>TF2TargetDB</NavbarBrand>
+        <NavbarBrand><FontAwesomeIcon icon="dna" className="mr-1"/>ConnecTF</NavbarBrand>
         <NavbarToggler onClick={this.toggle.bind(this)}/>
         <Collapse isOpen={this.state.isOpen} navbar>
           <Nav className="ml-auto" navbar>

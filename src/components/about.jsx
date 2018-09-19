@@ -40,7 +40,7 @@ class About extends React.Component {
       <div className="container-fluid">
         <div className="row">
           <div className="col">
-            <h1 className="display-4">Welcome to TF2TargetDB</h1>
+            <h1 className="display-4">Welcome to ConnecTF</h1>
             <p className="lead">
               Query transcription factor and target gene interactions.
             </p>
