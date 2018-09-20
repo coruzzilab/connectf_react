@@ -5,7 +5,7 @@ import {NavLink as BSNavLink, Popover, PopoverBody, TabPane, Tooltip, Uncontroll
 import {Route, withRouter} from "react-router-dom";
 import connect from "react-redux/es/connect/connect";
 import _ from "lodash";
-import Clipboard from 'clipboard';
+import {CopyButton} from "../common";
 
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
   return <a onClick={sortFunc} {...props}>
@@ -125,37 +125,6 @@ RouteTabPane.propTypes = {
   children: PropTypes.node
 };
 
-class CopyButton extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.copy = React.createRef();
-  }
-
-  componentDidMount() {
-    this.clipboard = new Clipboard(this.copy.current, {
-      text: () => {
-        return this.props.query;
-      }
-    });
-  }
-
-  componentWillUnmount() {
-    this.clipboard.destroy();
-  }
-
-  render() {
-    return <button type="button" className="btn btn-sm btn-outline-secondary" ref={this.copy}
-                   title="Copy query to clipboard">
-      <FontAwesomeIcon icon="copy"/>
-    </button>;
-  }
-}
-
-CopyButton.propTypes = {
-  query: PropTypes.string.isRequired
-};
-
 class QueryPopoverBody extends React.Component {
   constructor(props) {
     super(props);
@@ -171,7 +140,7 @@ class QueryPopoverBody extends React.Component {
             {query}
           </div>
           <div>
-            <CopyButton query={query}/>
+            <CopyButton text={query} className="btn-sm"/>
           </div>
         </div>
 

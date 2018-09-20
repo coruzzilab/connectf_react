@@ -6,7 +6,6 @@ import {connect} from "react-redux";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import uuidv4 from 'uuid/v4';
-import Clipboard from 'clipboard';
 import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
@@ -54,6 +53,7 @@ import {DragContainer, DragItem, ImmobileInput} from "./drag";
 import QueryAutocomplete from "./query_autocomplete";
 import {getAdditionalEdges, getKeys, getKeyValues, getTargetGeneLists, getTFs} from "../../utils/axios";
 import {CancelToken} from "axios";
+import {CopyButton} from "../common";
 
 const mapStateToProps = ({busy, query, queryTree, edges, queryError}) => {
   return {
@@ -799,8 +799,6 @@ class QuerybuilderBody extends React.Component {
       shouldBuild: false
     };
 
-    this.copy = React.createRef();
-
     this.cancels = [];
 
     this.checkShouldBuild = _.debounce(this.checkShouldBuild.bind(this), 100);
@@ -818,11 +816,6 @@ class QuerybuilderBody extends React.Component {
         this.props.setEdges(_.intersection(this.props.edges, data));
       });
 
-    this.clipboard = new Clipboard(this.copy.current, {
-      text: () => {
-        return this.props.query;
-      }
-    });
     this.checkShouldBuild();
     this.props.clearQueryError();
   }
@@ -977,10 +970,10 @@ class QuerybuilderBody extends React.Component {
             <div className="col m-2">
               <div className="input-group">
                 <div className="input-group-prepend">
-                  <button type="button" className="btn btn-outline-secondary btn-lg" ref={this.copy}
-                          title="Copy query to clipboard">
-                    <FontAwesomeIcon icon="copy" className="mr-1"/>Copy
-                  </button>
+                  <CopyButton text={query}
+                              className="btn-lg"
+                              content={(copied) => (<span>
+                                <FontAwesomeIcon icon="copy" className="mr-1"/>{copied ? "Copied!" : "Copy"}</span>)}/>
                   <button type="button"
                           className={classNames("btn btn-lg", shouldBuild ? "btn-warning" : "btn-secondary")}
                           onClick={this.setQuery.bind(this)}>
