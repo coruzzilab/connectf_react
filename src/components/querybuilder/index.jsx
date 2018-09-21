@@ -348,9 +348,9 @@ class ModGroupBody extends React.Component {
             <div className="btn-group ml-auto mr-1">
               <AddFollowing
                 addNode={addMod.bind(undefined, '', '', node.parent, node.id, undefined, undefined, undefined)}
-                addNodeText="Add Following Modifier"
+                addNodeText="Add Following Filter"
                 addGroup={addModGroup.bind(undefined, node.parent, node.id, undefined, undefined)}
-                addGroupText="Add Following Modifier Group"/>
+                addGroupText="Add Following Filter Group"/>
             </div>
             <div className="btn-group">
               <DuplicateButton onClick={duplicateNode.bind(undefined, node.id)}/>
@@ -676,7 +676,7 @@ class GroupBody extends React.Component {
         <div className="row">
           {mods.size() ?
             <div className="col border border-light rounded bg-light m-2 node">
-              <h3>Modifiers</h3>
+              <h3>Filters</h3>
               {mods.map((o, i, a) => {
                 let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
                 if (o.nodeType === 'MOD') {

@@ -186,7 +186,7 @@ AddTFGroupButton.propTypes = {
 export const AddModButton = ({onClick}) => (
   <button type="button" className="btn btn-success"
           onClick={onClick}>
-    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier
+    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Filter
   </button>);
 
 AddModButton.propTypes = {
@@ -196,7 +196,7 @@ AddModButton.propTypes = {
 export const AddModGroupButton = ({onClick}) => (
   <button type="button" className="btn btn-success"
           onClick={onClick}>
-    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Modifier Group
+    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Filter Group
   </button>);
 
 AddModGroupButton.propTypes = {
