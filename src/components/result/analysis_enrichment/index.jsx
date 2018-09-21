@@ -70,7 +70,7 @@ class AnalysisEnrichmentBody extends React.Component {
     return <div className="container-fluid">
       {error ?
         <p className="text-danger">
-          Analysis Enrichment unavailable. Please query more than 1 analysis to see results
+          Analysis Enrichment unavailable. Please query more than 1 analysis to see results.
         </p> :
         <div className="row">
           <div className="col p-0" ref={this.container}>

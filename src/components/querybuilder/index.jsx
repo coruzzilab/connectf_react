@@ -826,10 +826,6 @@ class QuerybuilderBody extends React.Component {
     }
   }
 
-  componentWillUnmount() {
-    this.clipboard.destroy();
-  }
-
   cancelRequests() {
     if (this.cancels.length) {
       for (let c of this.cancels) {
