@@ -29,6 +29,8 @@ import {
   getTargetEnrichmentTable,
   setError
 } from "../../actions/target_enrichment";
+import {CancelToken} from "axios";
+
 
 function surround(s, p = '"', pre = ' ', default_ = '') {
   return s ? pre + p + s + p : default_;
@@ -139,18 +141,24 @@ class TargetEnrichmentBody extends React.Component {
       collapse: false,
       exportSrc: null
     };
+
+    this.cancels = [];
   }
 
   componentDidMount() {
-    this.props.getTargetEnrichmentTable(this.props.requestId);
+    this.getTableData();
     this.getImgData();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.requestId !== this.props.requestId) {
-      this.props.getTargetEnrichmentTable(this.props.requestId);
+      this.getTableData();
       this.getImgData();
     }
+  }
+
+  componentWillUnmount() {
+    this.cancelRequests();
   }
 
   toggle() {
@@ -199,13 +207,29 @@ class TargetEnrichmentBody extends React.Component {
     }
   }
 
+  getTableData() {
+    this.props.getTargetEnrichmentTable(this.props.requestId, {
+      cancelToken: new CancelToken((c) => {
+        this.cancels.push(c);
+      })
+    });
+  }
+
   getImgData() {
     let {requestId, getTargetEnrichmentImage, getTargetEnrichmentLegend} = this.props;
     let {lower, upper} = this.state;
 
     return Promise.all([
-      getTargetEnrichmentImage(requestId, {lower, upper}),
-      getTargetEnrichmentLegend(requestId)
+      getTargetEnrichmentImage(requestId, {lower, upper}, {
+        cancelToken: new CancelToken((c) => {
+          this.cancels.push(c);
+        })
+      }),
+      getTargetEnrichmentLegend(requestId, {
+        cancelToken: new CancelToken((c) => {
+          this.cancels.push(c);
+        })
+      })
     ]).then((data) => {
       if (this.legend.current) {
         let svg = svgAddTable(data[0].documentElement, this.legend.current);
@@ -214,6 +238,15 @@ class TargetEnrichmentBody extends React.Component {
         });
       }
     });
+  }
+
+  cancelRequests() {
+    if (this.cancels.length) {
+      for (let c of this.cancels) {
+        c();
+      }
+      this.cancels = [];
+    }
   }
 
   render() {

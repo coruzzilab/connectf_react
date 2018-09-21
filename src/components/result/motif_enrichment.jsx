@@ -29,6 +29,7 @@ import {
   setError
 } from "../../actions/motif_enrichment";
 import {InfoTootip, QueryNameCell, SortButton, SVGWarningTooltip} from "./common";
+import {CancelToken} from "axios";
 
 
 export const BASE_COLORS = {
@@ -247,6 +248,8 @@ class MotifEnrichmentBody extends React.Component {
       collapse: false,
       exportSrc: null
     };
+
+    this.cancels = [];
   }
 
   componentDidMount() {
@@ -254,24 +257,32 @@ class MotifEnrichmentBody extends React.Component {
     this.getImgData();
   }
 
-  toggle() {
-    this.setState({collapse: !this.state.collapse});
-  }
-
-  getMotifEnrichment() {
-    this.props.getMotifEnrichment(this.props.requestId, this.state.alpha, this.state.body === 'yes')
-      .then(() => {
-        this.setState({
-          colSpan: this.state.body === 'yes' ? 2 : 1
-        });
-      });
-  }
-
   componentDidUpdate(prevProps) {
     if (prevProps.requestId !== this.props.requestId) {
       this.getMotifEnrichment();
       this.getImgData();
     }
+  }
+
+  componentWillUnmount() {
+    this.cancelRequests();
+  }
+
+  toggle() {
+    this.setState({collapse: !this.state.collapse});
+  }
+
+  getMotifEnrichment() {
+    this.props.getMotifEnrichment(this.props.requestId, this.state.alpha, this.state.body === 'yes', {
+      cancelToken: new CancelToken((c) => {
+        this.cancels.push(c);
+      })
+    })
+      .then(() => {
+        this.setState({
+          colSpan: this.state.body === 'yes' ? 2 : 1
+        });
+      });
   }
 
   handleMotifForm(e) {
@@ -339,16 +350,34 @@ class MotifEnrichmentBody extends React.Component {
         body: body === 'yes' ? 1 : 0,
         lower,
         upper
+      }, {
+        cancelToken: new CancelToken((c) => {
+          this.cancels.push(c);
+        })
       }),
-      getMotifEnrichmentLegend(requestId)
-    ]).then((data) => {
-      if (this.legend.current) {
-        let svg = svgAddTable(data[0].documentElement, this.legend.current);
-        this.setState({
-          exportSrc: 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML)
-        });
+      getMotifEnrichmentLegend(requestId, {
+        cancelToken: new CancelToken((c) => {
+          this.cancels.push(c);
+        })
+      })
+    ])
+      .then((data) => {
+        if (this.legend.current) {
+          let svg = svgAddTable(data[0].documentElement, this.legend.current);
+          this.setState({
+            exportSrc: 'data:image/svg+xml,' + encodeURIComponent(svg.outerHTML)
+          });
+        }
+      });
+  }
+
+  cancelRequests() {
+    if (this.cancels.length) {
+      for (let c of this.cancels) {
+        c();
       }
-    });
+      this.cancels = [];
+    }
   }
 
   render() {

@@ -18,13 +18,13 @@ export const clearMotifEnrichment = () => {
   };
 };
 
-export const getMotifEnrichment = (requestId, alpha = 0.05, body = false) => {
+export const getMotifEnrichment = (requestId, alpha = 0.05, body = false, config) => {
   return (dispatch) => {
     dispatch(setBusy(true));
     return api.getMotifEnrichment(requestId, {
       alpha,
       body: body ? 1 : 0
-    })
+    }, config)
       .then((response) => {
         dispatch(setMotifEnrichment(response.data));
         dispatch(clearError());
@@ -52,10 +52,10 @@ export const clearMotifEnrichmentImage = () => {
   };
 };
 
-export const getMotifEnrichmentImage = (requestId, params = {}) => {
+export const getMotifEnrichmentImage = (requestId, params, config) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return api.getMotifEnrichmentImage(requestId, params)
+    return api.getMotifEnrichmentImage(requestId, params, config)
       .then((response) => {
         dispatch(setError(false));
         dispatch(setMotifEnrichmentImage('data:image/svg+xml,' + encodeURIComponent(response.data.documentElement.outerHTML)));
@@ -85,10 +85,10 @@ export const clearMotifEnrichmentLegend = () => {
   };
 };
 
-export const getMotifEnrichmentLegend = (requestId) => {
+export const getMotifEnrichmentLegend = (requestId, config) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return api.getMotifEnrichmentLegend(requestId)
+    return api.getMotifEnrichmentLegend(requestId, config)
       .then((response) => {
         dispatch(setMotifEnrichmentLegend(response.data));
       })

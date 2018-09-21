@@ -66,36 +66,39 @@ export function getTable(requestId) {
   return instance.get(`/queryapp/${requestId}/`);
 }
 
-export function getMotifEnrichment(requestId, params) {
+export function getMotifEnrichment(requestId, params, config) {
   return instance.get(`/queryapp/motif_enrichment/${requestId}/`, {
-    params
+    params,
+    ...config
   });
 }
 
-export function getMotifEnrichmentImage(requestId, params) {
+export function getMotifEnrichmentImage(requestId, params, config) {
   return instance.get(`/queryapp/motif_enrichment/${requestId}/heatmap.svg`, {
     params,
-    responseType: 'document'
+    responseType: 'document',
+    ...config
   });
 }
 
-export function getMotifEnrichmentLegend(requestId) {
-  return instance.get(`/queryapp/motif_enrichment/${requestId}/heatmap_table/`);
+export function getMotifEnrichmentLegend(requestId, config) {
+  return instance.get(`/queryapp/motif_enrichment/${requestId}/heatmap_table/`, config);
 }
 
-export function getTargetEnrichmentTable(requestId) {
-  return instance.get(`/queryapp/list_enrichment/${requestId}/`);
+export function getTargetEnrichmentTable(requestId, config) {
+  return instance.get(`/queryapp/list_enrichment/${requestId}/`, config);
 }
 
-export function getTargetEnrichmentImage(requestId, params) {
+export function getTargetEnrichmentImage(requestId, params, config) {
   return instance.get(`/queryapp/list_enrichment/${requestId}.svg`, {
     params,
-    responseType: 'document'
+    responseType: 'document',
+    ...config
   });
 }
 
-export function getTargetEnrichmentLegend(requestId) {
-  return instance.get(`/queryapp/list_enrichment/${requestId}/legend/`);
+export function getTargetEnrichmentLegend(requestId, config) {
+  return instance.get(`/queryapp/list_enrichment/${requestId}/legend/`, config);
 }
 
 export function getAnalysisEnrichment(requestId) {
