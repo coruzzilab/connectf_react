@@ -6,9 +6,12 @@ import targetEnrichment from './target_enrichment';
 import {combineReducers} from 'redux';
 import motifEnrichment from "./motif_enrichment";
 import analysisEnrichment from "./analysis_enrichment";
-import {addAfter, duplicateNode, moveItem, getDescendants} from "../utils";
+import {addAfter, duplicateNode, getDescendants, moveItem} from "../utils";
 
 const busy = (state = 0, action) => {
+  // eslint-disable-next-line no-console
+  console.assert(state >= 0, "busy state should be equal or greater than 0");
+
   switch (action.type) {
   case 'SET_BUSY':
     return action.busy ? state + 1 : Math.max(0, state - 1);
@@ -228,6 +231,17 @@ function stats(state = {}, action) {
   }
 }
 
+function summary(state = {}, action) {
+  switch (action.type) {
+  case 'SET_SUMMARY':
+    return action.data;
+  case 'CLEAR_SUMMARY':
+    return {};
+  default:
+    return state;
+  }
+}
+
 function edges(state = [], action) {
   switch (action.type) {
   case 'ADD_EDGE':
@@ -285,6 +299,7 @@ const tgdbApp = {
   analysisEnrichment: combineReducers(analysisEnrichment),
   requestId,
   stats,
+  summary,
   edges,
   queryHistory,
   queryError

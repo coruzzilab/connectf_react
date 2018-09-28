@@ -335,11 +335,40 @@ export const getStats = (requestId) => {
   return (dispatch) => {
     dispatch(setBusy(true));
     api.getStats(requestId)
-      .then((response) => {
-        dispatch(setStats(response.data));
+      .then(({data}) => {
+        dispatch(setStats(data));
       })
       .catch(() => {
         dispatch(clearStats());
+      })
+      .finally(() => {
+        dispatch(setBusy(false));
+      });
+  };
+};
+
+export const setSummary = (data) => {
+  return {
+    type: 'SET_SUMMARY',
+    data
+  };
+};
+
+export const clearSummary = () => {
+  return {
+    type: 'CLEAR_SUMMARY'
+  };
+};
+
+export const getSummary = (requestId) => {
+  return (dispatch) => {
+    dispatch(setBusy(true));
+    return api.getSummary(requestId)
+      .then(({data}) => {
+        dispatch(setSummary(data));
+      })
+      .catch(() => {
+        dispatch(clearSummary());
       })
       .finally(() => {
         dispatch(setBusy(false));

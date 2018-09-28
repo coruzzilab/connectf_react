@@ -62,6 +62,10 @@ export function getStats(requestId) {
   return instance.get(`/queryapp/stats/${requestId}/`);
 }
 
+export function getSummary(requestId) {
+  return instance.get(`/queryapp/summary/${requestId}/`);
+}
+
 export function getTable(requestId) {
   return instance.get(`/queryapp/${requestId}/`);
 }

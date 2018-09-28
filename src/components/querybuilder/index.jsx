@@ -870,7 +870,7 @@ class QuerybuilderBody extends React.Component {
         })
       },
       () => {
-        this.props.history.push('/result/table');
+        this.props.history.push('/result/summary');
       });
   }
 

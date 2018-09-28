@@ -9,6 +9,7 @@ import {Nav, NavItem, TabContent} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {clearEdges, clearQuery, clearQueryTree, clearRequestId} from "../../actions";
 
+import Summary from './summary';
 import Table from './table';
 import Meta from './meta';
 import Download from './download';
@@ -54,11 +55,15 @@ class ResultBody extends React.Component {
 
   render() {
     let {popoverOpen} = this.state;
-    let {match, location} = this.props;
-    let {pathname} = location;
+    let {match, location: {pathname}} = this.props;
 
     return <div>
       <Nav tabs>
+        <NavItem>
+          <NavLink to={"/result/summary"}>
+            Summary
+          </NavLink>
+        </NavItem>
         <NavItem>
           <NavLink to={"/result/table"}>
             Table
@@ -116,6 +121,9 @@ class ResultBody extends React.Component {
 
       <TabContent activeTab={pathname}>
         <Switch>
+          <RouteTabPane path={match.path + '/summary'} tabId={pathname}>
+            <Summary/>
+          </RouteTabPane>
           <RouteTabPane path={match.path + '/table'} tabId={pathname}>
             <Table/>
           </RouteTabPane>
@@ -137,7 +145,7 @@ class ResultBody extends React.Component {
           <RouteTabPane path={match.path + '/download'} tabId={pathname}>
             <Download/>
           </RouteTabPane>
-          <Redirect to="/result/table"/>
+          <Redirect to="/result/summary"/>
         </Switch>
       </TabContent>
       <QueryPopover target={() => this.query.current} placement="auto" isOpen={popoverOpen}
