@@ -163,7 +163,9 @@ class TableBody extends React.Component {
   }
 
   setHeight() {
-    this.setState({height: document.documentElement.clientHeight - this.grid.current.getBoundingClientRect().top});
+    if (this.grid.current) {
+      this.setState({height: document.documentElement.clientHeight - this.grid.current.getBoundingClientRect().top});
+    }
   }
 
   render() {

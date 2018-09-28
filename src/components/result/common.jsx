@@ -135,11 +135,12 @@ class QueryPopoverBody extends React.Component {
     return <Popover className="mw-100" {..._.omit(this.props, ['query', 'dispatch', 'edges'])}>
       <PopoverBody>
         <h6>Query</h6>
-        <div className="d-flex mb-1 align-items-center">
-          <div className="query-popover text-monospace border rounded border-light bg-light mr-1">
-            {query}
+
+        <div className="input-group">
+          <div className="input-group-prepend">
+            <span className="input-group-text text-monospace border-right-0">{query}</span>
           </div>
-          <div>
+          <div className="input-group-append">
             <CopyButton text={query} className="btn-sm"/>
           </div>
         </div>

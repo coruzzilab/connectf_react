@@ -381,12 +381,12 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   render() {
-    let {motifEnrichment, busy} = this.props;
+    let {motifEnrichment: {table, image, error}, busy} = this.props;
     let {body, colSpan, key, lower, upper, sortCol, ascending, collapse, exportSrc} = this.state;
-    let [min, max] = getLogMinMax(_.get(motifEnrichment.table, 'result', []));
+    let [min, max] = getLogMinMax(_.get(table, 'result', []));
 
     return <div>
-      {motifEnrichment.error ? <div className="text-danger">No motifs enriched.</div> : null}
+      {error ? <div className="text-danger">No motifs enriched.</div> : null}
       <button type="button" className="btn btn-primary m-2" onClick={this.toggle.bind(this)}>
         <FontAwesomeIcon icon="cog" className="mr-1"/>Options
       </button>
@@ -473,7 +473,7 @@ class MotifEnrichmentBody extends React.Component {
             <thead>
             <tr>
               <th/>
-              {_(_.get(motifEnrichment.table, 'columns', {})).map((val, key) => [val, key]).map(([val, key], i) => {
+              {_(_.get(table, 'columns', {})).map((val, key) => [val, key]).map(([val, key], i) => {
                 let line1 = _(val).pick(['name', 'TRANSCRIPTION_FACTOR_NAME']).values().join('-');
                 let line2 = _(val).pick(['EXPRESSION_TYPE', 'ANALYSIS_METHOD']).values().join('-');
                 return <ColHeader key={key}
@@ -495,7 +495,7 @@ class MotifEnrichmentBody extends React.Component {
             <tr>
               <th/>
               {colSpan === 2 ?
-                _(_.get(motifEnrichment.table, 'columns', [])).map((val, i) => {
+                _(_.get(table, 'columns', [])).map((val, i) => {
                   let [first, second] = [i * 2 + 1, i * 2 + 2];
                   return [
                     <th key={first}>
@@ -512,14 +512,14 @@ class MotifEnrichmentBody extends React.Component {
                     </th>
                   ];
                 }).flatten().value() :
-                _(_.get(motifEnrichment.table, 'columns', {})).map((val, key) => {
+                _(_.get(table, 'columns', {})).map((val, key) => {
                   return <th key={key}>promoter (p-value)</th>;
                 }).value()
               }
             </tr>
             </thead>
             <tbody>
-            {_(_.get(motifEnrichment.table, 'result', []))
+            {_(_.get(table, 'result', []))
               .orderBy(
                 _.isNull(sortCol) ?
                   (row) => parseInt(row[0].name.split('_')[1]) :
@@ -558,7 +558,7 @@ class MotifEnrichmentBody extends React.Component {
             </div>
             <div className="row">
               <div className="col-8">
-                <img className="img-fluid" src={motifEnrichment.image}/>
+                <img className="img-fluid" src={image}/>
               </div>
               <div className="col-4">
                 <HeatmapTable forwardedRef={this.legend}/>
