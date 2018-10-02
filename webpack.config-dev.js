@@ -72,7 +72,8 @@ const config = {
     add: (app, middleware, options) => {
       app.use(convert(proxy(['/api', '/queryapp', '/upload'], {target: 'http://localhost:8001'})));
       app.use(convert(history()));
-    }
+    },
+    clipboard: false
   }
 };
 
