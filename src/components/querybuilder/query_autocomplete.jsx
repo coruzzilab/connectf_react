@@ -35,19 +35,20 @@ class QueryAutocomplete extends React.Component {
     return <Autocomplete
       ref={this.textArea}
       renderInput={({onChange, ...props}) => (
-        <textarea {...props}
-                  className="form-control rounded-0"
-                  value={this.props.value}
-                  placeholder="Search Transcription Factor..."
-                  style={{width: '100%', height: '100%'}}
-                  onChange={(e) => {
-                    this.props.setQuery(e.target.value);
-                    onChange(e);
-                  }}
-                  onSelect={(e) => {
-                    this.setState({selectionEnd: e.currentTarget.selectionEnd});
-                  }}
-                  autoFocus/>)}
+        <input {...props}
+               type="text"
+               className="form-control form-control-lg rounded-0"
+               value={this.props.value}
+               placeholder="Search Transcription Factor..."
+               style={{width: '100%', height: '100%'}}
+               onChange={(e) => {
+                 this.props.setQuery(e.target.value);
+                 onChange(e);
+               }}
+               onSelect={(e) => {
+                 this.setState({selectionEnd: e.currentTarget.selectionEnd});
+               }}
+               autoFocus/>)}
       renderItem={(item, isHighlighted) =>
         <div className={classNames('dropdown-item', {active: isHighlighted})}
              key={item.value}>{item.value} {item.name ?

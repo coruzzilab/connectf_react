@@ -33,7 +33,7 @@ class App extends React.Component {
 
   render() {
     return <div>
-      <Navbar color="light" light expand="md">
+      <Navbar color="light" light expand="md" className="mb-1">
         <NavbarBrand><FontAwesomeIcon icon="dna" className="mr-1"/>ConnecTF</NavbarBrand>
         <NavbarToggler onClick={this.toggle.bind(this)}/>
         <Collapse isOpen={this.state.isOpen} navbar>

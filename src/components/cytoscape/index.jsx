@@ -208,6 +208,9 @@ class CytoscapeBody extends React.Component {
 
   setHeight() {
     this.setState({height: document.documentElement.clientHeight - this.cyRef.current.getBoundingClientRect().top});
+    if (this.cy) {
+      this.cy.resize();
+    }
   }
 
   runCyLayout() {
