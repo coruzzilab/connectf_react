@@ -4,13 +4,10 @@
  */
 import React from 'react';
 import Handsontable from '../../../utils/handsontable';
-import defaultSort from 'handsontable/src/plugins/columnSorting/sortFunction/default';
 import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-
-const NON_ALPHANUMERIC = /^\W*|\W*$/g;
 
 let mapStateToProps = ({result}) => {
   return {
@@ -18,8 +15,13 @@ let mapStateToProps = ({result}) => {
   };
 };
 
-function normalizeSearchString(value) {
-  return _.isString(value) ? value.replace(NON_ALPHANUMERIC, '') : value;
+function sortColumns(sortConfigs, data) {
+  for (let config of sortConfigs) {
+    let [nullRows, rows] = _.partition(data.slice(6), (o) => _.isNull(o[config.column]));
+    data = [...data.slice(0, 6), ..._.orderBy(rows, [config.column], [config.sortOrder]), ...nullRows];
+  }
+
+  return data;
 }
 
 class TableBody extends React.Component {
@@ -30,7 +32,8 @@ class TableBody extends React.Component {
     this.grid = React.createRef();
 
     this.state = {
-      height: Math.floor(document.documentElement.clientHeight * 0.8)
+      height: 0,
+      search: ''
     };
 
     this.setHeight = _.debounce(this.setHeight.bind(this), 100);
@@ -46,7 +49,9 @@ class TableBody extends React.Component {
         return idx - 5;
       },
       manualColumnResize: true,
-      columnSorting: true,
+      columnSorting: {
+        indicators: true
+      },
       colHeaders: true,
       fixedRowsTop: 6,
       wordWrap: false,
@@ -77,58 +82,36 @@ class TableBody extends React.Component {
 
         return cellProperties;
       },
-      search: true,
-      sortIndicator: true,
-      sortFunction: function (sortOrder, columnMeta) {
-        let skippedRows = 6;
-
-        return function (a, b) {
-          if (a[0] < skippedRows) {
-            if (a[0] > b[0]) {
-              return 1;
-            }
-            return -1;
-          }
-          if (b[0] < skippedRows) {
-            if (a[0] < b[0]) {
-              return -1;
-            }
-            return 1;
-          }
-
-          return defaultSort(sortOrder, columnMeta)(
-            [a[0], normalizeSearchString(a[1])],
-            [b[0], normalizeSearchString(b[1])]);
-        };
-      }
+      search: true
     });
 
     let sort = hot.getPlugin('columnSorting');
-    let search = hot.getPlugin('search');
-    let queryString = search.getQueryMethod();
 
-    hot.addHook('afterOnCellMouseDown', function (event, {row, col}) {
-      if (row === -1) {
-        sort.sort(col);
+    hot.addHook('afterOnCellMouseDown', function (event, {row, col: column}) {
+      if (row === -1 && !event.realTarget.classList.contains('columnSorting')) {
+        let sortConfig = sort.getSortConfig(column);
+        if (!sortConfig) {
+          sort.sort({column, sortOrder: "desc"});
+        } else if (sortConfig.sortOrder === "desc") {
+          sort.sort({column, sortOrder: "asc"});
+        } else if (sortConfig.sortOrder === "asc") {
+          sort.clearSort();
+        }
       }
     });
 
-    Handsontable.dom.addEvent(this.search.current, 'keyup', _.debounce(function () {
-      let {result} = self.props;
-      let data = _.get(result, '0.data', []);
+    hot.addHook('beforeColumnSort', function (currentSortConfig, destinationSortConfigs) {
+      sort.setSortConfig(destinationSortConfigs);
 
-      if (this.value.length > 0) {
-        hot.loadData([
-          ...data.slice(0, 6),
-          ..._(data.slice(6))
-            .filter((row) => {
-              return _(row).filter(queryString.bind(undefined, this.value)).some();
-            })
-            .value()
-        ]);
-      } else {
-        hot.loadData(data);
-      }
+      self.filterRows();
+
+      return false;
+    });
+
+    Handsontable.dom.addEvent(this.search.current, 'keyup', _.debounce(function () {
+      self.setState({
+        search: this.value
+      });
     }, 150));
 
     this.updateData();
@@ -137,15 +120,42 @@ class TableBody extends React.Component {
     window.addEventListener("resize", this.setHeight);
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (this.props.result !== prevProps.result) {
       this.updateData();
+    }
+
+    if (this.state.search !== prevState.search) {
+      this.filterRows();
     }
   }
 
   componentWillUnmount() {
     this.hot.destroy();
     window.removeEventListener("resize", this.setHeight);
+  }
+
+  filterRows() {
+    let data = _.get(this.props, 'result.0.data', []);
+
+    let sort = this.hot.getPlugin('columnSorting');
+    let search = this.hot.getPlugin('search');
+    let queryString = search.getQueryMethod();
+
+    if (this.state.search.length > 0) {
+      data = [
+        ...data.slice(0, 6),
+        ..._(data.slice(6))
+          .filter((row) => {
+            return _(row).filter(queryString.bind(undefined, this.state.search)).some();
+          })
+          .value()
+      ];
+    }
+
+    data = sortColumns(sort.getSortConfig(), data);
+
+    this.hot.loadData(data);
   }
 
   updateData() {
