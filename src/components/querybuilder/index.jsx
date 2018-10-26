@@ -998,9 +998,11 @@ class QuerybuilderBody extends React.Component {
             <span className="text-danger">{queryError.message}</span>
           </div>
 
-          <div className="row m-2">
-            <h2>Additional Edges</h2>
-          </div>
+          {edgeList.length ?
+            <div className="row m-2">
+              <h2>Additional Edges</h2>
+            </div> :
+            null}
           <div className="form-row m-2">
             <div className="col-auto">
               {_.map(edgeList, (e, i) => {

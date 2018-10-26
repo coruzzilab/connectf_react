@@ -55,8 +55,7 @@ class Cell extends React.Component {
                   <div>
                     <p>Name: {info[0][0]}</p>
                     <p>Filter: {info[0][1]}</p>
-                    <p>Experiment ID: {info[0][2]}</p>
-                    <p>Analysis ID: {info[0][3]}</p>
+                    <p>Analysis ID: {info[0][2]}</p>
                     {_.map(info[1], (val, key) => <p key={key}>{key}: {val}</p>)}
                   </div> :
                   <div>

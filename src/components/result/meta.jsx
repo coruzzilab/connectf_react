@@ -43,7 +43,6 @@ export class MetaBody extends React.Component {
       }),
       columnSorting: true,
       data: _.values(_.get(result, '1.data', {})),
-      sortIndicator: true,
       search: true
     });
 

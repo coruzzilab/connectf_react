@@ -132,7 +132,7 @@ class SummaryBody extends React.Component {
     this.chart.data = {
       labels: chartObj.keys().value(),
       datasets: chartEdges.zipWith(
-        palette('tol', chartEdges.size()),
+        palette(['tol', 'qualitative'], chartEdges.size()),
         (edge, color) => {
           return chartObj.values().map((val, i) => {
             return _(val).toPairs().map(([k, v], j) => {

@@ -28,7 +28,6 @@ class TableBody extends React.Component {
   constructor(props) {
     super(props);
 
-    this.search = React.createRef();
     this.grid = React.createRef();
 
     this.state = {
@@ -37,6 +36,7 @@ class TableBody extends React.Component {
     };
 
     this.setHeight = _.debounce(this.setHeight.bind(this), 100);
+    this.setSearch = _.debounce(this.setSearch.bind(this), 100);
   }
 
   componentDidMount() {
@@ -48,10 +48,9 @@ class TableBody extends React.Component {
         }
         return idx - 5;
       },
+      columns: [],
       manualColumnResize: true,
-      columnSorting: {
-        indicators: true
-      },
+      columnSorting: true,
       colHeaders: true,
       fixedRowsTop: 6,
       wordWrap: false,
@@ -69,7 +68,6 @@ class TableBody extends React.Component {
 
         if (row < 6) {
           cellProperties.type = 'text';
-          cellProperties.wordWrap = true;
         }
 
         if (col < 4) {
@@ -108,13 +106,7 @@ class TableBody extends React.Component {
       return false;
     });
 
-    Handsontable.dom.addEvent(this.search.current, 'keyup', _.debounce(function () {
-      self.setState({
-        search: this.value
-      });
-    }, 150));
-
-    this.updateData();
+    setTimeout(this.updateData.bind(this), 100); // handsontable is doing something funky in updates
 
     this.setHeight();
     window.addEventListener("resize", this.setHeight);
@@ -178,6 +170,10 @@ class TableBody extends React.Component {
     }
   }
 
+  setSearch(search) {
+    this.setState({search});
+  }
+
   render() {
     let {height} = this.state;
 
@@ -190,7 +186,9 @@ class TableBody extends React.Component {
                 <FontAwesomeIcon icon="search"/>
               </span>
             </div>
-            <input type="text" placeholder="Search" ref={this.search} className="form-control"/>
+            <input type="text" placeholder="Search" className="form-control" onChange={(e) => {
+              this.setSearch(e.target.value);
+            }}/>
           </div>
         </div>
       </div>

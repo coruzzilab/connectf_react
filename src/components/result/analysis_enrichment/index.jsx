@@ -149,7 +149,6 @@ class AnalysisEnrichmentBody extends React.Component {
                 <th>Index</th>
                 <th>Gene</th>
                 <th>Filter</th>
-                <th>Experiment ID</th>
                 <th>Analysis ID</th>
               </tr>
               </thead>
