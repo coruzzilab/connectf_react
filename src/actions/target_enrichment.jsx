@@ -21,6 +21,7 @@ export const clearTargetEnrichment = () => {
 export const getTargetEnrichmentTable = (requestId, config) => {
   return (dispatch) => {
     dispatch(setBusy(true));
+    dispatch(clearTargetEnrichment());
     return api.getTargetEnrichmentTable(requestId, config)
       .then((response) => {
         dispatch(setTargetEnrichment(response.data));
@@ -30,7 +31,7 @@ export const getTargetEnrichmentTable = (requestId, config) => {
         dispatch(clearTargetEnrichment());
         dispatch(setError(true));
       })
-      .finally(() => {
+      .then(() => {
         dispatch(setBusy(false));
       });
   };
@@ -63,8 +64,9 @@ export const getTargetEnrichmentImage = (requestId, params, config) => {
         dispatch(setError(true));
         dispatch(clearTargetEnrichmentImage());
       })
-      .finally(() => {
+      .then((data) => {
         dispatch(setBusy(false));
+        return data;
       });
   };
 };
@@ -94,7 +96,7 @@ export const getTargetEnrichmentLegend = (requestId, config) => {
         dispatch(clearTargetEnrichmentLegend());
         dispatch(setError(true));
       })
-      .finally(() => {
+      .then(() => {
         dispatch(setBusy(false));
       });
   };

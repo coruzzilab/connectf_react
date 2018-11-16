@@ -21,6 +21,7 @@ export const clearAnalysisEnrichment = () => {
 export const getAnalysisEnrichment = (requestId) => {
   return (dispatch) => {
     dispatch(setBusy(true));
+    dispatch(clearAnalysisEnrichment());
     return api.getAnalysisEnrichment(requestId)
       .then(({data}) => {
         dispatch(setAnalysisEnrichment(data));
@@ -30,7 +31,7 @@ export const getAnalysisEnrichment = (requestId) => {
         dispatch(clearAnalysisEnrichment());
         dispatch(setError(true));
       })
-      .finally(() => {
+      .then(() => {
         dispatch(setBusy(false));
       });
   };

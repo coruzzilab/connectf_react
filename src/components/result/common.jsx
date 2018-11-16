@@ -6,6 +6,7 @@ import {Route, withRouter} from "react-router-dom";
 import connect from "react-redux/es/connect/connect";
 import _ from "lodash";
 import {CopyButton} from "../common";
+import {addExtraField, removeExtraField, clearExtraFields} from "../../actions";
 
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
   return <a onClick={sortFunc} {...props}>
@@ -166,3 +167,64 @@ QueryPopoverBody.propTypes = {
 };
 
 export const QueryPopover = connect(({query, edges}) => ({query, edges}))(QueryPopoverBody);
+
+class ExtraFieldsBody extends React.Component {
+  handleChecked(f, e) {
+    if (e.target.checked) {
+      this.props.addExtraField(f);
+    } else {
+      this.props.removeExtraField(f);
+    }
+  }
+
+  render() {
+    let {extraFieldNames, extraFields, clearExtraFields, className} = this.props;
+
+    return <div className={className}>
+      <div className="row">
+        <div className="col">
+          <h3>Extra Fields</h3>
+          <small>Extra fields to display on the legend table.</small>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          <button className="btn btn-sm btn-danger" onClick={clearExtraFields}>
+            <FontAwesomeIcon icon="times-circle" className="mr-1"/>Clear</button>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          {extraFieldNames.map((f, i) => {
+            return <div className="form-check form-check-inline" key={i}>
+              <input className="form-check-input" type="checkbox" value={f}
+                     checked={extraFields.indexOf(f) !== -1}
+                     onChange={this.handleChecked.bind(this, f)}/>
+              <label className="form-check-label">{f}</label>
+            </div>;
+          })}
+        </div>
+      </div>
+    </div>;
+  }
+}
+
+ExtraFieldsBody.propTypes = {
+  extraFieldNames: PropTypes.arrayOf(PropTypes.string),
+  extraFields: PropTypes.arrayOf(PropTypes.string),
+  addExtraField: PropTypes.func,
+  removeExtraField: PropTypes.func,
+  clearExtraFields: PropTypes.func,
+  className: PropTypes.string
+};
+
+export const ExtraFields = connect(({extraFields}) => ({extraFields}), {
+  addExtraField,
+  removeExtraField,
+  clearExtraFields
+})(ExtraFieldsBody);
+
+ExtraFields.propTypes = {
+  extraFieldNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  className: PropTypes.string
+};

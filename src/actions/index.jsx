@@ -217,7 +217,7 @@ export const getCytoscape = (requestId) => {
       .catch(() => {
         dispatch(clearCytoscape());
       })
-      .finally(() => {
+      .then(() => {
         dispatch(setBusy(false));
       });
   };
@@ -274,7 +274,7 @@ export const postQuery = (config, onSuccess, onError, always) => {
           onError(err);
         }
       })
-      .finally(() => {
+      .then(() => {
         dispatch(setBusy(false));
 
         if (_.isFunction(always)) {
@@ -341,7 +341,7 @@ export const getStats = (requestId) => {
       .catch(() => {
         dispatch(clearStats());
       })
-      .finally(() => {
+      .then(() => {
         dispatch(setBusy(false));
       });
   };
@@ -370,7 +370,7 @@ export const getSummary = (requestId) => {
       .catch(() => {
         dispatch(clearSummary());
       })
-      .finally(() => {
+      .then(() => {
         dispatch(setBusy(false));
       });
   };
@@ -410,4 +410,24 @@ export const clearAllErrors = () => {
     dispatch(targetEnrichment.clearError());
     dispatch(analysisEnrichment.clearError());
   };
+};
+
+export const addExtraField = (field) => {
+  return {
+    type: 'ADD_EXTRA_FIELD',
+    field
+  };
+};
+
+export const removeExtraField = (field) => {
+  return {
+    type: 'REMOVE_EXTRA_FIELD',
+    field
+  };
+};
+
+export const clearExtraFields = () => {
+  return {
+    type: 'CLEAR_EXTRA_FIELDS'
+  }
 };

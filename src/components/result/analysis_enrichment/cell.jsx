@@ -16,7 +16,7 @@ const geneListLink = _.flow(
   URL.createObjectURL
 );
 
-class Cell extends React.Component {
+class Cell extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
@@ -39,7 +39,7 @@ class Cell extends React.Component {
 
     let geneLen = genes.length;
 
-    return <div className={classNames("col p-0 cell border", modal ? 'gene-modal' : null, className)}
+    return <div className={classNames("col p-0 cell", side > 10 ? "border" : null, modal ? 'info-modal' : null, className)}
                 style={{flexBasis: side, height: side, ...style}}
                 {...props}>
       {modal ?
@@ -68,9 +68,7 @@ class Cell extends React.Component {
                         <p>Number of genes in common: {geneLen}</p>
                         <div style={{height: '30vh', overflowY: 'scroll'}}
                              className="text-monospace border border-light rounded">
-                          <ul>
-                            {_.map(genes, (g, i) => <li key={i}>{g}</li>)}
-                          </ul>
+                          <pre>{_.join(genes, '\n')}</pre>
                         </div>
                       </div> :
                       <p className="text-danger">No genes in common.</p>)}

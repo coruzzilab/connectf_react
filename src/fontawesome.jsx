@@ -35,7 +35,9 @@ import {
   faHistory,
   faQuestionCircle,
   faBookOpen,
-  faCog
+  faCog,
+  faFileCsv,
+  faTimesCircle
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -68,5 +70,7 @@ library.add(
   faHistory,
   faQuestionCircle,
   faBookOpen,
-  faCog
+  faCog,
+  faFileCsv,
+  faTimesCircle
 );

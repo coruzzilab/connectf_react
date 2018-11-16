@@ -288,6 +288,19 @@ function queryError(state = INIT_QUERY_ERROR, action) {
   }
 }
 
+function extraFields(state = [], action) {
+  switch (action.type) {
+  case 'ADD_EXTRA_FIELD':
+    return state.filter((s) => s !== action.field).concat(action.field);
+  case 'REMOVE_EXTRA_FIELD':
+    return state.filter((s) => s !== action.field);
+  case 'CLEAR_EXTRA_FIELDS':
+    return [];
+  default:
+    return state;
+  }
+}
+
 const tgdbApp = {
   busy,
   query,
@@ -302,7 +315,8 @@ const tgdbApp = {
   summary,
   edges,
   queryHistory,
-  queryError
+  queryError,
+  extraFields
 };
 
 export default combineReducers(tgdbApp);

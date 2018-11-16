@@ -39,7 +39,7 @@ export const blueShader = _.partial(colorShader, 228, 89, 48);
 const clampExp = _.flow(_.partial(_.clamp, _, Number.MIN_VALUE, Number.MAX_VALUE), Math.log10);
 
 export function getLogMinMax(data, cutoff = 0.05) {
-  let res = _(data).flatten().filter((n) => typeof n === 'number');
+  let res = _(data).flatten().filter(_.isNumber);
 
   return [clampExp(res.min()), Math.min(clampExp(res.max()), clampExp(cutoff))];
 }
@@ -289,14 +289,13 @@ export function blobFromString(byteChars, type) {
   return new Blob(byteArrays, {type});
 }
 
-export function column_string(n) {
+export function columnString(n) {
   let s = '';
-
-  do {
-    let remainder = n % 26;
-    n = (n / 26) >> 0;
+  while (n > 0) {
+    let remainder = (n - 1) % 26;
+    n = (n - 1) / 26 >> 0;
     s = String.fromCharCode(65 + remainder) + s;
-  } while (n > 0);
+  }
 
   return s;
 }
@@ -316,3 +315,17 @@ export const cytoscapeJSONStringify = _.flow(
   buildCytoscapeJSON,
   JSON.stringify
 );
+
+export function getColName(c, i = null) {
+  let colStr;
+  if (_.isNull(i)) {
+    colStr = "";
+  } else {
+    colStr = columnString(i + 1) + '_';
+  }
+
+  return colStr + _.get(c, 'EXPERIMENTER', '') +
+    _.get(c, 'DATE', '').replace('-', '') + '_' +
+    _.get(c, 'TECHNOLOGY', '') + '_' + _.get(c, 'ANALYSIS_METHOD', '') + '_' +
+    _.get(c, 'ANALYSIS_CUTOFF', '').replace(' ', '');
+}

@@ -37,7 +37,8 @@ store.subscribe(_.throttle(function () {
     'queryTree',
     'requestId',
     'edges',
-    'queryHistory'
+    'queryHistory',
+    'extraFields'
   ]));
 }, 1000));
 
@@ -57,7 +58,7 @@ store.dispatch(function (dispatch) {
           dispatch(clearRequestId());
         }
       })
-      .finally(() => {
+      .then(() => {
         dispatch(setBusy(false));
       });
   }

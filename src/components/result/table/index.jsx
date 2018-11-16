@@ -31,11 +31,9 @@ class TableBody extends React.Component {
     this.grid = React.createRef();
 
     this.state = {
-      height: 0,
       search: ''
     };
 
-    this.setHeight = _.debounce(this.setHeight.bind(this), 100);
     this.setSearch = _.debounce(this.setSearch.bind(this), 100);
   }
 
@@ -49,6 +47,7 @@ class TableBody extends React.Component {
         return idx - 5;
       },
       columns: [],
+      height: document.documentElement.clientHeight - this.grid.current.getBoundingClientRect().top,
       manualColumnResize: true,
       columnSorting: true,
       colHeaders: true,
@@ -58,12 +57,17 @@ class TableBody extends React.Component {
       cells: function (row, col) {
         let cellProperties = {};
 
-        if (row < 6 || col === 6 || col === 7) {
+        if (row === 0) {
+          cellProperties.renderer = "html";
+          cellProperties.className = "font-weight-bold"
+        }
+
+        if ((row < 6 && row > 0) || col === 6 || col === 7) {
           cellProperties.renderer = 'renderBold';
         }
 
         if (col > 7 && row < 6) {
-          cellProperties.className = "htCenter";
+          cellProperties.className += " htCenter";
         }
 
         if (row < 6) {
@@ -106,10 +110,7 @@ class TableBody extends React.Component {
       return false;
     });
 
-    setTimeout(this.updateData.bind(this), 100); // handsontable is doing something funky in updates
-
-    this.setHeight();
-    window.addEventListener("resize", this.setHeight);
+    this.updateData();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -124,7 +125,6 @@ class TableBody extends React.Component {
 
   componentWillUnmount() {
     this.hot.destroy();
-    window.removeEventListener("resize", this.setHeight);
   }
 
   filterRows() {
@@ -164,19 +164,11 @@ class TableBody extends React.Component {
 
   }
 
-  setHeight() {
-    if (this.grid.current) {
-      this.setState({height: document.documentElement.clientHeight - this.grid.current.getBoundingClientRect().top});
-    }
-  }
-
   setSearch(search) {
     this.setState({search});
   }
 
   render() {
-    let {height} = this.state;
-
     return <div className="container-fluid">
       <div className="row my-1 align-items-center">
         <div className="col-lg-4 col-sm">
@@ -194,7 +186,7 @@ class TableBody extends React.Component {
       </div>
       <div className="row">
         <div className="col">
-          <div id="grid" ref={this.grid} style={{overflow: 'hidden', height}}/>
+          <div id="grid" ref={this.grid} style={{overflowX: 'scroll', height: '100%'}}/>
         </div>
       </div>
     </div>;

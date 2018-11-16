@@ -8,7 +8,22 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {getSummary} from "../../actions";
 import Chart from "chart.js";
-import palette from "google-palette";
+
+const COLOR = {
+  'INDUCED': '#4daf4a',
+  'REPRESSED': '#e41a1c',
+  'BOUND': '#377eb8'
+};
+
+function simplifyEdge(edge) {
+  if (edge.endsWith("INDUCED")) {
+    return "INDUCED";
+  } else if (edge.endsWith("REPRESSED")) {
+    return "REPRESSED";
+  }
+  return "BOUND";
+
+}
 
 function mapStateToProps({requestId, summary}) {
   return {
@@ -24,8 +39,7 @@ class SummaryBody extends React.Component {
     this.chartCtx = React.createRef();
 
     this.state = {
-      height: 0,
-      width: 0
+      height: 0
     };
 
     this.setHeight = _.debounce(this.setHeight.bind(this));
@@ -48,7 +62,7 @@ class SummaryBody extends React.Component {
         tooltips: {
           mode: 'x',
           position: 'nearest',
-          intersect: true,
+          intersect: false,
           filter: function (tooltipItem) {
             return tooltipItem.yLabel > 0;
           },
@@ -62,7 +76,14 @@ class SummaryBody extends React.Component {
           labels: {
             filter: function (legendItem, data) {
               // only show first of same label
-              return _.findIndex(data.datasets, ["label", legendItem.text]) === legendItem.datasetIndex;
+              return _(data.datasets).map("label").map(simplifyEdge).findIndex((l) => l === legendItem.text) === legendItem.datasetIndex;
+            },
+            generateLabels: function (chart) {
+              let legendItems = Chart.defaults.global.legend.labels.generateLabels(chart);
+              _.forEach(legendItems, (l) => {
+                l.text = simplifyEdge(l.text);
+              });
+              return legendItems;
             }
           },
           onClick: function (e, legendItem) {
@@ -72,7 +93,7 @@ class SummaryBody extends React.Component {
 
             // hide all with same label at once
             _(_.range(ci.data.datasets.length))
-              .filter((i) => ci.data.datasets[i].label === label)
+              .filter((i) => simplifyEdge(ci.data.datasets[i].label) === label)
               .map(ci.getDatasetMeta.bind(ci))
               .forEach(function (meta) {
                 meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
@@ -84,7 +105,12 @@ class SummaryBody extends React.Component {
         maintainAspectRatio: false,
         scales: {
           xAxes: [{
+            maxBarThickness: 50,
             stacked: true,
+            scaleLabel: {
+              display: true,
+              labelString: 'Transcription Factor ID'
+            },
             ticks: {
               callback: function (value) {
                 // needs improvement
@@ -93,6 +119,10 @@ class SummaryBody extends React.Component {
             }
           }],
           yAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: '# of Edges'
+            },
             stacked: true
           }]
         }
@@ -131,9 +161,8 @@ class SummaryBody extends React.Component {
 
     this.chart.data = {
       labels: chartObj.keys().value(),
-      datasets: chartEdges.zipWith(
-        palette(['tol', 'qualitative'], chartEdges.size()),
-        (edge, color) => {
+      datasets: chartEdges.map(
+        (edge) => {
           return chartObj.values().map((val, i) => {
             return _(val).toPairs().map(([k, v], j) => {
               let arr = Array(chartSize);
@@ -142,7 +171,7 @@ class SummaryBody extends React.Component {
 
               return {
                 label: edge,
-                backgroundColor: '#' + color,
+                backgroundColor: COLOR[simplifyEdge(edge)],
                 stack: j,
                 data: arr,
                 tooltip: k
@@ -157,11 +186,10 @@ class SummaryBody extends React.Component {
   }
 
   setHeight() {
-    let {top, width} = this.chartCtx.current.getBoundingClientRect();
+    let {top} = this.chartCtx.current.getBoundingClientRect();
 
     this.setState({
-      height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - top,
-      width
+      height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - top
     });
   }
 
@@ -169,7 +197,7 @@ class SummaryBody extends React.Component {
     let {height} = this.state;
 
     return <div>
-      <div className="w-100" style={{height}}>
+      <div style={{height}}>
         <canvas ref={this.chartCtx}/>
       </div>
     </div>;

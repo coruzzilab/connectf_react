@@ -24,8 +24,6 @@ export class MetaBody extends React.Component {
     this.state = {
       height: Math.floor(document.documentElement.clientHeight * 0.8)
     };
-
-    this.setHeight = _.debounce(this.setHeight.bind(this), 100);
   }
 
   componentDidMount() {
@@ -52,9 +50,6 @@ export class MetaBody extends React.Component {
 
       hot.render();
     }, 100));
-
-    this.setHeight();
-    window.addEventListener("resize", this.setHeight);
   }
 
   componentDidUpdate(prevProps) {
@@ -76,16 +71,9 @@ export class MetaBody extends React.Component {
 
   componentWillUnmount() {
     this.hot.destroy();
-    window.removeEventListener("resize", this.setHeight);
-  }
-
-  setHeight() {
-    this.setState({height: document.documentElement.clientHeight - this.grid.current.offsetTop});
   }
 
   render() {
-    let {height} = this.state;
-
     return <div className="container-fluid">
       <div className="row my-1">
         <div className="col-4">
@@ -101,7 +89,7 @@ export class MetaBody extends React.Component {
       </div>
       <div className="row">
         <div className="col">
-          <div ref={this.grid} style={{overflow: 'hidden', height}}/>
+          <div ref={this.grid} style={{overflowX: 'scroll', height: '100%'}}/>
         </div>
       </div>
     </div>;
