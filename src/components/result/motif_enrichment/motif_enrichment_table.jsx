@@ -202,11 +202,8 @@ class MotifEnrichmentTable extends React.Component {
               <RowHeader data={row[0]}/>
               {_.map(row.slice(1), (c, j) => {
                 if (typeof c === 'number') {
-
-                  return <td key={j}
-                             style={blueShader(c, min, max)}>{typeof c === 'number' ? c.toExponential(5) : null}</td>;
+                  return <td key={j} style={blueShader(c, min, max)}>{c.toExponential(5)}</td>;
                 }
-
                 return <td key={j}/>;
               })}
             </tr>;

@@ -10,12 +10,11 @@ import {getAnalysisEnrichment} from "../../../actions/analysis_enrichment";
 import EnrichmentGrid from "./enrichment_grid";
 import EnrichmentTable from "./enrichment_table";
 
-function mapStateToProps({requestId, analysisEnrichment: {data, error}, extraFields}) {
+function mapStateToProps({requestId, analysisEnrichment: {data, error}}) {
   return {
     requestId,
     data,
-    error,
-    extraFields
+    error
   };
 }
 
@@ -30,7 +29,7 @@ class AnalysisEnrichmentBody extends React.PureComponent {
       width: 0
     };
 
-    this.setSize = _.debounce(this.setSize.bind(this), 100);
+    this.setSize = _.debounce(this.setSize.bind(this), 200);
   }
 
   componentDidMount() {
@@ -56,7 +55,7 @@ class AnalysisEnrichmentBody extends React.PureComponent {
 
   render() {
     let {height, width} = this.state;
-    let {data, error, extraFields} = this.props;
+    let {data, error} = this.props;
 
     return <div className="container-fluid">
       {error ?
@@ -65,7 +64,7 @@ class AnalysisEnrichmentBody extends React.PureComponent {
         </p> :
         <div className="row">
           <EnrichmentGrid className="col-6 p-0" ref={this.container} data={data} width={width} height={height}/>
-          <EnrichmentTable className="col-6" data={data} extraFields={extraFields}/>
+          <EnrichmentTable className="col-6" data={data}/>
         </div>
       }
     </div>;
@@ -76,8 +75,7 @@ AnalysisEnrichmentBody.propTypes = {
   getAnalysisEnrichment: PropTypes.func,
   requestId: PropTypes.string,
   data: PropTypes.object,
-  error: PropTypes.bool,
-  extraFields: PropTypes.arrayOf(PropTypes.string)
+  error: PropTypes.bool
 };
 
 const AnalysisEnrichment = connect(mapStateToProps, {getAnalysisEnrichment})(AnalysisEnrichmentBody);

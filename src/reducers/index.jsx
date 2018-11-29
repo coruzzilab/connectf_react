@@ -294,6 +294,8 @@ function extraFields(state = [], action) {
     return state.filter((s) => s !== action.field).concat(action.field);
   case 'REMOVE_EXTRA_FIELD':
     return state.filter((s) => s !== action.field);
+  case 'REMOVE_EXTRA_FIELDS':
+    return _.difference(state, action.fields);
   case 'CLEAR_EXTRA_FIELDS':
     return [];
   default:

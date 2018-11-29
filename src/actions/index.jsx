@@ -426,6 +426,13 @@ export const removeExtraField = (field) => {
   };
 };
 
+export const removeExtraFields = (fields) => {
+  return {
+    type: 'REMOVE_EXTRA_FIELDS',
+    fields
+  };
+};
+
 export const clearExtraFields = () => {
   return {
     type: 'CLEAR_EXTRA_FIELDS'

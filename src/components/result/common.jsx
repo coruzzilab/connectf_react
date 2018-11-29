@@ -6,7 +6,7 @@ import {Route, withRouter} from "react-router-dom";
 import connect from "react-redux/es/connect/connect";
 import _ from "lodash";
 import {CopyButton} from "../common";
-import {addExtraField, removeExtraField, clearExtraFields} from "../../actions";
+import {addExtraField, removeExtraField, removeExtraFields} from "../../actions";
 
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
   return <a onClick={sortFunc} {...props}>
@@ -16,7 +16,7 @@ export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
 };
 
 SortButton.propTypes = {
-  sortFunc: PropTypes.func.isRequired,
+  sortFunc: PropTypes.func.isRequired,/**/
   sorted: PropTypes.bool.isRequired,
   ascending: PropTypes.bool.isRequired
 };
@@ -168,7 +168,7 @@ QueryPopoverBody.propTypes = {
 
 export const QueryPopover = connect(({query, edges}) => ({query, edges}))(QueryPopoverBody);
 
-class ExtraFieldsBody extends React.Component {
+class ExtraFieldsBody extends React.PureComponent {
   handleChecked(f, e) {
     if (e.target.checked) {
       this.props.addExtraField(f);
@@ -178,7 +178,7 @@ class ExtraFieldsBody extends React.Component {
   }
 
   render() {
-    let {extraFieldNames, extraFields, clearExtraFields, className} = this.props;
+    let {extraFieldNames, extraFields, removeExtraField, removeExtraFields, className} = this.props;
 
     return <div className={className}>
       <div className="row">
@@ -189,8 +189,16 @@ class ExtraFieldsBody extends React.Component {
       </div>
       <div className="row">
         <div className="col">
-          <button className="btn btn-sm btn-danger" onClick={clearExtraFields}>
-            <FontAwesomeIcon icon="times-circle" className="mr-1"/>Clear</button>
+          {_(extraFields).intersection(extraFieldNames).map((f, i) => {
+            return <button key={i} className="btn btn-sm btn-secondary m-1 d-inline-block"
+                           onClick={removeExtraField.bind(undefined, f)}>
+              <FontAwesomeIcon icon="times-circle" className="mr-1"/>{f}
+            </button>;
+          }).value()}
+          <button className="btn btn-sm btn-danger m-1 d-inline-block"
+                  onClick={removeExtraFields.bind(undefined, _.intersection(extraFieldNames, extraFields))}>
+            <FontAwesomeIcon icon="times-circle" className="mr-1"/>Clear All
+          </button>
         </div>
       </div>
       <div className="row">
@@ -214,14 +222,14 @@ ExtraFieldsBody.propTypes = {
   extraFields: PropTypes.arrayOf(PropTypes.string),
   addExtraField: PropTypes.func,
   removeExtraField: PropTypes.func,
-  clearExtraFields: PropTypes.func,
+  removeExtraFields: PropTypes.func,
   className: PropTypes.string
 };
 
 export const ExtraFields = connect(({extraFields}) => ({extraFields}), {
   addExtraField,
   removeExtraField,
-  clearExtraFields
+  removeExtraFields
 })(ExtraFieldsBody);
 
 ExtraFields.propTypes = {

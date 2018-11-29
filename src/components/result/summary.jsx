@@ -114,7 +114,7 @@ class SummaryBody extends React.Component {
             ticks: {
               callback: function (value) {
                 // needs improvement
-                return /^[^\s,]+/.exec(value)[0];
+                return /^[^\s,]+(?:\s*\([^\s,]+\))?/.exec(value)[0];
               }
             }
           }],

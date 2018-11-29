@@ -210,20 +210,24 @@ class TargetEnrichmentBody extends React.Component {
             </TabPane>
             <TabPane tabId="heatmap">
               <div className="container-fluid">
-                <div className="row my-1">
-                  <div className="col">
-                    <SVGWarningTooltip className="float-right">
-                      <a className="btn btn-primary" download="list_enrichment.svg" href={exportSrc}>
-                        <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
-                    </SVGWarningTooltip>
-                  </div>
-                </div>
                 <div className="row">
                   <div className="col-8">
-                    <img className="img-fluid" src={image}/>
+                    <img className="img-fluid" src={image} alt="heatmap"/>
                   </div>
                   <div className="col-4">
-                    <HeatmapTable forwardedRef={this.legend}/>
+                    <div className="row my-1">
+                      <div className="col d-flex flex-row-reverse">
+                        <SVGWarningTooltip>
+                          <a className="btn btn-primary" download="list_enrichment.svg" href={exportSrc}>
+                            <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
+                        </SVGWarningTooltip>
+                      </div>
+                    </div>
+                    <div className="row">
+                      <div className="col">
+                        <HeatmapTable ref={this.legend} extraFieldNames={extraFieldNames}/>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -39,8 +39,8 @@ class Cell extends React.PureComponent {
 
     let geneLen = genes.length;
 
-    return <div className={classNames("col p-0 cell", side > 10 ? "border" : null, modal ? 'info-modal' : null, className)}
-                style={{flexBasis: side, height: side, ...style}}
+    return <div className={classNames("p-0 cell", side > 10 ? "border" : null, modal ? 'info-modal' : null, className)}
+                style={{flexBasis: side, height: side, width: side, ...style}}
                 {...props}>
       {modal ?
         [
@@ -59,6 +59,7 @@ class Cell extends React.PureComponent {
                     {_.map(info[1], (val, key) => <p key={key}>{key}: {val}</p>)}
                   </div> :
                   <div>
+                    <p>Pair: {d.pair}</p>
                     <p>Greater: {d['greater'].toExponential(2)}</p>
                     <p>Greater Adjusted: {d['greater_adj'].toExponential(2)}</p>
                     <p>Less: {d['less'].toExponential(2)}</p>

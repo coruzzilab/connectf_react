@@ -69,7 +69,7 @@ class Cytoscape extends React.Component {
             Cytoscape</Link>
           {!_.isEmpty(cytoscape) ?
             <a className="btn btn-light" download="query.cyjs"
-               href={"data:application/json," + cytoscapeJSONStringify(cytoscape)}>
+               href={cytoscapeJSONStringify(cytoscape)}>
               <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a> :
             null}
         </div>

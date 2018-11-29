@@ -12,10 +12,11 @@ import {RowHeader} from "./common";
 import {columnString} from "../../../utils";
 import PropTypes from "prop-types";
 
-function mapStateToProps({busy}) {
+function mapStateToProps({busy, extraFields}) {
   return {
-    busy
-  }
+    busy,
+    extraFields
+  };
 }
 
 class EnrichmentTableBody extends React.Component {
@@ -31,10 +32,11 @@ class EnrichmentTableBody extends React.Component {
   }
 
   render() {
-    let {busy, className, data, extraFields} = this.props;
+    let {busy, className, data} = this.props;
     let {collapse} = this.state;
 
     let extraFieldNames = _(data.info).map(1).map(_.keys).flatten().uniq().sortBy().value();
+    let extraFields = _.intersection(this.props.extraFields, extraFieldNames);
 
     return <div className={className}>
       <div className="row my-2">
@@ -101,12 +103,11 @@ EnrichmentTableBody.defaultProps = {
   extraFields: []
 };
 
-const EnrichmentTable =  connect(mapStateToProps)(EnrichmentTableBody);
+const EnrichmentTable = connect(mapStateToProps)(EnrichmentTableBody);
 
 EnrichmentTable.propTypes = {
   data: PropTypes.object.isRequired,
-  className: PropTypes.string,
-  extraFields: PropTypes.arrayOf(PropTypes.string)
+  className: PropTypes.string
 };
 
 export default EnrichmentTable;

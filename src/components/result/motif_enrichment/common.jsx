@@ -53,16 +53,18 @@ export class ColHeader extends React.Component {
           Meta Data
         </ModalHeader>
         <ModalBody>
-          <table className="table table-responsive table-sm">
-            <tbody>
-            {_(data).map((val, key) => {
-              return <tr key={key}>
-                <th>{key}</th>
-                <td>{val}</td>
-              </tr>;
-            }).value()}
-            </tbody>
-          </table>
+          <div className="table-responsive">
+            <table className="table table-sm">
+              <tbody>
+              {_(data).map((val, key) => {
+                return <tr key={key}>
+                  <th>{key}</th>
+                  <td>{val}</td>
+                </tr>;
+              }).value()}
+              </tbody>
+            </table>
+          </div>
         </ModalBody>
         <ModalFooter>
           <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times" className="mr-1"/>Close</Button>

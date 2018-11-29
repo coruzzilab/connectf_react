@@ -313,7 +313,9 @@ export function buildCytoscapeJSON(data) {
 
 export const cytoscapeJSONStringify = _.flow(
   buildCytoscapeJSON,
-  JSON.stringify
+  JSON.stringify,
+  _.partial(blobFromString, _, 'text/plain'),
+  URL.createObjectURL
 );
 
 export function getColName(c, i = null) {
