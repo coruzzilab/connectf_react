@@ -36,8 +36,10 @@ export class RowHeader extends React.Component {
     let {visible} = this.state;
     let {data} = this.props;
 
-    return <td>
-      <a className="text-secondary" onClick={this.showModal.bind(this)}>{`${data.name} ${data['Family']}`}</a>
+    return <td style={{position: 'sticky', left: 0}} className="p-0">
+      <div className="w-100 h-100 bg-white border p-1">
+        <a className="text-secondary" onClick={this.showModal.bind(this)}>{`${data.name} ${data['Family']}`}</a>
+      </div>
       <Modal isOpen={visible} toggle={this.hideModal.bind(this)}>
         <ModalHeader toggle={this.hideModal.bind(this)}>
           {data.name} {data['Family']}

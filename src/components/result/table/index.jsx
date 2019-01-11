@@ -74,8 +74,12 @@ class TableBody extends React.Component {
           cellProperties.type = 'text';
         }
 
-        if (col < 4) {
+        if (col < 3) {
           cellProperties.colWidths = 200;
+        }
+
+        if (col === 3) {
+          cellProperties.colWidths = 100;
         }
 
         if (col > 7) {

@@ -48,8 +48,10 @@ export class RowHeader extends React.Component {
     let {visible} = this.state;
     let {info} = this.props;
 
-    return <th>
-      <a className="text-primary link" onClick={this.showModal.bind(this, undefined)}>{this.props.children}</a>
+    return <th style={{position: 'sticky', left: 0}} className="p-0">
+      <div className="w-100 h-100 bg-white border p-1">
+        <a className="text-primary link" onClick={this.showModal.bind(this, undefined)}>{this.props.children}</a>
+      </div>
       <Modal isOpen={visible} toggle={this.showModal.bind(this, false)}>
         <ModalHeader toggle={this.showModal.bind(this, false)}>{info.name}</ModalHeader>
         <ModalBody>
