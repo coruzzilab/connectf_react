@@ -13,9 +13,9 @@ import {Alert} from 'reactstrap';
 import classNames from 'classnames';
 import uuid4 from 'uuid/v4';
 
-import {getCytoscape, setCytoscape} from '../../actions';
+import {getNetwork, setNetwork} from '../../actions';
 import {UploadSifInfoPopover} from "./common";
-import {blobFromString, cytoscapeJSONStringify} from "../../utils";
+import {blobFromString, networkJSONStringify} from "../../utils";
 
 const clampWeight = _.memoize(_.partial(_.clamp, _, 1, 5));
 
@@ -24,7 +24,7 @@ const edge_compare = (s, o) => {
   return _.isEqual(edge_value(s), edge_value(o));
 };
 
-const cytoscapePNG = _.flow(
+const networkPNG = _.flow(
   _.partial(_.split, _, ',', 2),
   _.partial(_.get, _, 1),
   atob,
@@ -32,15 +32,15 @@ const cytoscapePNG = _.flow(
   URL.createObjectURL
 );
 
-const mapStateToProps = ({busy, requestId, cytoscape}) => {
+const mapStateToProps = ({busy, requestId, network}) => {
   return {
     busy,
     requestId,
-    cytoscapeData: cytoscape
+    network
   };
 };
 
-class CytoscapeBody extends React.Component {
+class NetworkBody extends React.Component {
   constructor(props) {
     super(props);
     this.cyRef = React.createRef();
@@ -180,8 +180,8 @@ class CytoscapeBody extends React.Component {
 
     this.setHeight();
 
-    if (_.isEmpty(this.props.cytoscapeData)) {
-      this.props.getCytoscape(this.props.requestId);
+    if (_.isEmpty(this.props.network)) {
+      this.props.getNetwork(this.props.requestId);
     } else {
       this.resetCytoscape();
     }
@@ -191,10 +191,10 @@ class CytoscapeBody extends React.Component {
 
   componentDidUpdate(prevProp) {
     if (prevProp.requestId !== this.props.requestId) {
-      this.props.getCytoscape(this.props.requestId);
+      this.props.getNetwork(this.props.requestId);
     }
 
-    if (prevProp.cytoscapeData !== this.props.cytoscapeData) {
+    if (prevProp.network !== this.props.network) {
       this.resetCytoscape();
     }
   }
@@ -227,12 +227,12 @@ class CytoscapeBody extends React.Component {
   }
 
   exportCytoscape(e) {
-    e.currentTarget.href = cytoscapePNG(this.cy.png());
+    e.currentTarget.href = networkPNG(this.cy.png());
   }
 
   exportJSON(e) {
     e.currentTarget.download = 'cytoscape.cyjs';
-    e.currentTarget.href = 'data:application/json,' + cytoscapeJSONStringify(this.cy.elements().jsons());
+    e.currentTarget.href = 'data:application/json,' + networkJSONStringify(this.cy.elements().jsons());
   }
 
   setData(data) {
@@ -244,7 +244,7 @@ class CytoscapeBody extends React.Component {
   }
 
   resetCytoscape() {
-    this.setData(this.props.cytoscapeData);
+    this.setData(this.props.network);
   }
 
   back() {
@@ -468,15 +468,15 @@ class CytoscapeBody extends React.Component {
   }
 }
 
-CytoscapeBody.propTypes = {
+NetworkBody.propTypes = {
   busy: PropTypes.number,
   history: PropTypes.object,
   requestId: PropTypes.string,
-  cytoscapeData: PropTypes.array,
-  getCytoscape: PropTypes.func,
+  network: PropTypes.array,
+  getNetwork: PropTypes.func,
   setCytoscape: PropTypes.func
 };
 
-const Cytoscape = connect(mapStateToProps, {getCytoscape, setCytoscape})(CytoscapeBody);
+const Network = connect(mapStateToProps, {getCytoscape: getNetwork, setCytoscape: setNetwork})(NetworkBody);
 
-export default Cytoscape;
+export default Network;
