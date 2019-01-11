@@ -1,6 +1,8 @@
 /**
  * @author zacharyjuang
  * 7/25/18
+ *
+ * Saves and loads state from localstorage.
  */
 export function loadState() {
   try {

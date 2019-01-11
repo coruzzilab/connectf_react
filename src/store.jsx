@@ -42,6 +42,31 @@ store.subscribe(_.throttle(function () {
   ]));
 }, 1000));
 
+// Fun with notifications
+let busy = 0;
+
+store.subscribe(function () {
+  let currBusy = store.getState().busy;
+
+  if (currBusy !== busy) {
+    if (busy > 0 && currBusy === 0) {
+      if (!document.hasFocus()) {
+        if (Notification.permission === "granted") {
+          let n = new Notification("Done!", {body: "The results are in."});
+        } else if (Notification.permission !== "denied") {
+          Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+              let n = new Notification("Done!", {body: "The results are in."});
+            }
+          });
+        }
+      }
+    }
+
+    busy = currBusy;
+  }
+});
+
 store.dispatch(function (dispatch) {
   let state = store.getState();
 
