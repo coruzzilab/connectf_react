@@ -15,6 +15,7 @@ import {
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import _ from "lodash";
 
 export class AndOrSelect extends React.Component {
   handleChange(e) {
@@ -90,29 +91,25 @@ AddFollowing.defaultProps = {
   addGroupText: 'Add Following TF Group'
 };
 
-export class TargetGenesFile extends React.Component {
+export class UploadFile extends React.Component {
   constructor(props) {
     super(props);
-    this.targetGenes = React.createRef();
   }
 
   componentDidMount() {
-    this.targetGenes.current.scrollIntoView();
-  }
-
-  handleChange(e) {
-    this.props.handleChange(e.target.files);
+    this.props.inputRef.current.scrollIntoView();
+    this.props.inputRef.current.focus();
+    this.props.inputRef.current.click();
   }
 
   render() {
     return <input type="file" className="form-control-file"
-                  onChange={this.handleChange.bind(this)}
-                  ref={this.targetGenes}/>;
+                  ref={this.props.inputRef}/>;
   }
 }
 
-TargetGenesFile.propTypes = {
-  handleChange: PropTypes.func
+UploadFile.propTypes = {
+  inputRef: PropTypes.object
 };
 
 const TARGET_GENES_FILE = ">list 1 name\nAT1G00100\nAT1G00200\n...\n>list 2 name (optional)\nAT2G00100\nAT2G00200\n...\n";
@@ -222,4 +219,39 @@ export const RemoveButton = ({onClick}) => (
 
 RemoveButton.propTypes = {
   onClick: PropTypes.func.isRequired
+};
+
+export const Edges = ({edgeList, edges, onChange}) => ([
+  <div key={0} className="row m-2">
+    <h4>Additional Edges</h4>
+  </div>,
+  <div key={1} className="form-row m-2">
+    <div className="col-auto">
+      {_.map(edgeList, (e, i) => {
+        return <div className="form-check" key={i}>
+          <input className="form-check-input" type="checkbox" value={e}
+                 checked={_.indexOf(edges, e) !== -1}
+                 onChange={onChange.bind(undefined, e)}/>
+          <label className="form-check-label">{e}</label>
+        </div>;
+      })}
+    </div>
+  </div>
+]);
+
+Edges.propTypes = {
+  edgeList: PropTypes.array.isRequired,
+  edges: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired
+};
+
+export const Copied = ({copied}) => (
+  <span><FontAwesomeIcon icon="copy" className="mr-1"/>{copied ? "Copied!" : "Copy"}</span>);
+
+Copied.propTypes = {
+  copied: PropTypes.bool
+};
+
+Copied.defaultProps = {
+  copied: false
 };

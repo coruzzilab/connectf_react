@@ -9,7 +9,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import About from './about';
 import Result from './result';
 import QueryBuilder from './querybuilder';
-import Cytoscape from './cytoscape';
+import Network from './network';
 import Feedback from './feedback';
 import Tutorial from './tutorial';
 import {NavItem} from "./common";
@@ -50,7 +50,7 @@ class App extends React.Component {
         <Route path="/tutorial" component={Tutorial}/>
         <Route path="/query" component={QueryBuilder}/>
         <Route path="/feedback" component={Feedback}/>
-        <Route path="/cytoscape" component={Cytoscape}/>
+        <Route path="/network" component={Network}/>
         <Route path="/result" component={Result}/>
         <Redirect to="/"/>
       </Switch>

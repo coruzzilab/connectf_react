@@ -270,11 +270,11 @@ export function svgAddTable(svg, table) {
   return svg;
 }
 
-export function blobFromString(byteChars, type) {
+export function blobFromString(byteChars, type, chunkSize = 512) {
   let byteArrays = [];
 
-  for (let offset = 0; offset < byteChars.length; offset += 512) {
-    let slice = byteChars.slice(offset, offset + 512);
+  for (let offset = 0; offset < byteChars.length; offset += chunkSize) {
+    let slice = byteChars.slice(offset, offset + chunkSize);
 
     let byteNumbers = new Array(slice.length);
     for (let i = 0; i < slice.length; i++) {
@@ -300,7 +300,7 @@ export function columnString(n) {
   return s;
 }
 
-export function buildCytoscapeJSON(data) {
+export function buildNetworkJSON(data) {
   return {
     "format_version": "1.0",
     "generated_by": "ConnecTF",
@@ -311,8 +311,8 @@ export function buildCytoscapeJSON(data) {
   };
 }
 
-export const cytoscapeJSONStringify = _.flow(
-  buildCytoscapeJSON,
+export const networkJSONStringify = _.flow(
+  buildNetworkJSON,
   JSON.stringify,
   _.partial(blobFromString, _, 'text/plain'),
   URL.createObjectURL

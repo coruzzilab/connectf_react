@@ -64,13 +64,13 @@ export class CopyButton extends React.Component {
 
   render() {
     let {copied} = this.state;
-    let {className, content} = this.props;
+    let {className, content: Tag} = this.props;
 
     return <button type="button"
                    className={classNames("btn", className, copied ? "btn-success" : "btn-outline-secondary")}
                    ref={this.copy}
                    title="Copy query to clipboard">
-      {_.isFunction(content) ? content(copied) : <FontAwesomeIcon icon="copy"/>}
+      {Tag ? <Tag copied={copied}/> : <FontAwesomeIcon icon="copy"/>}
     </button>;
   }
 }

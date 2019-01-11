@@ -46,8 +46,10 @@ export function submitAnalysis(data) {
   return instance.post('/upload/analysis/', data);
 }
 
-export function getCytoscape(requestId) {
-  return instance.get(`/queryapp/cytoscape/${requestId}/`);
+export function getNetwork(requestId, edges) {
+  return instance.get(`/queryapp/network/${requestId}/`, {
+    params: {edges}
+  });
 }
 
 export function postQuery(config) {

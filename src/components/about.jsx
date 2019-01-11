@@ -22,8 +22,8 @@ const IMAGES = [
   },
   {
     src: require('../images/cytoscape.png'),
-    altText: 'Cytoscape',
-    header: 'Cytoscape',
+    altText: 'Network',
+    header: 'Network',
     caption: 'Transcription factor and target gene interaction network'
   },
   {

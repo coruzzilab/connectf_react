@@ -209,11 +209,11 @@ function result(state = [], action) {
   }
 }
 
-function cytoscape(state = [], action) {
+function network(state = [], action) {
   switch (action.type) {
-  case 'SET_CYTOSCAPE':
+  case 'SET_NETWORK':
     return action.data;
-  case 'CLEAR_CYTOSCAPE':
+  case 'CLEAR_NETWORK':
     return [];
   default:
     return state;
@@ -309,7 +309,7 @@ const tgdbApp = {
   queryTree,
   result,
   targetEnrichment: combineReducers(targetEnrichment),
-  cytoscape,
+  network,
   motifEnrichment: combineReducers(motifEnrichment),
   analysisEnrichment: combineReducers(analysisEnrichment),
   requestId,

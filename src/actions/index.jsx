@@ -9,7 +9,7 @@ import uuidv4 from "uuid/v4";
 import _ from 'lodash';
 import * as api from "../utils/axios";
 
-export const setBusy = (busy) => {
+export const setBusy = (busy = true) => {
   return {
     type: 'SET_BUSY',
     busy
@@ -194,28 +194,28 @@ export const setResult = (data) => {
   };
 };
 
-export const setCytoscape = (data) => {
+export const setNetwork = (data) => {
   return {
-    type: 'SET_CYTOSCAPE',
+    type: 'SET_NETWORK',
     data
   };
 };
 
-export const clearCytoscape = () => {
+export const clearNetwork = () => {
   return {
-    type: 'CLEAR_CYTOSCAPE'
+    type: 'CLEAR_NETWORK'
   };
 };
 
-export const getCytoscape = (requestId) => {
+export const getNetwork = (requestId, edges) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return api.getCytoscape(requestId)
+    return api.getNetwork(requestId, edges)
       .then((response) => {
-        dispatch(setCytoscape(response.data));
+        dispatch(setNetwork(response.data));
       })
       .catch(() => {
-        dispatch(clearCytoscape());
+        dispatch(clearNetwork());
       })
       .then(() => {
         dispatch(setBusy(false));
@@ -260,7 +260,7 @@ export const postQuery = (config, onSuccess, onError, always) => {
           }
 
           if (response.status === 400) {
-            dispatch(setQueryError(true, 'Problem with query.'));
+            dispatch(setQueryError(true, response.data || 'Problem with query.'));
           } else if (response.status === 404) {
             dispatch(setQueryError(true, 'Empty result.'));
           } else {

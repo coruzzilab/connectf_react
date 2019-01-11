@@ -16,7 +16,7 @@ import Download from './download';
 import TargetEnrichment from './target_enrichment';
 import MotifEnrichment from './motif_enrichment';
 import AnalysisEnrichment from './analysis_enrichment';
-import Cytoscape from './cytoscape';
+import Network from './network';
 import {NavLink, QueryPopover, RouteTabPane} from "./common";
 
 function mapStateToProps({heatmap}) {
@@ -75,8 +75,8 @@ class ResultBody extends React.Component {
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to={"/result/cytoscape"}>
-            Cytoscape
+          <NavLink to={"/result/network"}>
+            Network
           </NavLink>
         </NavItem>
         <NavItem>
@@ -130,8 +130,8 @@ class ResultBody extends React.Component {
           <RouteTabPane path={match.path + '/meta'} tabId={pathname}>
             <Meta/>
           </RouteTabPane>
-          <RouteTabPane path={match.path + '/cytoscape'} tabId={pathname}>
-            <Cytoscape/>
+          <RouteTabPane path={match.path + '/network'} tabId={pathname}>
+            <Network/>
           </RouteTabPane>
           <RouteTabPane path={match.path + '/target'} tabId={pathname}>
             <TargetEnrichment/>

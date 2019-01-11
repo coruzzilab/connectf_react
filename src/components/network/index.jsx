@@ -20,9 +20,7 @@ import {blobFromString, networkJSONStringify} from "../../utils";
 const clampWeight = _.memoize(_.partial(_.clamp, _, 1, 5));
 
 const edge_value = _.unary(_.partial(_.pick, _, ['data.source', 'data.target', 'data.name']));
-const edge_compare = (s, o) => {
-  return _.isEqual(edge_value(s), edge_value(o));
-};
+const edge_compare = _.overArgs(_.isEqual, [edge_value, edge_value]);
 
 const networkPNG = _.flow(
   _.partial(_.split, _, ',', 2),
@@ -48,7 +46,6 @@ class NetworkBody extends React.Component {
 
     this.state = {
       height: Math.floor(document.documentElement.clientHeight * 0.8),
-      popoverOpen: false,
       busy: false,
       color: "#ffff00",
       alertOpen: false,
@@ -231,7 +228,7 @@ class NetworkBody extends React.Component {
   }
 
   exportJSON(e) {
-    e.currentTarget.download = 'cytoscape.cyjs';
+    e.currentTarget.download = 'network.cyjs';
     e.currentTarget.href = 'data:application/json,' + networkJSONStringify(this.cy.elements().jsons());
   }
 
@@ -248,13 +245,7 @@ class NetworkBody extends React.Component {
   }
 
   back() {
-    this.props.history.push('/result/cytoscape');
-  }
-
-  togglePopover() {
-    this.setState({
-      popoverOpen: !this.state.popoverOpen
-    });
+    this.props.history.push('/result/network');
   }
 
   setBusy(busy) {
@@ -402,7 +393,7 @@ class NetworkBody extends React.Component {
   }
 
   render() {
-    let {height, popoverOpen, busy, color, alertOpen, alertMessage} = this.state;
+    let {height, busy, color, alertOpen, alertMessage} = this.state;
 
     return <div className="container-fluid">
       <Alert color="danger" isOpen={alertOpen} toggle={this.toggleAlert.bind(this)}>{alertMessage}</Alert>
@@ -425,23 +416,30 @@ class NetworkBody extends React.Component {
           </div>
           <div className="input-group mr-2">
             <div className="input-group-prepend">
-              <DropZone className={classNames("btn", !busy ? "btn-outline-primary" : "btn-outline-warning")}
-                        accept={['text/*', '', '.sif', '.tsv']}
-                        acceptClassName="btn-outline-success"
-                        rejectClassName="btn-outline-danger" onDrop={this.handleUpload.bind(this)}>
-                {!busy ? <span><FontAwesomeIcon icon="file-upload" className="mr-1"/>Upload Edges</span> :
-                  <FontAwesomeIcon icon="circle-notch" spin className="mx-5"/>}</DropZone>
+              <DropZone accept={['text/*', '', '.sif', '.tsv']}
+                        onDrop={this.handleUpload.bind(this)}>
+                {({getRootProps, getInputProps, isDragActive, isDragAccept, isDragReject}) => {
+                  return <div {...getRootProps()}
+                              className={classNames('dropzone', {'dropzone--isActive': isDragActive},
+                                "btn", !busy ? "btn-outline-primary" : "btn-outline-warning",
+                                isDragAccept && "btn-outline-success",
+                                isDragReject && "btn-outline-danger")}>
+                    <input {...getInputProps()} />
+                    {!busy ? <span><FontAwesomeIcon icon="file-upload" className="mr-1"/>Upload Edges</span> :
+                      <FontAwesomeIcon icon="circle-notch" spin className="mx-5"/>}
+                  </div>;
+                }}
+              </DropZone>
               <span className="input-group-text">Edge Color:</span>
             </div>
             <input type="color" className="form-control" style={{width: '80px'}} value={color}
                    onChange={this.setColor.bind(this)}/>
             <div className="input-group-append">
-              <div className="btn btn-outline-dark" onClick={this.togglePopover.bind(this)} ref={this.info}>
+              <div className="btn btn-outline-dark" ref={this.info}>
                 <FontAwesomeIcon icon="info-circle"/>
               </div>
             </div>
-            <UploadSifInfoPopover target={() => this.info.current} placement="right" isOpen={popoverOpen}
-                                  toggle={this.togglePopover.bind(this)}/>
+            <UploadSifInfoPopover target={() => this.info.current} placement="right"/>
           </div>
           <div className="btn-group mr-1">
             <button type="button" className="btn btn-danger"
@@ -474,9 +472,9 @@ NetworkBody.propTypes = {
   requestId: PropTypes.string,
   network: PropTypes.array,
   getNetwork: PropTypes.func,
-  setCytoscape: PropTypes.func
+  setNetwork: PropTypes.func
 };
 
-const Network = connect(mapStateToProps, {getCytoscape: getNetwork, setCytoscape: setNetwork})(NetworkBody);
+const Network = connect(mapStateToProps, {getNetwork, setNetwork})(NetworkBody);
 
 export default Network;

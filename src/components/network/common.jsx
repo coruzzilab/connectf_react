@@ -3,12 +3,12 @@
  * 9/5/18
  */
 import React from "react";
-import {Popover, PopoverBody, PopoverHeader} from "reactstrap";
+import {UncontrolledPopover, PopoverBody, PopoverHeader} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 export class UploadSifInfoPopover extends React.Component {
   render() {
-    return <Popover {...this.props}>
+    return <UncontrolledPopover {...this.props}>
       <PopoverHeader>Upload Edges</PopoverHeader>
       <PopoverBody>
         <p>Accepts tab (<span className="text-monospace">&#34;\t&#34;</span>) delimited text file with 3 columns. In
@@ -21,6 +21,6 @@ export class UploadSifInfoPopover extends React.Component {
               download="example.sif" className="btn btn-primary btn-sm">
           <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example File</a></p>
       </PopoverBody>
-    </Popover>;
+    </UncontrolledPopover>;
   }
 }
