@@ -39,6 +39,7 @@ class QueryAutocomplete extends React.Component {
                type="text"
                className="form-control form-control-lg rounded-0"
                value={this.props.value}
+               name="query"
                placeholder="Search Transcription Factor..."
                style={{width: '100%', height: '100%'}}
                onChange={(e) => {

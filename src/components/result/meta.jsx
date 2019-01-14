@@ -89,7 +89,7 @@ export class MetaBody extends React.Component {
       </div>
       <div className="row">
         <div className="col">
-          <div ref={this.grid} style={{overflowX: 'scroll', height: '100%'}}/>
+          <div id="grid" ref={this.grid} style={{overflowX: 'scroll', height: '100%'}}/>
         </div>
       </div>
     </div>;

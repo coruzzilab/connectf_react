@@ -97,19 +97,25 @@ export class UploadFile extends React.Component {
   }
 
   componentDidMount() {
-    this.props.inputRef.current.scrollIntoView();
-    this.props.inputRef.current.focus();
-    this.props.inputRef.current.click();
+    console.log(window.selenium);
+    if (!window.selenium) {
+      this.props.inputRef.current.scrollIntoView();
+      this.props.inputRef.current.focus();
+      this.props.inputRef.current.click();
+    }
   }
 
   render() {
-    return <input type="file" className="form-control-file"
-                  ref={this.props.inputRef}/>;
+    let {className, ...props} = this.props;
+
+    return <input type="file" className={classNames("form-control-file", className)}
+                  ref={this.props.inputRef} {...props}/>;
   }
 }
 
 UploadFile.propTypes = {
-  inputRef: PropTypes.object
+  inputRef: PropTypes.object,
+  className: PropTypes.string
 };
 
 const TARGET_GENES_FILE = ">list 1 name\nAT1G00100\nAT1G00200\n...\n>list 2 name (optional)\nAT2G00100\nAT2G00200\n...\n";

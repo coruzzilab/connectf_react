@@ -263,10 +263,10 @@ class QuerybuilderBody extends React.Component {
                 <QueryAutocomplete value={query} setQuery={setQuery}/>
                 <div className="input-group-append">
                   {busy ?
-                    <button type="submit" className="btn btn-warning btn-lg">
+                    <button type="submit" className="btn btn-warning btn-lg" id="submit">
                       <FontAwesomeIcon icon="circle-notch" spin size="lg" className="mr-2"/>Querying
                     </button> :
-                    <button type="submit"
+                    <button type="submit" id="submit"
                             className={classNames("btn btn-lg", queryError.error ? "btn-danger" : "btn-primary")}>
                       <FontAwesomeIcon icon="arrow-circle-up" className="mr-2"/>Submit
                     </button>}
@@ -299,7 +299,7 @@ class QuerybuilderBody extends React.Component {
                 </p>
               </div>
               <div className="form-row m-2">
-                <select className="form-control" value={targetGene}
+                <select className="form-control" value={targetGene} name="targetgene"
                         onChange={this.handleFileSelect.bind(this, 'targetGene')}>
                   <option value="">----</option>
                   {_.map(targetGenes, (l, i) => {
@@ -325,7 +325,7 @@ class QuerybuilderBody extends React.Component {
                 </p>
               </div>
               <div className="form-row m-2">
-                <select className="form-control"
+                <select className="form-control" name="filtertf"
                         onChange={this.handleFileSelect.bind(this, 'filterTf')}>
                   <option value="">----</option>
                   <option disabled>──────────</option>
@@ -347,7 +347,7 @@ class QuerybuilderBody extends React.Component {
                 </p>
               </div>
               <div className="form-row m-2">
-                <select className="form-control"
+                <select className="form-control" name="network"
                         onChange={this.handleFileSelect.bind(this, 'targetNetwork')}>
                   <option value="">----</option>
                   <option disabled>──────────</option>
@@ -356,7 +356,7 @@ class QuerybuilderBody extends React.Component {
               </div>
               {targetNetwork === "other" ?
                 <div className="form-row m-2">
-                  <UploadFile inputRef={this.targetNetworks}/>
+                  <UploadFile id="targetNetwork" inputRef={this.targetNetworks}/>
                 </div> :
                 null}
             </div>

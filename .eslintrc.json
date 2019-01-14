@@ -10,7 +10,8 @@
   "env": {
     "node": true,
     "browser": true,
-    "es6": true
+    "es6": true,
+    "mocha": true
   },
   "extends": [
     "eslint:recommended",
@@ -19,9 +20,11 @@
   "rules": {
     "indent": [0, 2],
     "strict": [2, "global"],
-    "new-parens": 2
+    "new-parens": 2,
+    "mocha/no-exclusive-tests": "error"
   },
   "plugins": [
-    "react"
+    "react",
+    "mocha"
   ]
 }

@@ -57,7 +57,7 @@ class ResultBody extends React.Component {
     let {popoverOpen} = this.state;
     let {match, location: {pathname}} = this.props;
 
-    return <div>
+    return <div id="result">
       <Nav tabs>
         <NavItem>
           <NavLink to={"/result/summary"}>
