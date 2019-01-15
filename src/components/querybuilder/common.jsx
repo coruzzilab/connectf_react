@@ -97,12 +97,9 @@ export class UploadFile extends React.Component {
   }
 
   componentDidMount() {
-    console.log(window.selenium);
-    if (!window.selenium) {
-      this.props.inputRef.current.scrollIntoView();
-      this.props.inputRef.current.focus();
-      this.props.inputRef.current.click();
-    }
+    this.props.inputRef.current.scrollIntoView();
+    this.props.inputRef.current.focus();
+    this.props.inputRef.current.click();
   }
 
   render() {

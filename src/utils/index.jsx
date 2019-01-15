@@ -44,10 +44,6 @@ export function getLogMinMax(data, cutoff = 0.05) {
   return [clampExp(res.min()), Math.min(clampExp(res.max()), clampExp(cutoff))];
 }
 
-export function generateRequestId() {
-  return moment.utc().format("Y-MM-DD[T]HHmmssSSS[Z]") + Math.floor(Math.random() * 1000).toString().padStart(3, "0");
-}
-
 let trimOper = /^(?:and|or)\s+/i;
 let cleanMod = /\[\s*]/g;
 

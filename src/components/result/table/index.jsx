@@ -132,7 +132,7 @@ class TableBody extends React.Component {
   }
 
   filterRows() {
-    let data = _.get(this.props, 'result.0.data', []);
+    let data = _.get(this.props, 'result.result.data', []);
 
     let sort = this.hot.getPlugin('columnSorting');
     let search = this.hot.getPlugin('search');
@@ -156,13 +156,13 @@ class TableBody extends React.Component {
 
   updateData() {
     let {result} = this.props;
-    let data = _.get(result, '0.data', []);
+    let data = _.get(result, 'result.data', []);
 
     _.defer(() => {
       this.hot.loadData(data);
       this.hot.updateSettings({
-        mergeCells: _.get(result, '0.mergeCells', []),
-        columns: _.get(result, '0.columns', [])
+        mergeCells: _.get(result, 'result.mergeCells', []),
+        columns: _.get(result, 'result.columns', [])
       });
     });
 
@@ -198,7 +198,7 @@ class TableBody extends React.Component {
 }
 
 TableBody.propTypes = {
-  result: PropTypes.arrayOf(PropTypes.object)
+  result: PropTypes.object
 };
 
 const Table = connect(mapStateToProps)(TableBody);

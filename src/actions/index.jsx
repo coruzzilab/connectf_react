@@ -225,16 +225,13 @@ export const getNetwork = (requestId, edges) => {
 
 export const postQuery = (config, onSuccess, onError, always) => {
   return (dispatch) => {
-    let requestId = generateRequestId();
-
-    config.data.append('requestId', requestId);
 
     dispatch(setBusy(true));
     dispatch(clearResult());
 
     return api.postQuery(config)
       .then((response) => {
-        dispatch(setRequestId(requestId));
+        dispatch(setRequestId(response.data['request_id']));
         dispatch(setResult(response.data));
         dispatch(addQueryHistory(config.data.get('query')));
         dispatch(clearAllErrors());

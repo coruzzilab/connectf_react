@@ -198,12 +198,12 @@ function requestId(state = "", action) {
   }
 }
 
-function result(state = [], action) {
+function result(state = {}, action) {
   switch (action.type) {
   case 'SET_RESULT':
     return action.data;
   case 'CLEAR_RESULT':
-    return [];
+    return {};
   default:
     return state;
   }
