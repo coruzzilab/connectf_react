@@ -97,7 +97,7 @@ class NetworkBody extends React.Component {
           selector: 'edge',
           style: {
             'width': 1,
-            'target-arrow-shape': 'triangle',
+            'target-arrow-shape': 'data(shape)',
             'target-arrow-color': 'data(color)',
             'curve-style': 'bezier',
             'line-color': 'data(color)',
