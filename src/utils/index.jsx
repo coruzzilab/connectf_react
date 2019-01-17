@@ -3,7 +3,6 @@
  * 6/18/18
  */
 import _ from 'lodash';
-import moment from 'moment';
 import uuidv4 from "uuid/v4";
 import convert from "color-convert";
 
@@ -61,7 +60,11 @@ function getMod(queryTree, id) {
 
     if (o.nodeType === 'MOD') {
       if (/\s/g.test(o.key)) {
-        s += `"${o.key}"`;
+        if (/'/g.test(o.key)) {
+          s += `"${o.key}"`;
+        } else {
+          s += `'${o.key}'`;
+        }
       } else {
         s += o.key;
       }
@@ -69,7 +72,11 @@ function getMod(queryTree, id) {
       s += o.innerOper;
 
       if (/\s/g.test(o.value)) {
-        s += `"${o.value}"`;
+        if (/'/g.test(o.value)) {
+          s += `"${o.value}"`;
+        } else {
+          s += `'${o.value}'`;
+        }
       } else {
         s += o.value;
       }
