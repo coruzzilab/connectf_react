@@ -113,7 +113,7 @@ class NetworkBody extends React.Component {
       </div>
       {aupr ?
         <Aupr className={classNames("row mt-1", hideAupr ? "d-none" : null)}
-              src={`${BASE_URL}/queryapp/aupr/${requestId}/`}
+              requestId={requestId}
               setBusy={setBusy}
               onLoad={this.onAuprLoad.bind(this)}
               onError={this.onAuprError.bind(this)}/> :

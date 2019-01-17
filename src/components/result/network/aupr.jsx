@@ -6,6 +6,8 @@ import React from "react";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import qs from "qs";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {BASE_URL} from "../../../utils/axios";
 
 class Aupr extends React.Component {
   constructor(props) {
@@ -13,7 +15,7 @@ class Aupr extends React.Component {
 
     this.state = {
       precisionCutoff: 0,
-      url: this.props.src
+      url: `${BASE_URL}/queryapp/aupr/${this.props.requestId}/`
     };
 
     this.setUrl = _.debounce(this.setUrl.bind(this), 150);
@@ -21,7 +23,7 @@ class Aupr extends React.Component {
 
   setUrl() {
     this.setState((state) => ({
-      url: this.props.src + '?' + qs.stringify({precision: state.precisionCutoff || undefined})
+      url: `${BASE_URL}/queryapp/aupr/${this.props.requestId}/` + '?' + qs.stringify({precision: state.precisionCutoff || undefined})
     }));
   }
 
@@ -63,6 +65,11 @@ class Aupr extends React.Component {
             <input type="number" min={0} max={1} step={0.01} className="mr-1 form-control"
                    value={precisionCutoff} onChange={this.handlePrecision.bind(this)}/>
           </div>
+          <div className="col-auto">
+            <a className="btn btn-primary"
+               href={`${BASE_URL}/queryapp/aupr/${this.props.requestId}/pruned/${precisionCutoff}/`}>
+              <FontAwesomeIcon icon="file-csv" className="mr-1"/>Export Pruned Network</a>
+          </div>
         </div>
         <div className="row">
           <div className="col">
@@ -81,7 +88,7 @@ Aupr.propTypes = {
   className: PropTypes.string,
   onLoad: PropTypes.func,
   onError: PropTypes.func,
-  src: PropTypes.string,
+  requestId: PropTypes.string,
   setBusy: PropTypes.func
 };
 
