@@ -37,6 +37,14 @@ function renderExp(instance, td, row, col, prop, value, cellProperties) {
   }
 }
 
+function renderEdge(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+
+  if (value) {
+    td.style.background = '#89B7DC'
+  }
+}
+
 function exponentialValidator(value, callback) {
   if (value == null) {
     value = '';
@@ -55,6 +63,7 @@ function exponentialValidator(value, callback) {
 Handsontable.renderers.registerRenderer('renderBold', renderBold);
 Handsontable.renderers.registerRenderer('renderFc', renderFc);
 Handsontable.renderers.registerRenderer('renderExp', renderExp);
+Handsontable.renderers.registerRenderer('renderEdge', renderEdge);
 
 Handsontable.validators.registerValidator('exponential', exponentialValidator);
 
