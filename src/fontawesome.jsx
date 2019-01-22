@@ -37,7 +37,8 @@ import {
   faBookOpen,
   faCog,
   faFileCsv,
-  faTimesCircle
+  faTimesCircle,
+  faExternalLinkAlt
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -72,5 +73,6 @@ library.add(
   faBookOpen,
   faCog,
   faFileCsv,
-  faTimesCircle
+  faTimesCircle,
+  faExternalLinkAlt
 );

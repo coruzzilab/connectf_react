@@ -2,7 +2,7 @@
  * @author zacharyjuang
  * 11/9/18
  */
-import {BASE_URL} from "../../../utils/axios";
+import {BASE_URL} from "../../../utils/axios_instance";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import React from "react";

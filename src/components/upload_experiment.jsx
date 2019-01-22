@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import {getKeyValues, getTFs, submitExperiment} from '../utils/axios';
+import {getKeyValues, getTFs, submitExperiment} from '../utils/axios_instance';
 import _ from 'lodash';
 import moment from 'moment';
 

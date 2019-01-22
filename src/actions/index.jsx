@@ -1,13 +1,12 @@
 /**
  * Created by zacharyjuang on 11/26/16.
  */
-import {generateRequestId} from "../utils";
 import * as motifEnrichment from "./motif_enrichment";
 import * as targetEnrichment from "./target_enrichment";
 import * as analysisEnrichment from "./analysis_enrichment";
 import uuidv4 from "uuid/v4";
 import _ from 'lodash';
-import * as api from "../utils/axios";
+import * as api from "../utils/axios_instance";
 
 export const setBusy = (busy = true) => {
   return {
@@ -207,20 +206,27 @@ export const clearNetwork = () => {
   };
 };
 
-export const getNetwork = (requestId, edges) => {
+export const getNetwork = (requestId, edges, precision) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return api.getNetwork(requestId, edges)
+    return api.getNetwork(requestId, edges, precision)
       .then((response) => {
         dispatch(setNetwork(response.data));
       })
       .catch(() => {
         dispatch(clearNetwork());
       })
-      .then(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };
+};
+
+export const setPrecisionCutoff = (precisionCutoff) => {
+  return {
+    type: 'SET_PRECISION_CUTOFF',
+    precisionCutoff
+  }
 };
 
 export const postQuery = (config, onSuccess, onError, always) => {
@@ -235,6 +241,7 @@ export const postQuery = (config, onSuccess, onError, always) => {
         dispatch(setResult(response.data));
         dispatch(addQueryHistory(config.data.get('query')));
         dispatch(clearAllErrors());
+        dispatch(setPrecisionCutoff(0));
 
         if (_.isFunction(onSuccess)) {
           onSuccess(response);
@@ -271,7 +278,7 @@ export const postQuery = (config, onSuccess, onError, always) => {
           onError(err);
         }
       })
-      .then(() => {
+      .finally(() => {
         dispatch(setBusy(false));
 
         if (_.isFunction(always)) {
@@ -315,6 +322,35 @@ export const clearEdges = () => {
   };
 };
 
+export const setEdgeList = (edgeList) => {
+  return {
+    type: 'SET_EDGE_LIST',
+    edgeList
+  };
+};
+
+export const clearEdgeList = () => {
+  return {
+    type: 'CLEAR_EDGE_LIST'
+  };
+};
+
+export const getEdgeList = () => {
+  return (dispatch) => {
+    dispatch(setBusy());
+    return api.getAdditionalEdges()
+      .then(({data}) => {
+        dispatch(setEdgeList(data));
+      })
+      .catch(() => {
+        dispatch(clearEdgeList());
+      })
+      .finally(() => {
+        dispatch(setBusy(false));
+      });
+  };
+};
+
 export const setStats = (data) => {
   return {
     type: 'SET_STATS',
@@ -338,7 +374,7 @@ export const getStats = (requestId) => {
       .catch(() => {
         dispatch(clearStats());
       })
-      .then(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };
@@ -367,7 +403,7 @@ export const getSummary = (requestId) => {
       .catch(() => {
         dispatch(clearSummary());
       })
-      .then(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };
@@ -433,5 +469,5 @@ export const removeExtraFields = (fields) => {
 export const clearExtraFields = () => {
   return {
     type: 'CLEAR_EXTRA_FIELDS'
-  }
+  };
 };

@@ -3,12 +3,12 @@
  * 9/5/18
  */
 import React from "react";
-import {UncontrolledPopover, PopoverBody, PopoverHeader} from "reactstrap";
+import {PopoverBody, PopoverHeader, UncontrolledPopover} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 export class UploadSifInfoPopover extends React.Component {
   render() {
-    return <UncontrolledPopover {...this.props}>
+    return <UncontrolledPopover {...this.props} trigger="legacy">
       <PopoverHeader>Upload Edges</PopoverHeader>
       <PopoverBody>
         <p>Accepts tab (<span className="text-monospace">&#34;\t&#34;</span>) delimited text file with 3 columns. In

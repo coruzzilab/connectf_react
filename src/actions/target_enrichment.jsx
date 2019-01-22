@@ -1,5 +1,5 @@
 import {setBusy} from "./index";
-import * as api from "../utils/axios";
+import * as api from "../utils/axios_instance";
 
 /**
  * @author zacharyjuang
@@ -31,7 +31,7 @@ export const getTargetEnrichmentTable = (requestId, config) => {
         dispatch(clearTargetEnrichment());
         dispatch(setError(true));
       })
-      .then(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };
@@ -60,13 +60,14 @@ export const getTargetEnrichmentImage = (requestId, params, config) => {
 
         return response.data;
       })
-      .catch(() => {
+      .catch((e) => {
         dispatch(setError(true));
         dispatch(clearTargetEnrichmentImage());
+
+        throw e;
       })
-      .then((data) => {
+      .finally(() => {
         dispatch(setBusy(false));
-        return data;
       });
   };
 };
@@ -96,7 +97,7 @@ export const getTargetEnrichmentLegend = (requestId, config) => {
         dispatch(clearTargetEnrichmentLegend());
         dispatch(setError(true));
       })
-      .then(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };

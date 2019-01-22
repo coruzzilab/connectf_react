@@ -9,7 +9,7 @@ import _ from 'lodash';
 import reducers from './reducers';
 import {loadState, saveState} from "./local_storage";
 import {clearRequestId, setBusy, setResult} from "./actions";
-import {getTable} from "./utils/axios";
+import {getTable} from "./utils/axios_instance";
 
 /*
  * Enhancer composer for development. Connects to redux browser extension.

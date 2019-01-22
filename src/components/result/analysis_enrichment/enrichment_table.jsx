@@ -48,7 +48,7 @@ class EnrichmentTableBody extends React.Component {
             <DropdownMenu>
               <DropdownItem header>Format (CSV)</DropdownItem>
               <DropdownItem>As Matrix</DropdownItem>
-              <DropdownItem>As Column</DropdownItem>
+              <DropdownItem>As Columns</DropdownItem>
             </DropdownMenu>
           </UncontrolledDropdown>
           <button type="button" className="btn btn-primary ml-1" onClick={this.toggle.bind(this)}>

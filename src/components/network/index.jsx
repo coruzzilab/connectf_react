@@ -9,13 +9,14 @@ import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import _ from 'lodash';
 import DropZone from 'react-dropzone';
-import {Alert} from 'reactstrap';
+import {Alert, PopoverBody, UncontrolledPopover} from 'reactstrap';
 import classNames from 'classnames';
 import uuid4 from 'uuid/v4';
 
 import {getNetwork, setNetwork} from '../../actions';
 import {UploadSifInfoPopover} from "./common";
 import {blobFromString, networkJSONStringify} from "../../utils";
+import {NetworkAdditionalEdges} from "../common";
 
 const clampWeight = _.memoize(_.partial(_.clamp, _, 1, 5));
 
@@ -30,19 +31,22 @@ const networkPNG = _.flow(
   URL.createObjectURL
 );
 
-const mapStateToProps = ({busy, requestId, network}) => {
+const mapStateToProps = ({busy, requestId, network, edges, precisionCutoff}) => {
   return {
     busy,
+    edges,
     requestId,
-    network
+    network,
+    precisionCutoff
   };
 };
 
-class NetworkBody extends React.Component {
+class NetworkBody extends React.PureComponent {
   constructor(props) {
     super(props);
     this.cyRef = React.createRef();
     this.info = React.createRef();
+    this.additionalEdge = React.createRef();
 
     this.state = {
       height: Math.floor(document.documentElement.clientHeight * 0.8),
@@ -178,7 +182,7 @@ class NetworkBody extends React.Component {
     this.setHeight();
 
     if (_.isEmpty(this.props.network)) {
-      this.props.getNetwork(this.props.requestId);
+      this.props.getNetwork(this.props.requestId, this.props.edges, this.props.precisionCutoff);
     } else {
       this.resetCytoscape();
     }
@@ -188,7 +192,7 @@ class NetworkBody extends React.Component {
 
   componentDidUpdate(prevProp) {
     if (prevProp.requestId !== this.props.requestId) {
-      this.props.getNetwork(this.props.requestId);
+      this.props.getNetwork(this.props.requestId, this.props.edges, this.props.precisionCutoff);
     }
 
     if (prevProp.network !== this.props.network) {
@@ -441,12 +445,23 @@ class NetworkBody extends React.Component {
             </div>
             <UploadSifInfoPopover target={() => this.info.current} placement="right"/>
           </div>
-          <div className="btn-group mr-1">
+          <div className="btn-group mr-2">
             <button type="button" className="btn btn-danger"
                     title="remove user uploaded edges"
                     onClick={this.deleteEdges.bind(this)}>
               <FontAwesomeIcon icon="trash-alt" className="mr-1"/>Remove Edges
             </button>
+          </div>
+          <div className="btn-group mr-2">
+            <button type="button" className="btn btn-outline-primary" ref={this.additionalEdge}
+                    title="Add or remove additional edges">
+              <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edges
+            </button>
+            <UncontrolledPopover trigger="legacy" target={() => this.additionalEdge.current}>
+              <PopoverBody>
+                <NetworkAdditionalEdges/>
+              </PopoverBody>
+            </UncontrolledPopover>
           </div>
           {this.props.busy ? <FontAwesomeIcon icon="circle-notch" spin size="lg" className="d-block"/> : null}
           <div className="input-group ml-auto">
@@ -472,7 +487,9 @@ NetworkBody.propTypes = {
   requestId: PropTypes.string,
   network: PropTypes.array,
   getNetwork: PropTypes.func,
-  setNetwork: PropTypes.func
+  setNetwork: PropTypes.func,
+  edges: PropTypes.arrayOf(PropTypes.string),
+  precisionCutoff: PropTypes.number
 };
 
 const Network = connect(mapStateToProps, {getNetwork, setNetwork})(NetworkBody);

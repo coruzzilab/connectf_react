@@ -6,7 +6,7 @@ import React from "react";
 import uuidv4 from "uuid/v4";
 import _ from "lodash";
 import {getParentTfTree} from "../../utils";
-import {getKeys, getKeyValues} from "../../utils/axios";
+import {getKeys, getKeyValues} from "../../utils/axios_instance";
 import {isMod} from "./utils";
 import {DragItem, ImmobileInput} from "./drag";
 import {AddModButton, AddModGroupButton, AndOrSelect, DuplicateButton, NotSelect, RemoveButton} from "./common";

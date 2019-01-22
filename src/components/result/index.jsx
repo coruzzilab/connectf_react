@@ -149,7 +149,7 @@ class ResultBody extends React.Component {
         </Switch>
       </TabContent>
       <QueryPopover target={() => this.query.current} placement="auto" isOpen={popoverOpen}
-                    toggle={this.togglePopover.bind(this)}/>
+                    toggle={this.togglePopover.bind(this)} trigger="legacy"/>
     </div>;
   }
 }

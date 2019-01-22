@@ -97,7 +97,7 @@ export class MetaBody extends React.Component {
 }
 
 MetaBody.propTypes = {
-  result: PropTypes.arrayOf(PropTypes.object)
+  result: PropTypes.object
 };
 
 const Meta = connect(mapStateToProps)(MetaBody);

@@ -261,6 +261,32 @@ function edges(state = [], action) {
   }
 }
 
+/**
+ * Available additional edges
+ * @param state
+ * @param action
+ * @returns {*}
+ */
+function edgeList(state = [], action) {
+  switch (action.type) {
+  case 'SET_EDGE_LIST':
+    return action.edgeList;
+  case 'CLEAR_EDGE_LIST':
+    return [];
+  default:
+    return state;
+  }
+}
+
+function precisionCutoff(state = 0, action) {
+  switch (action.type) {
+  case 'SET_PRECISION_CUTOFF':
+    return action.precisionCutoff;
+  default:
+    return state;
+  }
+}
+
 function queryHistory(state = [], action) {
   switch (action.type) {
   case 'ADD_QUERY_HISTORY':
@@ -316,6 +342,8 @@ const tgdbApp = {
   stats,
   summary,
   edges,
+  edgeList,
+  precisionCutoff,
   queryHistory,
   queryError,
   extraFields

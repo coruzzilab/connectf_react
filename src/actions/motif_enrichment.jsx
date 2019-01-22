@@ -3,7 +3,7 @@
  * 8/20/18
  */
 import {setBusy} from "./index";
-import * as api from "../utils/axios";
+import * as api from "../utils/axios_instance";
 
 export const setMotifEnrichment = (data) => {
   return {
@@ -34,7 +34,7 @@ export const getMotifEnrichment = (requestId, alpha = 0.05, body = false, config
         dispatch(clearMotifEnrichment());
         dispatch(setError(true));
       })
-      .then(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };
@@ -60,16 +60,16 @@ export const getMotifEnrichmentImage = (requestId, params, config) => {
       .then((response) => {
         dispatch(setError(false));
         dispatch(setMotifEnrichmentImage('data:image/svg+xml,' + encodeURIComponent(response.data.documentElement.outerHTML)));
-
         return response.data;
       })
-      .catch(() => {
+      .catch((e) => {
         dispatch(setError(true));
         dispatch(clearMotifEnrichmentImage());
+
+        throw e;
       })
-      .then((data) => {
+      .finally(() => {
         dispatch(setBusy(false));
-        return data
       });
   };
 };
@@ -97,7 +97,7 @@ export const getMotifEnrichmentLegend = (requestId, config) => {
       .catch(() => {
         dispatch(clearMotifEnrichmentLegend());
       })
-      .then(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };

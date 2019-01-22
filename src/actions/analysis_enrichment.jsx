@@ -2,7 +2,7 @@
  * @author zacharyjuang
  * 9/13/18
  */
-import * as api from "../utils/axios";
+import * as api from "../utils/axios_instance";
 import {setBusy} from "./index";
 
 export const setAnalysisEnrichment = (data) => {
@@ -31,7 +31,7 @@ export const getAnalysisEnrichment = (requestId) => {
         dispatch(clearAnalysisEnrichment());
         dispatch(setError(true));
       })
-      .then(() => {
+      .finally(() => {
         dispatch(setBusy(false));
       });
   };

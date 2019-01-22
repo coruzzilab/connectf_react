@@ -6,7 +6,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {FontAwesomeIcon as Icon} from '@fortawesome/react-fontawesome';
-import {BASE_URL} from '../../utils/axios';
+import {BASE_URL} from '../../utils/axios_instance';
 
 const mapStateToProps = ({requestId}) => {
   return {

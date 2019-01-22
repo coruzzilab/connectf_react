@@ -133,7 +133,7 @@ class QueryPopoverBody extends React.Component {
 
   render() {
     let {edges, query} = this.props;
-    return <Popover className="mw-100" {..._.omit(this.props, ['query', 'dispatch', 'edges'])}>
+    return <Popover className="mw-100" {..._.omit(this.props, ['query', 'dispatch', 'edges'])} trigger="legacy">
       <PopoverBody>
         <h6>Query</h6>
 

@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import _ from 'lodash';
-import {getExperiments, getTFs, submitAnalysis} from '../utils/axios';
+import {getExperiments, getTFs, submitAnalysis} from '../utils/axios_instance';
 import classNames from 'classnames';
 
 const pickIdData = _.partial(_.pick, _, ['tf', 'analysisMethod', 'analysisMethodOther', 'analysisCutoff']);

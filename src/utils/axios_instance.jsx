@@ -7,7 +7,7 @@ import axios from "axios";
 
 export const BASE_URL = window.location.origin;
 
-const instance = axios.create({
+export const instance = axios.create({
   baseURL: BASE_URL,
   paramsSerializer: function (params) {
     return qs.stringify(params, {indices: false});
@@ -46,9 +46,9 @@ export function submitAnalysis(data) {
   return instance.post('/upload/analysis/', data);
 }
 
-export function getNetwork(requestId, edges) {
+export function getNetwork(requestId, edges, precision) {
   return instance.get(`/queryapp/network/${requestId}/`, {
-    params: {edges}
+    params: {edges, precision}
   });
 }
 
@@ -109,6 +109,10 @@ export function getTargetEnrichmentLegend(requestId, config) {
 
 export function getAnalysisEnrichment(requestId) {
   return instance.get(`/queryapp/analysis_enrichment/${requestId}/`);
+}
+
+export function checkAupr(requestId) {
+  return instance.head(`/queryapp/aupr/${requestId}/`);
 }
 
 export default instance;

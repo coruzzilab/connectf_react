@@ -18,7 +18,7 @@ import {
 } from "../../actions";
 import React from "react";
 import uuidv4 from "uuid/v4";
-import {getTFs} from "../../utils/axios";
+import {getTFs} from "../../utils/axios_instance";
 import _ from "lodash";
 import {isMod, isTF} from "./utils";
 import {DragItem, ImmobileInput} from "./drag";

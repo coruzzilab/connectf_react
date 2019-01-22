@@ -137,7 +137,7 @@ export class TargetGeneInfo extends React.Component {
     return <div className="ml-2 ">
       <div className="link info-link" ref={this.info} onClick={this.toggle.bind(this)}>
         <FontAwesomeIcon icon="question-circle"/></div>
-      <Popover target={() => this.info.current} isOpen={this.state.popoverOpen} toggle={this.toggle.bind(this)}>
+      <Popover target={() => this.info.current} isOpen={this.state.popoverOpen} toggle={this.toggle.bind(this)} trigger="legacy">
         <PopoverHeader>Target Genes</PopoverHeader>
         <PopoverBody>
           <p>Choose from predefined gene lists or upload your own.</p>

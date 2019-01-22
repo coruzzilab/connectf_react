@@ -3,7 +3,7 @@
  * 7/13/17
  */
 import React from 'react';
-import instance from '../utils/axios';
+import instance from '../utils/axios_instance';
 
 export default class Feedback extends React.Component {
   constructor(props) {

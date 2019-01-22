@@ -19,25 +19,27 @@ import {
   postQuery,
   removeEdge,
   setEdges,
-  setQuery
+  setQuery,
+  getEdgeList
 } from '../../actions';
 import {getQuery} from "../../utils";
 import {AddTFButton, AddTFGroupButton, Copied, Edges, TargetGeneInfo, UploadFile} from "./common";
 import History from "./history";
 import QueryAutocomplete from "./query_autocomplete";
-import {getAdditionalEdges, getTargetGeneLists} from "../../utils/axios";
+import {getTargetGeneLists} from "../../utils/axios_instance";
 import {CancelToken} from "axios";
 import {CopyButton} from "../common";
 import Value from "./value";
 import Group from "./group";
 import QueryBox from "./query_box";
 
-const mapStateToProps = ({busy, query, queryTree, edges, queryError}) => {
+const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError}) => {
   return {
     busy,
     query,
     queryTree,
     edges,
+    edgeList,
     queryError
   };
 };
@@ -55,7 +57,6 @@ class QuerybuilderBody extends React.Component {
 
     this.state = {
       targetGenes: [],
-      edgeList: [],
       targetGene: '',
       filterTf: '',
       targetNetwork: '',
@@ -73,10 +74,9 @@ class QuerybuilderBody extends React.Component {
         this.setState({targetGenes: data});
       });
 
-    getAdditionalEdges()
-      .then(({data}) => {
-        this.setState({edgeList: data});
-        this.props.setEdges(_.intersection(this.props.edges, data));
+    this.props.getEdgeList()
+      .then(() => {
+        this.props.setEdges(_.intersection(this.props.edges, this.props.edgeList));
       });
 
     this.checkShouldBuild();
@@ -133,7 +133,7 @@ class QuerybuilderBody extends React.Component {
         data.set('filtertfs', files[0]);
       }
     } else {
-      data.set('filtertfs', targetGene);
+      data.set('filtertfs', filterTf);
     }
 
     if (targetNetwork === "other" && this.targetNetworks.current) {
@@ -142,7 +142,7 @@ class QuerybuilderBody extends React.Component {
         data.set('targetnetworks', files[0]);
       }
     } else {
-      data.set('targetnetworks', targetGene);
+      data.set('targetnetworks', targetNetwork);
     }
 
     this.props.postQuery(
@@ -217,8 +217,8 @@ class QuerybuilderBody extends React.Component {
   }
 
   render() {
-    let {targetGenes, targetGene, filterTf, targetNetwork, edgeList, shouldBuild} = this.state;
-    let {addTF, addGroup, queryTree, edges, query, busy, queryError, setQuery} = this.props;
+    let {targetGenes, targetGene, filterTf, targetNetwork, shouldBuild} = this.state;
+    let {addTF, addGroup, queryTree, edges, edgeList, query, busy, queryError, setQuery} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
@@ -387,7 +387,9 @@ QuerybuilderBody.propTypes = {
   removeEdge: PropTypes.func,
   clearEdges: PropTypes.func,
   edges: PropTypes.arrayOf(PropTypes.string),
+  edgeList: PropTypes.arrayOf(PropTypes.string),
   setEdges: PropTypes.func,
+  getEdgeList: PropTypes.func,
   clearRequestId: PropTypes.func,
   queryError: PropTypes.shape({error: PropTypes.bool, message: PropTypes.string}),
   clearQueryError: PropTypes.func
@@ -404,6 +406,7 @@ const Querybuilder = connect(mapStateToProps, {
   removeEdge,
   clearEdges,
   setEdges,
+  getEdgeList,
   clearRequestId,
   clearQueryError
 })(QuerybuilderBody);

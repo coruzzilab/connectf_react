@@ -7,7 +7,7 @@ import Autocomplete from "react-autocomplete";
 import classNames from "classnames";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import {getTFs} from "../../utils/axios";
+import {getTFs} from "../../utils/axios_instance";
 
 const qRegex = /(\s*)\w*$/;
 const qEndRegex = /^\w+/;
