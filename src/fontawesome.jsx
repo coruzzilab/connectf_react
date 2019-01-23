@@ -38,7 +38,10 @@ import {
   faCog,
   faFileCsv,
   faTimesCircle,
-  faExternalLinkAlt
+  faExternalLinkAlt,
+  faEyeSlash,
+  faCheck,
+  faEye
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -74,5 +77,8 @@ library.add(
   faCog,
   faFileCsv,
   faTimesCircle,
-  faExternalLinkAlt
+  faExternalLinkAlt,
+  faEyeSlash,
+  faCheck,
+  faEye
 );

@@ -9,7 +9,15 @@ import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import _ from 'lodash';
 import DropZone from 'react-dropzone';
-import {Alert, PopoverBody, UncontrolledPopover} from 'reactstrap';
+import {
+  Alert,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  PopoverBody,
+  UncontrolledDropdown,
+  UncontrolledPopover
+} from 'reactstrap';
 import classNames from 'classnames';
 import uuid4 from 'uuid/v4';
 
@@ -53,7 +61,9 @@ class NetworkBody extends React.PureComponent {
       busy: false,
       color: "#ffff00",
       alertOpen: false,
-      alertMessage: ""
+      alertMessage: "",
+      edgeDropdown: [],
+      hiddenEdges: []
     };
 
     this.setHeight = _.debounce(this.setHeight.bind(this), 100);
@@ -112,9 +122,7 @@ class NetworkBody extends React.PureComponent {
         {
           selector: 'edge[weight]',
           style: {
-            'width': function (ele) {
-              return clampWeight(ele.data('weight'));
-            }
+            'width': (ele) => clampWeight(ele.data('weight'))
           }
         }
       ],
@@ -190,13 +198,18 @@ class NetworkBody extends React.PureComponent {
     window.addEventListener("resize", this.setHeight);
   }
 
-  componentDidUpdate(prevProp) {
+  componentDidUpdate(prevProp, prevState) {
     if (prevProp.requestId !== this.props.requestId) {
       this.props.getNetwork(this.props.requestId, this.props.edges, this.props.precisionCutoff);
     }
 
     if (prevProp.network !== this.props.network) {
       this.resetCytoscape();
+    }
+
+    if (prevState.hiddenEdges !== this.state.hiddenEdges) {
+      this.setEdgeDropdown();
+      this.hideCyEdge();
     }
   }
 
@@ -237,7 +250,7 @@ class NetworkBody extends React.PureComponent {
   }
 
   setData(data) {
-    this.cy.batch(() => {
+    return this.cy.batch(() => {
       this.cy.json({elements: _.cloneDeep(data)});
       this.cy.nodes(':selected').unselect();
       this.runCyLayout();
@@ -246,6 +259,59 @@ class NetworkBody extends React.PureComponent {
 
   resetCytoscape() {
     this.setData(this.props.network);
+    this.setEdgeDropdown();
+    this.hideCyEdge();
+  }
+
+  setEdgeDropdown() {
+    this.setState((state) => {
+      return {
+        edgeDropdown: _(this.cy.edges())
+          .map(_.method('data', 'name'))
+          .uniq()
+          .sortBy()
+          .map((name, i) => {
+            let hidden = state.hiddenEdges.indexOf(name) !== -1;
+            return <DropdownItem key={i} onClick={this.handleEdge.bind(this, name)} role="checkbox"
+                                 aria-checked={hidden}>
+              <FontAwesomeIcon icon="check" color="green"
+                               className={classNames("mr-2", hidden ? "visible" : "invisible")}/>
+              {name}
+            </DropdownItem>;
+          })
+          .value()
+      };
+    });
+  }
+
+  handleEdge(name) {
+    if (this.state.hiddenEdges.indexOf(name) !== -1) {
+      this.unhideEdge(name);
+    } else {
+      this.hideEdge(name);
+    }
+  }
+
+  hideEdge(name) {
+    this.setState(({hiddenEdges}) => ({hiddenEdges: [...hiddenEdges.filter((e) => e !== name), name]}));
+  }
+
+  unhideEdge(name) {
+    this.setState(({hiddenEdges}) => ({hiddenEdges: hiddenEdges.filter((e) => e !== name)}));
+  }
+
+  unhideAllEdges() {
+    this.setState({hiddenEdges: []});
+  }
+
+  hideCyEdge() {
+    let {hiddenEdges} = this.state;
+    let selector = _(hiddenEdges).map((e) => `edge[name = '${e}']`).join(', ');
+
+    this.cy.batch(() => {
+      this.cy.edges(selector).style('display', 'none');
+      this.cy.edges().difference(selector).style('display', 'element');
+    });
   }
 
   back() {
@@ -397,7 +463,7 @@ class NetworkBody extends React.PureComponent {
   }
 
   render() {
-    let {height, busy, color, alertOpen, alertMessage} = this.state;
+    let {height, busy, color, alertOpen, alertMessage, edgeDropdown, hiddenEdges} = this.state;
 
     return <div className="container-fluid">
       <Alert color="danger" isOpen={alertOpen} toggle={this.toggleAlert.bind(this)}>{alertMessage}</Alert>
@@ -452,17 +518,44 @@ class NetworkBody extends React.PureComponent {
               <FontAwesomeIcon icon="trash-alt" className="mr-1"/>Remove Edges
             </button>
           </div>
-          <div className="btn-group mr-2">
-            <button type="button" className="btn btn-outline-primary" ref={this.additionalEdge}
-                    title="Add or remove additional edges">
-              <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edges
-            </button>
-            <UncontrolledPopover trigger="legacy" target={() => this.additionalEdge.current}>
-              <PopoverBody>
-                <NetworkAdditionalEdges/>
-              </PopoverBody>
-            </UncontrolledPopover>
-          </div>
+          <UncontrolledDropdown>
+            <div className="btn-group mr-2">
+              <button type="button" className="btn btn-outline-primary" ref={this.additionalEdge}
+                      title="Add or remove additional edges">
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edges
+              </button>
+              <UncontrolledPopover trigger="legacy" target={() => this.additionalEdge.current}>
+                <PopoverBody>
+                  <NetworkAdditionalEdges/>
+                </PopoverBody>
+              </UncontrolledPopover>
+              <DropdownToggle color="secondary" outline>
+                <FontAwesomeIcon icon="eye-slash" className="mr-1"/>Hide Edges
+              </DropdownToggle>
+            </div>
+            <DropdownMenu modifiers={{
+              setMaxHeight: {
+                enabled: true,
+                order: 890,
+                fn: (data) => {
+                  return {
+                    ...data,
+                    styles: {
+                      ...data.styles,
+                      overflow: 'auto',
+                      maxHeight: '70vh'
+                    }
+                  };
+                }
+              }
+            }}>
+              <DropdownItem onClick={this.unhideAllEdges.bind(this)}>
+                <FontAwesomeIcon icon="eye" className="mr-2" color={hiddenEdges.length ? "black" : "lightgrey"}/>Unhide All
+              </DropdownItem>
+              <DropdownItem divider/>
+              {edgeDropdown}
+            </DropdownMenu>
+          </UncontrolledDropdown>
           {this.props.busy ? <FontAwesomeIcon icon="circle-notch" spin size="lg" className="d-block"/> : null}
           <div className="input-group ml-auto">
             <div className="input-group-prepend">

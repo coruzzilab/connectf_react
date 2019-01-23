@@ -43,7 +43,7 @@ class NetworkBody extends React.Component {
 
     if (requestId) {
       getStats(requestId);
-      getNetwork(requestId, edges);
+      getNetwork(requestId, edges, 0);
       setBusy(true);
       this.checkAupr();
     }
@@ -54,7 +54,7 @@ class NetworkBody extends React.Component {
 
     if (prevProps.requestId !== requestId) {
       getStats(requestId);
-      getNetwork(requestId, edges);
+      getNetwork(requestId, edges, 0);
       setBusy(true);
       this.checkAupr();
     }
