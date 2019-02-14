@@ -33,29 +33,27 @@ class NetworkBody extends React.Component {
     super(props);
 
     this.state = {
-      aupr: true,
+      aupr: false,
       collapse: false
     };
   }
 
   componentDidMount() {
-    let {requestId, getStats, getNetwork, setBusy, edges} = this.props;
+    let {requestId, getStats, getNetwork, edges} = this.props;
 
     if (requestId) {
       getStats(requestId);
       getNetwork(requestId, edges, 0);
-      setBusy(true);
       this.checkAupr();
     }
   }
 
   componentDidUpdate(prevProps) {
-    let {requestId, getStats, getNetwork, setBusy, busy, edges} = this.props;
+    let {requestId, getStats, getNetwork, busy, edges} = this.props;
 
     if (prevProps.requestId !== requestId) {
       getStats(requestId);
       getNetwork(requestId, edges, 0);
-      setBusy(true);
       this.checkAupr();
     }
 

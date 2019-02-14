@@ -63,21 +63,19 @@ NotSelect.propTypes = {
   className: PropTypes.string
 };
 
-export class AddFollowing extends React.Component {
-  render() {
-    return <UncontrolledDropdown>
-      <DropdownToggle className="btn btn-light"><FontAwesomeIcon icon="plus-circle"/></DropdownToggle>
-      <DropdownMenu right>
-        <DropdownItem onClick={this.props.addNode}>
-          <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{this.props.addNodeText}
-        </DropdownItem>
-        <DropdownItem onClick={this.props.addGroup}>
-          <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{this.props.addGroupText}
-        </DropdownItem>
-      </DropdownMenu>
-    </UncontrolledDropdown>;
-  }
-}
+export const AddFollowing = (props) => {
+  return <UncontrolledDropdown>
+    <DropdownToggle className="btn btn-light"><FontAwesomeIcon icon="plus-circle"/></DropdownToggle>
+    <DropdownMenu right>
+      <DropdownItem onClick={props.addNode}>
+        <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{props.addNodeText}
+      </DropdownItem>
+      <DropdownItem onClick={props.addGroup}>
+        <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{props.addGroupText}
+      </DropdownItem>
+    </DropdownMenu>
+  </UncontrolledDropdown>;
+};
 
 AddFollowing.propTypes = {
   addNode: PropTypes.func,
@@ -103,10 +101,10 @@ export class UploadFile extends React.Component {
   }
 
   render() {
-    let {className, ...props} = this.props;
+    let {className, inputRef, ...props} = this.props;
 
     return <input type="file" className={classNames("form-control-file", className)}
-                  ref={this.props.inputRef} {...props}/>;
+                  ref={inputRef} {...props}/>;
   }
 }
 
