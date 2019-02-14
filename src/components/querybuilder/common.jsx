@@ -7,10 +7,10 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-  Popover,
   PopoverBody,
   PopoverHeader,
-  UncontrolledDropdown
+  UncontrolledDropdown,
+  UncontrolledPopover
 } from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
@@ -113,47 +113,105 @@ UploadFile.propTypes = {
   className: PropTypes.string
 };
 
-const TARGET_GENES_FILE = ">list 1 name\nAT1G00100\nAT1G00200\n...\n>list 2 name (optional)\nAT2G00100\nAT2G00200\n...\n";
 
-export class TargetGeneInfo extends React.Component {
+export class InfoPopover extends React.Component {
   constructor(props) {
     super(props);
     this.info = React.createRef();
-
-    this.state = {
-      popoverOpen: false
-    };
-  }
-
-  toggle() {
-    this.setState({
-      popoverOpen: !this.state.popoverOpen
-    });
   }
 
   render() {
-    return <div className="ml-2 ">
-      <div className="link info-link" ref={this.info} onClick={this.toggle.bind(this)}>
+    return <div className="ml-2">
+      <div className="link info-link" ref={this.info} title="More info">
         <FontAwesomeIcon icon="question-circle"/></div>
-      <Popover target={() => this.info.current} isOpen={this.state.popoverOpen} toggle={this.toggle.bind(this)} trigger="legacy">
-        <PopoverHeader>Target Genes</PopoverHeader>
-        <PopoverBody>
-          <p>Choose from predefined gene lists or upload your own.</p>
-          <p>Target Gene List file format:</p>
-          <pre className="code">
+      <UncontrolledPopover target={() => this.info.current} trigger="legacy">
+        {this.props.children}
+      </UncontrolledPopover>
+    </div>;
+  }
+}
+
+InfoPopover.propTypes = {
+  children: PropTypes.node
+};
+
+const TARGET_GENES_FILE = ">list 1 name\nAT1G00100\nAT1G00200\n...\n>list 2 name (optional)\nAT2G00100\nAT2G00200\n...\n";
+
+export const TargetGeneInfo = () => {
+  return <InfoPopover>
+    <PopoverHeader>Target Genes</PopoverHeader>
+    <PopoverBody>
+      <p>Choose from predefined gene lists or upload your own.</p>
+      <p>Target Gene List file format:</p>
+      <pre className="code">
             <code>
               {TARGET_GENES_FILE}
             </code>
           </pre>
-          <a href={"data:text/plain," + encodeURIComponent(TARGET_GENES_FILE)}
-             className="btn btn-primary btn-sm" download>
-            <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example
-          </a>
-        </PopoverBody>
-      </Popover>
-    </div>;
-  }
-}
+      <a href={"data:text/plain," + encodeURIComponent(TARGET_GENES_FILE)}
+         className="btn btn-primary btn-sm" download>
+        <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example
+      </a>
+    </PopoverBody>
+  </InfoPopover>;
+};
+
+const FILTER_TF_FILE = "AT1G00100\nAT1G00200\n...\n";
+
+export const FilterTfInfo = () => {
+  return <InfoPopover>
+    <PopoverHeader>Filter TFs</PopoverHeader>
+    <PopoverBody>
+      <p>Choose from predefined gene lists or upload your own.</p>
+      <p>Filter List file format:</p>
+      <pre className="code">
+            <code>
+              {FILTER_TF_FILE}
+            </code>
+          </pre>
+      <a href={"data:text/plain," + encodeURIComponent(FILTER_TF_FILE)}
+         className="btn btn-primary btn-sm" download>
+        <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example
+      </a>
+    </PopoverBody>
+  </InfoPopover>;
+};
+
+const TARGET_NETWORK_FILE = "source edge target score\n" +
+  "AT1G00100 edge_name AT1G00200 17.3\n" +
+  "AT1G00100 edge_name AT1G00300 16.2\n";
+
+const TARGET_NETWORK_NS_FILE = "source edge target\n" +
+  "AT1G00100 edge_name AT1G00200\n" +
+  "AT1G00100 edge_name AT1G00300\n";
+
+export const NetworkInfo = () => {
+  return <InfoPopover>
+    <PopoverHeader>Target Network</PopoverHeader>
+    <PopoverBody>
+      <p>Choose from predefined gene lists or upload your own.</p>
+      <p>Space or Tab separated file with 3 columns: source, edge target.
+        With an optional 4th column of scores. If no scores are present, the
+        query assumes that the scores edges are ranked.</p>
+      <p>Target Network file format:</p>
+      <pre className="code">
+            <code>
+              {TARGET_NETWORK_FILE}
+            </code>
+          </pre>
+      <p>Optionally:</p>
+      <pre className="code">
+            <code>
+              {TARGET_NETWORK_NS_FILE}
+            </code>
+          </pre>
+      <a href={"data:text/plain," + encodeURIComponent(TARGET_NETWORK_FILE)}
+         className="btn btn-primary btn-sm" download>
+        <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example
+      </a>
+    </PopoverBody>
+  </InfoPopover>;
+};
 
 export const AddTFButton = ({onClick, large}) => (
   <button type="button"

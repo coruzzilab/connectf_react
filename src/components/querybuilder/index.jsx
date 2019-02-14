@@ -16,14 +16,23 @@ import {
   clearQueryError,
   clearQueryTree,
   clearRequestId,
+  getEdgeList,
   postQuery,
   removeEdge,
   setEdges,
-  setQuery,
-  getEdgeList
+  setQuery
 } from '../../actions';
 import {getQuery} from "../../utils";
-import {AddTFButton, AddTFGroupButton, Copied, Edges, TargetGeneInfo, UploadFile} from "./common";
+import {
+  AddTFButton,
+  AddTFGroupButton,
+  Copied,
+  Edges,
+  FilterTfInfo,
+  NetworkInfo,
+  TargetGeneInfo,
+  UploadFile
+} from "./common";
 import History from "./history";
 import QueryAutocomplete from "./query_autocomplete";
 import {getTargetGeneLists} from "../../utils/axios_instance";
@@ -315,8 +324,9 @@ class QuerybuilderBody extends React.Component {
                 </div> :
                 null}
 
-              <div className="row m-2">
+              <div className="row m-2 align-items-center">
                 <h4>Filter TFs</h4>
+                <FilterTfInfo/>
               </div>
               <div className="row m-2">
                 <p className="text-secondary">
@@ -338,8 +348,9 @@ class QuerybuilderBody extends React.Component {
                 </div> :
                 null}
 
-              <div className="row m-2">
+              <div className="row m-2 align-items-center">
                 <h4>Target Network</h4>
+                <NetworkInfo/>
               </div>
               <div className="row m-2">
                 <p className="text-secondary">
