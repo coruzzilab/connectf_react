@@ -23,10 +23,27 @@ class HistoryBody extends React.Component {
       <DropdownToggle className="btn btn-secondary">
         <FontAwesomeIcon icon="history" className="mr-1"/>Query History
       </DropdownToggle>
-      <DropdownMenu right>
+      <DropdownMenu right
+                    modifiers={{
+                      setMaxHeight: {
+                        enabled: true,
+                        order: 890,
+                        fn: (data) => {
+                          return {
+                            ...data,
+                            styles: {
+                              ...data.styles,
+                              overflow: 'auto',
+                              maxHeight: '70vh'
+                            }
+                          };
+                        }
+                      }
+                    }}>
         {queryHistory.length ?
           _.map(queryHistory, (h, i) => {
-            return <DropdownItem key={i} onClick={setQuery.bind(undefined, h.query)}>
+            return <DropdownItem key={i}
+                                 onClick={setQuery.bind(undefined, h.query)}>
               <div>{h.query}</div>
               <div className="text-secondary">
                 <small>{h.time}</small>

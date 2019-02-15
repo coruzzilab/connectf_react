@@ -5,8 +5,6 @@ import React from "react";
 import {connect} from "react-redux";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import classNames from 'classnames';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
   addEdge,
   addGroup,
@@ -23,16 +21,13 @@ import {
   setQuery
 } from '../../actions';
 import {getQuery} from "../../utils";
-import {AddTFButton, AddTFGroupButton, Copied, Edges} from "./common";
+import {AddTFButton, AddTFGroupButton, Edges} from "./common";
 import History from "./history";
-import QueryAutocomplete from "./query_autocomplete";
 import {getTargetGeneLists} from "../../utils/axios_instance";
 import {CancelToken} from "axios";
-import {CopyButton} from "../common";
-import Value from "./value";
-import Group from "./group";
-import QueryBox from "./query_box";
+import QueryTree from "./query_tree";
 import {FilterTfFile, TargetGeneFile, TargetNetworkFile} from "./query_file";
+import QueryBox from "./query_box";
 
 const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError}) => {
   return {
@@ -67,8 +62,6 @@ class QuerybuilderBody extends React.Component {
     };
 
     this.cancels = [];
-
-    this.checkShouldBuild = _.debounce(this.checkShouldBuild.bind(this), 100);
   }
 
   componentDidMount() {
@@ -82,14 +75,7 @@ class QuerybuilderBody extends React.Component {
         this.props.setEdges(_.intersection(this.props.edges, this.props.edgeList));
       });
 
-    this.checkShouldBuild();
     this.props.clearQueryError();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.query !== prevProps.query || !_.isEqual(this.props.queryTree, prevProps.queryTree)) {
-      this.checkShouldBuild();
-    }
   }
 
   cancelRequests() {
@@ -103,14 +89,14 @@ class QuerybuilderBody extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    let {query, setQuery, edges} = this.props;
+    let {query, setQuery, edges, queryTree} = this.props;
     let {targetGene, filterTf, targetNetwork} = this.state;
     let data = new FormData();
 
     this.cancelRequests();
 
     if (!this.props.query) {
-      query = this.buildQuery();
+      query = getQuery(queryTree);
       setQuery(query);
     }
 
@@ -194,15 +180,6 @@ class QuerybuilderBody extends React.Component {
     });
   }
 
-  buildQuery() {
-    let {queryTree} = this.props;
-    return getQuery(queryTree);
-  }
-
-  setQuery() {
-    this.props.setQuery(this.buildQuery());
-  }
-
   handleEdgeCheck(name, e) {
     if (e.target.checked) {
       this.props.addEdge(name);
@@ -211,17 +188,9 @@ class QuerybuilderBody extends React.Component {
     }
   }
 
-  checkShouldBuild() {
-    let query = getQuery(this.props.queryTree);
-
-    this.setState({
-      shouldBuild: query && this.props.query !== query
-    });
-  }
-
   render() {
-    let {targetGenes, targetGene, filterTfs, filterTf, targetNetworks, targetNetwork, shouldBuild} = this.state;
-    let {addTF, addGroup, queryTree, edges, edgeList, query, busy, queryError, setQuery} = this.props;
+    let {targetGenes, targetGene, filterTfs, filterTf, targetNetworks, targetNetwork} = this.state;
+    let {addTF, addGroup, edges, edgeList, queryError} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
@@ -240,46 +209,10 @@ class QuerybuilderBody extends React.Component {
               </div>
             </div>
           </div>
-          <QueryBox>
-            {_(queryTree).filter((o) => _.isUndefined(o.parent)).map((o, i, a) => {
-              let first = _(a).slice(0, i).filter((n) => n.parent === o.parent).size() === 0;
-              if (o.nodeType === 'TF') {
-                return <Value key={o.id}
-                              first={first}
-                              node={o}/>;
-              } else if (o.nodeType === 'GROUP') {
-                return <Group key={o.id} first={first} node={o}/>;
-              }
-            }).value()}
-          </QueryBox>
-          <div className="form-row">
-            <div className="col m-2">
-              <div className="input-group">
-                <div className="input-group-prepend">
-                  <CopyButton text={query} className="btn-lg" content={Copied}/>
-                  <button type="button"
-                          className={classNames("btn btn-lg", shouldBuild ? "btn-warning" : "btn-secondary")}
-                          onClick={this.setQuery.bind(this)}>
-                    <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
-                  </button>
-                </div>
-                <QueryAutocomplete value={query} setQuery={setQuery}/>
-                <div className="input-group-append">
-                  {busy ?
-                    <button type="submit" className="btn btn-warning btn-lg" id="submit">
-                      <FontAwesomeIcon icon="circle-notch" spin size="lg" className="mr-2"/>Querying
-                    </button> :
-                    <button type="submit" id="submit"
-                            className={classNames("btn btn-lg", queryError.error ? "btn-danger" : "btn-primary")}>
-                      <FontAwesomeIcon icon="arrow-circle-up" className="mr-2"/>Submit
-                    </button>}
-                  <button type="button" className="btn btn-outline-danger btn-lg" onClick={this.reset.bind(this)}>
-                    <FontAwesomeIcon icon="redo" className="mr-2"/>Reset
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+
+          <QueryTree/>
+
+          <QueryBox reset={this.reset.bind(this)}/>
 
           <div className="row m-2">
             <span className="text-danger">{queryError.message}</span>
@@ -303,8 +236,6 @@ class QuerybuilderBody extends React.Component {
             </div>
           </div>
         </div>
-
-
       </form>
     </div>;
   }

@@ -1,81 +1,112 @@
 /**
  * @author zacharyjuang
- * 2018-11-29
+ * 2019-02-15
  */
-import {connect} from "react-redux";
-import {moveItem, setParent} from "../../actions";
 import React from "react";
 import _ from "lodash";
-import {isTF} from "./utils";
-import {DragContainer} from "./drag";
+import {getQuery} from "../../utils";
+import {CopyButton} from "../common";
+import {Copied} from "./common";
 import classNames from "classnames";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import QueryAutocomplete from "./query_autocomplete";
+import {connect} from "react-redux";
+import {setQuery} from "../../actions";
 import PropTypes from "prop-types";
 
-const mapStateToProps = ({queryTree}) => {
+function mapStateToProps({busy, query, queryTree, queryError}) {
   return {
-    queryTree
+    busy,
+    query,
+    queryTree,
+    queryError
   };
-};
+}
 
 class QueryBoxBody extends React.Component {
-  drop(clientYOffset, e) {
-    let {queryTree, moveItem, setParent} = this.props;
+  constructor(props) {
+    super(props);
 
-    let sourceId = e.dataTransfer.getData('id');
-    let source = _.find(queryTree, ['id', sourceId]);
-    if (isTF(source)) {
-      let target;
-      let after;
-      let currY = e.clientY - clientYOffset;
-      let _currNodes = _(queryTree)
-        .filter((o) => !o.parent);
-      let _currNodesPos = _currNodes
-        .map('id')
-        .map(_.unary(document.getElementById.bind(document)))
-        .invokeMap('getBoundingClientRect')
-        .map((rect) => rect.top + rect.height / 2);
+    this.state = {
+      shouldBuild: false
+    };
 
+    this.checkShouldBuild = _.debounce(this.checkShouldBuild.bind(this), 100);
+  }
 
-      let prevPos = _currNodesPos.findLastIndex((p) => p < currY);
-      let nextPos = _currNodesPos.findIndex((p) => p > currY);
+  componentDidMount() {
+    this.checkShouldBuild();
+  }
 
-      if (prevPos === -1) {
-        target = _.head(queryTree);
-        after = false;
-      } else if (nextPos === -1) {
-        target = _.last(queryTree);
-        after = true;
-      } else {
-        let currNodes = _currNodes.value();
-        target = currNodes[prevPos];
-        after = true;
-      }
-      moveItem(sourceId, target.id, after);
-      setParent(sourceId, undefined);
+  componentDidUpdate(prevProps) {
+    if (this.props.query !== prevProps.query || !_.isEqual(this.props.queryTree, prevProps.queryTree)) {
+      this.checkShouldBuild();
     }
   }
 
-  render() {
-    let {queryTree} = this.props;
+  checkShouldBuild() {
+    let query = getQuery(this.props.queryTree);
 
-    return <DragContainer
-      className={classNames("row", queryTree.length ? "border border-dark rounded py-3 m-2" : null)}
-      onDrop={this.drop.bind(this)}>
-      {this.props.children}
-    </DragContainer>;
+    this.setState({
+      shouldBuild: query && this.props.query !== query
+    });
+  }
+
+  setQuery() {
+    this.props.setQuery(getQuery(this.props.queryTree));
+  }
+
+  render() {
+    let {query, busy, queryError, setQuery, reset} = this.props;
+    let {shouldBuild} = this.state;
+
+    return <div className="form-row">
+      <div className="col m-2">
+        <div className="input-group">
+          <div className="input-group-prepend">
+            <CopyButton text={query} className="btn-lg" content={Copied}/>
+            <button type="button"
+                    className={classNames("btn btn-lg", shouldBuild ? "btn-warning" : "btn-secondary")}
+                    onClick={this.setQuery.bind(this)}>
+              <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
+            </button>
+          </div>
+          <QueryAutocomplete value={query} setQuery={setQuery}/>
+          <div className="input-group-append">
+            {busy ?
+              <button type="submit" className="btn btn-warning btn-lg" id="submit">
+                <FontAwesomeIcon icon="circle-notch" spin size="lg" className="mr-2"/>Querying
+              </button> :
+              <button type="submit" id="submit"
+                      className={classNames("btn btn-lg", queryError.error ? "btn-danger" : "btn-primary")}>
+                <FontAwesomeIcon icon="arrow-circle-up" className="mr-2"/>Submit
+              </button>}
+            <button type="button" className="btn btn-outline-danger btn-lg" onClick={reset}>
+              <FontAwesomeIcon icon="redo" className="mr-2"/>Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>;
   }
 }
 
 QueryBoxBody.propTypes = {
-  children: PropTypes.node,
+  busy: PropTypes.number,
+  query: PropTypes.string,
   queryTree: PropTypes.arrayOf(PropTypes.object),
-  moveItem: PropTypes.func,
-  setParent: PropTypes.func
+  setQuery: PropTypes.func,
+  queryError: PropTypes.shape({error: PropTypes.bool, message: PropTypes.string}),
+  reset: PropTypes.func
 };
 
-const QueryBox = connect(mapStateToProps, {
-  moveItem,
-  setParent
-})(QueryBoxBody);
+const QueryBox = connect(
+  mapStateToProps,
+  {setQuery}
+)(QueryBoxBody);
+
+QueryBox.propTypes = {
+  reset: PropTypes.func.isRequired
+};
 
 export default QueryBox;
