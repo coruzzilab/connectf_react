@@ -23,16 +23,7 @@ import {
   setQuery
 } from '../../actions';
 import {getQuery} from "../../utils";
-import {
-  AddTFButton,
-  AddTFGroupButton,
-  Copied,
-  Edges,
-  FilterTfInfo,
-  NetworkInfo,
-  TargetGeneInfo,
-  UploadFile
-} from "./common";
+import {AddTFButton, AddTFGroupButton, Copied, Edges} from "./common";
 import History from "./history";
 import QueryAutocomplete from "./query_autocomplete";
 import {getTargetGeneLists} from "../../utils/axios_instance";
@@ -41,6 +32,7 @@ import {CopyButton} from "../common";
 import Value from "./value";
 import Group from "./group";
 import QueryBox from "./query_box";
+import {FilterTfFile, TargetGeneFile, TargetNetworkFile} from "./query_file";
 
 const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError}) => {
   return {
@@ -67,7 +59,9 @@ class QuerybuilderBody extends React.Component {
     this.state = {
       targetGenes: [],
       targetGene: '',
+      filterTfs: [],
       filterTf: '',
+      targetNetworks: [],
       targetNetwork: '',
       shouldBuild: false
     };
@@ -122,8 +116,8 @@ class QuerybuilderBody extends React.Component {
 
     data.append('query', query);
 
-    for (let e of edges) {
-      data.append('edges', e);
+    for (let edge of edges) {
+      data.append('edges', edge);
     }
 
     // prep files for upload
@@ -226,7 +220,7 @@ class QuerybuilderBody extends React.Component {
   }
 
   render() {
-    let {targetGenes, targetGene, filterTf, targetNetwork, shouldBuild} = this.state;
+    let {targetGenes, targetGene, filterTfs, filterTf, targetNetworks, targetNetwork, shouldBuild} = this.state;
     let {addTF, addGroup, queryTree, edges, edgeList, query, busy, queryError, setQuery} = this.props;
 
     return <div>
@@ -297,79 +291,15 @@ class QuerybuilderBody extends React.Component {
                 <Edges edgeList={edgeList} edges={edges} onChange={this.handleEdgeCheck.bind(this)}/> :
                 null}
 
-              <div className="row m-2 align-items-center">
-                <h4>Target Genes</h4>
-                <TargetGeneInfo/>
-              </div>
-              <div className="form-row m-2">
-                <p className="text-secondary">
-                  By default, all targets of each transcription factor is displayed. Select a
-                  Target Gene List (or upload your own) to filter the results.
-                </p>
-              </div>
-              <div className="form-row m-2">
-                <select className="form-control" value={targetGene} name="targetgene"
-                        onChange={this.handleFileSelect.bind(this, 'targetGene')}>
-                  <option value="">----</option>
-                  {_.map(targetGenes, (l, i) => {
-                    return <option key={i} value={l}>{l}</option>;
-                  })}
-                  <option disabled>──────────</option>
-                  <option value="other">Upload Target Genes</option>
-                </select>
-              </div>
-              {targetGene === "other" ?
-                <div className="form-row m-2">
-                  <UploadFile inputRef={this.targetGenes}/>
-                </div> :
-                null}
-
-              <div className="row m-2 align-items-center">
-                <h4>Filter TFs</h4>
-                <FilterTfInfo/>
-              </div>
-              <div className="row m-2">
-                <p className="text-secondary">
-                  Provide a gene list to limit the TFs in your query. Typically used
-                  with &quot;oralltfs&quot; or &quot;multitype&quot; to limit the size of the output.
-                </p>
-              </div>
-              <div className="form-row m-2">
-                <select className="form-control" name="filtertf"
-                        onChange={this.handleFileSelect.bind(this, 'filterTf')}>
-                  <option value="">----</option>
-                  <option disabled>──────────</option>
-                  <option value="other">Upload Gene List</option>
-                </select>
-              </div>
-              {filterTf === "other" ?
-                <div className="form-row m-2">
-                  <UploadFile inputRef={this.filterTfs}/>
-                </div> :
-                null}
-
-              <div className="row m-2 align-items-center">
-                <h4>Target Network</h4>
-                <NetworkInfo/>
-              </div>
-              <div className="row m-2">
-                <p className="text-secondary">
-                  Provide a gene network that restricts both the query TFs and the targeted genes.
-                </p>
-              </div>
-              <div className="form-row m-2">
-                <select className="form-control" name="network"
-                        onChange={this.handleFileSelect.bind(this, 'targetNetwork')}>
-                  <option value="">----</option>
-                  <option disabled>──────────</option>
-                  <option value="other">Upload Network</option>
-                </select>
-              </div>
-              {targetNetwork === "other" ?
-                <div className="form-row m-2">
-                  <UploadFile id="targetNetwork" inputRef={this.targetNetworks}/>
-                </div> :
-                null}
+              <TargetGeneFile inputRef={this.targetGenes} list={targetGenes}
+                              onChange={this.handleFileSelect.bind(this, 'targetGene')}
+                              value={targetGene}/>
+              <FilterTfFile inputRef={this.filterTfs} list={filterTfs}
+                            onChange={this.handleFileSelect.bind(this, 'filterTf')}
+                            value={filterTf}/>
+              <TargetNetworkFile inputRef={this.targetNetworks} list={targetNetworks}
+                                 onChange={this.handleFileSelect.bind(this, 'targetNetwork')}
+                                 value={targetNetwork}/>
             </div>
           </div>
         </div>

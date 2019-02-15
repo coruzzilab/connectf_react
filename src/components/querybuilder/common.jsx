@@ -124,7 +124,7 @@ export class InfoPopover extends React.Component {
     return <div className="ml-2">
       <div className="link info-link" ref={this.info} title="More info">
         <FontAwesomeIcon icon="question-circle"/></div>
-      <UncontrolledPopover target={() => this.info.current} trigger="legacy">
+      <UncontrolledPopover target={() => this.info.current} trigger="legacy" delay={0}>
         {this.props.children}
       </UncontrolledPopover>
     </div>;
