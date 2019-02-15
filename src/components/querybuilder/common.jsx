@@ -192,7 +192,7 @@ export const NetworkInfo = () => {
       <p>Choose from predefined gene lists or upload your own.</p>
       <p>Space or Tab separated file with 3 columns: source, edge target.
         With an optional 4th column of scores. If no scores are present, the
-        query assumes that the scores edges are ranked.</p>
+        query assumes that the edges are ranked.</p>
       <p>Target Network file format:</p>
       <pre className="code">
             <code>

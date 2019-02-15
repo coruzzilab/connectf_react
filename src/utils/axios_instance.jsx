@@ -27,7 +27,11 @@ export function getKeyValues(key, params) {
 }
 
 export function getTargetGeneLists() {
-  return instance.get('/api/lists/');
+  return instance.get('/api/lists/').then(({data}) => data);
+}
+
+export function getTargetNetworks() {
+  return instance.get('/api/networks/').then(({data}) => data);
 }
 
 export function getAdditionalEdges() {

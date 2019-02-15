@@ -23,7 +23,7 @@ import {
 import {getQuery} from "../../utils";
 import {AddTFButton, AddTFGroupButton, Edges} from "./common";
 import History from "./history";
-import {getTargetGeneLists} from "../../utils/axios_instance";
+import {getTargetGeneLists, getTargetNetworks} from "../../utils/axios_instance";
 import {CancelToken} from "axios";
 import QueryTree from "./query_tree";
 import {FilterTfFile, TargetGeneFile, TargetNetworkFile} from "./query_file";
@@ -65,9 +65,9 @@ class QuerybuilderBody extends React.Component {
   }
 
   componentDidMount() {
-    getTargetGeneLists()
-      .then(({data}) => {
-        this.setState({targetGenes: data});
+    Promise.all([getTargetGeneLists(), getTargetNetworks()])
+      .then(([targetGenes, targetNetworks]) => {
+        this.setState({targetGenes, targetNetworks});
       });
 
     this.props.getEdgeList()
