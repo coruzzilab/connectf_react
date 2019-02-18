@@ -23,21 +23,9 @@ import uuid4 from 'uuid/v4';
 
 import {getNetwork, setNetwork} from '../../actions';
 import {UploadSifInfoPopover} from "./common";
-import {blobFromString, networkJSONStringify} from "../../utils";
+import {networkJSONStringify} from "../../utils";
 import {NetworkAdditionalEdges} from "../common";
-
-const clampWeight = _.memoize(_.partial(_.clamp, _, 1, 5));
-
-const edge_value = _.unary(_.partial(_.pick, _, ['data.source', 'data.target', 'data.name']));
-const edge_compare = _.overArgs(_.isEqual, [edge_value, edge_value]);
-
-const networkPNG = _.flow(
-  _.partial(_.split, _, ',', 2),
-  _.partial(_.get, _, 1),
-  atob,
-  _.partial(blobFromString, _, 'image/png'),
-  URL.createObjectURL
-);
+import {edge_compare, networkPNG, style} from "./utils";
 
 const mapStateToProps = ({busy, requestId, network, edges, precisionCutoff}) => {
   return {
@@ -72,6 +60,42 @@ class NetworkBody extends React.PureComponent {
   }
 
   componentDidMount() {
+    this.setUpCytoscape();
+
+    this.setHeight();
+
+    if (_.isEmpty(this.props.network)) {
+      this.props.getNetwork(this.props.requestId, this.props.edges, this.props.precisionCutoff);
+    } else {
+      this.resetCytoscape();
+    }
+
+    window.addEventListener("resize", this.setHeight);
+  }
+
+  componentDidUpdate(prevProp, prevState) {
+    if (prevProp.requestId !== this.props.requestId) {
+      this.props.getNetwork(this.props.requestId, this.props.edges, this.props.precisionCutoff);
+    }
+
+    if (prevProp.network !== this.props.network) {
+      this.resetCytoscape();
+    }
+
+    if (prevState.hiddenEdges !== this.state.hiddenEdges) {
+      this.setEdgeDropdown();
+      this.hideCyEdge();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.cy) {
+      this.cy.destroy();
+    }
+    window.removeEventListener("resize", this.setHeight);
+  }
+
+  setUpCytoscape() {
     let self = this;
 
     this.cy = cytoscape({
@@ -79,53 +103,7 @@ class NetworkBody extends React.PureComponent {
       boxSelectionEnabled: true,
       maxZoom: 20,
       minZoom: 0.05,
-      style: [
-        {
-          selector: 'node',
-          style: {
-            'font-family': 'helvetica',
-            'text-rotation': 270,
-            'text-outline-color': '#000000',
-            'text-valign': 'center',
-            'color': '#000000',
-            'shape': 'data(shape)',
-            'background-color': 'data(color)',
-            'width': 'data(size)',
-            'height': 'data(size)',
-            'min-zoomed-font-size': 3
-          }
-        },
-        {
-          selector: "node[?showLabel]",
-          style: {
-            'content': function (ele) {
-              let name = ele.data('name');
-              if (!name) {
-                return ele.data('id');
-              }
-              return `${ele.data('id')} (${ele.data('name')})`;
-            }
-          }
-        },
-        {
-          selector: 'edge',
-          style: {
-            'width': 1,
-            'target-arrow-shape': 'data(shape)',
-            'target-arrow-color': 'data(color)',
-            'curve-style': 'bezier',
-            'line-color': 'data(color)',
-            'arrow-scale': 0.5,
-            'min-zoomed-font-size': 3
-          }
-        },
-        {
-          selector: 'edge[weight]',
-          style: {
-            'width': (ele) => clampWeight(ele.data('weight'))
-          }
-        }
-      ],
+      style,
       layout: {
         name: 'preset'
       }
@@ -186,38 +164,6 @@ class NetworkBody extends React.PureComponent {
         self.cyRef.current.focus();
       }
     });
-
-    this.setHeight();
-
-    if (_.isEmpty(this.props.network)) {
-      this.props.getNetwork(this.props.requestId, this.props.edges, this.props.precisionCutoff);
-    } else {
-      this.resetCytoscape();
-    }
-
-    window.addEventListener("resize", this.setHeight);
-  }
-
-  componentDidUpdate(prevProp, prevState) {
-    if (prevProp.requestId !== this.props.requestId) {
-      this.props.getNetwork(this.props.requestId, this.props.edges, this.props.precisionCutoff);
-    }
-
-    if (prevProp.network !== this.props.network) {
-      this.resetCytoscape();
-    }
-
-    if (prevState.hiddenEdges !== this.state.hiddenEdges) {
-      this.setEdgeDropdown();
-      this.hideCyEdge();
-    }
-  }
-
-  componentWillUnmount() {
-    if (this.cy) {
-      this.cy.destroy();
-    }
-    window.removeEventListener("resize", this.setHeight);
   }
 
   setHeight() {
@@ -452,6 +398,10 @@ class NetworkBody extends React.PureComponent {
     this.searchNode(e.target.value);
   }
 
+  /**
+   * Use +/- keys to zoom
+   * @param e
+   */
   handleZoom(e) {
     let zoomLevel = this.cy.zoom();
 
