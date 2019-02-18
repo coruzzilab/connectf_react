@@ -1,7 +1,16 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import React from "react";
-import {NavLink as BSNavLink, Popover, PopoverBody, TabPane, Tooltip, UncontrolledTooltip} from "reactstrap";
+import {
+  Fade,
+  NavLink as BSNavLink,
+  Popover,
+  PopoverBody,
+  TabPane,
+  Tooltip,
+  UncontrolledAlert,
+  UncontrolledTooltip
+} from "reactstrap";
 import {Route, withRouter} from "react-router-dom";
 import connect from "react-redux/es/connect/connect";
 import _ from "lodash";
@@ -235,4 +244,28 @@ export const ExtraFields = connect(({extraFields}) => ({extraFields}), {
 ExtraFields.propTypes = {
   extraFieldNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   className: PropTypes.string
+};
+
+const QueryAlertBody = ({result: {errors}, className, onExited}) => {
+  // dug into UncontrolledAlert for proper configuration off transition prop
+  return errors ?
+    <UncontrolledAlert color="warning" className={className}
+                       transition={{...Fade.defaultProps, unmountOnExit: true, onExited}}>
+      <h4 className="alert-heading">Query Warning</h4>
+      {_.map(errors, (err, i) => <p key={i}>{err}</p>)}
+    </UncontrolledAlert> :
+    null;
+};
+
+QueryAlertBody.propTypes = {
+  result: PropTypes.object,
+  className: PropTypes.string,
+  onExited: PropTypes.func
+};
+
+export const QueryAlert = connect(({result}) => ({result}))(QueryAlertBody);
+
+QueryAlert.propTypes = {
+  className: PropTypes.string,
+  onExited: PropTypes.func
 };

@@ -8,6 +8,7 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types";
 import {getSummary} from "../../actions";
 import Chart from "chart.js";
+import {QueryAlert} from "./common";
 
 const COLOR = {
   'INDUCED': '#4daf4a',
@@ -43,6 +44,7 @@ class SummaryBody extends React.Component {
     };
 
     this.setHeight = _.debounce(this.setHeight.bind(this));
+    this.updateChart = _.partial(_.defer, this.updateChart.bind(this));
   }
 
   componentDidMount() {
@@ -196,14 +198,27 @@ class SummaryBody extends React.Component {
     this.setState({
       height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - top
     });
+
+    if (this.chart) {
+      this.chart.update();
+    }
   }
 
   render() {
     let {height} = this.state;
 
-    return <div>
-      <div style={{height}}>
-        <canvas ref={this.chartCtx}/>
+    return <div className="container-fluid">
+      <div className="row">
+        <div className="col">
+          <QueryAlert className="mt-1" onExited={this.setHeight}/>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          <div style={{height}}>
+            <canvas ref={this.chartCtx}/>
+          </div>
+        </div>
       </div>
     </div>;
   }
