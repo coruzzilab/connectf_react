@@ -51,7 +51,25 @@ class SummaryBody extends React.Component {
 
     this.props.getSummary(this.props.requestId);
 
+    this.initChart();
+
+    this.updateChart();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.summary !== prevProps.summary) {
+      this.updateChart();
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.setHeight);
+    this.chart.destroy();
+  }
+
+  initChart() {
     // hack-tastic way of displaying a grouped bar chart to our specification
+    // This is not the library's intended use case.
     this.chart = new Chart(this.chartCtx.current.getContext("2d"), {
       type: 'bar',
       options: {
@@ -128,19 +146,6 @@ class SummaryBody extends React.Component {
         }
       }
     });
-
-    this.updateChart();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.summary !== prevProps.summary) {
-      this.updateChart();
-    }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.setHeight);
-    this.chart.destroy();
   }
 
   updateChart() {
