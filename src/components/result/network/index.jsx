@@ -108,22 +108,23 @@ class NetworkBody extends React.Component {
           </div>
         </div> :
         null}
-      <div className="row">
-        <div className="col m-1">
-          <Link to="/network"
-                className={classNames("btn mr-1", stats.num_edges > 3000 ? "btn-warning" : "btn-primary")}>
-            <FontAwesomeIcon icon="external-link-alt" className="mr-1"/>Open Network
-          </Link>
-          <button className="btn btn-outline-primary mr-1" onClick={this.toggleCollapse.bind(this)}>
-            <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edges
-          </button>
-          {!_.isEmpty(network) ?
+      {!_.isEmpty(network) ?
+        <div className="row">
+          <div className="col m-1">
+            <Link to="/network"
+                  className={classNames("btn mr-1", stats.num_edges > 3000 ? "btn-warning" : "btn-primary")}>
+              <FontAwesomeIcon icon="external-link-alt" className="mr-1"/>Open Network
+            </Link>
+            <button className="btn btn-outline-primary mr-1" onClick={this.toggleCollapse.bind(this)}>
+              <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edges
+            </button>
             <a className="btn btn-light" download="query.cyjs"
                href={networkJSONStringify(network)}>
-              <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a> :
-            null}
-        </div>
-      </div>
+              <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a>
+          </div>
+        </div> :
+        null}
+
       <Collapse isOpen={collapse}>
         <NetworkAdditionalEdges className="border rounded"/>
       </Collapse>

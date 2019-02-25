@@ -136,17 +136,25 @@ class NetworkAdditionalEdgesBody extends React.PureComponent {
   }
 
   checkAupr() {
-    return checkAupr(this.props.requestId)
-      .then(() => {
-        this.setState({
-          hasAupr: true
+    let {hasAupr} = this.props;
+
+    if (typeof hasAupr === 'undefined') {
+      return checkAupr(this.props.requestId)
+        .then(() => {
+          this.setState({
+            hasAupr: true
+          });
+        })
+        .catch(() => {
+          this.setState({
+            hasAupr: false
+          });
         });
-      })
-      .catch(() => {
-        this.setState({
-          hasAupr: false
-        });
+    } else {
+      this.setState({
+        hasAupr
       });
+    }
   }
 
   getNetwork() {
@@ -232,7 +240,8 @@ NetworkAdditionalEdgesBody.propTypes = {
   getNetwork: PropTypes.func,
   getEdgeList: PropTypes.func,
   className: PropTypes.string,
-  precisionCutoff: PropTypes.number
+  precisionCutoff: PropTypes.number,
+  hasAupr: PropTypes.bool
 };
 
 export const NetworkAdditionalEdges = connect(mapStateToProps, {
@@ -244,5 +253,6 @@ export const NetworkAdditionalEdges = connect(mapStateToProps, {
 })(NetworkAdditionalEdgesBody);
 
 NetworkAdditionalEdges.propTypes = {
-  className: PropTypes.string
+  className: PropTypes.string,
+  hasAupr: PropTypes.bool
 };

@@ -26,6 +26,7 @@ import {UploadSifInfoPopover} from "./common";
 import {networkJSONStringify} from "../../utils";
 import {NetworkAdditionalEdges} from "../common";
 import {edge_compare, networkPNG, style} from "./utils";
+import {checkAupr} from "../../utils/axios_instance";
 
 const mapStateToProps = ({busy, requestId, network, edges, precisionCutoff}) => {
   return {
@@ -51,16 +52,19 @@ class NetworkBody extends React.PureComponent {
       alertOpen: false,
       alertMessage: "",
       edgeDropdown: [],
-      hiddenEdges: []
+      hiddenEdges: [],
+      hasAupr: false
     };
 
     this.setHeight = _.debounce(this.setHeight.bind(this), 100);
     this.setUserEdgeColor = _.debounce(this.setUserEdgeColor.bind(this), 50, {maxWait: 200});
     this.searchNode = _.debounce(this.searchNode.bind(this), 200, {leading: true});
+    this.setEdgeDropdown = _.debounce(this.setEdgeDropdown.bind(this), 100, {leading: true, trailing: true});
   }
 
   componentDidMount() {
     this.setUpCytoscape();
+    this.checkAupr();
 
     this.setHeight();
 
@@ -76,6 +80,7 @@ class NetworkBody extends React.PureComponent {
   componentDidUpdate(prevProp, prevState) {
     if (prevProp.requestId !== this.props.requestId) {
       this.props.getNetwork(this.props.requestId, this.props.edges, this.props.precisionCutoff);
+      this.checkAupr();
     }
 
     if (prevProp.network !== this.props.network) {
@@ -93,6 +98,16 @@ class NetworkBody extends React.PureComponent {
       this.cy.destroy();
     }
     window.removeEventListener("resize", this.setHeight);
+  }
+
+  checkAupr() {
+    return checkAupr(this.props.requestId)
+      .then(() => {
+        this.setState({hasAupr: true});
+      })
+      .catch(() => {
+        this.setState({hasAupr: false});
+      });
   }
 
   setUpCytoscape() {
@@ -163,6 +178,10 @@ class NetworkBody extends React.PureComponent {
       if (self.cyRef.current !== document.activeElement) {
         self.cyRef.current.focus();
       }
+    });
+
+    this.cy.on('add', 'edge[?user]', function () {
+      self.setEdgeDropdown();
     });
   }
 
@@ -252,12 +271,19 @@ class NetworkBody extends React.PureComponent {
 
   hideCyEdge() {
     let {hiddenEdges} = this.state;
-    let selector = _(hiddenEdges).map((e) => `edge[name = '${e}']`).join(', ');
 
-    this.cy.batch(() => {
-      this.cy.edges(selector).style('display', 'none');
-      this.cy.edges().difference(selector).style('display', 'element');
-    });
+    if (hiddenEdges.length) {
+      let selector = _(hiddenEdges).map((e) => `edge[name = '${e}']`).join(', ');
+
+      this.cy.batch(() => {
+        this.cy.edges(selector).style('display', 'none');
+        this.cy.edges().difference(selector).style('display', 'element');
+      });
+    } else {
+      this.cy.batch(() => {
+        this.cy.edges(':hidden').style('display', 'element');
+      });
+    }
   }
 
   back() {
@@ -413,25 +439,36 @@ class NetworkBody extends React.PureComponent {
   }
 
   render() {
-    let {height, busy, color, alertOpen, alertMessage, edgeDropdown, hiddenEdges} = this.state;
+    let {height, busy, color, alertOpen, alertMessage, edgeDropdown, hiddenEdges, hasAupr} = this.state;
 
     return <div className="container-fluid">
       <Alert color="danger" isOpen={alertOpen} toggle={this.toggleAlert.bind(this)}>{alertMessage}</Alert>
       <div className="row">
         <div className="btn-toolbar m-1 col align-items-center">
           <div className="btn-group mr-2">
-            <button onClick={this.back.bind(this)} className="btn btn-warning">
+            <button onClick={this.back.bind(this)}
+                    title="Back to Network Summary"
+                    className="btn btn-warning">
               <FontAwesomeIcon icon="arrow-circle-left" className="mr-1"/>Back
             </button>
-            <button className="btn btn-danger" onClick={this.resetCytoscape.bind(this)}>
+            <button className="btn btn-danger"
+                    title="Reset Network to Initial View"
+                    onClick={this.resetCytoscape.bind(this)}>
               <FontAwesomeIcon icon="redo" className="mr-1"/>Reset
             </button>
-            <button className="btn btn-light" onClick={this.fitCytoscape.bind(this)}>
+            <button className="btn btn-light"
+                    title="Fit Network to Screen"
+                    onClick={this.fitCytoscape.bind(this)}>
               <FontAwesomeIcon icon="expand" className="mr-1"/>Fit
             </button>
-            <a className="btn btn-light" download="query.png" onClick={this.exportCytoscape.bind(this)}>
+            <a className="btn btn-light"
+               title="Export Image as PNG"
+               download="query.png"
+               onClick={this.exportCytoscape.bind(this)}>
               <FontAwesomeIcon icon="image" className="mr-1"/>Export Image</a>
-            <a className="btn btn-light" onClick={this.exportJSON.bind(this)}>
+            <a className="btn btn-light"
+               title="Export Network to JSON format"
+               onClick={this.exportJSON.bind(this)}>
               <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a>
           </div>
           <div className="input-group mr-2">
@@ -453,9 +490,11 @@ class NetworkBody extends React.PureComponent {
               <span className="input-group-text">Edge Color:</span>
             </div>
             <input type="color" className="form-control" style={{width: '80px'}} value={color}
+                   title="Change Color of Uploaded Edges"
                    onChange={this.setColor.bind(this)}/>
             <div className="input-group-append">
-              <div className="btn btn-outline-dark" ref={this.info}>
+              <div className="btn btn-outline-dark" ref={this.info}
+                   title="More Info About File Upload">
                 <FontAwesomeIcon icon="info-circle"/>
               </div>
             </div>
@@ -476,10 +515,11 @@ class NetworkBody extends React.PureComponent {
               </button>
               <UncontrolledPopover trigger="legacy" target={() => this.additionalEdge.current}>
                 <PopoverBody>
-                  <NetworkAdditionalEdges/>
+                  <NetworkAdditionalEdges hasAupr={hasAupr}/>
                 </PopoverBody>
               </UncontrolledPopover>
-              <DropdownToggle color="secondary" outline>
+              <DropdownToggle color="secondary" outline
+                              title="Hide Edges in Network">
                 <FontAwesomeIcon icon="eye-slash" className="mr-1"/>Hide Edges
               </DropdownToggle>
             </div>
@@ -500,7 +540,8 @@ class NetworkBody extends React.PureComponent {
               }
             }}>
               <DropdownItem onClick={this.unhideAllEdges.bind(this)}>
-                <FontAwesomeIcon icon="eye" className="mr-2" color={hiddenEdges.length ? "black" : "lightgrey"}/>Unhide All
+                <FontAwesomeIcon icon="eye" className="mr-2" color={hiddenEdges.length ? "black" : "lightgrey"}/>Unhide
+                All
               </DropdownItem>
               <DropdownItem divider/>
               {edgeDropdown}
