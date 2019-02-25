@@ -1,19 +1,22 @@
 /**
  * @author zacharyjuang
  */
-const {Builder, By, until, Browser} = require('selenium-webdriver');
-const {assert} = require('chai');
-const axios = require('axios');
+import {Browser, Builder, By, until} from 'selenium-webdriver';
+import firefox from 'selenium-webdriver/firefox';
+import {assert} from 'chai';
+import axios from 'axios';
+import _ from 'lodash';
 
 let driver = new Builder()
   .forBrowser(Browser.CHROME)
+  .setFirefoxOptions(new firefox.Options().setBinary('/Applications/FirefoxAurora.app/Contents/MacOS/firefox-bin'))
   .build();
 
 describe('Query', async function () {
   this.timeout(10000);
   this.slow(5000);
 
-  it('should load query page', async function () {
+  before('should load query page', async function () {
     this.slow(2000);
     await driver.get("http://localhost:8080/query");
     await driver.findElement(By.name('query'));
@@ -29,6 +32,15 @@ describe('Query', async function () {
     await driver.findElement(By.name('query')).getAttribute('value').then((value) => {
       assert.strictEqual(value, 'AT5G65210');
     });
+  });
+
+  it('should pick random network', async function () {
+    let options = By.xpath("//select[@name = 'network']/option[not(@disabled) and @value != '' and @value != 'other']");
+    let selection = await driver.wait(until.elementsLocated(options), 5000);
+    assert.isAbove(selection.length, 0, 'Should have some built in networks.');
+
+    let option = _.sample(selection);
+    await option.click();
   });
 
   it('should return query results', async function () {
@@ -73,6 +85,14 @@ describe('Query', async function () {
     await driver.wait(until.elementLocated(By.xpath("//a[@download and @href and contains(text(), 'Download')]")));
   });
 
+  it('should display aupr curve', async function () {
+    this.timeout(60000);
+
+    let auprCurve = By.xpath("//img[@src and @alt='network prediction']");
+
+    await driver.wait(until.elementLocated(auprCurve), 30000);
+  });
+
   it('should display target enrichment', async function () {
     await driver.findElement(By.xpath("//a[contains(@class, 'nav-link') and (text()='Target Enrichment')]")).click();
     await driver.getCurrentUrl().then(function (value) {
@@ -91,29 +111,30 @@ describe('Query', async function () {
   });
 
   it('should display analysis enrichment', async function () {
-    this.timeout(30000);
+    this.timeout(60000);
     this.slow(10000);
 
     await driver.findElement(By.xpath("//a[contains(@class, 'nav-link') and (text()='Analysis Enrichment')]")).click();
     await driver.getCurrentUrl().then(function (value) {
       assert.match(value, /\/result\/analysis$/, 'navigated to analysis enrichment');
     });
-    await driver.wait(until.elementsLocated(By.css('.cell'))).then(function (eles) {
+    await driver.wait(until.elementsLocated(By.css('.cell')), 30000).then(function (eles) {
       assert.isAbove(eles.length, 1);
     });
   });
 
   it('should display export', async function () {
-    this.timeout(30000);
+    this.timeout(60000);
 
     await driver.findElement(By.xpath("//a[contains(@class, 'nav-link') and (text()='Download')]")).click();
     await driver.getCurrentUrl().then(function (value) {
       assert.match(value, /\/result\/download$/, 'navigated to download');
     });
-    await driver.wait(until.elementLocated(By.xpath("//a[@href and @download and contains(text(), 'Download')]"))).getAttribute('href')
-      .then(function (value) {
-        return axios.get(value);
-      }).then(function (resp) {
+    let value = await driver.wait(
+      until.elementLocated(By.xpath("//a[@href and @download and contains(text(), 'Download')]")),
+      30000).getAttribute('href');
+    await axios.get(value, {timeout: 30000})
+      .then(function (resp) {
         assert.strictEqual(resp.status, 200, 'is OK');
         assert.strictEqual(resp.headers['content-type'], 'application/zip', 'is zip file');
       });
