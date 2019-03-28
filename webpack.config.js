@@ -70,6 +70,7 @@ const config = {
     minimize: true,
     minimizer: [
       new TerserPlugin(),
+      // new MinifyPlugin(),
       new OptimizeCSSAssetsPlugin({})
     ],
     runtimeChunk: 'single',
@@ -84,7 +85,7 @@ const config = {
     }
   },
   plugins: [
-    new CleanWebpackPlugin(['dist']),
+    new CleanWebpackPlugin(),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production')

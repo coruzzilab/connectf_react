@@ -71,17 +71,15 @@ const config = {
       template: 'src/index.html'
     })
   ],
-  serve: {
-    content: [__dirname],
-    add: (app, middleware, options) => {
-      app.use(convert(proxy(['/api', '/queryapp', '/upload'], {
-        target: 'http://localhost:8001',
-        proxyTimeout: 300000,
-        timeout: 300000
-      })));
-      app.use(convert(history()));
-    },
-    clipboard: false
+  devServer: {
+    contentBase: path.join(__dirname, 'dist'),
+    compress: true,
+    port: 8080,
+    historyApiFallback: true,
+    hot: true,
+    proxy: {
+      '/api': 'http://localhost:8001'
+    }
   }
 };
 
