@@ -18,13 +18,13 @@ export const clearMotifEnrichment = () => {
   };
 };
 
-export const getMotifEnrichment = (requestId, alpha = 0.05, body = false, config) => {
+export const getMotifEnrichment = (requestId, alpha = 0.05, regions = [], config) => {
   return (dispatch) => {
     dispatch(setBusy(true));
     dispatch(clearMotifEnrichment());
     return api.getMotifEnrichment(requestId, {
       alpha,
-      body: body ? 1 : 0
+      regions
     }, config)
       .then((response) => {
         dispatch(setMotifEnrichment(response.data));

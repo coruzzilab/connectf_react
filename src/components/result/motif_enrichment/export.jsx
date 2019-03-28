@@ -13,14 +13,11 @@ function getRowName(r) {
   return r['name'] + '_' + r['Family'];
 }
 
-function tableToCsv(table, body = false) {
-  let columns = _(table.columns).map(getColName);
-
-  if (body) {
-    columns = columns
-      .map((c) => [c + '_promo', c + '_body'])
-      .flatten();
-  }
+function tableToCsv(table) {
+  let columns = _(table.columns)
+    .map(getColName)
+    .map((c) => _.map(table.regions, (r) => c + '_' + r))
+    .flatten();
 
   let csv = "," + columns.map((c) => `"${c}"`).join(',') + '\n';
 
@@ -33,11 +30,11 @@ function tableToCsv(table, body = false) {
 
 const tableToCsvUri = _.flow(tableToCsv, encodeURIComponent);
 
-const Export = ({table, body}) => {
+const Export = ({table}) => {
   return <div className="container-fluid">
     <div className="row mt-2">
       <div className="col">
-        <a href={new URL('/queryapp/motif_enrichment/cluster_info.csv', BASE_URL)} className="btn btn-primary">
+        <a href={new URL('/api/motif_enrichment/cluster_info.csv', BASE_URL)} className="btn btn-primary">
           Cluster Information<FontAwesomeIcon icon="file-csv" className="ml-2"/></a>
         <p>
           CSV file that includes consensus motif sequence, motif family name, and number of motifs.
@@ -46,7 +43,7 @@ const Export = ({table, body}) => {
     </div>
     <div className="row mt-2">
       <div className="col">
-        <a className="btn btn-primary" href={"data:text/csv," + tableToCsvUri(table, body)}
+        <a className="btn btn-primary" href={"data:text/csv," + tableToCsvUri(table)}
            download="motif_enrichment_table.csv">
           Table Data<FontAwesomeIcon icon="file-csv" className="ml-2"/></a>
         <p>P-values of enriched motifs in a CSV format.</p>
@@ -56,12 +53,7 @@ const Export = ({table, body}) => {
 };
 
 Export.propTypes = {
-  table: PropTypes.object,
-  body: PropTypes.bool
-};
-
-Export.defaultProps = {
-  body: false
+  table: PropTypes.object
 };
 
 export default Export;

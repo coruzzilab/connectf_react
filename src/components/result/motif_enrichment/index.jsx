@@ -7,15 +7,16 @@ import PropTypes from "prop-types";
 import {connect} from 'react-redux';
 import _ from 'lodash';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {Collapse, Nav, NavItem, NavLink, TabContent, TabPane} from 'reactstrap';
+import {Collapse, Nav, NavItem, NavLink, TabContent, TabPane, UncontrolledTooltip} from 'reactstrap';
 import {setBusy} from "../../../actions/index";
-import {svgAddTable} from '../../../utils/index';
+import {svgAddTable} from '../../../utils';
 import {
   getMotifEnrichment,
   getMotifEnrichmentImage,
   getMotifEnrichmentLegend,
   setError
 } from "../../../actions/motif_enrichment";
+import {getMotifRegions} from "../../../utils/axios_instance";
 import {ExtraFields, InfoTootip, SVGWarningTooltip} from "../common";
 import {CancelToken} from "axios";
 import Export from "./export";
@@ -29,6 +30,37 @@ export const BASE_COLORS = {
   'c': '#0012D3',
   'g': '#F5BD41',
   'other': '#888888'
+};
+
+class MotifRegionCheckbox extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.label = React.createRef();
+  }
+
+  render() {
+    let {name, desc} = this.props;
+    return <div className="form-check form-check-inline">
+      <label className="form-check-label" ref={this.label}>
+        <input className="form-check-input" type="checkbox"
+               value={name}
+               checked={this.props.checked}
+               onChange={this.props.onChange}/>
+        {name}
+      </label>
+      <UncontrolledTooltip target={() => this.label.current} delay={0}>
+        {desc}
+      </UncontrolledTooltip>
+    </div>;
+  }
+}
+
+MotifRegionCheckbox.propTypes = {
+  name: PropTypes.string,
+  desc: PropTypes.string,
+  checked: PropTypes.bool,
+  onChange: PropTypes.func
 };
 
 const mapStateToProps = ({busy, requestId, motifEnrichment, extraFields}) => {
@@ -47,13 +79,14 @@ class MotifEnrichmentBody extends React.Component {
 
     this.state = {
       alpha: 0.05,
-      body: 'no',
       upper: '',
       lower: '',
       colSpan: 1,
       key: "table",
       collapse: false,
-      exportSrc: null
+      exportSrc: null,
+      motifRegions: [],
+      selectedMotifRegions: []
     };
 
     this.cancels = [];
@@ -62,6 +95,7 @@ class MotifEnrichmentBody extends React.Component {
   componentDidMount() {
     this.getMotifEnrichment();
     this.getImgData();
+    this.getMotifRegions();
   }
 
   componentDidUpdate(prevProps) {
@@ -79,15 +113,41 @@ class MotifEnrichmentBody extends React.Component {
     this.setState({collapse: !this.state.collapse});
   }
 
+  getMotifRegions() {
+    getMotifRegions().then(({data}) => {
+      this.setState({
+        motifRegions: data['regions'],
+        selectedMotifRegions: data['default_regions'],
+        colSpan: data['default_regions'].length
+      });
+    });
+  }
+
+  handleMotifRegionSelect(r, e) {
+    if (e.target.checked) {
+      this.setState((state) => {
+        return {
+          selectedMotifRegions: [...state.selectedMotifRegions, r]
+        };
+      });
+    } else {
+      this.setState((state) => {
+        return {
+          selectedMotifRegions: state.selectedMotifRegions.filter((s) => s !== r)
+        };
+      });
+    }
+  }
+
   getMotifEnrichment() {
-    this.props.getMotifEnrichment(this.props.requestId, this.state.alpha, this.state.body === 'yes', {
+    this.props.getMotifEnrichment(this.props.requestId, this.state.alpha, this.state.selectedMotifRegions, {
       cancelToken: new CancelToken((c) => {
         this.cancels.push(c);
       })
     })
       .then(() => {
         this.setState({
-          colSpan: this.state.body === 'yes' ? 2 : 1
+          colSpan: _.get(this.props.motifEnrichment.table, 'regions.length', 1)
         });
       });
   }
@@ -102,12 +162,6 @@ class MotifEnrichmentBody extends React.Component {
   handleAlpha(e) {
     this.setState({
       alpha: e.target.value
-    });
-  }
-
-  handleBody(e) {
-    this.setState({
-      body: e.target.value
     });
   }
 
@@ -128,13 +182,13 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   getImgData() {
-    let {alpha, body, lower, upper} = this.state;
+    let {alpha, lower, upper, selectedMotifRegions} = this.state;
     let {requestId, getMotifEnrichmentImage, getMotifEnrichmentLegend} = this.props;
 
     return Promise.all([
       getMotifEnrichmentImage(requestId, {
         alpha,
-        body: body === 'yes' ? 1 : 0,
+        regions: selectedMotifRegions,
         lower,
         upper
       }, {
@@ -169,7 +223,7 @@ class MotifEnrichmentBody extends React.Component {
 
   render() {
     let {motifEnrichment: {table, legend, image, error}, busy} = this.props;
-    let {body, colSpan, key, lower, upper, collapse, exportSrc} = this.state;
+    let {colSpan, key, lower, upper, collapse, exportSrc, motifRegions, selectedMotifRegions} = this.state;
 
     let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
 
@@ -224,18 +278,14 @@ class MotifEnrichmentBody extends React.Component {
                 </div>
               </div>
               <div className="form-group row align-items-center">
-                <legend className="col-form-label col-sm-2">Show Enrichment of Gene Body:</legend>
+                <legend className="col-form-label col-sm-2">Show Enrichment of Gene Regions:</legend>
                 <div className="col-sm-10">
-                  <div className="form-check form-check-inline">
-                    <input type='radio' value='yes' checked={body === 'yes'} className="form-check-input"
-                           onChange={this.handleBody.bind(this)}/>
-                    <label className="form-check-label">Yes</label>
-                  </div>
-                  <div className="form-check form-check-inline">
-                    <input type='radio' value='no' checked={body === 'no'} className="form-check-input"
-                           onChange={this.handleBody.bind(this)}/>
-                    <label className="form-check-label">No</label>
-                  </div>
+                  {_.map(motifRegions, (val, key) => <MotifRegionCheckbox
+                    key={key}
+                    name={key}
+                    desc={val}
+                    checked={selectedMotifRegions.indexOf(key) !== -1}
+                    onChange={this.handleMotifRegionSelect.bind(this, key)}/>)}
                 </div>
               </div>
               <div className="form-group row">
@@ -298,7 +348,7 @@ class MotifEnrichmentBody extends React.Component {
           </div>
         </TabPane>
         <TabPane tabId="export">
-          <Export table={table} body={colSpan === 2}/>
+          <Export table={table}/>
         </TabPane>
       </TabContent>
     </div>;
