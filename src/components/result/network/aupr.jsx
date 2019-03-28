@@ -60,7 +60,7 @@ class AuprBody extends React.PureComponent {
     super(props);
 
     this.state = {
-      url: `${BASE_URL}/queryapp/aupr/${this.props.requestId}/`
+      url: ''
     };
 
     this.setUrl = _.debounce(this.setUrl.bind(this), 150);
@@ -68,7 +68,7 @@ class AuprBody extends React.PureComponent {
 
   setUrl() {
     this.setState({
-      url: `${BASE_URL}/queryapp/aupr/${this.props.requestId}/` + '?' + qs.stringify({precision: this.props.precisionCutoff || undefined})
+      url: `${BASE_URL}/api/aupr/${this.props.requestId}/` + '?' + qs.stringify({precision: this.props.precisionCutoff || undefined})
     });
   }
 
@@ -98,8 +98,8 @@ class AuprBody extends React.PureComponent {
             <AuprAdjuster/>
           </div>
           <div className="col-auto">
-            <a className="btn btn-primary"
-               href={`${BASE_URL}/queryapp/aupr/${requestId}/pruned/${precisionCutoff}/`}>
+            <a className="btn btn-primary" type="text/csv" download
+               href={`${BASE_URL}/api/aupr/${requestId}/pruned/${precisionCutoff}/`}>
               <FontAwesomeIcon icon="file-csv" className="mr-1"/>Export Pruned Network</a>
           </div>
         </div>

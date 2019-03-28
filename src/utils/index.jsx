@@ -59,24 +59,20 @@ function getMod(queryTree, id) {
     }
 
     if (o.nodeType === 'MOD') {
-      if (/\s/g.test(o.key)) {
-        if (/'/g.test(o.key)) {
-          s += `"${o.key}"`;
-        } else {
-          s += `'${o.key}'`;
-        }
+      if (/'/g.test(o.key)) {
+        s += `"${o.key}"`;
+      } else if (/\s/g.test(o.key) || /"/g.test(o.key)) {
+        s += `'${o.key}'`;
       } else {
         s += o.key;
       }
 
       s += o.innerOper;
 
-      if (/\s/g.test(o.value)) {
-        if (/'/g.test(o.value)) {
-          s += `"${o.value}"`;
-        } else {
-          s += `'${o.value}'`;
-        }
+      if (/'/g.test(o.value)) {
+        s += `"${o.value}"`;
+      } else if (/\s/g.test(o.value) || /"/g.test(o.value)) {
+        s += `'${o.value}'`;
       } else {
         s += o.value;
       }

@@ -27,7 +27,7 @@ class ExtraBody extends React.Component {
       </div>
       <div className="row">
         <div className="col">
-          <a href={`${BASE_URL}/queryapp/export/${requestId}.zip`}
+          <a href={`${BASE_URL}/api/export/${requestId}.zip`}
              className="btn btn-primary"
              target="_blank" rel="noopener noreferrer"
              download="query.zip"><Icon icon="file-archive" className="mr-1"/>Download Query as ZIP file</a>

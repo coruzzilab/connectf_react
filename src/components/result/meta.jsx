@@ -30,6 +30,7 @@ export class MetaBody extends React.Component {
     let {result} = this.props;
 
     let hot = this.hot = new Handsontable(this.grid.current, {
+      licenseKey: "non-commercial-and-evaluation",
       rowHeaders: true,
       manualColumnResize: true,
       colHeaders: _.map(_.get(result, 'metadata.columns', []), 'name'),
@@ -89,7 +90,7 @@ export class MetaBody extends React.Component {
       </div>
       <div className="row">
         <div className="col">
-          <div id="grid" ref={this.grid} style={{overflowX: 'scroll', height: '100%'}}/>
+          <div id="grid" ref={this.grid}/>
         </div>
       </div>
     </div>;

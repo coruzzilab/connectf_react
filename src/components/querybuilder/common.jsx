@@ -96,8 +96,10 @@ export class UploadFile extends React.Component {
 
   componentDidMount() {
     this.props.inputRef.current.scrollIntoView();
-    this.props.inputRef.current.focus();
-    this.props.inputRef.current.click();
+    if (this.props.autoOpen) {
+      this.props.inputRef.current.focus();
+      this.props.inputRef.current.click();
+    }
   }
 
   render() {
@@ -110,7 +112,12 @@ export class UploadFile extends React.Component {
 
 UploadFile.propTypes = {
   inputRef: PropTypes.object,
-  className: PropTypes.string
+  className: PropTypes.string,
+  autoOpen: PropTypes.bool
+};
+
+UploadFile.defaultProps = {
+  autoOpen: false
 };
 
 

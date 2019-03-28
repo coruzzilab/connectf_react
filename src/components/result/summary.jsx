@@ -6,7 +6,7 @@ import React from "react";
 import _ from "lodash";
 import {connect} from "react-redux";
 import PropTypes from "prop-types";
-import {getSummary} from "../../actions";
+import {clearSummary, getSummary} from "../../actions";
 import Chart from "chart.js";
 import {QueryAlert} from "./common";
 
@@ -51,6 +51,7 @@ class SummaryBody extends React.Component {
     this.setHeight();
     window.addEventListener('resize', this.setHeight);
 
+    this.props.clearSummary();
     this.props.getSummary(this.props.requestId);
 
     this.initChart();
@@ -227,9 +228,10 @@ class SummaryBody extends React.Component {
 SummaryBody.propTypes = {
   requestId: PropTypes.string,
   summary: PropTypes.object,
-  getSummary: PropTypes.func
+  getSummary: PropTypes.func,
+  clearSummary: PropTypes.func
 };
 
-const Summary = connect(mapStateToProps, {getSummary})(SummaryBody);
+const Summary = connect(mapStateToProps, {clearSummary, getSummary})(SummaryBody);
 
 export default Summary;

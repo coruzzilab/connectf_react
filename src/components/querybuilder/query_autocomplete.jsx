@@ -12,6 +12,13 @@ import {getTFs} from "../../utils/axios_instance";
 const qRegex = /(\s*)\w*$/;
 const qEndRegex = /^\w+/;
 
+function renderItem(item, isHighlighted) {
+  return <div className={classNames('dropdown-item', {active: isHighlighted})}
+              key={item.value}>
+    {item.value} {item.name && <span className="text-secondary">({item.name})</span>}
+  </div>;
+}
+
 class QueryAutocomplete extends React.Component {
   constructor(props) {
     super(props);
@@ -50,10 +57,7 @@ class QueryAutocomplete extends React.Component {
                  this.setState({selectionEnd: e.currentTarget.selectionEnd});
                }}
                autoFocus/>)}
-      renderItem={(item, isHighlighted) =>
-        <div className={classNames('dropdown-item', {active: isHighlighted})}
-             key={item.value}>{item.value} {item.name ?
-          <span className="text-secondary">({item.name})</span> : null}</div>}
+      renderItem={renderItem}
       getItemValue={(item) => item.value}
       wrapperProps={{className: 'form-control p-0 d-inline-block border-0'}}
       wrapperStyle={{height: 'auto'}}

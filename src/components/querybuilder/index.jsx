@@ -51,6 +51,10 @@ class QuerybuilderBody extends React.Component {
     this.filterTfs = React.createRef();
     this.targetNetworks = React.createRef();
 
+    this.targetGenesInput = React.createRef();
+    this.filterTfsInput = React.createRef();
+    this.targetNetworksInput = React.createRef();
+
     this.state = {
       targetGenes: [],
       targetGene: '',
@@ -112,6 +116,10 @@ class QuerybuilderBody extends React.Component {
       if (files && files.length) {
         data.set('targetgenes', files[0]);
       }
+    } else if (targetGene === "input" && this.targetGenesInput.current) {
+      data.set('targetgenes',
+        new Blob([this.targetGenesInput.current.value], {type: 'text/plain'}),
+        'targetgenes.txt');
     } else {
       data.set('targetgenes', targetGene);
     }
@@ -121,6 +129,10 @@ class QuerybuilderBody extends React.Component {
       if (files && files.length) {
         data.set('filtertfs', files[0]);
       }
+    } else if (filterTf === "input" && this.filterTfsInput.current) {
+      data.set('filtertfs',
+        new Blob([this.filterTfsInput.current.value], {type: 'text/plain'}),
+        'filtertfs.txt');
     } else {
       data.set('filtertfs', filterTf);
     }
@@ -130,6 +142,10 @@ class QuerybuilderBody extends React.Component {
       if (files && files.length) {
         data.set('targetnetworks', files[0]);
       }
+    } else if (targetNetwork === "input" && this.targetNetworksInput.current) {
+      data.set('targetnetworks',
+        new Blob([this.targetNetworksInput.current.value], {type: 'text/plain'}),
+        'targetnetworks.txt');
     } else {
       data.set('targetnetworks', targetNetwork);
     }
@@ -142,7 +158,8 @@ class QuerybuilderBody extends React.Component {
         })
       },
       () => {
-        this.props.history.push('/result/summary');
+        // this.props.history.push('/result/summary');
+        this.props.history.push('/result/table');
       });
   }
 
@@ -162,6 +179,20 @@ class QuerybuilderBody extends React.Component {
       // Ignore for now
     }
 
+    try {
+      if (this.targetGenesInput.current) {
+        this.targetGenesInput.current.value = null;
+      }
+      if (this.filterTfsInput.current) {
+        this.filterTfsInput.current.value = null;
+      }
+      if (this.targetNetworksInput.current) {
+        this.targetNetworksInput.current.value = null;
+      }
+    } catch (e) {
+      // Ignore for now
+    }
+
     this.cancelRequests();
 
     this.props.clearQuery();
@@ -170,7 +201,9 @@ class QuerybuilderBody extends React.Component {
     this.props.clearRequestId();
     this.props.clearQueryError();
     this.setState({
-      targetGene: ""
+      targetGene: "",
+      filterTf: "",
+      targetNetwork: ""
     });
   }
 
@@ -214,9 +247,11 @@ class QuerybuilderBody extends React.Component {
 
           <QueryBox reset={this.reset.bind(this)}/>
 
-          <div className="row m-2">
-            <span className="text-danger">{queryError.message}</span>
-          </div>
+          {queryError.message ?
+            <div className="row m-2">
+              <span className="text-danger" id="error">{queryError.message}</span>
+            </div> :
+            null}
 
           <div className="row m-2">
             <div className="col border rounded">
@@ -224,13 +259,16 @@ class QuerybuilderBody extends React.Component {
                 <Edges edgeList={edgeList} edges={edges} onChange={this.handleEdgeCheck.bind(this)}/> :
                 null}
 
-              <TargetGeneFile inputRef={this.targetGenes} list={targetGenes}
+              <TargetGeneFile fileRef={this.targetGenes} list={targetGenes}
+                              inputRef={this.targetGenesInput}
                               onChange={this.handleFileSelect.bind(this, 'targetGene')}
                               value={targetGene}/>
-              <FilterTfFile inputRef={this.filterTfs} list={filterTfs}
+              <FilterTfFile fileRef={this.filterTfs} list={filterTfs}
+                            inputRef={this.filterTfsInput}
                             onChange={this.handleFileSelect.bind(this, 'filterTf')}
                             value={filterTf}/>
-              <TargetNetworkFile inputRef={this.targetNetworks} list={targetNetworks}
+              <TargetNetworkFile fileRef={this.targetNetworks} list={targetNetworks}
+                                 inputRef={this.targetNetworksInput}
                                  onChange={this.handleFileSelect.bind(this, 'targetNetwork')}
                                  value={targetNetwork}/>
             </div>

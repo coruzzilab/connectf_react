@@ -41,7 +41,14 @@ function renderEdge(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
 
   if (value) {
-    td.style.background = '#89B7DC'
+    td.style.background = '#89B7DC';
+  }
+}
+
+function renderNewLine(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.TextRenderer.apply(this, arguments);
+  if (value) {
+    td.innerHTML = value.replace("\n", "<br/>");
   }
 }
 
@@ -60,10 +67,13 @@ function exponentialValidator(value, callback) {
   }
 }
 
+
+
 Handsontable.renderers.registerRenderer('renderBold', renderBold);
 Handsontable.renderers.registerRenderer('renderFc', renderFc);
 Handsontable.renderers.registerRenderer('renderExp', renderExp);
 Handsontable.renderers.registerRenderer('renderEdge', renderEdge);
+Handsontable.renderers.registerRenderer('newline', renderNewLine);
 
 Handsontable.validators.registerValidator('exponential', exponentialValidator);
 

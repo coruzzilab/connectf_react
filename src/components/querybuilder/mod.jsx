@@ -67,7 +67,7 @@ class ModBody extends React.Component {
       setModValue(node.id, '');
     }
 
-    if (node.key !== 'pvalue' && node.key !== 'fc' && node.innerOper !== '=') {
+    if (node.key !== 'pvalue' && node.key !== 'log2fc' && node.innerOper !== '=') {
       setModInnerOper(node.id, '=');
     }
   }
@@ -139,7 +139,7 @@ class ModBody extends React.Component {
   }
 
   isNumericKey() {
-    return this.props.node.key === 'pvalue' || this.props.node.key === 'fc';
+    return this.props.node.key === 'pvalue' || this.props.node.key === 'log2fc';
   }
 
   render() {

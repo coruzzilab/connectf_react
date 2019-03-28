@@ -51,40 +51,40 @@ export function submitAnalysis(data) {
 }
 
 export function getNetwork(requestId, edges, precision) {
-  return instance.get(`/queryapp/network/${requestId}/`, {
+  return instance.get(`/api/network/${requestId}/`, {
     params: {edges, precision}
   });
 }
 
 export function postQuery(config) {
   return instance({
-    url: '/queryapp/',
+    url: '/api/',
     method: 'POST',
     ...config
   });
 }
 
 export function getStats(requestId) {
-  return instance.get(`/queryapp/stats/${requestId}/`);
+  return instance.get(`/api/stats/${requestId}/`);
 }
 
 export function getSummary(requestId) {
-  return instance.get(`/queryapp/summary/${requestId}/`);
+  return instance.get(`/api/summary/${requestId}/`);
 }
 
 export function getTable(requestId) {
-  return instance.get(`/queryapp/${requestId}/`);
+  return instance.get(`/api/${requestId}/`);
 }
 
 export function getMotifEnrichment(requestId, params, config) {
-  return instance.get(`/queryapp/motif_enrichment/${requestId}/`, {
+  return instance.get(`/api/motif_enrichment/${requestId}/`, {
     params,
     ...config
   });
 }
 
 export function getMotifEnrichmentImage(requestId, params, config) {
-  return instance.get(`/queryapp/motif_enrichment/${requestId}/heatmap.svg`, {
+  return instance.get(`/api/motif_enrichment/${requestId}/heatmap.svg`, {
     params,
     responseType: 'document',
     ...config
@@ -92,15 +92,19 @@ export function getMotifEnrichmentImage(requestId, params, config) {
 }
 
 export function getMotifEnrichmentLegend(requestId, config) {
-  return instance.get(`/queryapp/motif_enrichment/${requestId}/heatmap_table/`, config);
+  return instance.get(`/api/motif_enrichment/${requestId}/heatmap_table/`, config);
+}
+
+export function getMotifRegions() {
+  return instance.get('/api/motif_enrichment/regions/');
 }
 
 export function getTargetEnrichmentTable(requestId, config) {
-  return instance.get(`/queryapp/list_enrichment/${requestId}/`, config);
+  return instance.get(`/api/list_enrichment/${requestId}/`, config);
 }
 
 export function getTargetEnrichmentImage(requestId, params, config) {
-  return instance.get(`/queryapp/list_enrichment/${requestId}.svg`, {
+  return instance.get(`/api/list_enrichment/${requestId}.svg`, {
     params,
     responseType: 'document',
     ...config
@@ -108,15 +112,15 @@ export function getTargetEnrichmentImage(requestId, params, config) {
 }
 
 export function getTargetEnrichmentLegend(requestId, config) {
-  return instance.get(`/queryapp/list_enrichment/${requestId}/legend/`, config);
+  return instance.get(`/api/list_enrichment/${requestId}/legend/`, config);
 }
 
 export function getAnalysisEnrichment(requestId) {
-  return instance.get(`/queryapp/analysis_enrichment/${requestId}/`);
+  return instance.get(`/api/analysis_enrichment/${requestId}/`);
 }
 
 export function checkAupr(requestId) {
-  return instance.head(`/queryapp/aupr/${requestId}/`);
+  return instance.head(`/api/aupr/${requestId}/`);
 }
 
 export default instance;

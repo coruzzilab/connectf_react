@@ -35,9 +35,11 @@ class Table extends React.Component {
   }
 
   setHeight() {
-    this.setState({
-      height: document.documentElement.clientHeight - this.table.current.getBoundingClientRect().top
-    });
+    if (this.table.current) {
+      this.setState({
+        height: document.documentElement.clientHeight - this.table.current.getBoundingClientRect().top
+      });
+    }
   }
 
   sortFunc(i) {

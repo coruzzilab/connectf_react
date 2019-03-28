@@ -40,6 +40,7 @@ class TableBody extends React.Component {
   componentDidMount() {
     let self = this;
     let hot = this.hot = new Handsontable(this.grid.current, {
+      licenseKey: "non-commercial-and-evaluation",
       rowHeaders: function (idx) {
         if (idx < 6) {
           return '';
@@ -58,7 +59,7 @@ class TableBody extends React.Component {
         let cellProperties = {};
 
         if (row === 0) {
-          cellProperties.renderer = "html";
+          cellProperties.renderer = "newline";
           cellProperties.className = "font-weight-bold"
         }
 
@@ -190,7 +191,7 @@ class TableBody extends React.Component {
       </div>
       <div className="row">
         <div className="col">
-          <div id="grid" ref={this.grid} style={{overflowX: 'scroll', height: '100%'}}/>
+          <div id="grid" ref={this.grid}/>
         </div>
       </div>
     </div>;

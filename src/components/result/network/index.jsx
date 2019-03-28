@@ -3,7 +3,7 @@
  * 7/27/18
  */
 import React from 'react';
-import {Link} from 'react-router-dom';
+import {Link, withRouter} from 'react-router-dom';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
@@ -16,6 +16,7 @@ import {networkJSONStringify} from "../../../utils";
 import Aupr from "./aupr";
 import {NetworkAdditionalEdges} from "../../common";
 import {checkAupr} from "../../../utils/axios_instance";
+import store from "../../../store";
 
 function mapStateToProps({busy, requestId, edges, edgeList, stats, network}) {
   return {
@@ -36,30 +37,40 @@ class NetworkBody extends React.Component {
       aupr: false,
       collapse: false
     };
+
+    // this.getNetwork = _.throttle(this.getNetwork.bind(this), 200, {leading: true, trailing: true});
   }
 
   componentDidMount() {
-    let {requestId, getStats, getNetwork, edges} = this.props;
+    let {requestId, getStats} = this.props;
 
     if (requestId) {
       getStats(requestId);
-      getNetwork(requestId, edges, 0);
+      this.getNetwork();
       this.checkAupr();
     }
   }
 
   componentDidUpdate(prevProps) {
-    let {requestId, getStats, getNetwork, busy, edges} = this.props;
+    let {requestId, getStats, busy} = this.props;
 
     if (prevProps.requestId !== requestId) {
       getStats(requestId);
-      getNetwork(requestId, edges, 0);
+      this.getNetwork();
       this.checkAupr();
     }
 
     if (!busy && prevProps.busy !== busy && this.state.collapse) {
       this.toggleCollapse();
     }
+  }
+
+  getNetwork() {
+    let {precisionCutoff} = store.getState();
+
+    this.props.setBusy(true);
+    return this.props.getNetwork(this.props.requestId, this.props.edges, precisionCutoff)
+      .finally(this.props.setBusy.bind(undefined, false));
   }
 
   toggleCollapse() {
@@ -77,6 +88,23 @@ class NetworkBody extends React.Component {
       })
       .catch(() => {
         this.setState({aupr: false});
+      });
+  }
+
+  handleDownload() {
+    let a = document.createElement('a');
+    this.getNetwork().then(() => {
+      a.setAttribute('download', 'query.cyjs');
+      a.setAttribute('href', networkJSONStringify(this.props.network));
+      a.click();
+    });
+  }
+
+  openCytoscape(e) {
+    e.preventDefault();
+    return this.getNetwork()
+      .then(() => {
+        this.props.history.push('/network');
       });
   }
 
@@ -111,16 +139,16 @@ class NetworkBody extends React.Component {
       {!_.isEmpty(network) ?
         <div className="row">
           <div className="col m-1">
-            <Link to="/network"
+            <Link onClick={this.openCytoscape.bind(this)} to="/network"
                   className={classNames("btn mr-1", stats.num_edges > 3000 ? "btn-warning" : "btn-primary")}>
               <FontAwesomeIcon icon="external-link-alt" className="mr-1"/>Open Network
             </Link>
             <button className="btn btn-outline-primary mr-1" onClick={this.toggleCollapse.bind(this)}>
               <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edges
             </button>
-            <a className="btn btn-light" download="query.cyjs"
-               href={networkJSONStringify(network)}>
-              <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a>
+            <button className="btn btn-light" type="button" onClick={this.handleDownload.bind(this)}>
+              <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON
+            </button>
           </div>
         </div> :
         null}
@@ -146,13 +174,14 @@ NetworkBody.propTypes = {
   getStats: PropTypes.func,
   getNetwork: PropTypes.func,
   network: PropTypes.array,
-  setBusy: PropTypes.func
+  setBusy: PropTypes.func,
+  history: PropTypes.object
 };
 
 const Network = connect(mapStateToProps, {
   getStats,
   getNetwork,
   setBusy
-})(NetworkBody);
+})(withRouter(NetworkBody));
 
 export default Network;

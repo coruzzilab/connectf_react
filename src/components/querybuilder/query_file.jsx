@@ -7,7 +7,7 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import React from "react";
 
-export const TargetGeneFile = ({value, list, onChange, inputRef}) => {
+export const TargetGeneFile = ({value, list, onChange, fileRef, inputRef}) => {
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
@@ -29,11 +29,17 @@ export const TargetGeneFile = ({value, list, onChange, inputRef}) => {
           })}
           <option disabled>──────────</option>
           <option value="other">Upload Target Genes</option>
+          <option value="input">Input Target Genes</option>
         </select>
       </div>
       {value === "other" ?
         <div className="form-row m-2">
-          <UploadFile inputRef={inputRef}/>
+          <UploadFile inputRef={fileRef} name="targetgene_file"/>
+        </div> :
+        null}
+      {value === "input" ?
+        <div className="form-row m-2">
+          <textarea className="form-control" rows={5} ref={inputRef}/>
         </div> :
         null}
     </div>
@@ -44,10 +50,11 @@ TargetGeneFile.propTypes = {
   value: PropTypes.string.isRequired,
   list: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
+  fileRef: PropTypes.object.isRequired,
   inputRef: PropTypes.object.isRequired
 };
 
-export const FilterTfFile = ({value, list, onChange, inputRef}) => {
+export const FilterTfFile = ({value, list, onChange, fileRef, inputRef}) => {
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
@@ -69,11 +76,17 @@ export const FilterTfFile = ({value, list, onChange, inputRef}) => {
           })}
           <option disabled>──────────</option>
           <option value="other">Upload Gene List</option>
+          <option value="input">Input Gene List</option>
         </select>
       </div>
       {value === "other" ?
         <div className="form-row m-2">
-          <UploadFile inputRef={inputRef}/>
+          <UploadFile inputRef={fileRef} name="filtertf_file"/>
+        </div> :
+        null}
+      {value === "input" ?
+        <div className="form-row m-2">
+          <textarea className="form-control" rows={5} ref={inputRef}/>
         </div> :
         null}
     </div>
@@ -84,10 +97,11 @@ FilterTfFile.propTypes = {
   value: PropTypes.string.isRequired,
   list: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
+  fileRef: PropTypes.object.isRequired,
   inputRef: PropTypes.object.isRequired
 };
 
-export const TargetNetworkFile = ({value, list, onChange, inputRef}) => {
+export const TargetNetworkFile = ({value, list, onChange, fileRef, inputRef}) => {
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
@@ -108,11 +122,17 @@ export const TargetNetworkFile = ({value, list, onChange, inputRef}) => {
           })}
           <option disabled>──────────</option>
           <option value="other">Upload Network</option>
+          <option value="input">Input Network</option>
         </select>
       </div>
       {value === "other" ?
         <div className="form-row m-2">
-          <UploadFile id="targetNetwork" inputRef={inputRef}/>
+          <UploadFile id="targetNetwork" inputRef={fileRef} name="network_file"/>
+        </div> :
+        null}
+      {value === "input" ?
+        <div className="form-row m-2">
+          <textarea className="form-control" rows={5} ref={inputRef}/>
         </div> :
         null}
     </div>
@@ -123,5 +143,6 @@ TargetNetworkFile.propTypes = {
   value: PropTypes.string.isRequired,
   list: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
+  fileRef: PropTypes.object.isRequired,
   inputRef: PropTypes.object.isRequired
 };
