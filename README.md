@@ -1,8 +1,8 @@
-# TargetDB
+# ConnecTF
 
 ## Introduction
 
-The front end interface for TargetDB. Built with ReactJS and Webpack.
+The front end interface for ConnecTF. Built with ReactJS and Webpack.
 
 ## Installation
 
