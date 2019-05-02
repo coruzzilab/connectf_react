@@ -8,6 +8,7 @@ import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {Export} from "./export";
 
 let mapStateToProps = ({result}) => {
   return {
@@ -60,12 +61,16 @@ class TableBody extends React.Component {
 
         if (row === 0) {
           cellProperties.renderer = "newline";
-          cellProperties.className = "font-weight-bold"
+          cellProperties.className = "font-weight-bold";
         }
 
         if ((row < 6 && row > 0) || col === 6 || col === 7) {
           cellProperties.renderer = 'renderBold';
         }
+
+        // if (row > 5 && col === 7) {
+        //   cellProperties.renderer = 'renderGene';
+        // }
 
         if (col > 7 && row < 6) {
           cellProperties.className += " htCenter";
@@ -187,6 +192,9 @@ class TableBody extends React.Component {
               this.setSearch(e.target.value);
             }}/>
           </div>
+        </div>
+        <div className="col">
+          <Export className="float-right"/>
         </div>
       </div>
       <div className="row">

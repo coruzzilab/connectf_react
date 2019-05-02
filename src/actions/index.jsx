@@ -226,7 +226,7 @@ export const setPrecisionCutoff = (precisionCutoff) => {
   return {
     type: 'SET_PRECISION_CUTOFF',
     precisionCutoff
-  }
+  };
 };
 
 export const postQuery = (config, onSuccess, onError, always) => {
@@ -469,5 +469,26 @@ export const removeExtraFields = (fields) => {
 export const clearExtraFields = () => {
   return {
     type: 'CLEAR_EXTRA_FIELDS'
+  };
+};
+
+export const addList = (name, genes) => {
+  return {
+    type: 'ADD_LIST',
+    name,
+    genes
+  };
+};
+
+export const removeList = (name) => {
+  return {
+    type: 'REMOVE_LIST',
+    name
+  };
+};
+
+export const clearList = () => {
+  return {
+    type: 'CLEAR_LIST'
   };
 };

@@ -329,6 +329,19 @@ function extraFields(state = [], action) {
   }
 }
 
+function tempLists(state = {}, action) {
+  switch (action.type) {
+  case 'ADD_LIST':
+    return {[action.name]: action.genes, ...state};
+  case 'REMOVE_LIST':
+    return _.omit(state, [action.name]);
+  case 'CLEAR_LIST':
+    return {};
+  default:
+    return state;
+  }
+}
+
 const tgdbApp = {
   busy,
   query,
@@ -346,7 +359,8 @@ const tgdbApp = {
   precisionCutoff,
   queryHistory,
   queryError,
-  extraFields
+  extraFields,
+  tempLists
 };
 
 export default combineReducers(tgdbApp);

@@ -29,14 +29,15 @@ import QueryTree from "./query_tree";
 import {FilterTfFile, TargetGeneFile, TargetNetworkFile} from "./query_file";
 import QueryBox from "./query_box";
 
-const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError}) => {
+const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, tempLists}) => {
   return {
     busy,
     query,
     queryTree,
     edges,
     edgeList,
-    queryError
+    queryError,
+    tempLists
   };
 };
 
@@ -93,7 +94,7 @@ class QuerybuilderBody extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    let {query, setQuery, edges, queryTree} = this.props;
+    let {query, setQuery, edges, queryTree, tempLists} = this.props;
     let {targetGene, filterTf, targetNetwork} = this.state;
     let data = new FormData();
 
@@ -120,6 +121,10 @@ class QuerybuilderBody extends React.Component {
       data.set('targetgenes',
         new Blob([this.targetGenesInput.current.value], {type: 'text/plain'}),
         'targetgenes.txt');
+    } else if (_.has(tempLists, targetGene)) {
+      data.set('targetgenes',
+        new Blob([tempLists[targetGene]], {type: 'text/plain'}),
+        'targetgenes.txt');
     } else {
       data.set('targetgenes', targetGene);
     }
@@ -132,6 +137,10 @@ class QuerybuilderBody extends React.Component {
     } else if (filterTf === "input" && this.filterTfsInput.current) {
       data.set('filtertfs',
         new Blob([this.filterTfsInput.current.value], {type: 'text/plain'}),
+        'filtertfs.txt');
+    } else if (_.has(tempLists, filterTf)) {
+      data.set('filtertfs',
+        new Blob([tempLists[filterTf]], {type: 'text/plain'}),
         'filtertfs.txt');
     } else {
       data.set('filtertfs', filterTf);
@@ -158,8 +167,8 @@ class QuerybuilderBody extends React.Component {
         })
       },
       () => {
-        // this.props.history.push('/result/summary');
-        this.props.history.push('/result/table');
+        this.props.history.push('/result/summary');
+        // this.props.history.push('/result/table');
       });
   }
 
@@ -223,7 +232,7 @@ class QuerybuilderBody extends React.Component {
 
   render() {
     let {targetGenes, targetGene, filterTfs, filterTf, targetNetworks, targetNetwork} = this.state;
-    let {addTF, addGroup, edges, edgeList, queryError} = this.props;
+    let {addTF, addGroup, edges, edgeList, queryError, tempLists} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
@@ -259,11 +268,11 @@ class QuerybuilderBody extends React.Component {
                 <Edges edgeList={edgeList} edges={edges} onChange={this.handleEdgeCheck.bind(this)}/> :
                 null}
 
-              <TargetGeneFile fileRef={this.targetGenes} list={targetGenes}
+              <TargetGeneFile fileRef={this.targetGenes} list={targetGenes} tempLists={tempLists}
                               inputRef={this.targetGenesInput}
                               onChange={this.handleFileSelect.bind(this, 'targetGene')}
                               value={targetGene}/>
-              <FilterTfFile fileRef={this.filterTfs} list={filterTfs}
+              <FilterTfFile fileRef={this.filterTfs} list={filterTfs} tempLists={tempLists}
                             inputRef={this.filterTfsInput}
                             onChange={this.handleFileSelect.bind(this, 'filterTf')}
                             value={filterTf}/>
@@ -302,7 +311,8 @@ QuerybuilderBody.propTypes = {
   getEdgeList: PropTypes.func,
   clearRequestId: PropTypes.func,
   queryError: PropTypes.shape({error: PropTypes.bool, message: PropTypes.string}),
-  clearQueryError: PropTypes.func
+  clearQueryError: PropTypes.func,
+  tempLists: PropTypes.object
 };
 
 const Querybuilder = connect(mapStateToProps, {

@@ -7,7 +7,49 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import React from "react";
 
-export const TargetGeneFile = ({value, list, onChange, fileRef, inputRef}) => {
+const TempLists = ({tempLists}) => {
+  return <optgroup label="Saved Lists">
+    {_(tempLists).keys()
+      .sortBy(_.method('toString'))
+      .map((l, i) => {
+        return <option key={i} value={l}>{l}</option>;
+      })
+      .value()}
+  </optgroup>;
+};
+
+TempLists.propTypes = {
+  tempLists: PropTypes.object.isRequired
+};
+
+const ListSelection = ({list, tempLists, value, onChange, name}) => {
+  return <select className="form-control" value={value} name={name}
+                 onChange={onChange}>
+    <option value="">----</option>
+    <optgroup label="Predefined Lists">
+      {_.map(list, (l, i) => {
+        return <option key={i} value={l}>{l}</option>;
+      })}
+    </optgroup>
+
+    {_.size(tempLists) ? <TempLists tempLists={tempLists}/> : null}
+
+    <optgroup label="Upload">
+      <option value="other">Upload Target Genes</option>
+      <option value="input">Input Target Genes</option>
+    </optgroup>
+  </select>;
+};
+
+ListSelection.propTypes = {
+  name: PropTypes.string.isRequired,
+  list: PropTypes.array,
+  tempLists: PropTypes.object,
+  value: PropTypes.string,
+  onChange: PropTypes.func
+};
+
+export const TargetGeneFile = ({value, list, tempLists, onChange, fileRef, inputRef}) => {
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
@@ -21,16 +63,7 @@ export const TargetGeneFile = ({value, list, onChange, fileRef, inputRef}) => {
         </p>
       </div>
       <div className="form-row m-2">
-        <select className="form-control" value={value} name="targetgene"
-                onChange={onChange}>
-          <option value="">----</option>
-          {_.map(list, (l, i) => {
-            return <option key={i} value={l}>{l}</option>;
-          })}
-          <option disabled>──────────</option>
-          <option value="other">Upload Target Genes</option>
-          <option value="input">Input Target Genes</option>
-        </select>
+        <ListSelection name="targetgene" list={list} tempLists={tempLists} onChange={onChange} value={value}/>
       </div>
       {value === "other" ?
         <div className="form-row m-2">
@@ -51,10 +84,11 @@ TargetGeneFile.propTypes = {
   list: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
   fileRef: PropTypes.object.isRequired,
-  inputRef: PropTypes.object.isRequired
+  inputRef: PropTypes.object.isRequired,
+  tempLists: PropTypes.object
 };
 
-export const FilterTfFile = ({value, list, onChange, fileRef, inputRef}) => {
+export const FilterTfFile = ({value, list, tempLists, onChange, fileRef, inputRef}) => {
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
@@ -68,16 +102,7 @@ export const FilterTfFile = ({value, list, onChange, fileRef, inputRef}) => {
         </p>
       </div>
       <div className="form-row m-2">
-        <select className="form-control" name="filtertf" value={value}
-                onChange={onChange}>
-          <option value="">----</option>
-          {_.map(list, (l, i) => {
-            return <option key={i} value={l}>{l}</option>;
-          })}
-          <option disabled>──────────</option>
-          <option value="other">Upload Gene List</option>
-          <option value="input">Input Gene List</option>
-        </select>
+        <ListSelection name="filtertf" list={list} tempLists={tempLists} onChange={onChange} value={value}/>
       </div>
       {value === "other" ?
         <div className="form-row m-2">
@@ -98,7 +123,8 @@ FilterTfFile.propTypes = {
   list: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
   fileRef: PropTypes.object.isRequired,
-  inputRef: PropTypes.object.isRequired
+  inputRef: PropTypes.object.isRequired,
+  tempLists: PropTypes.object
 };
 
 export const TargetNetworkFile = ({value, list, onChange, fileRef, inputRef}) => {
@@ -117,12 +143,15 @@ export const TargetNetworkFile = ({value, list, onChange, fileRef, inputRef}) =>
         <select className="form-control" name="network" value={value}
                 onChange={onChange}>
           <option value="">----</option>
-          {_.map(list, (l, i) => {
-            return <option key={i} value={l}>{l}</option>;
-          })}
-          <option disabled>──────────</option>
-          <option value="other">Upload Network</option>
-          <option value="input">Input Network</option>
+          <optgroup label="Predefined Networks">
+            {_.map(list, (l, i) => {
+              return <option key={i} value={l}>{l}</option>;
+            })}
+          </optgroup>
+          <optgroup label="Upload">
+            <option value="other">Upload Network</option>
+            <option value="input">Input Network</option>
+          </optgroup>
         </select>
       </div>
       {value === "other" ?
