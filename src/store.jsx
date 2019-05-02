@@ -14,10 +14,28 @@ import {getTable} from "./utils/axios_instance";
 /*
  * Enhancer composer for development. Connects to redux browser extension.
  */
+const actionSanitizer = (action) => {
+  return action.type === 'SET_RESULT' && action.result ? {...action, result: '[[RESULT TABLE]]'} : action;
+};
+const stateSanitizer = (state) => {
+  return {
+    ...state,
+    result: {
+      result: '[[RESULT TABLE]]',
+      metadata: '[[METADATA TABLE]]'
+    }
+  };
+};
+
+const reduxDevtoolsExtensionOptions = {
+  actionSanitizer,
+  stateSanitizer
+};
+
 const composeEnhancers = process.env.NODE_ENV !== 'production' &&
 typeof window === 'object' &&
 window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ?
-  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ : compose;
+  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__(reduxDevtoolsExtensionOptions) : compose;
 
 const persistedState = loadState();
 
@@ -38,7 +56,8 @@ store.subscribe(_.throttle(function () {
     'requestId',
     'edges',
     'queryHistory',
-    'extraFields'
+    'extraFields',
+    'tempLists'
   ]));
 }, 1000));
 
