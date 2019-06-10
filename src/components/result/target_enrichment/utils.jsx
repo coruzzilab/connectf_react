@@ -13,7 +13,7 @@ function tableToCsv(table) {
   let csv = "," + _(table.columns).map((c) => `"${c}"`).join(',') + "\n";
 
   csv += _(table.result).map((r, i) => {
-    return `"${getColName(r[0], i)}",` + r.slice(1).join(",");
+    return `"${getColName(r['info'], i)}",` + r['p-value'].join(",");
   }).join("\n") + "\n";
 
   return csv;

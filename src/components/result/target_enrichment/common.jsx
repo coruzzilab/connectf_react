@@ -7,6 +7,7 @@ import React from "react";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
+import styled from "styled-components";
 import {tableToCsvUri} from "./utils";
 
 export const TargetEnrichmentWarning = () => (
@@ -30,6 +31,11 @@ Export.propTypes = {
   table: PropTypes.object.isRequired
 };
 
+const FrozenTh = styled.th`
+  position: sticky;
+  left: 0px;
+`;
+
 export class RowHeader extends React.Component {
   constructor(props) {
     super(props);
@@ -48,7 +54,7 @@ export class RowHeader extends React.Component {
     let {visible} = this.state;
     let {info} = this.props;
 
-    return <th style={{position: 'sticky', left: 0}} className="p-0">
+    return <FrozenTh className="p-0">
       <div className="w-100 h-100 bg-white border p-1">
         <a className="text-primary link" onClick={this.showModal.bind(this, undefined)}>{this.props.children}</a>
       </div>
@@ -63,7 +69,7 @@ export class RowHeader extends React.Component {
           <Button onClick={this.showModal.bind(this, false)}><FontAwesomeIcon icon="times"/> Close</Button>
         </ModalFooter>
       </Modal>
-    </th>;
+    </FrozenTh>;
   }
 }
 

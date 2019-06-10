@@ -65,7 +65,7 @@ class Table extends React.Component {
   render() {
     let {table} = this.props;
     let {sortCol, ascending, height} = this.state;
-    let [min, max] = getLogMinMax(_.get(table, 'result', []));
+    let [min, max] = getLogMinMax(_.map(_.get(table, 'result', []), 'p-value'));
 
     return <div className="table-responsive" ref={this.table} style={{maxHeight: height, overflowY: 'scroll'}}>
       <table className="table table-sm table-bordered">
@@ -82,8 +82,8 @@ class Table extends React.Component {
                       {val}
                     </div>
                     <div className="col-1">
-                      <SortButton sorted={sortCol === i + 1} sortFunc={this.sortFunc.bind(this, i + 1)}
-                                  ascending={ascending} style={{cursor: 'pointer'}}/>
+                      <SortButton sorted={sortCol === i} sortFunc={this.sortFunc.bind(this, i)}
+                                  ascending={ascending}/>
                     </div>
                   </div>
                 </div>
@@ -94,13 +94,13 @@ class Table extends React.Component {
         </thead>
         <tbody>
         {_(_.get(table, 'result', []))
-          .orderBy((row) => _.isNull(row) ? row : row[sortCol], ascending ? 'asc' : 'desc')
+          .orderBy((row) => _.isNull(row) ? row : row['p-value'][sortCol], ascending ? 'asc' : 'desc')
           .map((row, i) => {
             return <tr key={i}>
-              <RowHeader info={row[0]}>{row[0].name + surround(row[0].filter)}</RowHeader>
-              {_.map(row.slice(1), (cell, j) => {
-                return <td style={blueShader(cell, min, max)} key={j}>{cell.toExponential(2)}</td>;
-              })}
+              <RowHeader info={row['info']}>{row['info'].name} {surround(row['info'].filter)} ({row['info'].targets})</RowHeader>
+              {_(row['p-value']).zip(row['count']).map(([pval, count], j) => {
+                return <td style={blueShader(pval, min, max)} key={j}>{pval.toExponential(2)} ({count})</td>;
+              }).value()}
             </tr>;
           })
           .value()}

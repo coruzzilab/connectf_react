@@ -33,7 +33,7 @@ export function colorShader(h, s, l, v, min, max) {
   }
 }
 
-export const blueShader = _.partial(colorShader, 228, 89, 48);
+export const blueShader = _.partial(colorShader, 228, 89, 48, _, _, Math.log10(0.5));
 
 const clampExp = _.flow(_.partial(_.clamp, _, Number.MIN_VALUE, Number.MAX_VALUE), Math.log10);
 
@@ -328,5 +328,14 @@ export function getColName(c, i = null) {
   return colStr + _.get(c, 'EXPERIMENTER', '') +
     _.get(c, 'DATE', '').replace('-', '') + '_' +
     _.get(c, 'TECHNOLOGY', '') + '_' + _.get(c, 'ANALYSIS_METHOD', '') + '_' +
-    _.get(c, 'ANALYSIS_CUTOFF', '').replace(' ', '');
+    _.get(c, 'ANALYSIS_CUTOFF', '').replace(' ', '') + '_' +
+    getGeneName(c);
+}
+
+export function getGeneName(data) {
+  if (data['gene_name']) {
+    return `${data['name']} (${data['gene_name']})`;
+  }
+
+  return data['name'];
 }
