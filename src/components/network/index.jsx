@@ -209,9 +209,11 @@ class NetworkBody extends React.PureComponent {
     e.currentTarget.href = networkPNG(this.cy.png());
   }
 
-  exportJSON(e) {
-    e.currentTarget.download = 'network.cyjs';
-    e.currentTarget.href = 'data:application/json,' + networkJSONStringify(this.cy.elements().jsons());
+  exportJSON() {
+    let a = document.createElement('a');
+    a.setAttribute('download', 'query.cyjs');
+    a.setAttribute('href', networkJSONStringify(this.cy.elements().jsons()));
+    a.click();
   }
 
   setData(data) {
@@ -466,10 +468,11 @@ class NetworkBody extends React.PureComponent {
                download="query.png"
                onClick={this.exportCytoscape.bind(this)}>
               <FontAwesomeIcon icon="image" className="mr-1"/>Export Image</a>
-            <a className="btn btn-light"
-               title="Export Network to JSON format"
-               onClick={this.exportJSON.bind(this)}>
-              <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON</a>
+            <button type="button" className="btn btn-light"
+                    title="Export Network to JSON format"
+                    onClick={this.exportJSON.bind(this)}>
+              <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON
+            </button>
           </div>
           <div className="input-group mr-2">
             <div className="input-group-prepend">
