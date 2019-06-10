@@ -41,7 +41,9 @@ import {
   faExternalLinkAlt,
   faEyeSlash,
   faCheck,
-  faEye
+  faEye,
+  faClipboard,
+  faSave
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -80,5 +82,7 @@ library.add(
   faExternalLinkAlt,
   faEyeSlash,
   faCheck,
-  faEye
+  faEye,
+  faClipboard,
+  faSave
 );
