@@ -8,7 +8,7 @@ const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const TerserPlugin = require('terser-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const APP_DIR = path.join(__dirname, 'src');
@@ -55,7 +55,7 @@ const config = {
       },
       {
         test: /\.(ttf|eot|svg|gif|woff(2)?|png)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader?name=[name].[ext]',
+        loader: 'file-loader?name=[name].[ext]'
       },
       {
         test: /\.(txt|md)$/,
@@ -64,7 +64,7 @@ const config = {
     ]
   },
   resolve: {
-    extensions: ['.js', '.jsx'],
+    extensions: ['.js', '.jsx']
   },
   optimization: {
     minimize: true,

@@ -5,10 +5,6 @@ const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const convert = require('koa-connect');
-const history = require('connect-history-api-fallback');
-const proxy = require('http-proxy-middleware');
-
 const APP_DIR = path.join(__dirname, 'src');
 
 const config = {
