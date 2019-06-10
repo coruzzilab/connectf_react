@@ -61,6 +61,7 @@ class SummaryBody extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.summary !== prevProps.summary) {
+      this.setHeight();
       this.updateChart();
     }
   }
@@ -74,18 +75,19 @@ class SummaryBody extends React.Component {
     // hack-tastic way of displaying a grouped bar chart to our specification
     // This is not the library's intended use case.
     this.chart = new Chart(this.chartCtx.current.getContext("2d"), {
-      type: 'bar',
+      type: 'horizontalBar',
       options: {
         title: {
           display: true,
           text: 'Summary'
         },
+        animation: false,
         tooltips: {
-          mode: 'x',
+          mode: 'y',
           position: 'nearest',
           intersect: false,
           filter: function (tooltipItem) {
-            return tooltipItem.yLabel > 0;
+            return tooltipItem.xLabel > 0;
           },
           callbacks: {
             title: function (tooltipItems, data) {
@@ -125,7 +127,8 @@ class SummaryBody extends React.Component {
         },
         maintainAspectRatio: false,
         scales: {
-          xAxes: [{
+          yAxes: [{
+            autoSkip: false,
             maxBarThickness: 50,
             stacked: true,
             scaleLabel: {
@@ -134,17 +137,17 @@ class SummaryBody extends React.Component {
             },
             ticks: {
               callback: function (value) {
-                // needs improvement
-                return /^[^\s,]+(?:\s*\([^\s,]+\))?/.exec(value)[0];
+                return /^[^"]+(?:"[^"]+")?/.exec(value)[0];
               }
             }
           }],
-          yAxes: [{
+          xAxes: [{
             scaleLabel: {
               display: true,
-              labelString: '# of Edges'
+              labelString: 'Number of Edges'
             },
-            stacked: true
+            stacked: true,
+            position: 'top'
           }]
         }
       }
@@ -152,7 +155,7 @@ class SummaryBody extends React.Component {
   }
 
   updateChart() {
-    let {summary: {chart}} = this.props;
+    let {summary: {chart, errors}} = this.props;
 
     let _chart = _(chart);
     let chartVals = _chart.values();
@@ -169,8 +172,8 @@ class SummaryBody extends React.Component {
 
     this.chart.data = {
       labels: chartObj.keys().value(),
-      datasets: chartEdges.map(
-        (edge) => {
+      datasets: chartEdges
+        .map((edge) => {
           return chartObj.values().map((val, i) => {
             return _(val).toPairs().map(([k, v], j) => {
               let arr = Array(chartSize);
@@ -186,18 +189,36 @@ class SummaryBody extends React.Component {
               };
             }).filter((o) => o.data[i]).value();
           }).value();
-        }
-      ).flattenDeep().value()
+        })
+        .flattenDeep()
+        .sortBy('stack')
+        .value()
     };
+
+    if (_.isArray(errors)) {
+      this.chart.options.title.text = `Summary (${errors.join(' ')})`;
+      this.chart.options.title.fontColor = 'red';
+    } else {
+      this.chart.options.title.text = 'Summary';
+      this.chart.options.title.fontColor = '#666';
+    }
 
     this.chart.update();
   }
 
   setHeight() {
     let {top} = this.chartCtx.current.getBoundingClientRect();
+    let {summary: {chart}} = this.props;
+    let currSize = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - top;
+    let chartSize = _(chart)
+      .keys()
+      .map(_.partial(_.split, _, ',', 3))
+      .map(0)
+      .uniq()
+      .size() * 100 + 100;
 
     this.setState({
-      height: Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - top
+      height: currSize >= chartSize ? currSize : chartSize
     });
 
     if (this.chart) {
