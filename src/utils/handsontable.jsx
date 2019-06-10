@@ -4,6 +4,7 @@
  */
 import Handsontable from 'handsontable';
 import _ from "lodash";
+import classNames from 'classnames';
 
 import 'handsontable/dist/handsontable.full.css';
 
@@ -27,7 +28,28 @@ function renderBold(instance, td, row, col, prop, value, cellProperties) {
   }
 
   td.style.border = '1px solid black';
-  td.className += ' font-weight-bold';
+  td.className = classNames(td.className, 'font-weight-bold');
+}
+
+function renderGene(instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.renderers.BaseRenderer.apply(this, arguments);
+  td.style.border = '1px solid black';
+  td.className = classNames(td.className, 'font-weight-bold');
+  if (value) {
+    let a = document.createElement('a');
+    a.setAttribute(
+      'href',
+      `https://www.arabidopsis.org/servlets/Search?type=general&search_action=detail&method=1&show_obsolete=F&name=${encodeURIComponent(value)}&sub_type=gene`
+    );
+    a.setAttribute('target', '_blank');
+    a.setAttribute('rel', 'noopener noreferrer');
+    a.innerText = value;
+    if (td.firstChild) {
+      td.replaceChild(a, td.firstChild);
+    } else {
+      td.appendChild(a);
+    }
+  }
 }
 
 function renderExp(instance, td, row, col, prop, value, cellProperties) {
@@ -68,12 +90,12 @@ function exponentialValidator(value, callback) {
 }
 
 
-
 Handsontable.renderers.registerRenderer('renderBold', renderBold);
 Handsontable.renderers.registerRenderer('renderFc', renderFc);
 Handsontable.renderers.registerRenderer('renderExp', renderExp);
 Handsontable.renderers.registerRenderer('renderEdge', renderEdge);
 Handsontable.renderers.registerRenderer('newline', renderNewLine);
+Handsontable.renderers.registerRenderer('renderGene', renderGene);
 
 Handsontable.validators.registerValidator('exponential', exponentialValidator);
 
