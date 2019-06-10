@@ -5,10 +5,9 @@
 import React from "react";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import qs from "qs";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {connect} from "react-redux";
-import {BASE_URL} from "../../../utils/axios_instance";
+import {BASE_URL, getAuprImg} from "../../../utils/axios_instance";
 import {setBusy, setPrecisionCutoff} from "../../../actions";
 import classNames from "classnames";
 
@@ -63,13 +62,18 @@ class AuprBody extends React.PureComponent {
       url: ''
     };
 
-    this.setUrl = _.debounce(this.setUrl.bind(this), 150);
+    this.setUrl = _.debounce(this.setUrl.bind(this), 100);
   }
 
   setUrl() {
-    this.setState({
-      url: `${BASE_URL}/api/aupr/${this.props.requestId}/` + '?' + qs.stringify({precision: this.props.precisionCutoff || undefined})
-    });
+    this.props.setBusy(true);
+    getAuprImg(this.props.requestId, this.props.precisionCutoff || undefined)
+      .then(({data}) => {
+        this.setState({
+          url: URL.createObjectURL(data)
+        });
+      })
+      .finally(this.props.setBusy.bind(undefined, false));
   }
 
   componentDidMount() {
@@ -105,10 +109,7 @@ class AuprBody extends React.PureComponent {
         </div>
         <div className="row">
           <div className="col">
-            <img src={url}
-                 alt="network prediction"
-                 onLoad={this.props.onLoad}
-                 onError={this.props.onError}/>
+            {url ? <img src={url} alt="network prediction"/> : null}
           </div>
         </div>
       </div>

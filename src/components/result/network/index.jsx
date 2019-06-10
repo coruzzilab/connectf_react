@@ -113,17 +113,15 @@ class NetworkBody extends React.Component {
     let {aupr, collapse} = this.state;
 
     return <div className="container-fluid">
-      {busy ?
-        <div className="row">
-          <div className="col">
-            <FontAwesomeIcon icon="circle-notch" spin/>
-          </div>
-        </div> :
-        null}
-      <div className="row">
-        <div className="col">
+      <div className="row align-items-center">
+        <div className="col-1">
           <h3>Network</h3>
         </div>
+        {busy ?
+          <div className="col">
+            <FontAwesomeIcon icon="circle-notch" spin/>
+          </div> :
+          null}
       </div>
       {!_.isEmpty(stats) ?
         <div className="row">
@@ -158,9 +156,7 @@ class NetworkBody extends React.Component {
       </Collapse>
 
       {aupr ?
-        <Aupr className="row mt-1"
-              onLoad={this.props.setBusy.bind(undefined, false)}
-              onError={this.props.setBusy.bind(undefined, false)}/> :
+        <Aupr className="row mt-1"/> :
         null}
     </div>;
   }

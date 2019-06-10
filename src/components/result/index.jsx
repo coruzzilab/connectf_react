@@ -58,7 +58,7 @@ class ResultBody extends React.Component {
     let {match, location: {pathname}} = this.props;
 
     return <div id="result">
-      <Nav tabs>
+      <Nav tabs className="bg-light">
         <NavItem>
           <NavLink to={"/result/summary"}>
             Summary

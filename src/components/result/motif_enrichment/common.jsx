@@ -40,7 +40,7 @@ export class ColHeader extends React.Component {
             <a className="text-primary link" onClick={this.showModal.bind(this)}>{this.props.children}</a>
           </div>
           {sortable ?
-            <div className="col-1" style={{cursor: 'pointer'}}>
+            <div className="col-1">
               <SortButton sortFunc={sortFunc} ascending={ascending} sorted={sorted}/>
             </div> :
             null}

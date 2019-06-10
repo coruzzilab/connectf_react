@@ -9,6 +9,14 @@ import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import {blobFromString} from "../../../utils";
+import styled from "styled-components";
+
+const GeneList = styled.div.attrs(({className}) => ({
+  className: classNames(className, 'text-monospace border border-light rounded')
+}))`
+  height: 30vh;
+  overflow-y: scroll;
+`;
 
 const geneListLink = _.flow(
   _.partial(_.join, _, "\n"),
@@ -67,10 +75,9 @@ class Cell extends React.PureComponent {
                     {(geneLen ?
                       <div>
                         <p>Number of genes in common: {geneLen}</p>
-                        <div style={{height: '30vh', overflowY: 'scroll'}}
-                             className="text-monospace border border-light rounded">
+                        <GeneList>
                           <pre>{_.join(genes, '\n')}</pre>
-                        </div>
+                        </GeneList>
                       </div> :
                       <p className="text-danger">No genes in common.</p>)}
                   </div>

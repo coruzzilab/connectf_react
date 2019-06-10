@@ -13,19 +13,24 @@ import {
 } from "reactstrap";
 import {Route, withRouter} from "react-router-dom";
 import connect from "react-redux/es/connect/connect";
+import styled from "styled-components";
 import _ from "lodash";
 import {CopyButton} from "../common";
 import {addExtraField, removeExtraField, removeExtraFields} from "../../actions";
 
+const Sort = styled.a`
+  cursor: pointer;
+`;
+
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
-  return <a onClick={sortFunc} {...props}>
+  return <Sort onClick={sortFunc} {...props}>
     {sorted ?
       (ascending ? <FontAwesomeIcon icon="sort-up"/> : <FontAwesomeIcon icon="sort-down"/>) :
-      <FontAwesomeIcon icon="sort"/>}</a>;
+      <FontAwesomeIcon icon="sort"/>}</Sort>;
 };
 
 SortButton.propTypes = {
-  sortFunc: PropTypes.func.isRequired,/**/
+  sortFunc: PropTypes.func.isRequired,
   sorted: PropTypes.bool.isRequired,
   ascending: PropTypes.bool.isRequired
 };

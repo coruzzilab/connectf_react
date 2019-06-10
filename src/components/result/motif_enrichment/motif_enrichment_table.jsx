@@ -9,8 +9,14 @@ import {SortButton} from "../common";
 import PropTypes from "prop-types";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import styled from "styled-components";
 import {BASE_COLORS} from "./index";
 import {ColHeader} from "./common";
+
+const FrozenTd = styled.td`
+  position: sticky;
+  left: 0px;
+`;
 
 export class RowHeader extends React.Component {
   constructor(props) {
@@ -36,7 +42,7 @@ export class RowHeader extends React.Component {
     let {visible} = this.state;
     let {data} = this.props;
 
-    return <td style={{position: 'sticky', left: 0}} className="p-0">
+    return <FrozenTd className="p-0">
       <div className="w-100 h-100 bg-white border p-1">
         <a className="text-secondary" style={{cursor: 'pointer'}}
            onClick={this.showModal.bind(this)}>{data.name} {data['Family']}</a>
@@ -74,7 +80,7 @@ export class RowHeader extends React.Component {
           <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times" className="mr-1"/>Close</Button>
         </ModalFooter>
       </Modal>
-    </td>;
+    </FrozenTd>;
   }
 }
 
@@ -167,18 +173,22 @@ class MotifEnrichmentTable extends React.Component {
         </tr>
         <tr>
           <th/>
-          {_(_.get(table, 'columns', [])).map((val, i) => {
-            let numRegion = table.regions.length;
-            let indeces = _.map(_.range(1, numRegion + 1), (j) => i * numRegion + j);
-            return _.map(_.zip(table.regions, indeces), ([r, idx]) => {
-              return <th key={idx}>
-                <span className="mr-1">{r} (p-value)</span>
-                <SortButton sorted={sortCol === idx}
-                            sortFunc={this.sortFunc.bind(this, idx)}
-                            ascending={ascending}/>
-              </th>;
-            });
-          }).flatten().value()}
+          {colSpan > 1 ?
+            _(_.get(table, 'columns', [])).map((val, i) => {
+              let numRegion = table.regions.length;
+              let indeces = _.map(_.range(1, numRegion + 1), (j) => i * numRegion + j);
+              return _.map(_.zip(table.regions, indeces), ([r, idx]) => {
+                return <th key={idx}>
+                  <span className="mr-1">{r} (p-value)</span>
+                  <SortButton sorted={sortCol === idx}
+                              sortFunc={this.sortFunc.bind(this, idx)}
+                              ascending={ascending}/>
+                </th>;
+              });
+            }).flatten().value() :
+            _(_.get(table, 'columns', {})).map((val, key) => {
+              return <th key={key}>promoter (p-value)</th>;
+            }).value()}
         </tr>
         </thead>
         <tbody>
