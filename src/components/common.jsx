@@ -5,7 +5,7 @@
 import {Link, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 import React from "react";
-import {NavItem as BSNavItem} from "reactstrap";
+import {NavItem as BSNavItem, UncontrolledPopover} from "reactstrap";
 import Clipboard from "clipboard";
 import classNames from "classnames";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -255,6 +255,27 @@ export const NetworkAdditionalEdges = connect(mapStateToProps, {
 NetworkAdditionalEdges.propTypes = {
   className: PropTypes.string,
   hasAupr: PropTypes.bool
+};
+
+export class InfoPopover extends React.Component {
+  constructor(props) {
+    super(props);
+    this.info = React.createRef();
+  }
+
+  render() {
+    return <div className="ml-2">
+      <div className="link info-link" ref={this.info} title="More info">
+        <FontAwesomeIcon icon="question-circle"/></div>
+      <UncontrolledPopover target={() => this.info.current} trigger="legacy" delay={0}>
+        {this.props.children}
+      </UncontrolledPopover>
+    </div>;
+  }
+}
+
+InfoPopover.propTypes = {
+  children: PropTypes.node
 };
 
 export class TwitterFollow extends React.Component {

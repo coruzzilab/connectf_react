@@ -3,8 +3,6 @@
  * 2019-02-15
  */
 import React from "react";
-import _ from "lodash";
-import {getQuery} from "../../utils";
 import {CopyButton} from "../common";
 import {Copied} from "./common";
 import classNames from "classnames";
@@ -30,46 +28,16 @@ class QueryBoxBody extends React.Component {
     this.state = {
       shouldBuild: false
     };
-
-    this.checkShouldBuild = _.debounce(this.checkShouldBuild.bind(this), 100);
-  }
-
-  componentDidMount() {
-    this.checkShouldBuild();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.query !== prevProps.query || !_.isEqual(this.props.queryTree, prevProps.queryTree)) {
-      this.checkShouldBuild();
-    }
-  }
-
-  checkShouldBuild() {
-    let query = getQuery(this.props.queryTree);
-
-    this.setState({
-      shouldBuild: query && this.props.query !== query
-    });
-  }
-
-  setQuery() {
-    this.props.setQuery(getQuery(this.props.queryTree));
   }
 
   render() {
     let {query, busy, queryError, setQuery, reset} = this.props;
-    let {shouldBuild} = this.state;
 
     return <div className="form-row">
       <div className="col m-2">
         <div className="input-group">
           <div className="input-group-prepend">
             <CopyButton text={query} className="btn-lg" content={Copied}/>
-            <button type="button"
-                    className={classNames("btn btn-lg", shouldBuild ? "btn-warning" : "btn-secondary")}
-                    onClick={this.setQuery.bind(this)}>
-              <FontAwesomeIcon icon="edit" className="mr-1"/>Build Query
-            </button>
           </div>
           <QueryAutocomplete value={query} setQuery={setQuery}/>
           <div className="input-group-append">

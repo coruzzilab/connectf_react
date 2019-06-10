@@ -3,19 +3,12 @@
  * 8/25/18
  */
 import React from "react";
-import {
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
-  PopoverBody,
-  PopoverHeader,
-  UncontrolledDropdown,
-  UncontrolledPopover
-} from "reactstrap";
+import {DropdownItem, DropdownMenu, DropdownToggle, PopoverBody, PopoverHeader, UncontrolledDropdown} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import _ from "lodash";
+import {InfoPopover} from "../common";
 
 export class AndOrSelect extends React.Component {
   handleChange(e) {
@@ -120,27 +113,6 @@ UploadFile.defaultProps = {
   autoOpen: false
 };
 
-
-export class InfoPopover extends React.Component {
-  constructor(props) {
-    super(props);
-    this.info = React.createRef();
-  }
-
-  render() {
-    return <div className="ml-2">
-      <div className="link info-link" ref={this.info} title="More info">
-        <FontAwesomeIcon icon="question-circle"/></div>
-      <UncontrolledPopover target={() => this.info.current} trigger="legacy" delay={0}>
-        {this.props.children}
-      </UncontrolledPopover>
-    </div>;
-  }
-}
-
-InfoPopover.propTypes = {
-  children: PropTypes.node
-};
 
 const TARGET_GENES_FILE = ">list 1 name\nAT1G00100\nAT1G00200\n...\n>list 2 name (optional)\nAT2G00100\nAT2G00200\n...\n";
 
@@ -295,10 +267,11 @@ export const Edges = ({edgeList, edges, onChange}) => ([
     <div className="col-auto">
       {_.map(edgeList, (e, i) => {
         return <div className="form-check" key={i}>
-          <input className="form-check-input" type="checkbox" value={e}
-                 checked={_.indexOf(edges, e) !== -1}
-                 onChange={onChange.bind(undefined, e)}/>
-          <label className="form-check-label">{e}</label>
+          <label className="form-check-label">
+            <input className="form-check-input" type="checkbox" value={e}
+                   checked={_.indexOf(edges, e) !== -1}
+                   onChange={onChange.bind(undefined, e)}/>{e}
+          </label>
         </div>;
       })}
     </div>

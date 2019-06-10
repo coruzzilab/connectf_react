@@ -7,8 +7,6 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import {
   addEdge,
-  addGroup,
-  addTF,
   clearEdges,
   clearQuery,
   clearQueryError,
@@ -21,13 +19,13 @@ import {
   setQuery
 } from '../../actions';
 import {getQuery} from "../../utils";
-import {AddTFButton, AddTFGroupButton, Edges} from "./common";
+import {Edges} from "./common";
 import History from "./history";
 import {getTargetGeneLists, getTargetNetworks} from "../../utils/axios_instance";
 import {CancelToken} from "axios";
-import QueryTree from "./query_tree";
 import {FilterTfFile, TargetGeneFile, TargetNetworkFile} from "./query_file";
 import QueryBox from "./query_box";
+import AdvancedQuery from "./advanced_query";
 
 const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, tempLists}) => {
   return {
@@ -232,7 +230,7 @@ class QuerybuilderBody extends React.Component {
 
   render() {
     let {targetGenes, targetGene, filterTfs, filterTf, targetNetworks, targetNetwork} = this.state;
-    let {addTF, addGroup, edges, edgeList, queryError, tempLists} = this.props;
+    let {edges, edgeList, queryError, tempLists} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
@@ -243,16 +241,10 @@ class QuerybuilderBody extends React.Component {
           <div className="form-row m-1">
             <div className="col">
               <div className="btn-group">
-                <AddTFButton onClick={addTF.bind(undefined, '', undefined, undefined, undefined, undefined)} large/>
-                <AddTFGroupButton onClick={addGroup.bind(undefined, undefined, undefined, undefined, undefined)} large/>
-              </div>
-              <div className="btn-group float-right">
                 <History/>
               </div>
             </div>
           </div>
-
-          <QueryTree/>
 
           <QueryBox reset={this.reset.bind(this)}/>
 
@@ -264,6 +256,8 @@ class QuerybuilderBody extends React.Component {
 
           <div className="row m-2">
             <div className="col border rounded">
+              <AdvancedQuery/>
+
               {edgeList.length ?
                 <Edges edgeList={edgeList} edges={edges} onChange={this.handleEdgeCheck.bind(this)}/> :
                 null}
@@ -296,8 +290,6 @@ QuerybuilderBody.propTypes = {
   busy: PropTypes.number,
   query: PropTypes.string,
   queryTree: PropTypes.arrayOf(PropTypes.object),
-  addTF: PropTypes.func,
-  addGroup: PropTypes.func,
   postQuery: PropTypes.func,
   clearQuery: PropTypes.func,
   clearQueryTree: PropTypes.func,
@@ -319,8 +311,6 @@ const Querybuilder = connect(mapStateToProps, {
   postQuery,
   setQuery,
   clearQuery,
-  addTF,
-  addGroup,
   clearQueryTree,
   addEdge,
   removeEdge,
