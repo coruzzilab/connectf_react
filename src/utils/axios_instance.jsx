@@ -11,7 +11,9 @@ export const instance = axios.create({
   baseURL: BASE_URL,
   paramsSerializer: function (params) {
     return qs.stringify(params, {indices: false});
-  }
+  },
+  xsrfHeaderName: "X-CSRFToken",
+  xsrfCookieName: "csrftoken"
 });
 
 export function getTFs(params) {
@@ -121,6 +123,14 @@ export function getAnalysisEnrichment(requestId) {
 
 export function checkAupr(requestId) {
   return instance.head(`/api/aupr/${requestId}/`);
+}
+
+export function getAuprImg(requestId, precision, cancelToken) {
+  return instance.get(`/api/aupr/${requestId}/`, {
+    params: {precision},
+    responseType: 'blob',
+    cancelToken
+  })
 }
 
 export default instance;
