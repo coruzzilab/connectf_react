@@ -256,3 +256,48 @@ NetworkAdditionalEdges.propTypes = {
   className: PropTypes.string,
   hasAupr: PropTypes.bool
 };
+
+export class TwitterFollow extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.link = React.createRef();
+  }
+
+  componentDidMount() {
+    this.script = document.createElement('script');
+    this.script.src = "https://platform.twitter.com/widgets.js";
+    this.script.async = true;
+    this.script.onload = () => {
+      window.twttr.widgets.load(this.link.current);
+    };
+
+    document.head.appendChild(this.script);
+  }
+
+  componentWillUnmount() {
+    document.head.removeChild(this.script);
+  }
+
+  render() {
+    let {size, showCount, username, className} = this.props;
+
+    return <a href={`https://twitter.com/${username}`} className={classNames("twitter-follow-button", className)}
+              ref={this.link}
+              data-size={size}
+              data-dnt="true"
+              data-show-count={showCount}>Follow @{username}</a>;
+  }
+}
+
+TwitterFollow.propTypes = {
+  username: PropTypes.string.isRequired,
+  size: PropTypes.string,
+  showCount: PropTypes.bool,
+  className: PropTypes.string
+};
+
+TwitterFollow.defaultProps = {
+  size: "large",
+  showCount: true
+};
