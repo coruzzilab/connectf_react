@@ -12,7 +12,6 @@ import {clearEdges, clearQuery, clearQueryTree, clearRequestId} from "../../acti
 import Summary from './summary';
 import Table from './table';
 import Meta from './meta';
-import Download from './download';
 import TargetEnrichment from './target_enrichment';
 import MotifEnrichment from './motif_enrichment';
 import AnalysisEnrichment from './analysis_enrichment';
@@ -94,11 +93,6 @@ class ResultBody extends React.Component {
             Analysis Enrichment
           </NavLink>
         </NavItem>
-        <NavItem>
-          <NavLink to={"/result/download"}>
-            Download
-          </NavLink>
-        </NavItem>
         <NavItem className="ml-auto">
           <div className="btn-toolbar">
             <div className="btn-group mr-2">
@@ -141,9 +135,6 @@ class ResultBody extends React.Component {
           </RouteTabPane>
           <RouteTabPane path={match.path + '/analysis'} tabId={pathname}>
             <AnalysisEnrichment/>
-          </RouteTabPane>
-          <RouteTabPane path={match.path + '/download'} tabId={pathname}>
-            <Download/>
           </RouteTabPane>
           <Redirect to="/result/summary"/>
         </Switch>

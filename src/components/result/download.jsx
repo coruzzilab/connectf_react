@@ -8,6 +8,8 @@ import PropTypes from 'prop-types';
 import {FontAwesomeIcon as Icon} from '@fortawesome/react-fontawesome';
 import {BASE_URL} from '../../utils/axios_instance';
 
+console.warn("File is deprecated.");
+
 const mapStateToProps = ({requestId}) => {
   return {
     requestId
