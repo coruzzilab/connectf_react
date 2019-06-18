@@ -39,7 +39,7 @@ class Overview extends React.Component {
       let chartKeys = _(summary).keys();
 
       if (!chartKey || chartKeys.indexOf(chartKey) === -1) {
-        let c = chartKeys.find((o) => /^tech/i.test(o));
+        let c = chartKeys.find((o) => /^edge/i.test(o));
 
         if (c) {
           this.setState({
@@ -102,6 +102,13 @@ class Overview extends React.Component {
           </form>
         </div>
       </div>
+
+      <div className="row mb-1">
+        <div className="col">
+          <OverviewChart summary={summary} chartKey={chartKey}/>
+        </div>
+      </div>
+
       <div className="row mb-1">
         <div className="col">
           <select className="form-control" value={chartKey} onChange={this.setChartKey.bind(this)}>
@@ -109,12 +116,6 @@ class Overview extends React.Component {
               return <option key={i} value={k}>{k}</option>;
             }).value()}
           </select>
-        </div>
-      </div>
-
-      <div className="row mb-1">
-        <div className="col">
-          <OverviewChart summary={summary} chartKey={chartKey}/>
         </div>
       </div>
 
