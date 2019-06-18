@@ -8,7 +8,7 @@ import {connect} from 'react-redux';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {Export} from "./export";
+import {TableExport, TargetExport} from "./export";
 
 let mapStateToProps = ({result}) => {
   return {
@@ -194,7 +194,14 @@ class TableBody extends React.Component {
           </div>
         </div>
         <div className="col">
-          <Export className="float-right"/>
+          <div className="btn-toolbar float-right">
+            <div className="btn-group mr-1">
+              <TableExport/>
+            </div>
+            <div className="btn-group">
+              <TargetExport/>
+            </div>
+          </div>
         </div>
       </div>
       <div className="row">

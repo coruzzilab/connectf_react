@@ -10,12 +10,13 @@ import _ from 'lodash';
 import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {Collapse} from 'reactstrap';
+import qs from 'qs';
 
 import {getNetwork, getStats, setBusy} from '../../../actions';
 import {networkJSONStringify} from "../../../utils";
 import Aupr from "./aupr";
 import {NetworkAdditionalEdges} from "../../common";
-import {checkAupr} from "../../../utils/axios_instance";
+import {BASE_URL, checkAupr} from "../../../utils/axios_instance";
 import store from "../../../store";
 
 function mapStateToProps({busy, requestId, edges, edgeList, stats, network}) {
@@ -96,7 +97,11 @@ class NetworkBody extends React.Component {
     this.getNetwork().then(() => {
       a.setAttribute('download', 'query.cyjs');
       a.setAttribute('href', networkJSONStringify(this.props.network));
+      a.setAttribute('style', 'display: none');
+      document.body.appendChild(a);
       a.click();
+
+      document.body.removeChild(a);
     });
   }
 
@@ -109,7 +114,7 @@ class NetworkBody extends React.Component {
   }
 
   render() {
-    let {busy, stats, network} = this.props;
+    let {busy, stats, network, requestId, edges, precisionCutoff} = this.props;
     let {aupr, collapse} = this.state;
 
     return <div className="container-fluid">
@@ -144,9 +149,20 @@ class NetworkBody extends React.Component {
             <button className="btn btn-outline-primary mr-1" onClick={this.toggleCollapse.bind(this)}>
               <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edges
             </button>
-            <button className="btn btn-light" type="button" onClick={this.handleDownload.bind(this)}>
-              <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON
-            </button>
+            <div className="btn-group">
+              <button className="btn btn-light" type="button" onClick={this.handleDownload.bind(this)}>
+                <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON
+              </button>
+              <a className="btn btn-light"
+                 href={`${BASE_URL}/api/network/${requestId}.sif?${qs.stringify({
+                   edges,
+                   precision: precisionCutoff
+                 }, {
+                   arrayFormat: 'repeat'
+                 })}`}>
+                <FontAwesomeIcon icon="file-download" className="mr-1"/>Download SIF (*.sif)
+              </a>
+            </div>
           </div>
         </div> :
         null}

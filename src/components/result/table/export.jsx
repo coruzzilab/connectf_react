@@ -14,16 +14,19 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  UncontrolledButtonDropdown
+  UncontrolledButtonDropdown,
+  UncontrolledDropdown
 } from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {addList} from "../../../actions";
 import _ from "lodash";
+import {BASE_URL} from "../../../utils/axios_instance";
 
-function mapStateToProps({result}) {
+function mapStateToProps({result, requestId}) {
   return {
+    requestId,
     result
   };
 }
@@ -74,7 +77,7 @@ ExportClipboard.propTypes = {
   content: PropTypes.string.isRequired
 };
 
-export class ExportBody extends React.Component {
+export class TargetExportBody extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -187,10 +190,37 @@ export class ExportBody extends React.Component {
   }
 }
 
-ExportBody.propTypes = {
+TargetExportBody.propTypes = {
   result: PropTypes.object,
   className: PropTypes.string,
   addList: PropTypes.func
 };
 
-export const Export = connect(mapStateToProps, {addList})(ExportBody);
+export const TargetExport = connect(mapStateToProps, {addList})(TargetExportBody);
+
+
+class TableExportBody extends React.Component {
+  render() {
+    let {requestId, className} = this.props;
+    return <UncontrolledDropdown className={className}>
+      <DropdownToggle caret color="primary">
+        <FontAwesomeIcon icon="table" className="mr-1"/>Export Table
+      </DropdownToggle>
+      <DropdownMenu>
+        <DropdownItem href={`${BASE_URL}/api/export/${requestId}.xlsx`}>
+          <FontAwesomeIcon icon="file-excel" className="mr-1"/>Microsoft Excel (*.xlsx)
+        </DropdownItem>
+        <DropdownItem href={`${BASE_URL}/api/export/${requestId}.csv`}>
+          <FontAwesomeIcon icon="file-csv" className="mr-1"/>Comma-separated Values (*.csv)
+        </DropdownItem>
+      </DropdownMenu>
+    </UncontrolledDropdown>;
+  }
+}
+
+TableExportBody.propTypes = {
+  requestId: PropTypes.string,
+  className: PropTypes.string
+};
+
+export const TableExport = connect(mapStateToProps, null)(TableExportBody);

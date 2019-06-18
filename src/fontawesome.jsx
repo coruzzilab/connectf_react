@@ -43,7 +43,9 @@ import {
   faCheck,
   faEye,
   faClipboard,
-  faSave
+  faSave,
+  faFileExcel,
+  faTable
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -84,5 +86,7 @@ library.add(
   faCheck,
   faEye,
   faClipboard,
-  faSave
+  faSave,
+  faFileExcel,
+  faTable
 );
