@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import classNames from 'classnames';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {Collapse} from 'reactstrap';
+import {Collapse, DropdownItem, DropdownMenu, DropdownToggle, UncontrolledButtonDropdown} from 'reactstrap';
 import qs from 'qs';
 
 import {getNetwork, getStats, setBusy} from '../../../actions';
@@ -113,8 +113,21 @@ class NetworkBody extends React.Component {
       });
   }
 
+  sifUrl(expand = false) {
+    let {requestId, edges} = this.props;
+    let {precisionCutoff} = store.getState();
+
+    return `${BASE_URL}/api/network/${requestId}.sif?${qs.stringify({
+      edges,
+      precision: precisionCutoff,
+      expand: expand ? 1 : undefined
+    }, {
+      arrayFormat: 'repeat'
+    })}`;
+  }
+
   render() {
-    let {busy, stats, network, requestId, edges, precisionCutoff} = this.props;
+    let {busy, stats, network} = this.props;
     let {aupr, collapse} = this.state;
 
     return <div className="container-fluid">
@@ -153,15 +166,16 @@ class NetworkBody extends React.Component {
               <button className="btn btn-light" type="button" onClick={this.handleDownload.bind(this)}>
                 <FontAwesomeIcon icon="file-download" className="mr-1"/>Download JSON
               </button>
-              <a className="btn btn-light"
-                 href={`${BASE_URL}/api/network/${requestId}.sif?${qs.stringify({
-                   edges,
-                   precision: precisionCutoff
-                 }, {
-                   arrayFormat: 'repeat'
-                 })}`}>
-                <FontAwesomeIcon icon="file-download" className="mr-1"/>Download SIF (*.sif)
-              </a>
+              <UncontrolledButtonDropdown>
+                <a className="btn btn-light" href={this.sifUrl(true)}>
+                  <FontAwesomeIcon icon="file-download" className="mr-1"/>Download SIF (*.sif)
+                </a>
+                <DropdownToggle caret color="light"/>
+                <DropdownMenu>
+                  <DropdownItem href={this.sifUrl()}>Download compact SIF (*.sif)</DropdownItem>
+                </DropdownMenu>
+              </UncontrolledButtonDropdown>
+
             </div>
           </div>
         </div> :

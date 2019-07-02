@@ -16,7 +16,7 @@ import {
   getMotifEnrichmentLegend,
   setError
 } from "../../../actions/motif_enrichment";
-import {getMotifRegions} from "../../../utils/axios_instance";
+import {getKeys, getMotifRegions} from "../../../utils/axios_instance";
 import {ExtraFields, InfoTootip, SVGWarningTooltip} from "../common";
 import {CancelToken} from "axios";
 import Export from "./export";
@@ -86,7 +86,9 @@ class MotifEnrichmentBody extends React.Component {
       collapse: false,
       exportSrc: null,
       motifRegions: [],
-      selectedMotifRegions: []
+      selectedMotifRegions: [],
+      heatmapKeys: [],
+      heatmapKeysChecked: []
     };
 
     this.cancels = [];
@@ -96,6 +98,7 @@ class MotifEnrichmentBody extends React.Component {
     this.getMotifEnrichment();
     this.getImgData();
     this.getMotifRegions();
+    this.getHeatmapKeys();
   }
 
   componentDidUpdate(prevProps) {
@@ -123,6 +126,14 @@ class MotifEnrichmentBody extends React.Component {
     });
   }
 
+  getHeatmapKeys() {
+    getKeys({all: true}).then(({data}) => {
+      this.setState({
+        heatmapKeys: data
+      });
+    });
+  }
+
   handleMotifRegionSelect(r, e) {
     if (e.target.checked) {
       this.setState((state) => {
@@ -134,6 +145,22 @@ class MotifEnrichmentBody extends React.Component {
       this.setState((state) => {
         return {
           selectedMotifRegions: state.selectedMotifRegions.filter((s) => s !== r)
+        };
+      });
+    }
+  }
+
+  handleHeatmapKeySelect(r, e) {
+    if (e.target.checked) {
+      this.setState((state) => {
+        return {
+          heatmapKeysChecked: [...state.heatmapKeysChecked, r]
+        };
+      });
+    } else {
+      this.setState((state) => {
+        return {
+          heatmapKeysChecked: state.heatmapKeysChecked.filter((s) => s !== r)
         };
       });
     }
@@ -182,13 +209,14 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   getImgData() {
-    let {alpha, lower, upper, selectedMotifRegions} = this.state;
+    let {alpha, lower, upper, selectedMotifRegions, heatmapKeysChecked} = this.state;
     let {requestId, getMotifEnrichmentImage, getMotifEnrichmentLegend} = this.props;
 
     return Promise.all([
       getMotifEnrichmentImage(requestId, {
         alpha,
         regions: selectedMotifRegions,
+        fields: heatmapKeysChecked,
         lower,
         upper
       }, {
@@ -223,7 +251,10 @@ class MotifEnrichmentBody extends React.Component {
 
   render() {
     let {motifEnrichment: {table, legend, image, error}, busy} = this.props;
-    let {colSpan, key, lower, upper, collapse, exportSrc, motifRegions, selectedMotifRegions} = this.state;
+    let {
+      colSpan, key, lower, upper, collapse, exportSrc, motifRegions, selectedMotifRegions,
+      heatmapKeys, heatmapKeysChecked
+    } = this.state;
 
     let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
 
@@ -278,14 +309,30 @@ class MotifEnrichmentBody extends React.Component {
                 </div>
               </div>
               <div className="form-group row align-items-center">
-                <legend className="col-form-label col-sm-2">Show Enrichment of Gene Regions:</legend>
-                <div className="col-sm-10">
+                <legend className="col-form-label col-2">Show Enrichment of Gene Regions:</legend>
+                <div className="col-10">
                   {_.map(motifRegions, (val, key) => <MotifRegionCheckbox
                     key={key}
                     name={key}
                     desc={val}
                     checked={selectedMotifRegions.indexOf(key) !== -1}
                     onChange={this.handleMotifRegionSelect.bind(this, key)}/>)}
+                </div>
+              </div>
+              <div className="form-group row align-items-center">
+                <legend className="col-form-label col-2">Additional Fields in Heatmap:</legend>
+                <div className="col-10">
+                  {_.map(heatmapKeys, (k, i) => {
+                    return <div className="form-check form-check-inline" key={i}>
+                      <label className="form-check-label">
+                        <input className="form-check-input" type="checkbox"
+                               value={k}
+                               checked={heatmapKeysChecked.indexOf(k) !== -1}
+                               onChange={this.handleHeatmapKeySelect.bind(this, k)}/>
+                        {k}
+                      </label>
+                    </div>;
+                  })}
                 </div>
               </div>
               <div className="form-group row">

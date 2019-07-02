@@ -219,10 +219,12 @@ class ExtraFieldsBody extends React.PureComponent {
         <div className="col">
           {extraFieldNames.map((f, i) => {
             return <div className="form-check form-check-inline" key={i}>
-              <input className="form-check-input" type="checkbox" value={f}
-                     checked={extraFields.indexOf(f) !== -1}
-                     onChange={this.handleChecked.bind(this, f)}/>
-              <label className="form-check-label">{f}</label>
+              <label className="form-check-label">
+                <input className="form-check-input" type="checkbox" value={f}
+                       checked={extraFields.indexOf(f) !== -1}
+                       onChange={this.handleChecked.bind(this, f)}/>
+                {f}
+              </label>
             </div>;
           })}
         </div>

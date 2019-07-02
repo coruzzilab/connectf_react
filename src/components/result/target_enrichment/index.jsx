@@ -21,6 +21,7 @@ import {CancelToken} from "axios";
 import {Export, TargetEnrichmentWarning} from "./common";
 import HeatmapTable from "./heatmap_table";
 import Table from "./table";
+import {getKeys} from "../../../utils/axios_instance";
 
 const mapStateToProps = ({busy, requestId, targetEnrichment}) => {
   return {
@@ -40,7 +41,9 @@ class TargetEnrichmentBody extends React.Component {
       lower: '',
       key: "table",
       collapse: false,
-      exportSrc: null
+      exportSrc: null,
+      heatmapKeys: [],
+      heatmapKeysChecked: []
     };
 
     this.cancels = [];
@@ -49,6 +52,7 @@ class TargetEnrichmentBody extends React.Component {
   componentDidMount() {
     this.getTableData();
     this.getImgData();
+    this.getHeatmapKeys();
   }
 
   componentDidUpdate(prevProps) {
@@ -98,10 +102,10 @@ class TargetEnrichmentBody extends React.Component {
 
   getImgData() {
     let {requestId, getTargetEnrichmentImage, getTargetEnrichmentLegend} = this.props;
-    let {lower, upper} = this.state;
+    let {lower, upper, heatmapKeysChecked} = this.state;
 
     return Promise.all([
-      getTargetEnrichmentImage(requestId, {lower, upper}, {
+      getTargetEnrichmentImage(requestId, {lower, upper, fields: heatmapKeysChecked}, {
         cancelToken: new CancelToken((c) => {
           this.cancels.push(c);
         })
@@ -121,6 +125,30 @@ class TargetEnrichmentBody extends React.Component {
     });
   }
 
+  getHeatmapKeys() {
+    getKeys({all: true}).then(({data}) => {
+      this.setState({
+        heatmapKeys: data
+      });
+    });
+  }
+
+  handleHeatmapKeySelect(r, e) {
+    if (e.target.checked) {
+      this.setState((state) => {
+        return {
+          heatmapKeysChecked: [...state.heatmapKeysChecked, r]
+        };
+      });
+    } else {
+      this.setState((state) => {
+        return {
+          heatmapKeysChecked: state.heatmapKeysChecked.filter((s) => s !== r)
+        };
+      });
+    }
+  }
+
   cancelRequests() {
     if (this.cancels.length) {
       for (let c of this.cancels) {
@@ -132,7 +160,7 @@ class TargetEnrichmentBody extends React.Component {
 
   render() {
     let {targetEnrichment: {table, legend, image, error}, busy} = this.props;
-    let {lower, upper, key, collapse, exportSrc} = this.state;
+    let {lower, upper, key, collapse, exportSrc, heatmapKeys, heatmapKeysChecked} = this.state;
 
     let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
 
@@ -172,6 +200,22 @@ class TargetEnrichmentBody extends React.Component {
                     <div className="col-sm">
                       <input type="number" className="form-control" min={0} value={upper} step="any"
                              onChange={this.handleUpper.bind(this)}/>
+                    </div>
+                  </div>
+                  <div className="form-group row align-items-center">
+                    <legend className="col-form-label col-2">Additional Fields in Heatmap:</legend>
+                    <div className="col-10">
+                      {_.map(heatmapKeys, (k, i) => {
+                        return <div className="form-check form-check-inline" key={i}>
+                          <label className="form-check-label">
+                            <input className="form-check-input" type="checkbox"
+                                   value={k}
+                                   checked={heatmapKeysChecked.indexOf(k) !== -1}
+                                   onChange={this.handleHeatmapKeySelect.bind(this, k)}/>
+                            {k}
+                          </label>
+                        </div>;
+                      })}
                     </div>
                   </div>
                   <div className="form-group row">

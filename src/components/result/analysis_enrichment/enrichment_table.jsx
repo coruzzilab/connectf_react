@@ -5,15 +5,17 @@
 import React from "react";
 import {connect} from "react-redux";
 import _ from "lodash";
-import {Collapse, DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown} from "reactstrap";
+import {Collapse} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {ExtraFields} from "../common";
 import {RowHeader} from "./common";
 import {columnString} from "../../../utils";
 import PropTypes from "prop-types";
+import {BASE_URL} from "../../../utils/axios_instance";
 
-function mapStateToProps({busy, extraFields}) {
+function mapStateToProps({busy, extraFields, requestId}) {
   return {
+    requestId,
     busy,
     extraFields
   };
@@ -32,7 +34,7 @@ class EnrichmentTableBody extends React.Component {
   }
 
   render() {
-    let {busy, className, data} = this.props;
+    let {busy, className, data, requestId} = this.props;
     let {collapse} = this.state;
 
     let extraFieldNames = _(data.info).map(1).map(_.keys).flatten().uniq().sortBy().value();
@@ -41,16 +43,9 @@ class EnrichmentTableBody extends React.Component {
     return <div className={className}>
       <div className="row my-2">
         <div className="col d-flex flex-row-reverse align-items-center">
-          <UncontrolledDropdown>
-            <DropdownToggle caret className="ml-1" color="primary">
-              <FontAwesomeIcon icon="file-download" className="mr-1"/>Export
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem header>Format (CSV)</DropdownItem>
-              <DropdownItem>As Matrix</DropdownItem>
-              <DropdownItem>As Columns</DropdownItem>
-            </DropdownMenu>
-          </UncontrolledDropdown>
+          <a className="btn btn-primary ml-1" href={`${BASE_URL}/api/analysis_enrichment/${requestId}.csv`}>
+            <FontAwesomeIcon icon="file-download" className="mr-1"/>Export CSV (*.csv)
+          </a>
           <button type="button" className="btn btn-primary ml-1" onClick={this.toggle.bind(this)}>
             <FontAwesomeIcon icon="cog" className="mr-1"/>Options
           </button>
@@ -93,6 +88,7 @@ class EnrichmentTableBody extends React.Component {
 }
 
 EnrichmentTableBody.propTypes = {
+  requestId: PropTypes.string,
   busy: PropTypes.number,
   data: PropTypes.object,
   className: PropTypes.string,
