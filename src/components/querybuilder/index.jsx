@@ -19,7 +19,7 @@ import {
   setQuery
 } from '../../actions';
 import {getQuery} from "../../utils";
-import {Edges} from "./common";
+import {Edges, QueryInfo} from "./common";
 import History from "./history";
 import {getTargetGeneLists, getTargetNetworks} from "../../utils/axios_instance";
 import {CancelToken} from "axios";
@@ -247,6 +247,8 @@ class QuerybuilderBody extends React.Component {
           </div>
 
           <QueryBox reset={this.reset.bind(this)}/>
+
+          <QueryInfo/>
 
           {queryError.message ?
             <div className="row m-2">

@@ -3,12 +3,21 @@
  * 8/25/18
  */
 import React from "react";
-import {DropdownItem, DropdownMenu, DropdownToggle, PopoverBody, PopoverHeader, UncontrolledDropdown} from "reactstrap";
+import {
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  PopoverBody,
+  PopoverHeader,
+  UncontrolledDropdown,
+  UncontrolledPopover
+} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import _ from "lodash";
 import {InfoPopover} from "../common";
+import styled from "styled-components";
 
 export class AndOrSelect extends React.Component {
   handleChange(e) {
@@ -293,4 +302,32 @@ Copied.propTypes = {
 
 Copied.defaultProps = {
   copied: false
+};
+
+const CursorHelp = styled.span`
+cursor: help;
+text-decoration: underline dotted;
+`;
+
+export const QueryInfo = () => {
+  return <div className="form-row m-2">
+    <div className="col">
+      <CursorHelp className="small text-secondary" id="queryInfo"><FontAwesomeIcon icon="question-circle"/> more info</CursorHelp>
+      <UncontrolledPopover trigger="hover" target="queryInfo" delay={0}>
+        <PopoverHeader>Query Info</PopoverHeader>
+        <PopoverBody>
+          <h6>Info on additional keywords:</h6>
+          <ul>
+            <li><span className="font-weight-bold">oralltf</span> — Query the union of all Transcription Factors in the
+              database, a filter is recommended to decrease the amount of returned data.
+            </li>
+            <li><span className="font-weight-bold">multitype</span> — Query Transcription Factors that have multiple
+              experiment types.
+            </li>
+          </ul>
+          <p>These keywords can be used in place of Transcription Factor IDs.</p>
+        </PopoverBody>
+      </UncontrolledPopover>
+    </div>
+  </div>;
 };
