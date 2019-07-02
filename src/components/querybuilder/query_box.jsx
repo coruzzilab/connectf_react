@@ -31,9 +31,9 @@ class QueryBoxBody extends React.Component {
   }
 
   render() {
-    let {query, busy, queryError, setQuery, reset} = this.props;
+    let {query, busy, queryError, setQuery, reset, className} = this.props;
 
-    return <div className="form-row">
+    return <div className={classNames("form-row", className)}>
       <div className="col m-2">
         <div className="input-group">
           <div className="input-group-prepend">
@@ -65,7 +65,8 @@ QueryBoxBody.propTypes = {
   queryTree: PropTypes.arrayOf(PropTypes.object),
   setQuery: PropTypes.func,
   queryError: PropTypes.shape({error: PropTypes.bool, message: PropTypes.string}),
-  reset: PropTypes.func
+  reset: PropTypes.func,
+  className: PropTypes.string
 };
 
 const QueryBox = connect(
@@ -74,7 +75,8 @@ const QueryBox = connect(
 )(QueryBoxBody);
 
 QueryBox.propTypes = {
-  reset: PropTypes.func.isRequired
+  reset: PropTypes.func.isRequired,
+  className: PropTypes.string
 };
 
 export default QueryBox;
