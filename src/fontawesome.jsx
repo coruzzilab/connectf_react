@@ -16,6 +16,7 @@ import {
   faTimes,
   faArrowCircleUp,
   faArrowCircleLeft,
+  faArrowCircleRight,
   faExpand,
   faRedo,
   faFileDownload,
@@ -45,7 +46,10 @@ import {
   faClipboard,
   faSave,
   faFileExcel,
-  faTable
+  faTable,
+  faFilter,
+  faObjectGroup,
+  faFileAlt
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -59,6 +63,7 @@ library.add(
   faTimes,
   faArrowCircleUp,
   faArrowCircleLeft,
+  faArrowCircleRight,
   faExpand,
   faRedo,
   faFileDownload,
@@ -88,5 +93,8 @@ library.add(
   faClipboard,
   faSave,
   faFileExcel,
-  faTable
+  faTable,
+  faFilter,
+  faObjectGroup,
+  faFileAlt
 );

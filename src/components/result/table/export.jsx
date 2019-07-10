@@ -77,11 +77,11 @@ ExportClipboard.propTypes = {
   content: PropTypes.string.isRequired
 };
 
-export class TargetExportBody extends React.Component {
+class ExportModalBody extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      modal: false,
       name: '',
       error: ''
     };
@@ -89,26 +89,16 @@ export class TargetExportBody extends React.Component {
     this.nameInput = React.createRef();
   }
 
-  toggle() {
-    this.setState((prevState) => {
-      if (prevState.modal) {
-        return {
-          modal: false,
-          name: '',
-          error: ''
-        };
-      }
-
-      return {
-        modal: true
-      };
-    });
-  }
-
   handleName(e) {
     this.setState({
       name: e.target.value
     });
+  }
+
+  focusNameInput() {
+    if (this.nameInput.current) {
+      this.nameInput.current.focus();
+    }
   }
 
   addList(genes, e) {
@@ -125,6 +115,80 @@ export class TargetExportBody extends React.Component {
 
   }
 
+  toggle() {
+    if (this.props.isOpen) {
+      this.setState({
+        name: '',
+        error: ''
+      });
+    }
+    this.props.toggle();
+  }
+
+  render() {
+    let {error} = this.state;
+    let {genes, isOpen} = this.props;
+
+    return <Modal isOpen={isOpen} toggle={this.toggle.bind(this)} onOpened={this.focusNameInput.bind(this)}>
+      <form onSubmit={this.addList.bind(this, genes)}>
+        <ModalHeader toggle={this.toggle.bind(this)}>Name Target Gene List</ModalHeader>
+        <ModalBody>
+          <div className="form-group form-inline">
+            <label className="mr-2">Name:</label>
+            <input type="text" className="form-control mr-2" placeholder="Enter Name"
+                   ref={this.nameInput}
+                   onChange={this.handleName.bind(this)}
+                   value={this.state.name}/>
+
+          </div>
+          <div className="form-group">
+            {error ?
+              <small className="form-text text-danger">{error}</small> :
+              <small className="form-text text-muted">
+                Name to be use in the dropdown.
+              </small>}
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <button type="submit" className="btn btn-primary">Add</button>
+          <Button color="secondary" onClick={this.toggle.bind(this)}>Cancel</Button>
+        </ModalFooter>
+      </form>
+    </Modal>;
+  }
+}
+
+ExportModalBody.propTypes = {
+  addList: PropTypes.func,
+  isOpen: PropTypes.bool,
+  toggle: PropTypes.func,
+  genes: PropTypes.string
+};
+
+export const ExportModal = connect(null, {addList})(ExportModalBody);
+
+ExportModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  toggle: PropTypes.func.isRequired,
+  genes: PropTypes.string.isRequired
+};
+
+export class TargetExportBody extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modal: false
+    };
+  }
+
+  toggle() {
+    this.setState((prevState) => {
+      return {
+        modal: !prevState.modal
+      };
+    });
+  }
+
   targetGenes() {
     let {result} = this.props;
 
@@ -136,14 +200,7 @@ export class TargetExportBody extends React.Component {
     return URL.createObjectURL(new Blob([geneString], {type: 'text/plain'}));
   }
 
-  focusNameInput() {
-    if (this.nameInput.current) {
-      this.nameInput.current.focus();
-    }
-  }
-
   render() {
-    let {error} = this.state;
     let genes = this.targetGenes();
 
     return <div className={this.props.className}>
@@ -160,43 +217,17 @@ export class TargetExportBody extends React.Component {
         </DropdownMenu>
       </UncontrolledButtonDropdown>
 
-      <Modal isOpen={this.state.modal} toggle={this.toggle.bind(this)} onOpened={this.focusNameInput.bind(this)}>
-        <form onSubmit={this.addList.bind(this, genes)}>
-          <ModalHeader toggle={this.toggle.bind(this)}>Name Target Gene List</ModalHeader>
-          <ModalBody>
-            <div className="form-group form-inline">
-              <label className="mr-2">Name:</label>
-              <input type="text" className="form-control mr-2" placeholder="Enter Name"
-                     ref={this.nameInput}
-                     onChange={this.handleName.bind(this)}
-                     value={this.state.name}/>
-
-            </div>
-            <div className="form-group">
-              {error ?
-                <small className="form-text text-danger">{error}</small> :
-                <small className="form-text text-muted">
-                  Name to be use in the dropdown.
-                </small>}
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <button type="submit" className="btn btn-primary">Add</button>
-            <Button color="secondary" onClick={this.toggle.bind(this)}>Cancel</Button>
-          </ModalFooter>
-        </form>
-      </Modal>
+      <ExportModal isOpen={this.state.modal} toggle={this.toggle.bind(this)} genes={genes}/>
     </div>;
   }
 }
 
 TargetExportBody.propTypes = {
   result: PropTypes.object,
-  className: PropTypes.string,
-  addList: PropTypes.func
+  className: PropTypes.string
 };
 
-export const TargetExport = connect(mapStateToProps, {addList})(TargetExportBody);
+export const TargetExport = connect(mapStateToProps)(TargetExportBody);
 
 
 class TableExportBody extends React.Component {

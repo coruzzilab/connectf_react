@@ -16,6 +16,7 @@ import TargetEnrichment from './target_enrichment';
 import MotifEnrichment from './motif_enrichment';
 import AnalysisEnrichment from './analysis_enrichment';
 import Network from './network';
+import Sungear from './sungear';
 import {NavLink, QueryPopover, RouteTabPane} from "./common";
 
 function mapStateToProps({heatmap}) {
@@ -93,6 +94,11 @@ class ResultBody extends React.Component {
             Analysis Enrichment
           </NavLink>
         </NavItem>
+        <NavItem>
+          <NavLink to={"/result/sungear"}>
+            Sungear
+          </NavLink>
+        </NavItem>
         <NavItem className="ml-auto">
           <div className="btn-toolbar">
             <div className="btn-group mr-2">
@@ -135,6 +141,9 @@ class ResultBody extends React.Component {
           </RouteTabPane>
           <RouteTabPane path={match.path + '/analysis'} tabId={pathname}>
             <AnalysisEnrichment/>
+          </RouteTabPane>
+          <RouteTabPane path={match.path + '/sungear'} tabId={pathname}>
+            <Sungear/>
           </RouteTabPane>
           <Redirect to="/result/summary"/>
         </Switch>
