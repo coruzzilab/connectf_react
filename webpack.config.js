@@ -27,8 +27,14 @@ const config = {
     rules: [
       {
         test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loaders: ['babel-loader?presets[]=@babel/preset-env,presets[]=@babel/preset-react']
+        include: [
+          path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, 'node_modules/sungear_react')
+        ],
+        loader: 'babel-loader',
+        options: {
+          configFile: path.resolve('babel.config.js')
+        }
       },
       {
         test: /\.css(\?v=[0-9]\.[0-9]\.[0-9])?$/,
