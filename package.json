@@ -63,7 +63,7 @@
     "google-palette": "^1.1.0",
     "handsontable": "^7.1.0",
     "jquery": "^3.4.1",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.14",
     "moment": "^2.24.0",
     "numbro": "2.1.1",
     "popper.js": "^1.15.0",
@@ -77,9 +77,10 @@
     "react-redux": "^7.1.0",
     "react-router-dom": "^5.0.1",
     "reactstrap": "^8.0.0",
-    "redux": "^4.0.3",
+    "redux": "^4.0.4",
     "redux-thunk": "^2.3.0",
     "styled-components": "^4.3.2",
+    "sungear_react": "git+https://github.com/zachary822/sungear_react.git",
     "uuid": "^3.3.2"
   }
 }
