@@ -28,7 +28,7 @@ const config = {
       {
         test: /\.jsx?$/,
         exclude: /node_modules/,
-        loaders: ['babel-loader']
+        loaders: ['babel-loader?presets[]=@babel/preset-env,presets[]=@babel/preset-react']
       },
       {
         test: /\.css(\?v=[0-9]\.[0-9]\.[0-9])?$/,
