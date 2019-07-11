@@ -50,6 +50,7 @@ class SungearBody extends React.Component {
 
       selected: [],
       labelFields: ['analysis_id', 'gene_id', 'gene_name'],
+      vertexFormatter: {},
 
       modal: false
     };
@@ -69,6 +70,12 @@ class SungearBody extends React.Component {
       this.setState({
         genes: _(this.state.selected).map((s) => this.state.data.intersects[s][2]).flatten().sortBy().value()
       });
+    }
+
+    if (!_.isEmpty(this.state.data) &&
+      (this.state.labelFields !== prevState.labelFields ||
+        this.state.data !== prevState.data)) {
+      this.getVertexFormatter();
     }
   }
 
@@ -151,7 +158,7 @@ class SungearBody extends React.Component {
     });
   }
 
-  resetClick(e) {
+  resetClick() {
     this.getSungear().then(() => {
       this.setState({
         genesCurr: [],
@@ -189,8 +196,18 @@ class SungearBody extends React.Component {
     }
   }
 
-  vertexFormatter(idx) {
+  getVertexLabel(idx) {
     return _.join(_.map(this.state.labelFields, (f) => this.state.data.metadata[idx][f]), ' ');
+  }
+
+  getVertexFormatter() {
+    let {data: {vertices}} = this.state;
+    this.setState({
+      vertexFormatter: _(vertices).reduce((res, [idx, coord]) => {
+        res[idx] = this.getVertexLabel(idx);
+        return res;
+      }, {})
+    });
   }
 
   toggle() {
@@ -202,7 +219,7 @@ class SungearBody extends React.Component {
   }
 
   render() {
-    let {width, height, genes, data, labelFields, selected} = this.state;
+    let {width, height, genes, data, labelFields, selected, vertexFormatter} = this.state;
 
     return <div className="container-fluid">
       <div className="row">
@@ -212,7 +229,7 @@ class SungearBody extends React.Component {
                         data={data}
                         selected={selected}
                         onSelectChange={this.handleSelect.bind(this)}
-                        vertexFormatter={this.vertexFormatter.bind(this)}/>
+                        vertexFormatter={vertexFormatter}/>
         </div>
         <div className="col-4">
           <div className="row m-1">
