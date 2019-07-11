@@ -29,7 +29,8 @@ const config = {
         test: /\.jsx?$/,
         include: [
           path.resolve(__dirname, 'src'),
-          path.resolve(__dirname, 'node_modules/sungear_react')
+          path.resolve(__dirname, 'node_modules/sungear_react/src'),
+          path.resolve(__dirname, '../sungear_react/src')
         ],
         loader: 'babel-loader',
         options: {
