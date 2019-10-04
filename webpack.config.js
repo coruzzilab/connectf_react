@@ -29,8 +29,7 @@ const config = {
         test: /\.jsx?$/,
         include: [
           path.resolve(__dirname, 'src'),
-          path.resolve(__dirname, 'node_modules/sungear_react/src'),
-          path.resolve(__dirname, '../sungear_react/src')
+          path.resolve(__dirname, 'node_modules/sungear_react/src')
         ],
         loader: 'babel-loader',
         options: {
@@ -61,17 +60,32 @@ const config = {
         ]
       },
       {
-        test: /\.(ttf|eot|svg|gif|woff(2)?|png)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        test: /\.(ttf|eot|gif|woff(2)?|png|txt)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: 'file-loader?name=[name].[ext]'
       },
       {
-        test: /\.(txt|md)$/,
+        test: /\.svg$/,
+        loader: ['babel-loader', 'react-svg-loader']
+      },
+      {
+        test: /\.txt$/,
         use: ['raw-loader']
+      },
+      {
+        test: /\.md$/,
+        use: ['html-loader', 'markdown-loader']
       }
     ]
   },
   resolve: {
-    extensions: ['.js', '.jsx']
+    extensions: ['.js', '.jsx'],
+    symlinks: false
+  },
+  resolveLoader: {
+    modules: [
+      'node_modules',
+      path.resolve(__dirname, 'loaders')
+    ]
   },
   optimization: {
     minimize: true,
