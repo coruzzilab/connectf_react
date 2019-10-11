@@ -47,32 +47,45 @@ export class RowHeader extends React.Component {
         <a className="text-secondary" style={{cursor: 'pointer'}}
            onClick={this.showModal.bind(this)}>{data.name} {data['Family']}</a>
       </div>
-      <Modal isOpen={visible} toggle={this.hideModal.bind(this)}>
+      <Modal isOpen={visible} toggle={this.hideModal.bind(this)} size="lg">
         <ModalHeader toggle={this.hideModal.bind(this)}>
           {data.name} {data['Family']}
         </ModalHeader>
         <ModalBody>
-          <table className="table table-responsive table-sm">
+          <table className="table table-sm table-responsive">
             <tbody>
-            <tr>
-              <th className="font-weight-bold">Number of Motifs</th>
-              <td>{data['# Motifs']}</td>
-            </tr>
-            <tr>
-              <th className="font-weight-bold">Consensus</th>
-              <td className="font-weight-bold">
-                {_.map(data['Consensus'], (cons, i) => {
-                  return <span key={i}
-                               style={{
-                                 color: _.get(BASE_COLORS, _.lowerCase(cons), BASE_COLORS['other'])
-                               }}>{cons}</span>;
-                })}
-              </td>
-            </tr>
-            <tr>
-              <th className="font-weight-bold">Family</th>
-              <td>{data['Family']}</td>
-            </tr>
+            {data['# Motifs'] ? <tr>
+                <th className="font-weight-bold">Number of Motifs</th>
+                <td>{data['# Motifs']}</td>
+              </tr> :
+              null}
+            {data['Consensus'] ? <tr>
+                <th className="font-weight-bold">Consensus</th>
+                <td className="font-weight-bold">
+                  {_.map(data['Consensus'], (cons, i) => {
+                    return <span key={i}
+                                 style={{
+                                   color: _.get(BASE_COLORS, _.lowerCase(cons), BASE_COLORS['other'])
+                                 }}>{cons}</span>;
+                  })}
+                </td>
+              </tr> :
+              null}
+            {data['Family'] ? <tr>
+                <th className="font-weight-bold">Family</th>
+                <td>{data['Family']}</td>
+              </tr> :
+              null}
+            {_(data).omit(['# Motifs', 'Family', 'Consensus', 'name']).map((val, key) => {
+              return <tr key={key}>
+                <th className="font-weight-bold">{key}</th>
+                <th>
+                  {/^data:image\//.test(val) ?
+                    <img src={val} alt={key}/> :
+                    <pre>{val}</pre>}
+                </th>
+              </tr>;
+            }).value()}
             </tbody>
           </table>
         </ModalBody>
@@ -172,7 +185,7 @@ class MotifEnrichmentTable extends React.Component {
           }).value()}
         </tr>
         <tr>
-          <th/>
+          <FrozenTd/>
           {colSpan > 1 ?
             _(_.get(table, 'columns', [])).map((val, i) => {
               let numRegion = table.regions.length;

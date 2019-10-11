@@ -6,7 +6,7 @@ import React from 'react';
 import PropTypes from "prop-types";
 import {connect} from 'react-redux';
 import _ from 'lodash';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {FontAwesomeIcon as Icon} from '@fortawesome/react-fontawesome';
 import {Collapse, Nav, NavItem, NavLink, TabContent, TabPane, UncontrolledTooltip} from 'reactstrap';
 import {setBusy} from "../../../actions/index";
 import {svgAddTable} from '../../../utils';
@@ -16,13 +16,12 @@ import {
   getMotifEnrichmentLegend,
   setError
 } from "../../../actions/motif_enrichment";
-import {getKeys, getMotifRegions} from "../../../utils/axios_instance";
+import {BASE_URL, getKeys, getMotifRegions} from "../../../utils/axios_instance";
 import {ExtraFields, InfoTootip, SVGWarningTooltip} from "../common";
 import {CancelToken} from "axios";
-import Export from "./export";
+import {tableToCsvUri} from "./export";
 import MotifEnrichmentTable from "./motif_enrichment_table";
 import HeatmapTable from "./heatmap_table";
-
 
 export const BASE_COLORS = {
   'a': '#59C83B',
@@ -30,6 +29,14 @@ export const BASE_COLORS = {
   'c': '#0012D3',
   'g': '#F5BD41',
   'other': '#888888'
+};
+
+const MotifEnrichmentInfo = () => {
+  return <p className="text-secondary">
+    Finding enriched motifs in the set of target genes in analyses. The counts of a motif in the Target genes of each
+    analysis is compared to the total number of counts in the genome. Enrichment is calculated by the Fisher&apos;s
+    Exact Test.
+  </p>;
 };
 
 class MotifRegionCheckbox extends React.Component {
@@ -258,96 +265,108 @@ class MotifEnrichmentBody extends React.Component {
 
     let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
 
-    return <div>
+    return <div className="container-fluid p-0">
+      <div className="row m-1">
+        <div className="col">
+          <MotifEnrichmentInfo/>
+        </div>
+      </div>
+      <div className="row m-1">
+        <div className="col p-0">
+          <button type="button" className="btn btn-primary mr-2" onClick={this.toggle.bind(this)}>
+            <Icon icon="cog" className="mr-1"/>Options
+          </button>
+          {busy ? <Icon icon="circle-notch" spin size="lg"/> : null}
+          <a href={new URL('/api/motif_enrichment/cluster_info.csv', BASE_URL)} className="btn btn-primary float-right">
+            <Icon icon="file-csv" className="mr-1"/>Export Cluster Information</a>
+        </div>
+      </div>
       {error ? <div className="text-danger">No motifs enriched.</div> : null}
-      <button type="button" className="btn btn-primary m-2" onClick={this.toggle.bind(this)}>
-        <FontAwesomeIcon icon="cog" className="mr-1"/>Options
-      </button>
-      {busy ? <FontAwesomeIcon icon="circle-notch" spin size="lg"/> : null}
       <Collapse isOpen={collapse}>
-        <div className="container-fluid">
-          <form onSubmit={this.handleMotifForm.bind(this)} className="border rounded m-1 p-2 row">
-            <div className="col">
-              <div className="row">
-                <h3 className="col">Recalculate Data:</h3>
-              </div>
-              <div className="form-group row align-items-center">
-                <label className="col-sm-2 col-form-label">
-                  Alpha:
-                  <InfoTootip className="ml-1 d-inline">
-                    P-value cutoff for motif enrichment.
-                  </InfoTootip>
-                </label>
-                <div className="col-sm">
-                  <input type="number" min={0} max={1} step="any" placeholder={0.05}
-                         defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
+        <div className="row m-1">
+          <div className="col">
+            <form onSubmit={this.handleMotifForm.bind(this)} className="border rounded row">
+              <div className="col">
+                <div className="row">
+                  <h3 className="col">Recalculate Data:</h3>
                 </div>
+                <div className="form-group row align-items-center">
+                  <label className="col-sm-2 col-form-label">
+                    Alpha:
+                    <InfoTootip className="ml-1 d-inline">
+                      P-value cutoff for motif enrichment.
+                    </InfoTootip>
+                  </label>
+                  <div className="col-sm">
+                    <input type="number" min={0} max={1} step="any" placeholder={0.05}
+                           defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
+                  </div>
 
-              </div>
-              <div className="form-group row align-items-center">
-                <label className="col-sm-2 col-form-label">
-                  Lower Bound (-log10):
-                  <InfoTootip className="ml-1 d-inline">
-                    Lower bound -log10 p-value for the color scale on the heat map.
-                  </InfoTootip>
-                </label>
-                <div className="col-sm">
-                  <input type="number" className="form-control" min={0} value={lower} step="any"
-                         onChange={this.handleLower.bind(this)}/>
+                </div>
+                <div className="form-group row align-items-center">
+                  <label className="col-sm-2 col-form-label">
+                    Lower Bound (-log10):
+                    <InfoTootip className="ml-1 d-inline">
+                      Lower bound -log10 p-value for the color scale on the heat map.
+                    </InfoTootip>
+                  </label>
+                  <div className="col-sm">
+                    <input type="number" className="form-control" min={0} value={lower} step="any"
+                           onChange={this.handleLower.bind(this)}/>
+                  </div>
+                </div>
+                <div className="form-group row align-items-center">
+                  <label className="col-sm-2 col-form-label">
+                    Upper Bound (-log10):
+                    <InfoTootip className="ml-1 d-inline">
+                      Upper bound -log10 p-value for the color scale on the heat map.
+                    </InfoTootip>
+                  </label>
+                  <div className="col-sm">
+                    <input type="number" className="form-control" min={0} value={upper} step="any"
+                           onChange={this.handleUpper.bind(this)}/>
+                  </div>
+                </div>
+                <div className="form-group row align-items-center">
+                  <legend className="col-form-label col-2">Show Enrichment of Gene Regions:</legend>
+                  <div className="col-10">
+                    {_.map(motifRegions, (val, key) => <MotifRegionCheckbox
+                      key={key}
+                      name={key}
+                      desc={val}
+                      checked={selectedMotifRegions.indexOf(key) !== -1}
+                      onChange={this.handleMotifRegionSelect.bind(this, key)}/>)}
+                  </div>
+                </div>
+                <div className="form-group row align-items-center">
+                  <legend className="col-form-label col-2">Additional Fields in Heatmap:</legend>
+                  <div className="col-10">
+                    {_.map(heatmapKeys, (k, i) => {
+                      return <div className="form-check form-check-inline" key={i}>
+                        <label className="form-check-label">
+                          <input className="form-check-input" type="checkbox"
+                                 value={k}
+                                 checked={heatmapKeysChecked.indexOf(k) !== -1}
+                                 onChange={this.handleHeatmapKeySelect.bind(this, k)}/>
+                          {k}
+                        </label>
+                      </div>;
+                    })}
+                  </div>
+                </div>
+                <div className="form-group row">
+                  <div className="col">
+                    <button type="submit" className="btn btn-primary">Submit</button>
+                  </div>
                 </div>
               </div>
-              <div className="form-group row align-items-center">
-                <label className="col-sm-2 col-form-label">
-                  Upper Bound (-log10):
-                  <InfoTootip className="ml-1 d-inline">
-                    Upper bound -log10 p-value for the color scale on the heat map.
-                  </InfoTootip>
-                </label>
-                <div className="col-sm">
-                  <input type="number" className="form-control" min={0} value={upper} step="any"
-                         onChange={this.handleUpper.bind(this)}/>
-                </div>
-              </div>
-              <div className="form-group row align-items-center">
-                <legend className="col-form-label col-2">Show Enrichment of Gene Regions:</legend>
-                <div className="col-10">
-                  {_.map(motifRegions, (val, key) => <MotifRegionCheckbox
-                    key={key}
-                    name={key}
-                    desc={val}
-                    checked={selectedMotifRegions.indexOf(key) !== -1}
-                    onChange={this.handleMotifRegionSelect.bind(this, key)}/>)}
-                </div>
-              </div>
-              <div className="form-group row align-items-center">
-                <legend className="col-form-label col-2">Additional Fields in Heatmap:</legend>
-                <div className="col-10">
-                  {_.map(heatmapKeys, (k, i) => {
-                    return <div className="form-check form-check-inline" key={i}>
-                      <label className="form-check-label">
-                        <input className="form-check-input" type="checkbox"
-                               value={k}
-                               checked={heatmapKeysChecked.indexOf(k) !== -1}
-                               onChange={this.handleHeatmapKeySelect.bind(this, k)}/>
-                        {k}
-                      </label>
-                    </div>;
-                  })}
-                </div>
-              </div>
-              <div className="form-group row">
-                <div className="col">
-                  <button type="submit" className="btn btn-primary">Submit</button>
-                </div>
-              </div>
+            </form>
+            <div className="row border rounded">
+              <ExtraFields extraFieldNames={extraFieldNames} className="col"/>
             </div>
-          </form>
-          <div className="row m-1 p-2 border rounded">
-            <ExtraFields extraFieldNames={extraFieldNames} className="col"/>
           </div>
         </div>
       </Collapse>
-
       <Nav tabs>
         <NavItem>
           <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"}>
@@ -359,15 +378,21 @@ class MotifEnrichmentBody extends React.Component {
             Heatmap
           </NavLink>
         </NavItem>
-        <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "export")} active={key === "export"}>
-            Export
-          </NavLink>
-        </NavItem>
       </Nav>
       <TabContent id="motif_enrichment" activeTab={key}>
         <TabPane tabId="table">
-          <MotifEnrichmentTable table={table} colSpan={colSpan}/>
+          <div className="row m-1">
+            <div className="col p-0">
+              <a className="btn btn-primary float-right" href={"data:text/csv," + tableToCsvUri(table)}
+                 download="motif_enrichment_table.csv">
+                <Icon icon="file-csv" className="mr-1"/>Export Table Data</a>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col">
+              <MotifEnrichmentTable table={table} colSpan={colSpan}/>
+            </div>
+          </div>
         </TabPane>
         <TabPane tabId="heatmap">
           <div className="container-fluid">
@@ -381,7 +406,7 @@ class MotifEnrichmentBody extends React.Component {
                     <SVGWarningTooltip className="float-right">
                       <a className="btn btn-primary" download="motif_enrichment.svg" href={exportSrc}
                          aria-disabled={!exportSrc}>
-                        <FontAwesomeIcon icon="file-export" className="mr-1"/>Export SVG</a>
+                        <Icon icon="file-export" className="mr-1"/>Export SVG</a>
                     </SVGWarningTooltip>
                   </div>
                 </div>
@@ -393,9 +418,6 @@ class MotifEnrichmentBody extends React.Component {
               </div>
             </div>
           </div>
-        </TabPane>
-        <TabPane tabId="export">
-          <Export table={table}/>
         </TabPane>
       </TabContent>
     </div>;

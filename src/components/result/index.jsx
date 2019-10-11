@@ -81,7 +81,7 @@ class ResultBody extends React.Component {
         </NavItem>
         <NavItem>
           <NavLink to={"/result/target"}>
-            Target Enrichment
+            Target List Enrichment
           </NavLink>
         </NavItem>
         <NavItem>
@@ -91,7 +91,7 @@ class ResultBody extends React.Component {
         </NavItem>
         <NavItem>
           <NavLink to={"/result/analysis"}>
-            Analysis Enrichment
+            Gene Set Enrichment
           </NavLink>
         </NavItem>
         <NavItem>

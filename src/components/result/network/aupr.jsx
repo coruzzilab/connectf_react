@@ -97,6 +97,13 @@ class AuprBody extends React.PureComponent {
             <h3>AUPR</h3>
           </div>
         </div>
+        <div className="row">
+          <div className="col">
+            <span className="text-secondary">The uploaded network file should contain edge scores or edges
+            should be ordered from the most to least confident. The results of the AUPR will <b>not</b> make sense
+            otherwise.</span>
+          </div>
+        </div>
         <div className="form-row align-items-center">
           <div className="col-auto">
             <AuprAdjuster/>

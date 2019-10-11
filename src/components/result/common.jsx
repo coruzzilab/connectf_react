@@ -2,7 +2,12 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import React from "react";
 import {
+  Button,
   Fade,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   NavLink as BSNavLink,
   Popover,
   PopoverBody,
@@ -12,11 +17,11 @@ import {
   UncontrolledTooltip
 } from "reactstrap";
 import {Route, withRouter} from "react-router-dom";
-import connect from "react-redux/es/connect/connect";
 import styled from "styled-components";
 import _ from "lodash";
 import {CopyButton} from "../common";
-import {addExtraField, removeExtraField, removeExtraFields} from "../../actions";
+import {addExtraField, addList, removeExtraField, removeExtraFields} from "../../actions";
+import {connect} from "react-redux";
 
 const Sort = styled.a`
   cursor: pointer;
@@ -275,4 +280,100 @@ export const QueryAlert = connect(({result}) => ({result}))(QueryAlertBody);
 QueryAlert.propTypes = {
   className: PropTypes.string,
   onExited: PropTypes.func
+};
+
+class ExportModalBody extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      name: '',
+      error: ''
+    };
+
+    this.nameInput = React.createRef();
+  }
+
+  handleName(e) {
+    this.setState({
+      name: e.target.value
+    });
+  }
+
+  focusNameInput() {
+    if (this.nameInput.current) {
+      this.nameInput.current.focus();
+    }
+  }
+
+  addList(genes, e) {
+    let {name} = this.state;
+    e.preventDefault();
+    if (!name || name === 'other' || name === 'input') {
+      this.setState({
+        error: 'Please pick another name.'
+      });
+    } else {
+      this.props.addList(name, `>${name}\n` + genes);
+      this.toggle();
+    }
+
+  }
+
+  toggle() {
+    if (this.props.isOpen) {
+      this.setState({
+        name: '',
+        error: ''
+      });
+    }
+    this.props.toggle();
+  }
+
+  render() {
+    let {error} = this.state;
+    let {genes, isOpen} = this.props;
+
+    return <Modal isOpen={isOpen} toggle={this.toggle.bind(this)} onOpened={this.focusNameInput.bind(this)}>
+      <form onSubmit={this.addList.bind(this, genes)}>
+        <ModalHeader toggle={this.toggle.bind(this)}>Name Target Gene List</ModalHeader>
+        <ModalBody>
+          <div className="form-group form-inline">
+            <label className="mr-2">Name:</label>
+            <input type="text" className="form-control mr-2" placeholder="Enter Name"
+                   ref={this.nameInput}
+                   onChange={this.handleName.bind(this)}
+                   value={this.state.name}/>
+
+          </div>
+          <div className="form-group">
+            {error ?
+              <small className="form-text text-danger">{error}</small> :
+              <small className="form-text text-muted">
+                Name to be use in the dropdown.
+              </small>}
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <button type="submit" className="btn btn-primary">Add</button>
+          <Button color="secondary" onClick={this.toggle.bind(this)}>Cancel</Button>
+        </ModalFooter>
+      </form>
+    </Modal>;
+  }
+}
+
+ExportModalBody.propTypes = {
+  addList: PropTypes.func,
+  isOpen: PropTypes.bool,
+  toggle: PropTypes.func,
+  genes: PropTypes.string
+};
+
+export const ExportModal = connect(null, {addList})(ExportModalBody);
+
+ExportModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  toggle: PropTypes.func.isRequired,
+  genes: PropTypes.string.isRequired
 };

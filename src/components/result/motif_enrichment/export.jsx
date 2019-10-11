@@ -28,7 +28,7 @@ function tableToCsv(table) {
   return csv;
 }
 
-const tableToCsvUri = _.flow(tableToCsv, encodeURIComponent);
+export const tableToCsvUri = _.flow(tableToCsv, encodeURIComponent);
 
 const Export = ({table}) => {
   return <div className="container-fluid">
