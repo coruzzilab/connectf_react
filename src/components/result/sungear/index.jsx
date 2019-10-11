@@ -8,9 +8,16 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import {instance} from "../../../utils/axios_instance";
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
-import {DropdownItem, DropdownMenu, DropdownToggle, UncontrolledButtonDropdown} from "reactstrap";
-import {ExportModal} from "../table/export";
-import {SungearGraph} from "sungear_react/src/components/sungear";
+import {Collapse, DropdownItem, DropdownMenu, DropdownToggle, UncontrolledButtonDropdown} from "reactstrap";
+import {
+  ItemList as ItemListBody,
+  Search,
+  Sungear as SungearGraph,
+  VertexCount
+} from "sungear_react/src/components/sungear";
+import {buildSearchRegex} from "sungear_react/src/utils";
+import classNames from "classnames";
+import {ExportModal} from "../common";
 
 function mapStateToProps({requestId}) {
   return {
@@ -32,11 +39,61 @@ function saveSvg(svgEl, name) {
   document.body.removeChild(downloadLink);
 }
 
-class SungearBody extends React.Component {
+function resizeListWrapper(Tag) {
+  class Wrapper extends React.Component {
+    constructor(props) {
+      super(props);
+
+      this.itemRef = React.createRef();
+
+      this.state = {
+        height: 0
+      };
+
+      this.setSize = _.throttle(this.setSize.bind(this), 100);
+    }
+
+    componentDidMount() {
+      this.setSize();
+      window.addEventListener('resize', this.setSize);
+    }
+
+    componentWillUnmount() {
+      window.removeEventListener('resize', this.setSize);
+    }
+
+    setSize() {
+      let {clientHeight} = document.documentElement;
+
+      this.setState({
+        height: clientHeight - this.itemRef.current.getBoundingClientRect().top
+      });
+    }
+
+    render() {
+      let {className, innerClassName, ...props} = this.props;
+      return <div ref={this.itemRef} className={className}>
+        <Tag height={this.state.height} className={innerClassName} {...props}/>
+      </div>;
+    }
+  }
+
+  Wrapper.propTypes = {
+    className: PropTypes.string,
+    innerClassName: PropTypes.string
+  };
+
+  return Wrapper;
+}
+
+const ItemList = resizeListWrapper(ItemListBody);
+
+class SungearBody extends React.PureComponent {
   constructor(props) {
     super(props);
 
     this.canvas = React.createRef();
+    this.listRef = React.createRef();
 
     this.state = {
       height: 0,
@@ -49,13 +106,18 @@ class SungearBody extends React.Component {
       genesFuture: [],
 
       selected: [],
-      labelFields: ['analysis_id', 'gene_id', 'gene_name'],
+      labelFields: ['gene_id', 'gene_name', 'analysis_id'],
+      labelOpen: false,
       vertexFormatter: {},
 
-      modal: false
+      modal: false,
+
+      narrowError: false,
+
+      searchTerm: ''
     };
 
-    this.setSize = _.debounce(this.setSize.bind(this), 100);
+    this.setSize = _.throttle(this.setSize.bind(this), 100);
   }
 
   componentDidMount() {
@@ -67,8 +129,19 @@ class SungearBody extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (this.state.selected !== prevState.selected) {
+      let genes = _(this.state.selected).map((s) => this.state.data.intersects[s][2]).flatten().sortBy().value();
       this.setState({
-        genes: _(this.state.selected).map((s) => this.state.data.intersects[s][2]).flatten().sortBy().value()
+        genes
+      }, () => {
+        let {searchTerm} = this.state;
+        if (searchTerm) {
+          let searchRegex = buildSearchRegex(searchTerm);
+          let scrollIndex = _.findIndex(genes, (g) => searchRegex.test(g));
+
+          if (scrollIndex !== -1) {
+            this.listRef.current.scrollToItem(scrollIndex, "start");
+          }
+        }
       });
     }
 
@@ -109,6 +182,18 @@ class SungearBody extends React.Component {
     }
   }
 
+  flashNarrowError() {
+    this.setState({
+      narrowError: true
+    });
+
+    setTimeout(() => {
+      this.setState({
+        narrowError: false
+      });
+    }, 400);
+  }
+
   narrowClick(e) {
     e.preventDefault();
     if (this.state.genes.length) {
@@ -121,7 +206,9 @@ class SungearBody extends React.Component {
             genesFuture: []
           };
         });
-      });
+      }).catch(this.flashNarrowError.bind(this));
+    } else {
+      this.flashNarrowError();
     }
   }
 
@@ -196,8 +283,22 @@ class SungearBody extends React.Component {
     }
   }
 
+  labelToggle() {
+    this.setState((state) => ({
+      labelOpen: !state.labelOpen
+    }));
+  }
+
+  handleSearch(e) {
+    this.setState({
+      searchTerm: e.target.value
+    });
+  }
+
   getVertexLabel(idx) {
-    return _.join(_.map(this.state.labelFields, (f) => this.state.data.metadata[idx][f]), ' ');
+    let metadata = _.find(this.state.data.metadata, (m) => _.isEqual(m[0], idx))[1];
+
+    return _.join(_.map(this.state.labelFields, (f) => metadata[f]), ' ');
   }
 
   getVertexFormatter() {
@@ -219,11 +320,11 @@ class SungearBody extends React.Component {
   }
 
   render() {
-    let {width, height, genes, data, labelFields, selected, vertexFormatter} = this.state;
+    let {width, height, genes, data, labelFields, selected, vertexFormatter, narrowError, searchTerm, labelOpen} = this.state;
 
     return <div className="container-fluid">
       <div className="row">
-        <div className="col-8 w-100" ref={this.canvas}>
+        <div className="col-6 w-100 pr-0" ref={this.canvas}>
           <SungearGraph width={width}
                         height={height}
                         data={data}
@@ -231,11 +332,26 @@ class SungearBody extends React.Component {
                         onSelectChange={this.handleSelect.bind(this)}
                         vertexFormatter={vertexFormatter}/>
         </div>
-        <div className="col-4">
+        <div className="col-3">
+          <p>
+            {genes.length.toLocaleString()} genes selected
+          </p>
+          <div className="rounded border bg-light">
+            <ItemList items={genes} listRef={this.listRef} className="list-group-flush"/>
+          </div>
+        </div>
+        <div className="col-3">
+          <div className="row m-1">
+            <div className="col">
+              <p>Sungear displays genes in common between any number of analyses.</p>
+            </div>
+          </div>
           <div className="row m-1">
             <div className="col">
               <div className="btn-group mr-1">
-                <button type="button" className="btn btn-primary" onClick={this.narrowClick.bind(this)}>
+                <button type="button"
+                        className={classNames("btn", narrowError ? "btn-danger" : "btn-primary")}
+                        onClick={this.narrowClick.bind(this)}>
                   <Icon icon="filter" className="mr-1"/>Narrow
                 </button>
                 <button type="button" className="btn btn-primary" onClick={this.inverseSelection.bind(this)}>
@@ -251,7 +367,18 @@ class SungearBody extends React.Component {
           </div>
           <div className="row m-1">
             <div className="col">
-              <div>Selections:</div>
+              <label htmlFor="search" className="sr-only">Search</label>
+              <Search id="search"
+                      value={searchTerm}
+                      onChange={this.handleSearch.bind(this)}
+                      data={data}
+                      selected={selected}
+                      onSelectChange={this.handleSelect.bind(this)}/>
+            </div>
+          </div>
+          <div className="row m-1">
+            <div className="col">
+              <div className="d-inline mr-2">Views:</div>
               <div className="btn-group">
                 <button type="button" className="btn btn-primary"
                         disabled={!this.state.genesPast.length}
@@ -291,39 +418,39 @@ class SungearBody extends React.Component {
                            genes={_.join(genes, "\n") + "\n"}/>
             </div>
           </div>
-          <div className="row">
-            <div className="col border rounded m-1">
-              <div>Display Fields:</div>
-              <div>
-                {_(data.metadata).values().map(_.keys).flatten().uniq().map((n, i) => {
-                  return <div className="form-check form-check-inline" key={i}>
-                    <label className="form-check-label">
-                      <input className="form-check-input"
-                             type="checkbox"
-                             onChange={this.handleLabelFieldCheck.bind(this, n)}
-                             checked={labelFields.indexOf(n) !== -1}/>{n}
-                    </label>
-                  </div>;
-                }).value()}
-              </div>
-              <div className="mb-1">
-                <button type="button" className="btn btn-danger" onClick={() => {
-                  this.setState({labelFields: []});
-                }}>Clear
-                </button>
-              </div>
+          <div className="row m-1">
+            <div className="col">
+              <button className="btn btn-primary" onClick={this.labelToggle.bind(this)}>
+                <Icon icon="tags" className="mr-1"/>Display Fields
+              </button>
+              <Collapse isOpen={labelOpen}>
+                <div className="border rounded p-1 mt-1">
+                  <div>Display Fields:</div>
+                  <div>
+                    {_(data.metadata).map(1).map(_.keys).flatten().uniq().map((n, i) => {
+                      return <div className="form-check form-check-inline" key={i}>
+                        <label className="form-check-label">
+                          <input className="form-check-input"
+                                 type="checkbox"
+                                 onChange={this.handleLabelFieldCheck.bind(this, n)}
+                                 checked={labelFields.indexOf(n) !== -1}/>{n}
+                        </label>
+                      </div>;
+                    }).value()}
+                  </div>
+                  <div className="mb-1">
+                    <button type="button" className="btn btn-danger" onClick={() => {
+                      this.setState({labelFields: []});
+                    }}>Clear
+                    </button>
+                  </div>
+                </div>
+              </Collapse>
             </div>
           </div>
           <div className="row m-1">
             <div className="col">
-              <p>
-                {genes.length.toLocaleString()} genes
-              </p>
-              <div className="overflow-auto" style={{maxHeight: '40vh'}}>
-                <ul className="list-group">
-                  {_.map(genes, (g, i) => <li key={i} className="list-group-item">{g}</li>)}
-                </ul>
-              </div>
+              <VertexCount data={data} selected={selected} onSelectChange={this.handleSelect.bind(this)}/>
             </div>
           </div>
         </div>
