@@ -21,8 +21,8 @@ function buildPair(c1, c2) {
   return `(${buildName(c1)}, ${buildName(c2)})`;
 }
 
-function calculateSide(width, height, rows, minSide = 80) {
-  return Math.max(Math.min(height, width) / (rows + 1), minSide);
+function calculateSide(width, height, rows, hidden = [], minSide = 80) {
+  return Math.max(Math.min(height, width) / (rows + 1 - hidden.length), minSide);
 }
 
 function calculateRows(data) {
@@ -128,6 +128,10 @@ class EnrichmentGridBody extends React.PureComponent {
   makeCell(i, j, side, data, gMin, gMax, lMin, lMax) {
     let style = {};
 
+    if (this.props.hidden.indexOf(i - 1) !== -1 || this.props.hidden.indexOf(j - 1) !== -1) {
+      return null;
+    }
+
     if (i === j) {
       return <Cell key={j} style={style} className='diagonal' side={side}/>;
     } else if (i === 0 || j === 0) {
@@ -162,15 +166,15 @@ class EnrichmentGridBody extends React.PureComponent {
       if (j > i) {
         content = <div style={{fontSize}}>
           <div>greater:</div>
-          <div>{d['greater_adj'].toExponential(2)}</div>
-          <div>({d.genes.length})</div>
+          <div title="p-value">{d['greater_adj'].toExponential(2)}</div>
+          <div title="count">({d.genes.length})</div>
         </div>;
         style = {...style, ...orangeShader(d['greater_adj'], gMin, gMax)};
       } else {
         content = <div style={{fontSize}}>
           <div>less:</div>
-          <div>{d['less_adj'].toExponential(2)}</div>
-          <div>({d.genes.length})</div>
+          <div title="p-value">{d['less_adj'].toExponential(2)}</div>
+          <div title="count">({d.genes.length})</div>
         </div>;
         style = {...style, ...blueShader(d['less_adj'], lMin, lMax)};
       }
@@ -214,10 +218,10 @@ class EnrichmentGridBody extends React.PureComponent {
   }
 
   loadGrid() {
-    let {data, height, width} = this.props;
+    let {data, height, width, hidden} = this.props;
 
     let rows = calculateRows(data);
-    let side = calculateSide(width, height, rows);
+    let side = calculateSide(width, height, rows, hidden);
 
     let [gMin, gMax] = getLogMinMax(_(data.data).map('greater_adj'));
     let [lMin, lMax] = getLogMinMax(_(data.data).map('less_adj'));
@@ -236,7 +240,8 @@ EnrichmentGridBody.propTypes = {
   data: PropTypes.object,
   width: PropTypes.number,
   height: PropTypes.number,
-  onLoad: PropTypes.func
+  onLoad: PropTypes.func,
+  hidden: PropTypes.arrayOf(PropTypes.number)
 };
 
 EnrichmentGridBody.defaultProps = {

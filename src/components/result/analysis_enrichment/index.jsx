@@ -10,11 +10,12 @@ import {getAnalysisEnrichment} from "../../../actions/analysis_enrichment";
 import EnrichmentGrid from "./enrichment_grid";
 import EnrichmentTable from "./enrichment_table";
 
-function mapStateToProps({requestId, analysisEnrichment: {data, error}}) {
+function mapStateToProps({requestId, analysisEnrichment: {data, error, hidden}}) {
   return {
     requestId,
     data,
-    error
+    error,
+    hidden
   };
 }
 
@@ -55,7 +56,7 @@ class AnalysisEnrichmentBody extends React.PureComponent {
 
   render() {
     let {height, width} = this.state;
-    let {data, error} = this.props;
+    let {data, error, hidden} = this.props;
 
     return <div className="container-fluid">
       {error ?
@@ -63,8 +64,9 @@ class AnalysisEnrichmentBody extends React.PureComponent {
           Analysis Enrichment unavailable. Please query more than 1 analysis to see results.
         </p> :
         <div className="row">
-          <EnrichmentGrid className="col-6 p-0" ref={this.container} data={data} width={width} height={height}/>
-          <EnrichmentTable className="col-6" data={data}/>
+          <EnrichmentGrid className="col-6 p-0" ref={this.container} data={data} hidden={hidden} width={width}
+                          height={height}/>
+          <EnrichmentTable className="col-6"/>
         </div>
       }
     </div>;
@@ -75,7 +77,8 @@ AnalysisEnrichmentBody.propTypes = {
   getAnalysisEnrichment: PropTypes.func,
   requestId: PropTypes.string,
   data: PropTypes.object,
-  error: PropTypes.bool
+  error: PropTypes.bool,
+  hidden: PropTypes.arrayOf(PropTypes.number)
 };
 
 const AnalysisEnrichment = connect(mapStateToProps, {getAnalysisEnrichment})(AnalysisEnrichmentBody);

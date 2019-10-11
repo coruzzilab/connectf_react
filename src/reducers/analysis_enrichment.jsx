@@ -26,7 +26,23 @@ function error(state = false, action) {
   }
 }
 
+function hidden(state = [], action) {
+  switch (action.type) {
+  case 'ANALYSIS_ENRICHMENT_ADD_HIDDEN':
+    return [...state, action.index];
+  case 'ANALYSIS_ENRICHMENT_REMOVE_HIDDEN':
+    return state.filter((i) => action.index !== i);
+  case 'ANALYSIS_ENRICHMENT_SET_HIDDEN':
+    return action.hidden;
+  case 'ANALYSIS_ENRICHMENT_CLEAR_HIDDEN':
+    return [];
+  default:
+    return state;
+  }
+}
+
 export default {
   data,
-  error
-}
+  error,
+  hidden
+};

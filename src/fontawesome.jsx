@@ -49,7 +49,8 @@ import {
   faTable,
   faFilter,
   faObjectGroup,
-  faFileAlt
+  faFileAlt,
+  faTags
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -96,5 +97,6 @@ library.add(
   faTable,
   faFilter,
   faObjectGroup,
-  faFileAlt
+  faFileAlt,
+  faTags
 );

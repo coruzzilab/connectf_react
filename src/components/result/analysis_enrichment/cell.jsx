@@ -10,6 +10,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import {blobFromString} from "../../../utils";
 import styled from "styled-components";
+import {ExportModal} from "../common";
 
 const GeneList = styled.div.attrs(({className}) => ({
   className: classNames(className, 'text-monospace border border-light rounded')
@@ -28,21 +29,30 @@ class Cell extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      modal: false
+      modal: false,
+      saveModal: false
     };
 
     this.toggle = this.toggle.bind(this);
+    this.toggleSave = this.toggleSave.bind(this);
   }
 
   toggle() {
     this.setState({
-      modal: !this.state.modal
+      modal: !this.state.modal,
+    });
+  }
+
+  toggleSave() {
+    this.setState({
+      saveModal: !this.state.saveModal,
     });
   }
 
   render() {
     let {children, data: {genes, ...d}, modal, className, innerClassName, style, side, info, ...props} = this.props;
     let {background} = style;
+    let geneString = _.join(genes, '\n');
     // pass background from style to inner div, CSS trickery involved
 
     let geneLen = genes.length;
@@ -61,9 +71,7 @@ class Cell extends React.PureComponent {
               {
                 info ?
                   <div>
-                    <p>Name: {info[0][0]}</p>
                     <p>Filter: {info[0][1]}</p>
-                    <p>Analysis ID: {info[0][2]}</p>
                     {_.map(info[1], (val, key) => <p key={key}>{key}: {val}</p>)}
                   </div> :
                   <div>
@@ -76,7 +84,7 @@ class Cell extends React.PureComponent {
                       <div>
                         <p>Number of genes in common: {geneLen}</p>
                         <GeneList>
-                          <pre>{_.join(genes, '\n')}</pre>
+                          <pre>{geneString}</pre>
                         </GeneList>
                       </div> :
                       <p className="text-danger">No genes in common.</p>)}
@@ -86,14 +94,21 @@ class Cell extends React.PureComponent {
             <ModalFooter>
               <Button color="primary" onClick={this.toggle} className="mr-1">Close</Button>
               {geneLen ?
-                <a className="btn btn-secondary"
-                   download="genelist.txt"
-                   href={geneListLink(genes)}>
-                  <FontAwesomeIcon icon="file-export" className="mr-1"/>Export
-                </a> :
+                [
+                  <a key={0}
+                     className="btn btn-secondary"
+                     download="genelist.txt"
+                     href={geneListLink(genes)}>
+                    <FontAwesomeIcon icon="file-export" className="mr-1"/>Export
+                  </a>,
+                  <button key={1} type="button" className="btn btn-secondary" onClick={this.toggleSave}>
+                    <FontAwesomeIcon icon="save" className="mr-1"/>Save
+                  </button>
+                ] :
                 null}
             </ModalFooter>
-          </Modal>
+          </Modal>,
+          <ExportModal key={2} isOpen={this.state.saveModal} toggle={this.toggleSave} genes={geneString}/>
         ] :
         <div className={classNames("w-100 h-100", innerClassName)}>{children}</div>}
     </div>;

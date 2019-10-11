@@ -37,6 +37,33 @@ export const getAnalysisEnrichment = (requestId) => {
   };
 };
 
+export const addHidden = (index) => {
+  return {
+    type: 'ANALYSIS_ENRICHMENT_ADD_HIDDEN',
+    index
+  };
+};
+
+export const removeHidden = (index) => {
+  return {
+    type: 'ANALYSIS_ENRICHMENT_REMOVE_HIDDEN',
+    index
+  };
+};
+
+export const setHidden = (hidden) => {
+  return {
+    type: 'ANALYSIS_ENRICHMENT_SET_HIDDEN',
+    hidden
+  };
+};
+
+export const clearHidden = () => {
+  return {
+    type: 'ANALYSIS_ENRICHMENT_CLEAR_HIDDEN'
+  };
+};
+
 export const setError = (error) => {
   return {
     type: 'SET_ANALYSIS_ENRICHMENT_ERROR',
