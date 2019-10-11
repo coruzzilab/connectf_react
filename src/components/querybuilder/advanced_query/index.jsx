@@ -8,12 +8,12 @@ import {addGroup, addTF} from '../../../actions';
 import PropTypes from "prop-types";
 import {InfoPopover} from "../../common";
 
-import info from "./info.txt";
+import info from "./info.md";
 
 const AdvancedQueryInfo = () => {
   return <InfoPopover>
     <PopoverHeader>Advanced Query</PopoverHeader>
-    <PopoverBody>{info}</PopoverBody>
+    <PopoverBody><div dangerouslySetInnerHTML={{__html: info}}/></PopoverBody>
   </InfoPopover>;
 };
 
@@ -24,7 +24,7 @@ class AdvancedQueryBody extends React.Component {
     return <div className="row">
       <div className="col">
         <div className="row m-2 align-items-center">
-          <h4>Advanced Search</h4>
+          <h4>Query Builder</h4>
           <AdvancedQueryInfo/>
         </div>
         <div className="row m-2">

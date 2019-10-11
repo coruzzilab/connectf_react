@@ -275,7 +275,7 @@ export const Edges = ({edgeList, edges, onChange}) => ([
   <div key={1} className="form-row m-2">
     <div className="col-auto">
       {_.map(edgeList, (e, i) => {
-        return <div className="form-check" key={i}>
+        return <div className="form-check form-check-inline" key={i}>
           <label className="form-check-label">
             <input className="form-check-input" type="checkbox" value={e}
                    checked={_.indexOf(edges, e) !== -1}

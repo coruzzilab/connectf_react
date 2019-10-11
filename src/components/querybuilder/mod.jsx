@@ -67,7 +67,7 @@ class ModBody extends React.Component {
       setModValue(node.id, '');
     }
 
-    if (node.key !== 'pvalue' && node.key !== 'log2fc' && node.innerOper !== '=') {
+    if (!this.isNumericKey() && node.innerOper !== '=') {
       setModInnerOper(node.id, '=');
     }
   }
@@ -139,7 +139,7 @@ class ModBody extends React.Component {
   }
 
   isNumericKey() {
-    return this.props.node.key === 'pvalue' || this.props.node.key === 'log2fc';
+    return _.indexOf(['pvalue', 'log2fc', 'targeted_by'], this.props.node.key) !== -1;
   }
 
   render() {

@@ -33,8 +33,8 @@ class QueryBoxBody extends React.Component {
   render() {
     let {query, busy, queryError, setQuery, reset, className} = this.props;
 
-    return <div className={classNames("form-row", className)}>
-      <div className="col m-2">
+    return <div className={classNames("form-row mx-1 my-2", className)}>
+      <div className="col">
         <div className="input-group">
           <div className="input-group-prepend">
             <CopyButton text={query} className="btn-lg" content={Copied}/>

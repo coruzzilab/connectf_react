@@ -26,6 +26,7 @@ import {CancelToken} from "axios";
 import {FilterTfFile, TargetGeneFile, TargetNetworkFile} from "./query_file";
 import QueryBox from "./query_box";
 import AdvancedQuery from "./advanced_query";
+import RandomButton from "./random_button";
 
 const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, tempLists}) => {
   return {
@@ -247,6 +248,12 @@ class QuerybuilderBody extends React.Component {
           </div>
 
           <QueryBox reset={this.reset.bind(this)}/>
+
+          <div className="form-row m-1">
+            <div className="col">
+              <RandomButton/> Give me some random Transcription Factors!
+            </div>
+          </div>
 
           <QueryInfo/>
 
