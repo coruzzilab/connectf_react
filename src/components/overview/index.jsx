@@ -105,17 +105,20 @@ class Overview extends React.Component {
 
       <div className="row mb-1">
         <div className="col">
-          <OverviewChart summary={summary} chartKey={chartKey}/>
-        </div>
-      </div>
-
-      <div className="row mb-1">
-        <div className="col">
-          <select className="form-control" value={chartKey} onChange={this.setChartKey.bind(this)}>
-            {_(summary).keys().map((k, i) => {
-              return <option key={i} value={k}>{k}</option>;
-            }).value()}
-          </select>
+          <div className="row">
+            <div className="col">
+              <OverviewChart summary={summary} chartKey={chartKey} style={{height: '50vh'}}/>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col">
+              <select className="form-control" value={chartKey} onChange={this.setChartKey.bind(this)}>
+                {_(summary).keys().map((k, i) => {
+                  return <option key={i} value={k}>{k}</option>;
+                }).value()}
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 

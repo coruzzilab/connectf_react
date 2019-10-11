@@ -6,8 +6,74 @@ import React from "react";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import {SortButton} from "../result/common";
+import {withRouter} from 'react-router-dom';
+import {postQuery, setQuery} from "../../actions";
+import {connect} from 'react-redux';
 
 const HEADER = ['ID', 'Gene ID', 'Gene Name'];
+
+class AnalysisIdBody extends React.Component {
+  submitQuery() {
+    let data = new FormData();
+    let geneId = this.props.row[1];
+    let analysisId = this.props.row[0];
+
+    let query = `${geneId}[id=${analysisId}]`;
+
+    data.append('query', query);
+    this.props.postQuery({data}).then(() => {
+      this.props.setQuery(query);
+      this.props.history.push('/result/summary');
+    });
+  }
+
+  render() {
+    return <th><button type="button" className="btn btn-link p-0" onClick={this.submitQuery.bind(this)}>{this.props.row[0]}</button></th>;
+  }
+}
+
+AnalysisIdBody.propTypes = {
+  row: PropTypes.array,
+  postQuery: PropTypes.func,
+  setQuery: PropTypes.func,
+  history: PropTypes.object
+};
+
+const AnalysisId = withRouter(connect(null, {postQuery, setQuery})(AnalysisIdBody));
+
+AnalysisId.propTypes = {
+  row: PropTypes.array.isRequired
+};
+
+class GeneIdBody extends React.Component {
+  submitQuery() {
+    let data = new FormData();
+    let geneId = this.props.row[1];
+
+    data.append('query', geneId);
+    this.props.postQuery({data}).then(() => {
+      this.props.setQuery(geneId);
+      this.props.history.push('/result/summary');
+    });
+  }
+
+  render() {
+    return <td><button type="button" className="btn btn-link p-0" onClick={this.submitQuery.bind(this)}>{this.props.row[1]}</button></td>;
+  }
+}
+
+GeneIdBody.propTypes = {
+  row: PropTypes.array,
+  postQuery: PropTypes.func,
+  setQuery: PropTypes.func,
+  history: PropTypes.object
+};
+
+const GeneId = withRouter(connect(null, {postQuery, setQuery})(GeneIdBody));
+
+GeneId.propTypes = {
+  row: PropTypes.array.isRequired
+};
 
 function flattenRow(row) {
   return [row.id, row['gene_id'], row['gene_name'], ..._.values(row['metadata'])];
@@ -15,8 +81,9 @@ function flattenRow(row) {
 
 function renderRow(row) {
   return <tr key={row[0]}>
-    <th>{row[0]}</th>
-    {_.map(row.slice(1), (r, i) => <td key={i}>{r}</td>)}
+    <AnalysisId row={row}/>
+    <GeneId row={row}/>
+    {_.map(row.slice(2), (r, i) => <td key={i}>{r}</td>)}
   </tr>;
 }
 
