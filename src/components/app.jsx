@@ -15,6 +15,7 @@ import Network from './network';
 import Feedback from './feedback';
 import Tutorial from './tutorial';
 import {NavItem} from "./common";
+import Citations from "./citations";
 import Overview from './overview';
 
 const Brand = styled(Link).attrs(({className}) => ({
@@ -51,6 +52,7 @@ class App extends React.Component {
           <Nav className="ml-auto" navbar>
             <NavItem to={"/"}>About</NavItem>
             <NavItem to={"/tutorial"}>Tutorial</NavItem>
+            <NavItem to={"/citations"}>Citations</NavItem>
             <NavItem to={"/query"}>Query</NavItem>
             <NavItem to={"/overview"}>Data Overview</NavItem>
             <NavItem to={"/feedback"}>Feedback</NavItem>
@@ -60,6 +62,7 @@ class App extends React.Component {
       <Switch>
         <Route exact path="/" component={About}/>
         <Route path="/tutorial" component={Tutorial}/>
+        <Route path="/citations" component={Citations}/>
         <Route path="/query" component={QueryBuilder}/>
         <Route path="/overview" component={Overview}/>
         <Route path="/feedback" component={Feedback}/>

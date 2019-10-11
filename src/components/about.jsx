@@ -4,7 +4,7 @@
  */
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {FontAwesomeIcon as Icon} from '@fortawesome/react-fontawesome';
 import {UncontrolledCarousel} from 'reactstrap';
 import {TwitterFollow} from "./common";
 
@@ -51,9 +51,11 @@ class About extends React.Component {
           <div className="row justify-content-sm-center">
             <div className="col">
               <Link to="/tutorial" className="btn btn-primary btn-lg mr-2">
-                <FontAwesomeIcon icon="book-open" className="mr-2"/>Learn More</Link>
+                <Icon icon="book-open" className="mr-2"/>Learn More</Link>
+              <Link to="/overview" className="btn btn-primary btn-lg mr-2">
+                <Icon icon="search" className="mr-2"/>Data Overview</Link>
               <Link to="/query" className="btn btn-primary btn-lg">Get Started
-                <FontAwesomeIcon icon="chevron-circle-right" className="ml-2"/></Link>
+                <Icon icon="chevron-circle-right" className="ml-2"/></Link>
             </div>
           </div>
           <div className="row justify-content-center">
