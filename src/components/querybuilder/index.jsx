@@ -216,9 +216,16 @@ class QuerybuilderBody extends React.Component {
   }
 
   handleFileSelect(key, e) {
-    this.setState({
-      [key]: e.target.value
-    });
+    if (typeof e === 'string') {
+      this.setState({
+        [key]: e
+      });
+    } else {
+      this.setState({
+        [key]: e.target.value
+      });
+    }
+
   }
 
   handleEdgeCheck(name, e) {
