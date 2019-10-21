@@ -96,8 +96,12 @@ class Table extends React.Component {
         {_(_.get(table, 'result', []))
           .orderBy((row) => _.isNull(row) ? row : row['p-value'][sortCol], ascending ? 'asc' : 'desc')
           .map((row, i) => {
+            let geneId = _.get(row, 'info.gene_id');
+            let geneName = _.get(row, 'info.gene_name');
+            let name = geneId + (geneName ? ` (${geneName})` : '');
+
             return <tr key={i}>
-              <RowHeader info={row['info']}>{row['info'].name} {surround(row['info'].filter)} ({row['info'].targets})</RowHeader>
+              <RowHeader info={row['info']}>{name} {surround(row['info'].filter)} ({row['info'].targets})</RowHeader>
               {_(row['p-value']).zip(row['count']).map(([pval, count], j) => {
                 return <td style={blueShader(pval, min, max)} key={j}>{pval.toExponential(2)} ({count})</td>;
               }).value()}

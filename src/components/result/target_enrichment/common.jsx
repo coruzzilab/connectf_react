@@ -54,12 +54,16 @@ export class RowHeader extends React.Component {
     let {visible} = this.state;
     let {info} = this.props;
 
+    let geneId = _.get(info, 'gene_id');
+    let geneName = _.get(info, 'gene_name');
+    let name = geneId + (geneName ? ` (${geneName})` : '');
+
     return <FrozenTh className="p-0">
       <div className="w-100 h-100 bg-white border p-1">
         <a className="text-primary link" onClick={this.showModal.bind(this, undefined)}>{this.props.children}</a>
       </div>
       <Modal isOpen={visible} toggle={this.showModal.bind(this, false)}>
-        <ModalHeader toggle={this.showModal.bind(this, false)}>{info.name}</ModalHeader>
+        <ModalHeader toggle={this.showModal.bind(this, false)}>{name}</ModalHeader>
         <ModalBody>
           {_.map(info, (val, key) => {
             return <p key={key}>{key}: {val}</p>;
