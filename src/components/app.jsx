@@ -19,8 +19,7 @@ import Citations from "./citations";
 import Overview from './overview';
 
 const Brand = styled(Link).attrs(({className}) => ({
-  className: classNames(className, 'navbar-brand'),
-  to: '/query'
+  className: classNames(className, 'navbar-brand')
 }))`
   text-decoration: none;
   color: inherit;
@@ -46,7 +45,7 @@ class App extends React.Component {
   render() {
     return <div>
       <Navbar color="light" light expand="md">
-        <Brand><FontAwesomeIcon icon="dna" className="mr-1"/>ConnecTF</Brand>
+        <Brand to="/query"><FontAwesomeIcon icon="dna" className="mr-1"/>ConnecTF</Brand>
         <NavbarToggler onClick={this.toggle.bind(this)}/>
         <Collapse isOpen={this.state.isOpen} navbar>
           <Nav className="ml-auto" navbar>

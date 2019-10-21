@@ -130,7 +130,7 @@ export function getAuprImg(requestId, precision, cancelToken) {
     params: {precision},
     responseType: 'blob',
     cancelToken
-  })
+  });
 }
 
 export default instance;

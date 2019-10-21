@@ -105,7 +105,7 @@ export class UploadFile extends React.Component {
   }
 
   render() {
-    let {className, inputRef, ...props} = this.props;
+    let {className, inputRef, autoOpen, ...props} = this.props;
 
     return <input type="file" className={classNames("form-control-file", className)}
                   ref={inputRef} {...props}/>;
