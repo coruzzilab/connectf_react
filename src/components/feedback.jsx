@@ -5,6 +5,8 @@
 import React from 'react';
 import instance from '../utils/axios_instance';
 
+const RECAPTCHA_SITE_KEY = process.env.RECAPTCHA_SITE_KEY;
+
 export default class Feedback extends React.Component {
   constructor(props) {
     super(props);
@@ -41,20 +43,30 @@ export default class Feedback extends React.Component {
     data.set('name', name);
     data.set('feedback', feedback);
 
-    instance('/api/feedback/', {
-      data,
-      method: 'POST'
-    })
-      .then(() => {
-        alert("Feedback recorded!");
-        this.setState({
-          name: '',
-          feedback: ''
+    new Promise(function (resolve, reject) {
+      if (RECAPTCHA_SITE_KEY) {
+        window.grecaptcha.ready(function () {
+          window.grecaptcha.execute(RECAPTCHA_SITE_KEY, {action: 'feedback'})
+            .then(function (token) {
+              resolve(token);
+            }, reject);
         });
-      })
-      .catch(() => {
-        alert("Something went wrong.");
+      } else {
+        reject(new Error('No google recaptcha site key.'));
+      }
+    }).then((token) => {
+      data.set('token', token);
+    }).finally(() => {
+      return instance('/api/feedback/', {
+        data,
+        method: 'POST'
       });
+    }).then(() => {
+      alert("Feedback recorded!");
+      this.clear();
+    }).catch(() => {
+      alert("Something went wrong.");
+    });
   }
 
   render() {
