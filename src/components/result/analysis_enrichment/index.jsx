@@ -64,7 +64,7 @@ class AnalysisEnrichmentBody extends React.PureComponent {
           Analysis Enrichment unavailable. Please query more than 1 analysis to see results.
         </p> :
         <div className="row">
-          <EnrichmentGrid className="col-6 p-0" ref={this.container} data={data} hidden={hidden} width={width}
+          <EnrichmentGrid className="col-6 p-0" innerRef={this.container} data={data} hidden={hidden} width={width}
                           height={height}/>
           <EnrichmentTable className="col-6"/>
         </div>

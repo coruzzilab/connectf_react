@@ -9,12 +9,19 @@ import PropTypes from "prop-types";
 import Cell from "./cell";
 import {UncontrolledTooltip} from "reactstrap";
 import classNames from "classnames";
+import {connect} from "react-redux";
 
 const orangeShader = _.partial(colorShader, 40, 89.4, 52);
 const blueShader = _.partial(colorShader, 229, 100, 25.9);
 
+function mapStateToProps({extraFields}) {
+  return {
+    extraFields
+  };
+}
+
 function buildName(c) {
-  return `${c[0]} ${c[1]} ID: ${c[2]}`;
+  return `${c[0]} ${c[1]} ID: ${c[3]}`;
 }
 
 function buildPair(c1, c2) {
@@ -37,14 +44,16 @@ class HeaderCell extends React.PureComponent {
   }
 
   render() {
-    let {style, colStr, count, fontSize} = this.props;
+    let {style, colStr, count, fontSize: headerFontSize, extraFieldData} = this.props;
+    let fontSize = Math.min(headerFontSize, 16);
 
     return <div style={style}>
       <div ref={this.content}>
         <div>{colStr}</div>
-        <div style={{fontSize: Math.min(fontSize, 16)}}>({count})</div>
+        {extraFieldData ? <div style={{fontSize}}>{extraFieldData}</div> : null}
+        <div style={{fontSize}}>({count})</div>
       </div>
-      {fontSize < 16 ?
+      {headerFontSize < 16 ?
         <UncontrolledTooltip placement="right" target={() => this.content.current} style={{style: '1rem'}} delay={0}>
           {colStr}
         </UncontrolledTooltip> :
@@ -57,7 +66,8 @@ HeaderCell.propTypes = {
   colStr: PropTypes.string.isRequired,
   count: PropTypes.number.isRequired,
   style: PropTypes.object,
-  fontSize: PropTypes.number
+  fontSize: PropTypes.number,
+  extraFieldData: PropTypes.node
 };
 
 class CellTooltip extends React.PureComponent {
@@ -135,19 +145,22 @@ class EnrichmentGridBody extends React.PureComponent {
     if (i === j) {
       return <Cell key={j} style={style} className='diagonal' side={side}/>;
     } else if (i === 0 || j === 0) {
-      let content, info;
+      let info, colStr;
+      let extraField = _.head(this.props.extraFields);
       let fontSize = side * 0.3;
       style = {...style, fontSize};
 
       if (j > 0) {
         info = data.info[j - 1];
-        content = <HeaderCell colStr={columnString(j)} count={info[1]['Count']}
-                              fontSize={Math.min(fontSize, 16)}/>;
+        colStr = columnString(j);
       } else {
         info = data.info[i - 1];
-        content = <HeaderCell colStr={columnString(i)} count={info[1]['Count']}
-                              fontSize={Math.min(fontSize, 16)}/>;
+        colStr = columnString(i);
       }
+
+      let extraFieldData = info[1][extraField];
+      let content = <HeaderCell colStr={colStr} count={info[1]['Count']} extraFieldData={extraFieldData}
+                                fontSize={Math.min(fontSize, 16)}/>;
 
       return <Cell key={j} style={style} side={side} info={info} modal
                    innerClassName="d-flex align-items-center justify-content-center">
@@ -232,7 +245,9 @@ class EnrichmentGridBody extends React.PureComponent {
   }
 
   render() {
-    return <div style={{overflow: 'scroll'}} className="mh-100 mw-100 p-0 d-flex flex-column">{this.state.grid}</div>;
+    return <div style={{overflow: 'scroll'}}
+                className={classNames("mh-100 mw-100 p-0 d-flex flex-column", this.props.className)}
+                ref={this.props.innerRef}>{this.state.grid}</div>;
   }
 }
 
@@ -241,17 +256,16 @@ EnrichmentGridBody.propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
   onLoad: PropTypes.func,
-  hidden: PropTypes.arrayOf(PropTypes.number)
+  hidden: PropTypes.arrayOf(PropTypes.number),
+  innerRef: PropTypes.object,
+  className: PropTypes.string,
+  extraFields: PropTypes.arrayOf(PropTypes.string)
 };
 
 EnrichmentGridBody.defaultProps = {
   onLoad: _.noop
 };
 
-const EnrichmentGrid = React.forwardRef(({className, ...props}, ref) => {
-  return <div className={className} ref={ref}>
-    <EnrichmentGridBody {...props}/>
-  </div>;
-});
+const EnrichmentGrid = connect(mapStateToProps, null)(EnrichmentGridBody);
 
 export default EnrichmentGrid;

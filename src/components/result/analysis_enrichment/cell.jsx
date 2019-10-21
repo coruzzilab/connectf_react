@@ -12,6 +12,56 @@ import {blobFromString} from "../../../utils";
 import styled from "styled-components";
 import {ExportModal} from "../common";
 
+const InfoTable = ({info}) => {
+  return <table className="table">
+    <tbody>
+    <tr>
+      <th>Filter</th>
+      <td>{info[0][1]}</td>
+    </tr>
+    {_.map(info[1], (val, key) => (<tr key={key}>
+      <th>{key}</th>
+      <td>{val}</td>
+    </tr>))}
+    </tbody>
+  </table>;
+};
+
+InfoTable.propTypes = {
+  info: PropTypes.object
+};
+
+const CellTable = ({data}) => {
+  return <table className="table">
+    <tbody>
+    <tr>
+      <th>Pair</th>
+      <td>{data.pair}</td>
+    </tr>
+    <tr>
+      <th>Greater</th>
+      <td>{data['greater'].toExponential(2)}</td>
+    </tr>
+    <tr>
+      <th>Greater Adjusted</th>
+      <td>{data['greater_adj'].toExponential(2)}</td>
+    </tr>
+    <tr>
+      <th>Less</th>
+      <td>{data['less'].toExponential(2)}</td>
+    </tr>
+    <tr>
+      <th>Less Adjusted</th>
+      <td>{data['less_adj'].toExponential(2)}</td>
+    </tr>
+    </tbody>
+  </table>;
+};
+
+CellTable.propTypes = {
+  data: PropTypes.object
+};
+
 const GeneList = styled.div.attrs(({className}) => ({
   className: classNames(className, 'text-monospace border border-light rounded')
 }))`
@@ -39,13 +89,13 @@ class Cell extends React.PureComponent {
 
   toggle() {
     this.setState({
-      modal: !this.state.modal,
+      modal: !this.state.modal
     });
   }
 
   toggleSave() {
     this.setState({
-      saveModal: !this.state.saveModal,
+      saveModal: !this.state.saveModal
     });
   }
 
@@ -66,31 +116,24 @@ class Cell extends React.PureComponent {
             {children}
           </div>,
           <Modal key={1} isOpen={this.state.modal} toggle={this.toggle}>
-            <ModalHeader toggle={this.toggle}>Genes</ModalHeader>
-            <ModalBody>
-              {
-                info ?
-                  <div>
-                    <p>Filter: {info[0][1]}</p>
-                    {_.map(info[1], (val, key) => <p key={key}>{key}: {val}</p>)}
-                  </div> :
-                  <div>
-                    <p>Pair: {d.pair}</p>
-                    <p>Greater: {d['greater'].toExponential(2)}</p>
-                    <p>Greater Adjusted: {d['greater_adj'].toExponential(2)}</p>
-                    <p>Less: {d['less'].toExponential(2)}</p>
-                    <p>Less Adjusted: {d['less_adj'].toExponential(2)}</p>
-                    {(geneLen ?
-                      <div>
-                        <p>Number of genes in common: {geneLen}</p>
-                        <GeneList>
-                          <pre>{geneString}</pre>
-                        </GeneList>
-                      </div> :
-                      <p className="text-danger">No genes in common.</p>)}
-                  </div>
-              }
-            </ModalBody>
+            <ModalHeader toggle={this.toggle}>{info ? "Info" : "Enrichment"}</ModalHeader>
+            {
+              info ?
+                <ModalBody>
+                  <InfoTable info={info}/>
+                </ModalBody> :
+                <ModalBody>
+                  <CellTable data={d}/>
+                  {(geneLen ?
+                    <div>
+                      <p>Number of genes in common: {geneLen}</p>
+                      <GeneList>
+                        <pre>{geneString}</pre>
+                      </GeneList>
+                    </div> :
+                    <p className="text-danger">No genes in common.</p>)}
+                </ModalBody>
+            }
             <ModalFooter>
               <Button color="primary" onClick={this.toggle} className="mr-1">Close</Button>
               {geneLen ?

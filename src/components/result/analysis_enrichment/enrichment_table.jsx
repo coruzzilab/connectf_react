@@ -78,7 +78,7 @@ class EnrichmentTableBody extends React.Component {
             <FontAwesomeIcon icon="file-download" className="mr-1"/>Export CSV (*.csv)
           </a>
           <button type="button" className="btn btn-primary ml-1" onClick={this.toggle.bind(this)}>
-            <FontAwesomeIcon icon="cog" className="mr-1"/>Options
+            <FontAwesomeIcon icon="cog" className="mr-1"/>Extra Fields
           </button>
           {busy ? <FontAwesomeIcon icon="circle-notch" spin size="lg"/> : null}
         </div>
@@ -99,12 +99,11 @@ class EnrichmentTableBody extends React.Component {
                   <label className="mb-0">Show <input type="checkbox" checked={!hidden.length}
                                                       onChange={this.toggleShowAll.bind(this)}/></label>
                 </th>
-                <th>Analysis ID</th>
+                {_.map(extraFields, (e, i) => <th key={i}>{e}</th>)}
                 <th>Gene</th>
                 <th>Gene Name</th>
                 <th>Filter</th>
                 <th>Count</th>
-                {_.map(extraFields, (e, i) => <th key={i}>{e}</th>)}
               </tr>
               </thead>
               <tbody>
@@ -113,12 +112,11 @@ class EnrichmentTableBody extends React.Component {
                   <RowHeader info={info}>{columnString(i + 1)}</RowHeader>
                   <td className="text-center"><input type="checkbox" checked={hidden.indexOf(i) === -1}
                                                      onChange={this.toggleShow.bind(this, i)}/></td>
-                  <td>{info[0][3]}</td>
+                  {_(info[1]).pick(extraFields).values().map((e, j) => <td key={j}>{e}</td>).value()}
                   <td>{info[0][0]}</td>
                   <td>{info[1]['gene_name']}</td>
                   <td>{info[0][1]}</td>
                   <td>{info[1]['Count']}</td>
-                  {_(info[1]).pick(extraFields).values().map((e, j) => <td key={j}>{e}</td>).value()}
                 </tr>;
               })}
               </tbody>
