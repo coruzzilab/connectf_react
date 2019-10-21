@@ -11,6 +11,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
+require('dotenv').config();
+
 const APP_DIR = path.join(__dirname, 'src');
 
 const config = {
@@ -107,17 +109,16 @@ const config = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('production')
-      }
-    }),
+    new webpack.EnvironmentPlugin(['NODE_ENV', 'RECAPTCHA_SITE_KEY']),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new MiniCssExtractPlugin({
       filename: '[name].[contenthash].css'
     }),
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: 'src/index.ejs',
+      templateParameters: {
+        RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY
+      }
     }),
     new CopyWebpackPlugin([
       'src/robots.txt'
