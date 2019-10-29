@@ -9,84 +9,18 @@ import PropTypes from 'prop-types';
 import {instance} from "../../../utils/axios_instance";
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
 import {Collapse, DropdownItem, DropdownMenu, DropdownToggle, UncontrolledButtonDropdown} from "reactstrap";
-import {
-  ItemList as ItemListBody,
-  Search,
-  Sungear as SungearGraph,
-  VertexCount
-} from "sungear_react/src/components/sungear";
-import {buildSearchRegex} from "sungear_react/src/utils";
+import {Sungear as SungearGraph, VertexCount} from "sungear_react/src/components/sungear";
+import {buildSearchRegex, saveSvg} from "./utils";
+import Search from './search';
 import classNames from "classnames";
 import {ExportModal} from "../common";
+import ItemList from "./item_list";
 
 function mapStateToProps({requestId}) {
   return {
     requestId
   };
 }
-
-function saveSvg(svgEl, name) {
-  svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-  let svgData = svgEl.outerHTML;
-  let preface = '<?xml version="1.0" standalone="no"?>\r\n';
-  let svgBlob = new Blob([preface, svgData], {type: "image/svg+xml;charset=utf-8"});
-  let svgUrl = URL.createObjectURL(svgBlob);
-  let downloadLink = document.createElement("a");
-  downloadLink.href = svgUrl;
-  downloadLink.download = name;
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
-}
-
-function resizeListWrapper(Tag) {
-  class Wrapper extends React.Component {
-    constructor(props) {
-      super(props);
-
-      this.itemRef = React.createRef();
-
-      this.state = {
-        height: 0
-      };
-
-      this.setSize = _.throttle(this.setSize.bind(this), 100);
-    }
-
-    componentDidMount() {
-      this.setSize();
-      window.addEventListener('resize', this.setSize);
-    }
-
-    componentWillUnmount() {
-      window.removeEventListener('resize', this.setSize);
-    }
-
-    setSize() {
-      let {clientHeight} = document.documentElement;
-
-      this.setState({
-        height: clientHeight - this.itemRef.current.getBoundingClientRect().top
-      });
-    }
-
-    render() {
-      let {className, innerClassName, ...props} = this.props;
-      return <div ref={this.itemRef} className={className}>
-        <Tag height={this.state.height} className={innerClassName} {...props}/>
-      </div>;
-    }
-  }
-
-  Wrapper.propTypes = {
-    className: PropTypes.string,
-    innerClassName: PropTypes.string
-  };
-
-  return Wrapper;
-}
-
-const ItemList = resizeListWrapper(ItemListBody);
 
 class SungearBody extends React.PureComponent {
   constructor(props) {
@@ -132,17 +66,11 @@ class SungearBody extends React.PureComponent {
       let genes = _(this.state.selected).map((s) => this.state.data.intersects[s][2]).flatten().sortBy().value();
       this.setState({
         genes
-      }, () => {
-        let {searchTerm} = this.state;
-        if (searchTerm) {
-          let searchRegex = buildSearchRegex(searchTerm);
-          let scrollIndex = _.findIndex(genes, (g) => searchRegex.test(g));
-
-          if (scrollIndex !== -1) {
-            this.listRef.current.scrollToItem(scrollIndex, "start");
-          }
-        }
       });
+    }
+
+    if (this.state.genes !== prevState.genes) {
+      this.scrollToSearch();
     }
 
     if (!_.isEmpty(this.state.data) &&
@@ -168,6 +96,38 @@ class SungearBody extends React.PureComponent {
     this.setState({
       selected
     });
+  }
+
+  scrollToSearch() {
+    let {searchTerm} = this.state;
+    if (searchTerm) {
+      let {data: {gene_annotation: geneAnnotation}, genes} = this.state;
+      let searchRegex = buildSearchRegex(searchTerm);
+      let searchFunc = (s) => {
+        if (s) {
+          return searchRegex.test(s);
+        }
+        return false;
+      };
+      let geneIndex = _.findIndex(genes, searchFunc);
+      if (geneIndex !== -1) {
+        this.listRef.current.scrollToItem(geneIndex, "start");
+        return;
+      }
+
+      let _anno = _(genes).map((g) => _.get(geneAnnotation, g));
+
+      let symbolIndex = _anno.map('symbol').findIndex(searchFunc);
+      if (symbolIndex !== -1) {
+        this.listRef.current.scrollToItem(symbolIndex, "start");
+        return;
+      }
+
+      let nameIndex = _anno.map('name').findIndex(searchFunc);
+      if (nameIndex !== -1) {
+        this.listRef.current.scrollToItem(nameIndex, "start");
+      }
+    }
   }
 
   getSungear(genes) {
@@ -304,7 +264,7 @@ class SungearBody extends React.PureComponent {
   getVertexFormatter() {
     let {data: {vertices}} = this.state;
     this.setState({
-      vertexFormatter: _(vertices).reduce((res, [idx, coord]) => {
+      vertexFormatter: _(vertices).reduce((res, [idx]) => {
         res[idx] = this.getVertexLabel(idx);
         return res;
       }, {})
@@ -337,7 +297,8 @@ class SungearBody extends React.PureComponent {
             {genes.length.toLocaleString()} genes selected
           </p>
           <div className="rounded border bg-light">
-            <ItemList items={genes} listRef={this.listRef} className="list-group-flush"/>
+            <ItemList items={genes} listRef={this.listRef} itemMetadata={data['gene_annotation']}
+                      className="list-group-flush"/>
           </div>
         </div>
         <div className="col-3">
