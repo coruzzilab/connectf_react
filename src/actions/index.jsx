@@ -5,7 +5,6 @@ import * as motifEnrichment from "./motif_enrichment";
 import * as targetEnrichment from "./target_enrichment";
 import * as analysisEnrichment from "./analysis_enrichment";
 import uuidv4 from "uuid/v4";
-import _ from 'lodash';
 import * as api from "../utils/axios_instance";
 
 export const setBusy = (busy = true) => {
@@ -229,7 +228,7 @@ export const setPrecisionCutoff = (precisionCutoff) => {
   };
 };
 
-export const postQuery = (config, onSuccess, onError, always) => {
+export const postQuery = (config) => {
   return (dispatch) => {
 
     dispatch(setBusy(true));
@@ -242,31 +241,15 @@ export const postQuery = (config, onSuccess, onError, always) => {
         dispatch(addQueryHistory(config.data.get('query')));
         dispatch(clearAllErrors());
         dispatch(setPrecisionCutoff(0));
-
-        if (_.isFunction(onSuccess)) {
-          onSuccess(response);
-        }
       })
       .catch((err) => {
         let {response} = err;
 
         if (response) {
-          if (response.status >= 400 < 500) {
-            dispatch(setResult([{
-              data: [['No Data Matched Your Query']],
-              columns: [{type: 'text'}]
-            }, {}]));
-          } else {
-            dispatch(setResult([{
-              data: [['Something went wrong with the server. Please report to the development team.']],
-              columns: [{type: 'text'}]
-            }, {}]));
-          }
-
           if (response.status === 400) {
             dispatch(setQueryError(true, response.data || 'Problem with query.'));
           } else if (response.status === 404) {
-            dispatch(setQueryError(true, 'Empty result.'));
+            dispatch(setQueryError(true, response.data));
           } else {
             dispatch(setQueryError(true, response.statusText));
           }
@@ -274,16 +257,10 @@ export const postQuery = (config, onSuccess, onError, always) => {
 
         dispatch(clearRequestId());
 
-        if (_.isFunction(onError)) {
-          onError(err);
-        }
+        throw err;
       })
       .finally(() => {
         dispatch(setBusy(false));
-
-        if (_.isFunction(always)) {
-          always();
-        }
       });
   };
 };
