@@ -30,7 +30,9 @@ export class MetaBody extends React.Component {
     let {result} = this.props;
 
     let hot = this.hot = new Handsontable(this.grid.current, {
-      licenseKey: "non-commercial-and-evaluation",
+      licenseKey: 'non-commercial-and-evaluation',
+      readOnly: true,
+      readOnlyCellClassName: 'foobar',  // @todo: placeholder class until bug is fixed
       rowHeaders: true,
       manualColumnResize: true,
       colHeaders: _.map(_.get(result, 'metadata.columns', []), 'name'),

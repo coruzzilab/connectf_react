@@ -9,6 +9,7 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {TableExport, TargetExport} from "./export";
+import classNames from 'classnames';
 
 let mapStateToProps = ({result}) => {
   return {
@@ -41,7 +42,9 @@ class TableBody extends React.Component {
   componentDidMount() {
     let self = this;
     let hot = this.hot = new Handsontable(this.grid.current, {
-      licenseKey: "non-commercial-and-evaluation",
+      licenseKey: 'non-commercial-and-evaluation',
+      readOnly: true,
+      readOnlyCellClassName: 'foobar',  // @todo: placeholder class until bug is fixed
       rowHeaders: function (idx) {
         if (idx < 6) {
           return '';
@@ -61,7 +64,7 @@ class TableBody extends React.Component {
 
         if (row === 0) {
           cellProperties.renderer = "newline";
-          cellProperties.className = "font-weight-bold";
+          cellProperties.className = classNames(cellProperties.className, "font-weight-bold");
         }
 
         if ((row < 6 && row > 0) || col === 6 || col === 7) {
@@ -73,7 +76,7 @@ class TableBody extends React.Component {
         // }
 
         if (col > 7 && row < 6) {
-          cellProperties.className += " htCenter";
+          cellProperties.className = classNames(cellProperties.className, "htCenter");
         }
 
         if (row < 6) {
