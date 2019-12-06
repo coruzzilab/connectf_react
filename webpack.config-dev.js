@@ -4,6 +4,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 require('dotenv').config({path: path.resolve(process.cwd(), '.env.dev')});
 
@@ -80,11 +81,12 @@ const config = {
   devtool: 'inline-source-map',
   plugins: [
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new webpack.EnvironmentPlugin(['NODE_ENV', 'RECAPTCHA_SITE_KEY']),
+    new Dotenv({path: path.resolve(process.cwd(), '.env.dev')}),
     new HtmlWebpackPlugin({
       template: 'src/index.ejs',
       templateParameters: {
-        RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY
+        RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
+        RECAPTCHA: process.env.RECAPTCHA
       }
     })
   ],

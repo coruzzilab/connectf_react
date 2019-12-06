@@ -10,6 +10,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 require('dotenv').config();
 
@@ -109,7 +110,7 @@ const config = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new webpack.EnvironmentPlugin(['NODE_ENV', 'RECAPTCHA_SITE_KEY']),
+    new Dotenv(),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new MiniCssExtractPlugin({
       filename: '[name].[contenthash].css'
@@ -117,7 +118,8 @@ const config = {
     new HtmlWebpackPlugin({
       template: 'src/index.ejs',
       templateParameters: {
-        RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY
+        RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
+        RECAPTCHA: process.env.RECAPTCHA
       }
     }),
     new CopyWebpackPlugin([
