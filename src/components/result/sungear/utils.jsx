@@ -67,6 +67,9 @@ export function resizeListWrapper(Tag) {
   return Wrapper;
 }
 
-export function buildSearchRegex(term) {
+export function buildSearchRegex(term, exact = false) {
+  if (exact) {
+    return new RegExp("^" + _.escapeRegExp(term) + "$", "i");
+  }
   return new RegExp(_.escapeRegExp(term), "i");
 }

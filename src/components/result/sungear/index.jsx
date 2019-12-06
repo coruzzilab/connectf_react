@@ -13,8 +13,8 @@ import {Sungear as SungearGraph, VertexCount} from "sungear_react/src/components
 import {buildSearchRegex, saveSvg} from "./utils";
 import Search from './search';
 import classNames from "classnames";
-import {ExportModal} from "../common";
 import ItemList from "./item_list";
+import {ExportModal} from "../../common";
 
 function mapStateToProps({requestId}) {
   return {
@@ -326,17 +326,12 @@ class SungearBody extends React.PureComponent {
 
             </div>
           </div>
-          <div className="row m-1">
-            <div className="col">
-              <label htmlFor="search" className="sr-only">Search</label>
-              <Search id="search"
-                      value={searchTerm}
-                      onChange={this.handleSearch.bind(this)}
-                      data={data}
-                      selected={selected}
-                      onSelectChange={this.handleSelect.bind(this)}/>
-            </div>
-          </div>
+          <Search value={searchTerm}
+                  onChange={this.handleSearch.bind(this)}
+                  data={data}
+                  selected={selected}
+                  onSelectChange={this.handleSelect.bind(this)}
+                  className="m-1"/>
           <div className="row m-1">
             <div className="col">
               <div className="d-inline mr-2">Views:</div>

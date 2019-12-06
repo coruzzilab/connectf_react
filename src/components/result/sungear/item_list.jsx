@@ -34,10 +34,7 @@ ItemListBody.propTypes = {
   listRef: PropTypes.object,
   className: PropTypes.string
 };
-/**
- * @author zacharyjuang
- * 10/28/19
- */
+
 const ItemList = resizeListWrapper(ItemListBody);
 
 export default ItemList;
