@@ -5,7 +5,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import tutoriadMd from '!!html-loader!markdown-loader!toc-loader!./tutorial.md';
+import tutoriadMd from '!!html-loader!custom-md-loader!toc-loader!./tutorial.md';
 
 
 const Button = ({children, danger}) => (
