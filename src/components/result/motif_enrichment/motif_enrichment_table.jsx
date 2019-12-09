@@ -10,8 +10,7 @@ import PropTypes from "prop-types";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
-import {BASE_COLORS} from "./index";
-import {ColHeader} from "./common";
+import {BASE_COLORS, ColHeader} from "./common";
 
 const FrozenTd = styled.td`
   position: sticky;
@@ -170,11 +169,7 @@ class MotifEnrichmentTable extends React.Component {
             let line2 = _(val).pick(['TECHNOLOGY', 'ANALYSIS_METHOD', 'ANALYSIS_CUTOFF']).values().join('-');
             return <ColHeader key={key}
                               data={val}
-                              colSpan={colSpan}
-                              sortFunc={this.sortFunc.bind(this, i + 1)}
-                              sorted={sortCol === i + 1}
-                              sortable={colSpan === 1}
-                              ascending={ascending}>
+                              colSpan={colSpan}>
               {!_.isEmpty(val) ?
                 <div>
                   <p className="m-0">{columnString(i + 1)} — {line1}</p>
@@ -186,22 +181,18 @@ class MotifEnrichmentTable extends React.Component {
         </tr>
         <tr>
           <FrozenTd/>
-          {colSpan > 1 ?
-            _(_.get(table, 'columns', [])).map((val, i) => {
-              let numRegion = table.regions.length;
-              let indeces = _.map(_.range(1, numRegion + 1), (j) => i * numRegion + j);
-              return _.map(_.zip(table.regions, indeces), ([r, idx]) => {
-                return <th key={idx}>
-                  <span className="mr-1">{r} (p-value)</span>
-                  <SortButton sorted={sortCol === idx}
-                              sortFunc={this.sortFunc.bind(this, idx)}
-                              ascending={ascending}/>
-                </th>;
-              });
-            }).flatten().value() :
-            _(_.get(table, 'columns', {})).map((val, key) => {
-              return <th key={key}>promoter (p-value)</th>;
-            }).value()}
+          {_(_.get(table, 'columns', [])).map((val, i) => {
+            let numRegion = table.regions.length;
+            let indeces = _.map(_.range(1, numRegion + 1), (j) => i * numRegion + j);
+            return _.map(_.zip(table.regions, indeces), ([r, idx]) => {
+              return <th key={idx}>
+                <span className="mr-1">{r} (p-value)</span>
+                <SortButton sorted={sortCol === idx}
+                            sortFunc={this.sortFunc.bind(this, idx)}
+                            ascending={ascending}/>
+              </th>;
+            });
+          }).flatten().value()}
         </tr>
         </thead>
         <tbody>

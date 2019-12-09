@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 import {connect} from 'react-redux';
 import _ from 'lodash';
 import {FontAwesomeIcon as Icon} from '@fortawesome/react-fontawesome';
-import {Collapse, Nav, NavItem, NavLink, TabContent, TabPane, UncontrolledTooltip} from 'reactstrap';
+import {Collapse, Nav, NavItem, NavLink, TabContent, TabPane} from 'reactstrap';
 import {setBusy} from "../../../actions/index";
 import {svgAddTable} from '../../../utils';
 import {
@@ -22,53 +22,7 @@ import {CancelToken} from "axios";
 import {tableToCsvUri} from "./export";
 import MotifEnrichmentTable from "./motif_enrichment_table";
 import HeatmapTable from "./heatmap_table";
-
-export const BASE_COLORS = {
-  'a': '#59C83B',
-  't': '#CC2B1D',
-  'c': '#0012D3',
-  'g': '#F5BD41',
-  'other': '#888888'
-};
-
-const MotifEnrichmentInfo = () => {
-  return <p className="text-secondary">
-    Finding enriched motifs in the set of target genes in analyses. The counts of a motif in the Target genes of each
-    analysis is compared to the total number of counts in the genome. Enrichment is calculated by the Fisher&apos;s
-    Exact Test.
-  </p>;
-};
-
-class MotifRegionCheckbox extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.label = React.createRef();
-  }
-
-  render() {
-    let {name, desc} = this.props;
-    return <div className="form-check form-check-inline">
-      <label className="form-check-label" ref={this.label}>
-        <input className="form-check-input" type="checkbox"
-               value={name}
-               checked={this.props.checked}
-               onChange={this.props.onChange}/>
-        {name}
-      </label>
-      <UncontrolledTooltip target={() => this.label.current} delay={0}>
-        {desc}
-      </UncontrolledTooltip>
-    </div>;
-  }
-}
-
-MotifRegionCheckbox.propTypes = {
-  name: PropTypes.string,
-  desc: PropTypes.string,
-  checked: PropTypes.bool,
-  onChange: PropTypes.func
-};
+import {BusyIcon, MotifEnrichmentInfo, MotifRegionCheckbox} from "./common";
 
 const mapStateToProps = ({busy, requestId, motifEnrichment, extraFields}) => {
   return {
@@ -141,11 +95,26 @@ class MotifEnrichmentBody extends React.Component {
     });
   }
 
+  checkCanRegionSelect(r) {
+    let selectedGroups = _(this.state.selectedMotifRegions)
+      .map((s) => this.state.motifRegions[s].group)
+      .flatten()
+      .uniq()
+      .value();
+
+    return !_.size(_.intersection(this.state.motifRegions[r].group, selectedGroups));
+  }
+
   handleMotifRegionSelect(r, e) {
     if (e.target.checked) {
       this.setState((state) => {
+        if (this.checkCanRegionSelect(r)) {
+          return {
+            selectedMotifRegions: [...state.selectedMotifRegions, r]
+          };
+        }
         return {
-          selectedMotifRegions: [...state.selectedMotifRegions, r]
+          selectedMotifRegions: state.selectedMotifRegions
         };
       });
     } else {
@@ -276,7 +245,7 @@ class MotifEnrichmentBody extends React.Component {
           <button type="button" className="btn btn-primary mr-2" onClick={this.toggle.bind(this)}>
             <Icon icon="cog" className="mr-1"/>Options
           </button>
-          {busy ? <Icon icon="circle-notch" spin size="lg"/> : null}
+          <BusyIcon busy={busy}/>
           <a href={new URL('/api/motif_enrichment/cluster_info.csv', BASE_URL)} className="btn btn-primary float-right">
             <Icon icon="file-csv" className="mr-1"/>Export Cluster Information</a>
         </div>
@@ -330,12 +299,16 @@ class MotifEnrichmentBody extends React.Component {
                 <div className="form-group row align-items-center">
                   <legend className="col-form-label col-2">Show Enrichment of Gene Regions:</legend>
                   <div className="col-10">
-                    {_.map(motifRegions, (val, key) => <MotifRegionCheckbox
-                      key={key}
-                      name={key}
-                      desc={val}
-                      checked={selectedMotifRegions.indexOf(key) !== -1}
-                      onChange={this.handleMotifRegionSelect.bind(this, key)}/>)}
+                    {_.map(motifRegions, (val, key) => {
+                      let checked = selectedMotifRegions.indexOf(key) !== -1;
+                      return <MotifRegionCheckbox
+                        key={key}
+                        name={key}
+                        data={val}
+                        checked={checked}
+                        disabled={!checked && !this.checkCanRegionSelect(key)}
+                        onChange={this.handleMotifRegionSelect.bind(this, key)}/>;
+                    })}
                   </div>
                 </div>
                 <div className="form-group row align-items-center">

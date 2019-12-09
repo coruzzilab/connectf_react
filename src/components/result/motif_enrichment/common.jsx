@@ -3,11 +3,11 @@
  * 11/9/18
  */
 import React from "react";
-import {SortButton} from "../common";
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, UncontrolledTooltip} from "reactstrap";
 import _ from "lodash";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {FontAwesomeIcon as Icon, FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
+import classNames from "classnames";
 
 export class ColHeader extends React.Component {
   constructor(props) {
@@ -31,7 +31,7 @@ export class ColHeader extends React.Component {
 
   render() {
     let {visible} = this.state;
-    let {colSpan, data, sorted, ascending, sortFunc, sortable} = this.props;
+    let {colSpan, data} = this.props;
 
     return <th colSpan={colSpan}>
       <div className="container-fluid">
@@ -39,11 +39,6 @@ export class ColHeader extends React.Component {
           <div className="col">
             <a className="text-primary link" onClick={this.showModal.bind(this)}>{this.props.children}</a>
           </div>
-          {sortable ?
-            <div className="col-1">
-              <SortButton sortFunc={sortFunc} ascending={ascending} sorted={sorted}/>
-            </div> :
-            null}
         </div>
       </div>
 
@@ -90,4 +85,55 @@ ColHeader.defaultProps = {
   colSpan: 1,
   sorted: false,
   ascending: true
+};
+
+export const MotifEnrichmentInfo = () => {
+  return <p className="text-secondary">
+    Finding enriched motifs in the set of target genes in analyses. The counts of a motif in the Target genes of each
+    analysis is compared to the total number of counts in the genome. Enrichment is calculated by the Fisher&apos;s
+    Exact Test.
+  </p>;
+};
+
+export const BASE_COLORS = {
+  'a': '#59C83B',
+  't': '#CC2B1D',
+  'c': '#0012D3',
+  'g': '#F5BD41',
+  'other': '#888888'
+};
+
+export const MotifRegionCheckbox = ({name, data, checked, disabled, onChange}) => {
+  let label = React.createRef();
+
+  return <div className="form-check form-check-inline">
+    <label className={classNames("form-check-label", disabled ? "text-muted" : null)} ref={label}>
+      <input className="form-check-input"
+             type="checkbox"
+             value={name}
+             checked={checked}
+             disabled={disabled}
+             onChange={onChange}/>
+      {data.name}
+    </label>
+    <UncontrolledTooltip target={label} delay={0}>
+      {data.description}
+    </UncontrolledTooltip>
+  </div>;
+};
+
+MotifRegionCheckbox.propTypes = {
+  name: PropTypes.string,
+  data: PropTypes.object,
+  checked: PropTypes.bool,
+  disabled: PropTypes.bool,
+  onChange: PropTypes.func
+};
+
+export const BusyIcon = ({busy}) => {
+  return busy ? <Icon icon="circle-notch" spin size="lg"/> : null;
+};
+
+BusyIcon.propTypes = {
+  busy: PropTypes.bool
 };
