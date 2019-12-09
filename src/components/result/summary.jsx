@@ -129,7 +129,6 @@ class SummaryBody extends React.Component {
         scales: {
           yAxes: [{
             autoSkip: false,
-            maxBarThickness: 50,
             stacked: true,
             scaleLabel: {
               display: true,
@@ -185,7 +184,8 @@ class SummaryBody extends React.Component {
                 backgroundColor: COLOR[simplifyEdge(edge)],
                 stack: j,
                 data: arr,
-                tooltip: k
+                tooltip: k,
+                maxBarThickness: 50
               };
             }).filter((o) => o.data[i]).value();
           }).value();
