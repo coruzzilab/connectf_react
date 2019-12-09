@@ -2,7 +2,7 @@
  * @author zacharyjuang
  * 8/25/18
  */
-import React from "react";
+import React, {useState} from "react";
 import {
   DropdownItem,
   DropdownMenu,
@@ -16,8 +16,10 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import _ from "lodash";
-import {InfoPopover} from "../common";
+import {ExportModal, InfoPopover} from "../common";
 import styled from "styled-components";
+import {connect} from 'react-redux';
+import {clearList} from "../../actions";
 
 export class AndOrSelect extends React.Component {
   handleChange(e) {
@@ -91,35 +93,39 @@ AddFollowing.defaultProps = {
   addGroupText: 'Add Following TF Group'
 };
 
-export class UploadFile extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+export const UploadFile = ({className, inputRef, ...props}) => {
+  let [genes, setGenes] = useState("");
+  let [isOpen, setIsOpen] = useState(false);
 
-  componentDidMount() {
-    this.props.inputRef.current.scrollIntoView();
-    if (this.props.autoOpen) {
-      this.props.inputRef.current.focus();
-      this.props.inputRef.current.click();
-    }
-  }
+  let onFileChange = (e) => {
+    let file = e.target.files[0];
+    let reader = new FileReader();
+    reader.onload = (e) => {
+      setGenes(e.target.result);
+    };
+    reader.readAsText(file);
+  };
 
-  render() {
-    let {className, inputRef, autoOpen, ...props} = this.props;
+  return <div className={classNames("row", className)}>
+    <div className="col-11 pr-1">
+      <input type="file" className="form-control-file"
+             ref={inputRef} onChange={onFileChange} {...props} />
+    </div>
+    <div className="col-1 pl-1">
+      <button type="button" className="btn btn-primary btn-block"
+              disabled={!genes}
+              onClick={setIsOpen.bind(undefined, !isOpen)}>
+        <FontAwesomeIcon icon="save" className="mr-1"/>Save
+      </button>
+    </div>
 
-    return <input type="file" className={classNames("form-control-file", className)}
-                  ref={inputRef} {...props}/>;
-  }
-}
+    <ExportModal isOpen={isOpen} toggle={setIsOpen.bind(undefined, !isOpen)} genes={genes} addHeader={false}/>
+  </div>;
+};
 
 UploadFile.propTypes = {
   inputRef: PropTypes.object,
-  className: PropTypes.string,
-  autoOpen: PropTypes.bool
-};
-
-UploadFile.defaultProps = {
-  autoOpen: false
+  className: PropTypes.string
 };
 
 
@@ -312,13 +318,14 @@ text-decoration: underline dotted;
 export const QueryInfo = () => {
   return <div className="form-row m-2">
     <div className="col">
-      <CursorHelp className="small text-secondary" id="queryInfo"><FontAwesomeIcon icon="question-circle"/> more info</CursorHelp>
+      <CursorHelp className="small text-secondary" id="queryInfo"><FontAwesomeIcon icon="question-circle"/> more
+        info</CursorHelp>
       <UncontrolledPopover trigger="hover" target="queryInfo" delay={0}>
         <PopoverHeader>Query Info</PopoverHeader>
         <PopoverBody>
           <h6>Info on additional keywords:</h6>
           <ul>
-            <li><span className="font-weight-bold">oralltf</span> — Query the union of all Transcription Factors in the
+            <li><span className="font-weight-bold">all_tf</span> — Query the union of all Transcription Factors in the
               database, a filter is recommended to decrease the amount of returned data.
             </li>
             <li><span className="font-weight-bold">multitype</span> — Query Transcription Factors that have multiple
@@ -328,6 +335,33 @@ export const QueryInfo = () => {
           <p>These keywords can be used in place of Transcription Factor IDs.</p>
         </PopoverBody>
       </UncontrolledPopover>
+    </div>
+  </div>;
+};
+
+const ClearListButtonBody = ({clearList}) => {
+  return <button type="button" className="btn btn-danger" onClick={clearList}>
+    <FontAwesomeIcon icon="trash-alt"/> Clear Saved Lists
+  </button>;
+};
+
+ClearListButtonBody.propTypes = {
+  clearList: PropTypes.func
+};
+
+export const ClearListButton = connect(null, {clearList})(ClearListButtonBody);
+
+export const AdditionalOptions = () => {
+  return <div className="row">
+    <div className="col">
+      <div className="row m-2 align-items-center">
+        <h4>Additional Options</h4>
+      </div>
+      <div className="row m-2">
+        <div className="col">
+          <ClearListButton/>
+        </div>
+      </div>
     </div>
   </div>;
 };

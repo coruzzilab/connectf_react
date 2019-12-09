@@ -1,10 +1,12 @@
 /**
  * Created by zacharyjuang on 11/24/16.
  */
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {connect} from "react-redux";
 import _ from "lodash";
 import PropTypes from "prop-types";
+import {Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
+import classNames from "classnames";
 import {
   addEdge,
   clearEdges,
@@ -16,10 +18,11 @@ import {
   postQuery,
   removeEdge,
   setEdges,
-  setQuery
+  setQuery,
+  setWarnSubmit
 } from '../../actions';
 import {getQuery} from "../../utils";
-import {Edges, QueryInfo} from "./common";
+import {AdditionalOptions, Edges, QueryInfo} from "./common";
 import History from "./history";
 import {getTargetGeneLists, getTargetNetworks} from "../../utils/axios_instance";
 import {CancelToken} from "axios";
@@ -28,7 +31,82 @@ import QueryBox from "./query_box";
 import AdvancedQuery from "./advanced_query";
 import RandomButton from "./random_button";
 
-const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, tempLists}) => {
+const WarningModalContent = ({data, queryTree}) => {
+  let [targetGenes, setTargetGenes] = useState("");
+  let [filterTfs, setFilterTfs] = useState("");
+  let [targetNetworks, setTargetNetworks] = useState("");
+  let [warnBuild, setWarnBuild] = useState(false);
+  useEffect(() => {
+    let targetGenesFile, filterTfsFile, targetNetworksFile;
+
+    targetGenesFile = data.get('targetgenes');
+    if (targetGenesFile) {
+      if (targetGenesFile instanceof Blob) {
+        targetGenesFile.slice(0, 100).text().then((text) => {
+          setTargetGenes(text.length < 100 ? text : text + '...');
+        });
+      } else {
+        setTargetGenes(targetGenesFile);
+      }
+    }
+
+    filterTfsFile = data.get('filtertfs');
+    if (filterTfsFile) {
+      if (filterTfsFile instanceof Blob) {
+        filterTfsFile.slice(0, 100).text().then((text) => {
+          setFilterTfs(text.length < 100 ? text : text + '...');
+        });
+      } else {
+        setFilterTfs(filterTfsFile);
+      }
+    }
+
+    targetNetworksFile = data.get('targetnetworks');
+    if (targetNetworksFile) {
+      if (targetNetworksFile instanceof Blob) {
+        targetNetworksFile.slice(0, 100).text().then((text) => {
+          setTargetNetworks(text.length < 100 ? text : text + '...');
+        });
+      } else {
+        setTargetNetworks(targetNetworksFile);
+      }
+    }
+
+    let query = data.get('query');
+    let builtQuery = getQuery(queryTree);
+    setWarnBuild(query && builtQuery && query !== builtQuery);
+  });
+
+  return <div>
+    <h6>Query</h6>
+    <div className={classNames(warnBuild ? "text-warning" : null)}>{data.get('query')}</div>
+    <div className="mb-2">
+      {warnBuild ?
+        <div><small>Current query is different from the one in Query Builder. Click on
+          <span className="text-nowrap">&quot;Build Query&quot;</span> if necessary</small>
+        </div> :
+        null}
+    </div>
+    <h6>Additional Edges</h6>
+    <div className="mb-2">{data.has('edges') ?
+      <ul>{_.map(data.getAll('edges'), (e, i) => <li key={i}>{e}</li>)}</ul> :
+      "No Additional Edges selected"}
+    </div>
+    <h6>Target Genes</h6>
+    <div className="mb-2">{data.has('targetgenes') ? targetGenes : "No Target Genes Selected"}</div>
+    <h6>Filter TFs</h6>
+    <div className="mb-2">{data.has('filtertfs') ? filterTfs : "No Filter TFs Selected"}</div>
+    <h6>Target Networks</h6>
+    <div className="mb-2">{data.has('targetnetworks') ? targetNetworks : "No Target Networks Selected"}</div>
+  </div>;
+};
+
+WarningModalContent.propTypes = {
+  data: PropTypes.object,
+  queryTree: PropTypes.arrayOf(PropTypes.object)
+};
+
+const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, tempLists, warnSubmit}) => {
   return {
     busy,
     query,
@@ -36,7 +114,8 @@ const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, t
     edges,
     edgeList,
     queryError,
-    tempLists
+    tempLists,
+    warnSubmit
   };
 };
 
@@ -62,10 +141,19 @@ class QuerybuilderBody extends React.Component {
       filterTf: '',
       targetNetworks: [],
       targetNetwork: '',
-      shouldBuild: false
+
+      isOpen: false,
+      data: null,
+      submitFunc: _.noop
     };
 
     this.cancels = [];
+  }
+
+  toggleWarnSubmit() {
+    this.setState({
+      isOpen: !this.state.isOpen
+    });
   }
 
   componentDidMount() {
@@ -91,17 +179,13 @@ class QuerybuilderBody extends React.Component {
     }
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-    let {query, setQuery, edges, queryTree, tempLists} = this.props;
+  createSubmitData() {
+    let {query, edges, queryTree, tempLists} = this.props;
     let {targetGene, filterTf, targetNetwork} = this.state;
     let data = new FormData();
 
-    this.cancelRequests();
-
     if (!this.props.query) {
       query = getQuery(queryTree);
-      setQuery(query);
     }
 
     data.append('query', query);
@@ -124,7 +208,7 @@ class QuerybuilderBody extends React.Component {
       data.set('targetgenes',
         new Blob([tempLists[targetGene]], {type: 'text/plain'}),
         'targetgenes.txt');
-    } else {
+    } else if (targetGene) {
       data.set('targetgenes', targetGene);
     }
 
@@ -141,7 +225,7 @@ class QuerybuilderBody extends React.Component {
       data.set('filtertfs',
         new Blob([tempLists[filterTf]], {type: 'text/plain'}),
         'filtertfs.txt');
-    } else {
+    } else if (filterTf) {
       data.set('filtertfs', filterTf);
     }
 
@@ -154,21 +238,45 @@ class QuerybuilderBody extends React.Component {
       data.set('targetnetworks',
         new Blob([this.targetNetworksInput.current.value], {type: 'text/plain'}),
         'targetnetworks.txt');
-    } else {
+    } else if (targetNetwork) {
       data.set('targetnetworks', targetNetwork);
     }
 
-    this.props.postQuery(
-      {
+    return data;
+  }
+
+  submitData(data) {
+    return this.props.postQuery({
+      data,
+      cancelToken: new CancelToken((c) => {
+        this.cancels.push(c);
+      })
+    }).then(() => {
+      this.props.history.push('/result/summary');
+    });
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    let {query, setQuery, warnSubmit} = this.props;
+
+    this.cancelRequests();
+
+    let data = this.createSubmitData();
+
+    if (!this.props.query) {
+      setQuery(query);
+    }
+
+    if (warnSubmit) {
+      this.setState({
         data,
-        cancelToken: new CancelToken((c) => {
-          this.cancels.push(c);
-        })
-      },
-      () => {
-        this.props.history.push('/result/summary');
-        // this.props.history.push('/result/table');
+        submitFunc: this.submitData.bind(this, data)
       });
+      this.toggleWarnSubmit();
+    } else {
+      this.submitData(data);
+    }
   }
 
   reset() {
@@ -237,8 +345,8 @@ class QuerybuilderBody extends React.Component {
   }
 
   render() {
-    let {targetGenes, targetGene, filterTfs, filterTf, targetNetworks, targetNetwork} = this.state;
-    let {edges, edgeList, queryError, tempLists} = this.props;
+    let {targetGenes, targetGene, filterTfs, filterTf, targetNetworks, targetNetwork, isOpen, data} = this.state;
+    let {edges, edgeList, queryError, queryTree, tempLists, warnSubmit, setWarnSubmit} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
@@ -255,6 +363,34 @@ class QuerybuilderBody extends React.Component {
           </div>
 
           <QueryBox reset={this.reset.bind(this)}/>
+
+          <Modal isOpen={isOpen} toggle={this.toggleWarnSubmit.bind(this)} backdrop={false}>
+            <ModalHeader toggle={this.toggleWarnSubmit.bind(this)}>Submit</ModalHeader>
+            <ModalBody>
+              {data ?
+                <WarningModalContent data={data} queryTree={queryTree}/> :
+                null}
+            </ModalBody>
+            <ModalFooter>
+              <button className="btn btn-danger" type="button" onClick={this.toggleWarnSubmit.bind(this)}>Cancel
+              </button>
+              <button className="btn btn-primary" type="button" onClick={() => {
+                this.toggleWarnSubmit();
+                this.state.submitFunc();
+              }}>Submit
+              </button>
+            </ModalFooter>
+          </Modal>
+
+          <div className="form-row m-1">
+            <div className="col">
+              <label>
+                <input type="checkbox"
+                       checked={warnSubmit}
+                       onChange={(e) => setWarnSubmit(e.target.checked)}/> Confirm Query Before Submit
+              </label>
+            </div>
+          </div>
 
           <div className="form-row m-1">
             <div className="col">
@@ -290,6 +426,7 @@ class QuerybuilderBody extends React.Component {
                                  inputRef={this.targetNetworksInput}
                                  onChange={this.handleFileSelect.bind(this, 'targetNetwork')}
                                  value={targetNetwork}/>
+              <AdditionalOptions/>
             </div>
           </div>
         </div>
@@ -320,7 +457,9 @@ QuerybuilderBody.propTypes = {
   clearRequestId: PropTypes.func,
   queryError: PropTypes.shape({error: PropTypes.bool, message: PropTypes.string}),
   clearQueryError: PropTypes.func,
-  tempLists: PropTypes.object
+  tempLists: PropTypes.object,
+  warnSubmit: PropTypes.bool,
+  setWarnSubmit: PropTypes.func
 };
 
 const Querybuilder = connect(mapStateToProps, {
@@ -334,7 +473,8 @@ const Querybuilder = connect(mapStateToProps, {
   setEdges,
   getEdgeList,
   clearRequestId,
-  clearQueryError
+  clearQueryError,
+  setWarnSubmit
 })(QuerybuilderBody);
 
 export default Querybuilder;

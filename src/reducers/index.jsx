@@ -342,6 +342,15 @@ function tempLists(state = {}, action) {
   }
 }
 
+function warnSubmit(state = true, action) {
+  switch (action.type) {
+  case 'SET_WARN_SUBMIT':
+    return action.warn;
+  default:
+    return state;
+  }
+}
+
 const tgdbApp = {
   busy,
   query,
@@ -360,7 +369,8 @@ const tgdbApp = {
   queryHistory,
   queryError,
   extraFields,
-  tempLists
+  tempLists,
+  warnSubmit
 };
 
 export default combineReducers(tgdbApp);

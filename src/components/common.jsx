@@ -5,12 +5,20 @@
 import {Link, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
 import React from "react";
-import {NavItem as BSNavItem, UncontrolledPopover} from "reactstrap";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  NavItem as BSNavItem,
+  UncontrolledPopover
+} from "reactstrap";
 import Clipboard from "clipboard";
 import classNames from "classnames";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {connect} from "react-redux";
-import {addEdge, getEdgeList, getNetwork, removeEdge, setEdges} from "../actions";
+import {addEdge, addList, getEdgeList, getNetwork, removeEdge, setEdges} from "../actions";
 import _ from "lodash";
 import {checkAupr} from "../utils/axios_instance";
 import {AuprAdjuster} from "./result/network/aupr";
@@ -269,7 +277,7 @@ export class InfoPopover extends React.Component {
     return <div className="ml-2">
       <div className="link info-link" ref={this.info} title="More info">
         <FontAwesomeIcon icon="question-circle"/></div>
-      <UncontrolledPopover target={() => this.info.current} trigger="legacy" delay={0}>
+      <UncontrolledPopover target={() => this.info.current} delay={0}>
         {this.props.children}
       </UncontrolledPopover>
     </div>;
@@ -323,4 +331,111 @@ TwitterFollow.propTypes = {
 TwitterFollow.defaultProps = {
   size: "large",
   showCount: true
+};
+
+class ExportModalBody extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      name: '',
+      error: ''
+    };
+
+    this.nameInput = React.createRef();
+  }
+
+  handleName(e) {
+    this.setState({
+      name: e.target.value
+    });
+  }
+
+  focusNameInput() {
+    if (this.nameInput.current) {
+      this.nameInput.current.focus();
+    }
+  }
+
+  addList(genes, e) {
+    let {name} = this.state;
+    e.preventDefault();
+    e.stopPropagation();
+    if (!name || name === 'other' || name === 'input') {
+      this.setState({
+        error: 'Please pick another name.'
+      });
+    } else {
+      if (this.props.addHeader) {
+        this.props.addList(name, `>${name}\n` + genes);
+      } else {
+        this.props.addList(name, genes);
+      }
+      this.toggle();
+    }
+
+  }
+
+  toggle() {
+    if (this.props.isOpen) {
+      this.setState({
+        name: '',
+        error: ''
+      });
+    }
+    this.props.toggle();
+  }
+
+  render() {
+    let {error} = this.state;
+    let {genes, isOpen} = this.props;
+
+    return <Modal isOpen={isOpen} toggle={this.toggle.bind(this)} onOpened={this.focusNameInput.bind(this)}>
+      <form onSubmit={this.addList.bind(this, genes)}>
+        <ModalHeader toggle={this.toggle.bind(this)}>Name Target Gene List</ModalHeader>
+        <ModalBody>
+          <div className="form-group form-inline">
+            <label className="mr-2">Name:</label>
+            <input type="text" className="form-control mr-2" placeholder="Enter Name"
+                   ref={this.nameInput}
+                   onChange={this.handleName.bind(this)}
+                   value={this.state.name}/>
+
+          </div>
+          <div className="form-group">
+            {error ?
+              <small className="form-text text-danger">{error}</small> :
+              <small className="form-text text-muted">
+                Name to be use in the dropdown.
+              </small>}
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <button type="submit" className="btn btn-primary">Add</button>
+          <Button color="secondary" onClick={this.toggle.bind(this)}>Cancel</Button>
+        </ModalFooter>
+      </form>
+    </Modal>;
+  }
+}
+
+ExportModalBody.propTypes = {
+  addList: PropTypes.func,
+  addHeader: PropTypes.bool,
+  isOpen: PropTypes.bool,
+  toggle: PropTypes.func,
+  genes: PropTypes.string
+};
+
+ExportModalBody.defaultProps = {
+  addHeader: true
+};
+
+export const ExportModal = connect(null, {addList})(ExportModalBody);
+
+ExportModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  toggle: PropTypes.func.isRequired,
+  genes: PropTypes.string.isRequired,
+  addHeader: PropTypes.bool
 };

@@ -57,7 +57,8 @@ store.subscribe(_.throttle(function () {
     'edges',
     'queryHistory',
     'extraFields',
-    'tempLists'
+    'tempLists',
+    'warnSubmit'
   ]));
 }, 1000));
 

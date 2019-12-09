@@ -469,3 +469,10 @@ export const clearList = () => {
     type: 'CLEAR_LIST'
   };
 };
+
+export const setWarnSubmit = (warn) => {
+  return {
+    type: 'SET_WARN_SUBMIT',
+    warn
+  };
+};

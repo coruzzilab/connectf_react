@@ -12,24 +12,15 @@ import {connect} from "react-redux";
 import {setQuery} from "../../actions";
 import PropTypes from "prop-types";
 
-function mapStateToProps({busy, query, queryTree, queryError}) {
+function mapStateToProps({busy, query, queryError}) {
   return {
     busy,
     query,
-    queryTree,
     queryError
   };
 }
 
 class QueryBoxBody extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      shouldBuild: false
-    };
-  }
-
   render() {
     let {query, busy, queryError, setQuery, reset, className} = this.props;
 
@@ -62,7 +53,6 @@ class QueryBoxBody extends React.Component {
 QueryBoxBody.propTypes = {
   busy: PropTypes.number,
   query: PropTypes.string,
-  queryTree: PropTypes.arrayOf(PropTypes.object),
   setQuery: PropTypes.func,
   queryError: PropTypes.shape({error: PropTypes.bool, message: PropTypes.string}),
   reset: PropTypes.func,

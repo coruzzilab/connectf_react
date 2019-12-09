@@ -10,7 +10,7 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import {blobFromString} from "../../../utils";
 import styled from "styled-components";
-import {ExportModal} from "../common";
+import {ExportModal} from "../../common";
 
 const InfoTable = ({info}) => {
   return <table className="table">

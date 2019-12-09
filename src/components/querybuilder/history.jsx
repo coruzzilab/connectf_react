@@ -52,7 +52,7 @@ class HistoryBody extends React.Component {
           }) :
           <DropdownItem disabled>No History</DropdownItem>}
         <DropdownItem divider/>
-        <DropdownItem onClick={clearQueryHistory}>Clear</DropdownItem>
+        <DropdownItem onClick={clearQueryHistory}><FontAwesomeIcon icon="trash-alt"/> Clear</DropdownItem>
       </DropdownMenu>
     </UncontrolledDropdown>;
   }

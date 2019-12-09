@@ -5,10 +5,11 @@
 import {FilterTfInfo, NetworkInfo, TargetGeneInfo, UploadFile} from "./common";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import React from "react";
+import React, {useState} from "react";
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
 import classNames from 'classnames';
 import instance, {BASE_URL} from "../../utils/axios_instance";
+import {ExportModal} from "../common";
 
 const TempLists = ({tempLists}) => {
   return <optgroup label="Saved Lists">
@@ -25,7 +26,7 @@ TempLists.propTypes = {
   tempLists: PropTypes.object.isRequired
 };
 
-const ListSelection = ({list, tempLists, value, onChange, name}) => {
+const ListSelection = ({list, tempLists, value, onChange, name, fileName}) => {
   return <select className="form-control" value={value} name={name}
                  onChange={onChange}>
     <option value="">----</option>
@@ -40,8 +41,8 @@ const ListSelection = ({list, tempLists, value, onChange, name}) => {
     {_.size(tempLists) ? <TempLists tempLists={tempLists}/> : null}
 
     <optgroup label="Upload">
-      <option value="other">Upload Target Genes</option>
-      <option value="input">Input Target Genes</option>
+      <option value="other">Upload {fileName}</option>
+      <option value="input">Input {fileName}</option>
     </optgroup>
   </select>;
 };
@@ -51,32 +52,38 @@ ListSelection.propTypes = {
   list: PropTypes.array,
   tempLists: PropTypes.object,
   value: PropTypes.string,
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  fileName: PropTypes.string
 };
 
-const ListSelectionDownload = ({list, tempLists, value, onChange, name, clickFill}) => {
+const ListSelectionDownload = ({list, tempLists, value, onChange, name, inputValue, clickFill, fileName}) => {
   let list_download;
-  if (tempLists) {
-    list_download = tempLists[value];
+  let tempList;
+  if (tempLists && (tempList = tempLists[value])) {
+    list_download = `data:text/plain,${encodeURI(tempList)}`;
+  } else if (value === 'input') {
+    list_download = `data:text/plain,${encodeURI(inputValue)}`;
+  } else {
+    list_download = `${BASE_URL}/api/list_download/${value}/`;
   }
-  list_download = (list_download && `data:text/plain,${encodeURI(list_download)}`) || `${BASE_URL}/api/list_download/${value}/`;
 
-  let disabled = !(value && _.indexOf(['input', 'other'], value) === -1);
+  let disabledAutofill = !(value && _.indexOf(['input', 'other'], value) === -1);
 
-  return <div className="form-row m-2">
-    <div className="col-10">
-      <ListSelection name={name} list={list} tempLists={tempLists} onChange={onChange} value={value}/>
+  return <div className="row">
+    <div className="col-10 pr-1">
+      <ListSelection name={name} list={list} tempLists={tempLists} onChange={onChange} value={value}
+                     fileName={fileName}/>
     </div>
-    <div className="col-1">
+    <div className="col-1 px-1">
       <button type="button"
-              className={classNames("btn btn-primary btn-block", {disabled})}
+              className={classNames("btn btn-primary btn-block text-nowrap", {disabled: disabledAutofill})}
               onClick={clickFill.bind(undefined, list_download)}
-              disabled={disabled}>
+              disabled={disabledAutofill}>
         <Icon icon="edit" className="mr-1"/>Autofill
       </button>
     </div>
-    <div className="col-1">
-      <a className={classNames("btn btn-primary btn-block", {disabled})}
+    <div className="col-1 pl-1">
+      <a className={classNames("btn btn-primary btn-block text-nowrap", {disabled: (!value || value === 'other')})}
          href={list_download}
          download>
         <Icon icon="file-download" className="mr-1"/>Download
@@ -91,18 +98,95 @@ ListSelectionDownload.propTypes = {
   tempLists: PropTypes.object,
   value: PropTypes.string,
   onChange: PropTypes.func,
-  clickFill: PropTypes.func
+  inputValue: PropTypes.string,
+  clickFill: PropTypes.func,
+  fileName: PropTypes.string
 };
 
-const clickFill = (onChange, inputRef) => {
+const ListInput = ({value, onChange, inputRef}) => {
+  let [isOpen, setIsOpen] = useState(false);
+
+  return <div className="row">
+    <div className="col">
+      <div className="row">
+        <div className="col">
+                <textarea className="form-control my-2" rows={5} ref={inputRef} value={value}
+                          onChange={onChange}/>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col">
+          <button type="button" className="btn btn-primary"
+                  disabled={!value}
+                  onClick={setIsOpen.bind(undefined, !isOpen)}>
+            <Icon icon="save" className="mr-1"/>Save
+          </button>
+        </div>
+      </div>
+      <ExportModal isOpen={isOpen} toggle={setIsOpen.bind(undefined, !isOpen)} genes={value}
+                   addHeader={false}/>
+    </div>
+  </div>;
+};
+
+ListInput.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  inputRef: PropTypes.object
+};
+
+const clickFill = (onChange, setInputValue) => {
   return (dataUri) => {
     instance.get(dataUri, {baseURL: ''}).then(({data}) => {
       onChange('input');
-      inputRef.current.value = data;
+      setInputValue(data);
     });
   };
 };
 
+const ListForm = ({value, list, tempLists, onChange, fileRef, inputRef, name, fileName}) => {
+  let [inputValue, setInputValue] = useState("");
+
+  return <div className="form-row m-2">
+    <div className="col">
+      <ListSelectionDownload name={name}
+                             list={list}
+                             tempLists={tempLists}
+                             onChange={onChange}
+                             value={value}
+                             inputValue={inputValue}
+                             clickFill={clickFill(onChange, setInputValue)}
+                             fileName={fileName}/>
+
+      {value === "other" ?
+        <div className="row">
+          <div className="col">
+            <UploadFile inputRef={fileRef} name={`${name}_file`} className="my-2"/>
+          </div>
+        </div> :
+        null}
+
+      {value === "input" ?
+        <ListInput inputRef={inputRef}
+                   value={inputValue}
+                   onChange={(e) => {
+                     setInputValue(e.target.value);
+                   }}/> :
+        null}
+    </div>
+  </div>;
+};
+
+ListForm.propTypes = {
+  name: PropTypes.string,
+  list: PropTypes.array,
+  tempLists: PropTypes.object,
+  value: PropTypes.string,
+  fileRef: PropTypes.object.isRequired,
+  inputRef: PropTypes.object.isRequired,
+  onChange: PropTypes.func,
+  fileName: PropTypes.string
+};
 
 export const TargetGeneFile = ({value, list, tempLists, onChange, fileRef, inputRef}) => {
   return <div className="row">
@@ -117,24 +201,14 @@ export const TargetGeneFile = ({value, list, tempLists, onChange, fileRef, input
           Target Gene List (or upload your own) to filter the results.
         </p>
       </div>
-      <ListSelectionDownload name="targetgene"
-                             list={list}
-                             tempLists={tempLists}
-                             onChange={onChange}
-                             value={value}
-                             clickFill={clickFill(onChange, inputRef)}/>
-
-      {value === "other" ?
-        <div className="form-row m-2">
-          <UploadFile inputRef={fileRef} name="targetgene_file"/>
-        </div> :
-        null}
-
-      {value === "input" ?
-        <div className="form-row m-2">
-          <textarea className="form-control" rows={5} ref={inputRef}/>
-        </div> :
-        null}
+      <ListForm name="targetgene"
+                fileName="Target Genes"
+                list={list}
+                tempLists={tempLists}
+                onChange={onChange}
+                inputRef={inputRef}
+                fileRef={fileRef}
+                value={value}/>
     </div>
   </div>;
 };
@@ -161,24 +235,14 @@ export const FilterTfFile = ({value, list, tempLists, onChange, fileRef, inputRe
           with &quot;oralltfs&quot; or &quot;multitype&quot; to limit the size of the output.
         </p>
       </div>
-      <ListSelectionDownload name="filtertf"
-                             list={list}
-                             tempLists={tempLists}
-                             onChange={onChange}
-                             value={value}
-                             clickFill={clickFill(onChange, inputRef)}/>
-
-      {value === "other" ?
-        <div className="form-row m-2">
-          <UploadFile inputRef={fileRef} name="filtertf_file"/>
-        </div> :
-        null}
-
-      {value === "input" ?
-        <div className="form-row m-2">
-          <textarea className="form-control" rows={5} ref={inputRef}/>
-        </div> :
-        null}
+      <ListForm name="filtertf"
+                fileName="Filter TFs"
+                list={list}
+                tempLists={tempLists}
+                onChange={onChange}
+                inputRef={inputRef}
+                fileRef={fileRef}
+                value={value}/>
     </div>
   </div>;
 };
@@ -204,23 +268,13 @@ export const TargetNetworkFile = ({value, list, onChange, fileRef, inputRef}) =>
           Provide a gene network that restricts both the query TFs and the targeted genes.
         </p>
       </div>
-      <ListSelectionDownload name="network"
-                             list={list}
-                             onChange={onChange}
-                             value={value}
-                             clickFill={clickFill(onChange, inputRef)}/>
-
-      {value === "other" ?
-        <div className="form-row m-2">
-          <UploadFile id="targetNetwork" inputRef={fileRef} name="network_file"/>
-        </div> :
-        null}
-
-      {value === "input" ?
-        <div className="form-row m-2">
-          <textarea className="form-control" rows={5} ref={inputRef}/>
-        </div> :
-        null}
+      <ListForm name="network"
+                fileName="Network"
+                list={list}
+                onChange={onChange}
+                inputRef={inputRef}
+                fileRef={fileRef}
+                value={value}/>
     </div>
   </div>;
 };

@@ -11,7 +11,7 @@ import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import _ from "lodash";
 import {BASE_URL} from "../../../utils/axios_instance";
-import {ExportModal} from "../common";
+import {ExportModal} from "../../common";
 
 function mapStateToProps({result, requestId}) {
   return {
