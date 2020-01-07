@@ -10,25 +10,25 @@ import {TwitterFollow} from "./common";
 
 const IMAGES = [
   {
-    src: require('../images/query.png'),
+    src: require('../images/query.png').default,
     altText: 'Query Builder',
     header: 'Query Builder',
     caption: 'Construct queries with transcription factors in the database'
   },
   {
-    src: require('../images/table.png'),
+    src: require('../images/table.png').default,
     altText: 'Query Result',
     header: 'Query Result',
     caption: 'Tabular display of analysis results'
   },
   {
-    src: require('../images/cytoscape.png'),
+    src: require('../images/cytoscape.png').default,
     altText: 'Network',
     header: 'Network',
     caption: 'Transcription factor and target gene interaction network'
   },
   {
-    src: require('../images/motif_enrichment.png'),
+    src: require('../images/motif_enrichment.png').default,
     altText: 'Motif Enrichment',
     header: 'Motif Enrichment',
     caption: 'Enrichment of binding motifs in the promoter region'
