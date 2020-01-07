@@ -93,7 +93,7 @@ AddFollowing.defaultProps = {
   addGroupText: 'Add Following TF Group'
 };
 
-export const UploadFile = ({className, inputRef, ...props}) => {
+export const UploadFile = ({className, inputRef, save, ...props}) => {
   let [genes, setGenes] = useState("");
   let [isOpen, setIsOpen] = useState(false);
 
@@ -107,25 +107,31 @@ export const UploadFile = ({className, inputRef, ...props}) => {
   };
 
   return <div className={classNames("row", className)}>
-    <div className="col-11 pr-1">
+    <div className={classNames("pr-1", save ? "col-11" : "col")}>
       <input type="file" className="form-control-file"
              ref={inputRef} onChange={onFileChange} {...props} />
     </div>
-    <div className="col-1 pl-1">
-      <button type="button" className="btn btn-primary btn-block"
-              disabled={!genes}
-              onClick={setIsOpen.bind(undefined, !isOpen)}>
-        <FontAwesomeIcon icon="save" className="mr-1"/>Save
-      </button>
-    </div>
-
+    {save ?
+      <div className="col-1 pl-1">
+        <button type="button" className="btn btn-primary btn-block"
+                disabled={!genes}
+                onClick={setIsOpen.bind(undefined, !isOpen)}>
+          <FontAwesomeIcon icon="save" className="mr-1"/>Save
+        </button>
+      </div> :
+      null}
     <ExportModal isOpen={isOpen} toggle={setIsOpen.bind(undefined, !isOpen)} genes={genes} addHeader={false}/>
   </div>;
 };
 
 UploadFile.propTypes = {
+  save: PropTypes.bool,
   inputRef: PropTypes.object,
   className: PropTypes.string
+};
+
+UploadFile.defaultProps = {
+  save: true
 };
 
 

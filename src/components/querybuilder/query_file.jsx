@@ -103,7 +103,7 @@ ListSelectionDownload.propTypes = {
   fileName: PropTypes.string
 };
 
-const ListInput = ({value, onChange, inputRef}) => {
+const ListInput = ({value, onChange, inputRef, save}) => {
   let [isOpen, setIsOpen] = useState(false);
 
   return <div className="row">
@@ -114,25 +114,33 @@ const ListInput = ({value, onChange, inputRef}) => {
                           onChange={onChange}/>
         </div>
       </div>
-      <div className="row">
-        <div className="col">
-          <button type="button" className="btn btn-primary"
-                  disabled={!value}
-                  onClick={setIsOpen.bind(undefined, !isOpen)}>
-            <Icon icon="save" className="mr-1"/>Save
-          </button>
-        </div>
-      </div>
-      <ExportModal isOpen={isOpen} toggle={setIsOpen.bind(undefined, !isOpen)} genes={value}
-                   addHeader={false}/>
+
+      {save ?
+        <div className="row">
+          <div className="col">
+            <button type="button" className="btn btn-primary"
+                    disabled={!value}
+                    onClick={setIsOpen.bind(undefined, !isOpen)}>
+              <Icon icon="save" className="mr-1"/>Save
+            </button>
+            <ExportModal isOpen={isOpen} toggle={setIsOpen.bind(undefined, !isOpen)} genes={value}
+                         addHeader={false}/>
+          </div>
+        </div> :
+        null}
     </div>
   </div>;
 };
 
 ListInput.propTypes = {
+  save: PropTypes.bool,
   value: PropTypes.string,
   onChange: PropTypes.func,
   inputRef: PropTypes.object
+};
+
+ListInput.defaultProps = {
+  save: true
 };
 
 const clickFill = (onChange, setInputValue) => {
@@ -144,7 +152,7 @@ const clickFill = (onChange, setInputValue) => {
   };
 };
 
-const ListForm = ({value, list, tempLists, onChange, fileRef, inputRef, name, fileName}) => {
+const ListForm = ({value, list, tempLists, onChange, fileRef, inputRef, name, fileName, save}) => {
   let [inputValue, setInputValue] = useState("");
 
   return <div className="form-row m-2">
@@ -161,7 +169,7 @@ const ListForm = ({value, list, tempLists, onChange, fileRef, inputRef, name, fi
       {value === "other" ?
         <div className="row">
           <div className="col">
-            <UploadFile inputRef={fileRef} name={`${name}_file`} className="my-2"/>
+            <UploadFile inputRef={fileRef} name={`${name}_file`} className="my-2" save={save}/>
           </div>
         </div> :
         null}
@@ -171,7 +179,8 @@ const ListForm = ({value, list, tempLists, onChange, fileRef, inputRef, name, fi
                    value={inputValue}
                    onChange={(e) => {
                      setInputValue(e.target.value);
-                   }}/> :
+                   }}
+                   save={save}/> :
         null}
     </div>
   </div>;
@@ -185,7 +194,12 @@ ListForm.propTypes = {
   fileRef: PropTypes.object.isRequired,
   inputRef: PropTypes.object.isRequired,
   onChange: PropTypes.func,
-  fileName: PropTypes.string
+  fileName: PropTypes.string,
+  save: PropTypes.bool
+};
+
+ListForm.defaultProps = {
+  save: true
 };
 
 export const TargetGeneFile = ({value, list, tempLists, onChange, fileRef, inputRef}) => {
@@ -274,7 +288,8 @@ export const TargetNetworkFile = ({value, list, onChange, fileRef, inputRef}) =>
                 onChange={onChange}
                 inputRef={inputRef}
                 fileRef={fileRef}
-                value={value}/>
+                value={value}
+                save={false}/>
     </div>
   </div>;
 };
