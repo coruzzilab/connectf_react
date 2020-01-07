@@ -133,4 +133,12 @@ export function getAuprImg(requestId, precision, cancelToken) {
   });
 }
 
+export function getAdditionalMotifs() {
+  return instance.get('/api/motif_enrichment/additional/motifs/');
+}
+
+export function getAdditionalMotifEnrichment(requestId, data, config) {
+  return instance.post(`/api/motif_enrichment/additional/${requestId}/`, data, config);
+}
+
 export default instance;

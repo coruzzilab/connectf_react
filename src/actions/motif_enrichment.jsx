@@ -30,9 +30,10 @@ export const getMotifEnrichment = (requestId, alpha = 0.05, regions = [], config
         dispatch(setMotifEnrichment(response.data));
         dispatch(clearError());
       })
-      .catch(() => {
+      .catch((e) => {
         dispatch(clearMotifEnrichment());
         dispatch(setError(true));
+        throw e;
       })
       .finally(() => {
         dispatch(setBusy(false));
@@ -94,8 +95,9 @@ export const getMotifEnrichmentLegend = (requestId, config) => {
       .then((response) => {
         dispatch(setMotifEnrichmentLegend(response.data));
       })
-      .catch(() => {
+      .catch((e) => {
         dispatch(clearMotifEnrichmentLegend());
+        throw e;
       })
       .finally(() => {
         dispatch(setBusy(false));

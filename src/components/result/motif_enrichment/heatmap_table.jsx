@@ -36,7 +36,7 @@ class HeatmapTableBody extends React.Component {
         <tbody>
         {_.map(motifEnrichment.legend, (row, i) => {
           return <tr key={i}>
-            <ColHeader data={row[0]} sortable={false}>{row[1]}</ColHeader>
+            <ColHeader data={row[0]}>{row[1]}</ColHeader>
             <td>{row[2]}</td>
             <QueryNameCell>{row[3]}</QueryNameCell>
             <QueryNameCell>{row[4]}</QueryNameCell>

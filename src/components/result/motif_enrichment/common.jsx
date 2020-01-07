@@ -2,89 +2,59 @@
  * @author zacharyjuang
  * 11/9/18
  */
-import React from "react";
+import React, {useRef, useState} from "react";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader, UncontrolledTooltip} from "reactstrap";
 import _ from "lodash";
 import {FontAwesomeIcon as Icon, FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+import {BASE_URL} from "../../../utils/axios_instance";
 
-export class ColHeader extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      visible: false
-    };
-  }
+export const ColHeader = ({colSpan, data, children}) => {
+  let [visible, setVisible] = useState(false);
 
-  showModal() {
-    this.setState({
-      visible: true
-    });
-  }
+  const toggle = () => {
+    setVisible(!visible);
+  };
 
-  hideModal() {
-    this.setState({
-      visible: false
-    });
-  }
+  return <th colSpan={colSpan} onClick={toggle} className="p-0">
+    <div className="container-fluid my-1" onClick={toggle}>
+      {children}
+    </div>
 
-  render() {
-    let {visible} = this.state;
-    let {colSpan, data} = this.props;
-
-    return <th colSpan={colSpan}>
-      <div className="container-fluid">
-        <div className="row align-items-center">
-          <div className="col">
-            <a className="text-primary link" onClick={this.showModal.bind(this)}>{this.props.children}</a>
-          </div>
+    <Modal isOpen={visible} toggle={toggle}>
+      <ModalHeader toggle={toggle}>
+        Meta Data
+      </ModalHeader>
+      <ModalBody>
+        <div className="table-responsive">
+          <table className="table table-sm">
+            <tbody>
+            {_(data).map((val, key) => {
+              return <tr key={key}>
+                <th>{key}</th>
+                <td>{val}</td>
+              </tr>;
+            }).value()}
+            </tbody>
+          </table>
         </div>
-      </div>
-
-
-      <Modal isOpen={visible} toggle={this.hideModal.bind(this)}>
-        <ModalHeader toggle={this.hideModal.bind(this)}>
-          Meta Data
-        </ModalHeader>
-        <ModalBody>
-          <div className="table-responsive">
-            <table className="table table-sm">
-              <tbody>
-              {_(data).map((val, key) => {
-                return <tr key={key}>
-                  <th>{key}</th>
-                  <td>{val}</td>
-                </tr>;
-              }).value()}
-              </tbody>
-            </table>
-          </div>
-        </ModalBody>
-        <ModalFooter>
-          <Button onClick={this.hideModal.bind(this)}><FontAwesomeIcon icon="times" className="mr-1"/>Close</Button>
-        </ModalFooter>
-      </Modal>
-    </th>;
-  }
-}
+      </ModalBody>
+      <ModalFooter>
+        <Button onClick={toggle}><FontAwesomeIcon icon="times" className="mr-1"/>Close</Button>
+      </ModalFooter>
+    </Modal>
+  </th>;
+};
 
 ColHeader.propTypes = {
   colSpan: PropTypes.number,
-  name: PropTypes.string,
-  data: PropTypes.object,
-  children: PropTypes.node,
-  sortable: PropTypes.bool,
-  sortFunc: PropTypes.func,
-  sorted: PropTypes.bool,
-  ascending: PropTypes.bool
+  data: PropTypes.object.isRequired,
+  children: PropTypes.node
 };
 
 ColHeader.defaultProps = {
-  sortable: true,
-  colSpan: 1,
-  sorted: false,
-  ascending: true
+  colSpan: 1
 };
 
 export const MotifEnrichmentInfo = () => {
@@ -104,7 +74,7 @@ export const BASE_COLORS = {
 };
 
 export const MotifRegionCheckbox = ({name, data, checked, disabled, onChange}) => {
-  let label = React.createRef();
+  let label = useRef(null);
 
   return <div className="form-check form-check-inline">
     <label className={classNames("form-check-label", disabled ? "text-muted" : null)} ref={label}>
@@ -135,5 +105,15 @@ export const BusyIcon = ({busy}) => {
 };
 
 BusyIcon.propTypes = {
-  busy: PropTypes.bool
+  busy: PropTypes.oneOfType([PropTypes.bool, PropTypes.number])
+};
+
+export const ExportClusterInfo = ({className}) => {
+  return <a href={new URL('/api/motif_enrichment/cluster_info.csv', BASE_URL)}
+            className={classNames("btn btn-primary", className)}>
+    <Icon icon="file-csv" className="mr-1"/>Export Cluster Information</a>;
+};
+
+ExportClusterInfo.propTypes = {
+  className: PropTypes.string
 };

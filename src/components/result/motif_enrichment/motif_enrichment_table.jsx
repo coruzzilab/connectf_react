@@ -161,21 +161,19 @@ class MotifEnrichmentTable extends React.Component {
         <thead>
         <tr>
           <th/>
-          {_(_.get(table, 'columns', {})).toPairs().map(([key, val], i) => {
+          {_(_.get(table, 'columns', [])).map((val, i) => {
             let line1 = val.name;
             if (val['gene_name']) {
               line1 += ` (${val['gene_name']})`;
             }
             let line2 = _(val).pick(['TECHNOLOGY', 'ANALYSIS_METHOD', 'ANALYSIS_CUTOFF']).values().join('-');
-            return <ColHeader key={key}
+            return <ColHeader key={i}
                               data={val}
                               colSpan={colSpan}>
-              {!_.isEmpty(val) ?
-                <div>
-                  <p className="m-0">{columnString(i + 1)} — {line1}</p>
-                  {line2 ? <p className="m-0">{line2}</p> : null}
-                </div> :
-                key}
+              <button className="btn btn-link text-nowrap">
+                <p className="m-0">{columnString(i + 1)} — {line1}</p>
+                {line2 ? <p className="m-0">{line2}</p> : null}
+              </button>
             </ColHeader>;
           }).value()}
         </tr>

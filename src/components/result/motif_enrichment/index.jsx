@@ -16,13 +16,14 @@ import {
   getMotifEnrichmentLegend,
   setError
 } from "../../../actions/motif_enrichment";
-import {BASE_URL, getKeys, getMotifRegions} from "../../../utils/axios_instance";
+import {getKeys, getMotifRegions} from "../../../utils/axios_instance";
 import {ExtraFields, InfoTootip, SVGWarningTooltip} from "../common";
 import {CancelToken} from "axios";
 import {tableToCsvUri} from "./export";
 import MotifEnrichmentTable from "./motif_enrichment_table";
 import HeatmapTable from "./heatmap_table";
-import {BusyIcon, MotifEnrichmentInfo, MotifRegionCheckbox} from "./common";
+import {BusyIcon, ExportClusterInfo, MotifEnrichmentInfo, MotifRegionCheckbox} from "./common";
+import AdditionalMotifs from "./additional_motifs";
 
 const mapStateToProps = ({busy, requestId, motifEnrichment, extraFields}) => {
   return {
@@ -49,7 +50,9 @@ class MotifEnrichmentBody extends React.Component {
       motifRegions: [],
       selectedMotifRegions: [],
       heatmapKeys: [],
-      heatmapKeysChecked: []
+      heatmapKeysChecked: [],
+
+      additionalMotifParams: {}
     };
 
     this.cancels = [];
@@ -66,6 +69,10 @@ class MotifEnrichmentBody extends React.Component {
     if (prevProps.requestId !== this.props.requestId) {
       this.getMotifEnrichment();
       this.getImgData();
+    }
+
+    if (this.props.motifEnrichment.error && this.props.motifEnrichment !== prevProps.motifEnrichment) {
+      this.onTabClick("individual");
     }
   }
 
@@ -143,6 +150,15 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   getMotifEnrichment() {
+    this.setState((state) => {
+      let additionalMotifParams = {};
+      if (state.selectedMotifRegions.length) {
+        additionalMotifParams.motifRegions = state.selectedMotifRegions;
+      }
+      return {
+        additionalMotifParams
+      };
+    });
     this.props.getMotifEnrichment(this.props.requestId, this.state.alpha, this.state.selectedMotifRegions, {
       cancelToken: new CancelToken((c) => {
         this.cancels.push(c);
@@ -246,8 +262,6 @@ class MotifEnrichmentBody extends React.Component {
             <Icon icon="cog" className="mr-1"/>Options
           </button>
           <BusyIcon busy={busy}/>
-          <a href={new URL('/api/motif_enrichment/cluster_info.csv', BASE_URL)} className="btn btn-primary float-right">
-            <Icon icon="file-csv" className="mr-1"/>Export Cluster Information</a>
         </div>
       </div>
       {error ? <div className="text-danger">No motifs enriched.</div> : null}
@@ -342,28 +356,36 @@ class MotifEnrichmentBody extends React.Component {
       </Collapse>
       <Nav tabs>
         <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"}>
+          <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"} disabled={error}>
             Table
           </NavLink>
         </NavItem>
         <NavItem>
-          <NavLink onClick={this.onTabClick.bind(this, "heatmap")} active={key === "heatmap"}>
+          <NavLink onClick={this.onTabClick.bind(this, "heatmap")} active={key === "heatmap"} disabled={error}>
             Heatmap
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink onClick={this.onTabClick.bind(this, "individual")} active={key === "individual"}>
+            Individual Motifs
           </NavLink>
         </NavItem>
       </Nav>
       <TabContent id="motif_enrichment" activeTab={key}>
         <TabPane tabId="table">
-          <div className="row m-1">
-            <div className="col p-0">
-              <a className="btn btn-primary float-right" href={"data:text/csv," + tableToCsvUri(table)}
-                 download="motif_enrichment_table.csv">
-                <Icon icon="file-csv" className="mr-1"/>Export Table Data</a>
+          <div className="container-fluid">
+            <div className="row m-1">
+              <div className="col p-0">
+                <a className="btn btn-primary float-right" href={"data:text/csv," + tableToCsvUri(table)}
+                   download="motif_enrichment_table.csv">
+                  <Icon icon="file-csv" className="mr-1"/>Export Table Data</a>
+                <ExportClusterInfo className="float-right mx-1"/>
+              </div>
             </div>
-          </div>
-          <div className="row">
-            <div className="col">
-              <MotifEnrichmentTable table={table} colSpan={colSpan}/>
+            <div className="row">
+              <div className="col">
+                <MotifEnrichmentTable table={table} colSpan={colSpan}/>
+              </div>
             </div>
           </div>
         </TabPane>
@@ -381,6 +403,7 @@ class MotifEnrichmentBody extends React.Component {
                          aria-disabled={!exportSrc}>
                         <Icon icon="file-export" className="mr-1"/>Export SVG</a>
                     </SVGWarningTooltip>
+                    <ExportClusterInfo className="float-right mx-1"/>
                   </div>
                 </div>
                 <div className="row">
@@ -391,6 +414,9 @@ class MotifEnrichmentBody extends React.Component {
               </div>
             </div>
           </div>
+        </TabPane>
+        <TabPane tabId="individual">
+          <AdditionalMotifs {...this.state.additionalMotifParams}/>
         </TabPane>
       </TabContent>
     </div>;
