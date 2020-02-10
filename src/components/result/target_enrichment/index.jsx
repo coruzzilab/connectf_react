@@ -274,7 +274,9 @@ class TargetEnrichmentBody extends React.Component {
                 </div>
                 <div className="row">
                   <div className="col">
-                    <Table table={table}/>
+                    <ResizeComponent>
+                      <Table table={table} tableKey={tableKey}/>
+                    </ResizeComponent>
                   </div>
                 </div>
               </TabPane>

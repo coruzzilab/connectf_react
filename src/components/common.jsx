@@ -434,3 +434,51 @@ ExportModal.propTypes = {
   genes: PropTypes.string.isRequired,
   addHeader: PropTypes.bool
 };
+
+export class ResizeComponent extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.childRef = React.createRef();
+
+    this.state = {
+      height: 0,
+      width: 0
+    };
+
+    this.setHeight = _.throttle(this.setHeight.bind(this), 100);
+  }
+
+  componentDidMount() {
+    this.setHeight();
+    window.addEventListener("resize", this.setHeight);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.setHeight);
+  }
+
+  setHeight() {
+    let {top, width} = this.childRef.current.getBoundingClientRect();
+    this.setState({height: document.documentElement.clientHeight - top, width});
+  }
+
+  render() {
+    return <div ref={this.childRef} className={this.props.className}>
+      {React.cloneElement(this.props.children, {height: this.state.height, width: this.state.width})}
+    </div>;
+  }
+}
+
+ResizeComponent.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node
+};
+
+export const withResize = (Tag) => {
+  const Resized = (props) => <ResizeComponent>
+    <Tag {...props}/>
+  </ResizeComponent>;
+
+  return Resized;
+};
