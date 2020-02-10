@@ -24,7 +24,7 @@ import uuid4 from 'uuid/v4';
 import {getNetwork, setNetwork} from '../../actions';
 import {UploadSifInfoPopover} from "./common";
 import {networkJSONStringify} from "../../utils";
-import {NetworkAdditionalEdges} from "../common";
+import {NetworkAdditionalEdges, withResize} from "../common";
 import {edge_compare, networkPNG, style} from "./utils";
 import {checkAupr} from "../../utils/axios_instance";
 
@@ -46,7 +46,6 @@ class NetworkBody extends React.PureComponent {
     this.additionalEdge = React.createRef();
 
     this.state = {
-      height: Math.floor(document.documentElement.clientHeight * 0.8),
       busy: false,
       color: "#ffff00",
       alertOpen: false,
@@ -56,7 +55,6 @@ class NetworkBody extends React.PureComponent {
       hasAupr: false
     };
 
-    this.setHeight = _.debounce(this.setHeight.bind(this), 100);
     this.setUserEdgeColor = _.debounce(this.setUserEdgeColor.bind(this), 50, {maxWait: 200});
     this.searchNode = _.debounce(this.searchNode.bind(this), 200, {leading: true});
     this.setEdgeDropdown = _.debounce(this.setEdgeDropdown.bind(this), 100, {leading: true, trailing: true});
@@ -73,17 +71,15 @@ class NetworkBody extends React.PureComponent {
     } else {
       this.resetCytoscape();
     }
-
-    window.addEventListener("resize", this.setHeight);
   }
 
-  componentDidUpdate(prevProp, prevState) {
-    if (prevProp.requestId !== this.props.requestId) {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.requestId !== this.props.requestId) {
       this.props.getNetwork(this.props.requestId, this.props.edges, this.props.precisionCutoff);
       this.checkAupr();
     }
 
-    if (prevProp.network !== this.props.network) {
+    if (prevProps.network !== this.props.network) {
       this.resetCytoscape();
     }
 
@@ -91,13 +87,16 @@ class NetworkBody extends React.PureComponent {
       this.setEdgeDropdown();
       this.hideCyEdge();
     }
+
+    if (this.props.height !== prevProps.height) {
+      this.setHeight();
+    }
   }
 
   componentWillUnmount() {
     if (this.cy) {
       this.cy.destroy();
     }
-    window.removeEventListener("resize", this.setHeight);
   }
 
   checkAupr() {
@@ -186,7 +185,6 @@ class NetworkBody extends React.PureComponent {
   }
 
   setHeight() {
-    this.setState({height: document.documentElement.clientHeight - this.cyRef.current.getBoundingClientRect().top});
     if (this.cy) {
       this.cy.resize();
     }
@@ -269,6 +267,14 @@ class NetworkBody extends React.PureComponent {
 
   unhideAllEdges() {
     this.setState({hiddenEdges: []});
+  }
+
+  hideAllEdges() {
+    this.setState({hiddenEdges: _(this.cy.edges())
+      .map(_.method('data', 'name'))
+      .uniq()
+      .sortBy()
+      .value()});
   }
 
   hideCyEdge() {
@@ -441,7 +447,8 @@ class NetworkBody extends React.PureComponent {
   }
 
   render() {
-    let {height, busy, color, alertOpen, alertMessage, edgeDropdown, hiddenEdges, hasAupr} = this.state;
+    let {busy, color, alertOpen, alertMessage, edgeDropdown, hiddenEdges, hasAupr} = this.state;
+    let {height} = this.props;
 
     return <div className="container-fluid">
       <Alert color="danger" isOpen={alertOpen} toggle={this.toggleAlert.bind(this)}>{alertMessage}</Alert>
@@ -542,6 +549,10 @@ class NetworkBody extends React.PureComponent {
                 }
               }
             }}>
+              <DropdownItem onClick={this.hideAllEdges.bind(this)}>
+                <FontAwesomeIcon icon="eye-slash" className="mr-2" color={!hiddenEdges.length ? "black" : "lightgrey"}/>Hide
+                All
+              </DropdownItem>
               <DropdownItem onClick={this.unhideAllEdges.bind(this)}>
                 <FontAwesomeIcon icon="eye" className="mr-2" color={hiddenEdges.length ? "black" : "lightgrey"}/>Unhide
                 All
@@ -576,9 +587,10 @@ NetworkBody.propTypes = {
   getNetwork: PropTypes.func,
   setNetwork: PropTypes.func,
   edges: PropTypes.arrayOf(PropTypes.string),
-  precisionCutoff: PropTypes.number
+  precisionCutoff: PropTypes.number,
+  height: PropTypes.number
 };
 
-const Network = connect(mapStateToProps, {getNetwork, setNetwork})(NetworkBody);
+const Network = connect(mapStateToProps, {getNetwork, setNetwork})(withResize(NetworkBody));
 
 export default Network;
