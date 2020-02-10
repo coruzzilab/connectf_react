@@ -7,12 +7,23 @@ import {connect} from 'react-redux';
 import Handsontable from '../../utils/handsontable';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {FontAwesomeIcon as Icon} from '@fortawesome/react-fontawesome';
 
 let mapStateToProps = ({result}) => {
   return {
     result
   };
+};
+
+const prepareMetadataCsv = (metadata) => {
+  let result = "";
+  let ids = _.map(_.get(metadata, 'columns', []), (c) => c.id);
+  let rows = _.map(_.get(metadata, 'data', []), (r) => _.map(ids, (i) => r[i]));
+
+  result += _(ids).map((i) => `"${i}"`).join(",") + "\n";
+  result += _(rows).map((row) => _(row).map((r) => `"${r}"`).join(",")).join("\n") + "\n";
+
+  return result;
 };
 
 export class MetaBody extends React.Component {
@@ -76,6 +87,15 @@ export class MetaBody extends React.Component {
     this.hot.destroy();
   }
 
+  generateMetadata() {
+    let a = document.createElement('a');
+    a.href = "data:text/csv," + encodeURIComponent(prepareMetadataCsv(_.get(this.props, "result.metadata")));
+    a.download = "metadata.csv";
+    document.body.append(a);
+    a.click();
+    a.remove();
+  }
+
   render() {
     return <div className="container-fluid">
       <div className="row my-1">
@@ -83,11 +103,17 @@ export class MetaBody extends React.Component {
           <div className="input-group">
             <div className="input-group-prepend">
               <span className="input-group-text">
-                <FontAwesomeIcon icon="search"/>
+                <Icon icon="search"/>
               </span>
             </div>
             <input type="text" placeholder="Search" ref={this.search} className="form-control"/>
           </div>
+        </div>
+        <div className="col-8">
+          <button type="button" className="btn btn-primary float-right"
+                  onClick={this.generateMetadata.bind(this)}>
+            <Icon icon="table" className="mr-1"/>Export Metadata
+          </button>
         </div>
       </div>
       <div className="row">
