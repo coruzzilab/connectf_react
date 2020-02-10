@@ -4,7 +4,7 @@
  */
 import {Link, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
-import React from "react";
+import React, {useRef} from "react";
 import {
   Button,
   Modal,
@@ -267,22 +267,17 @@ NetworkAdditionalEdges.propTypes = {
   hasAupr: PropTypes.bool
 };
 
-export class InfoPopover extends React.Component {
-  constructor(props) {
-    super(props);
-    this.info = React.createRef();
-  }
+export const InfoPopover = ({children}) => {
+  let info = useRef(null);
 
-  render() {
-    return <div className="ml-2">
-      <div className="link info-link" ref={this.info} title="More info">
-        <FontAwesomeIcon icon="question-circle"/></div>
-      <UncontrolledPopover target={() => this.info.current} delay={0}>
-        {this.props.children}
-      </UncontrolledPopover>
-    </div>;
-  }
-}
+  return <div className="ml-2">
+    <div className="link info-link" ref={info} title="More info">
+      <FontAwesomeIcon icon="question-circle"/></div>
+    <UncontrolledPopover target={info} delay={0} fade={false}>
+      {children}
+    </UncontrolledPopover>
+  </div>;
+};
 
 InfoPopover.propTypes = {
   children: PropTypes.node
