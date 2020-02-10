@@ -121,25 +121,25 @@ const AdditionalMotifsBody = ({requestId, motifRegions}) => {
               return [null];
             }).flatten().map((m, i) => {
               if (!_.isNull(m)) {
-                return <th key={i} className="text-nowrap">
-                  <span className="mr-1">{m} (p-value)</span>
-                  <SortButton sorted={sortCol === i}
-                              sortFunc={sortFunc.bind(undefined, i)}
+                return <th key={i + 1}>
+                  <span className="mr-1">{m.replace(/[^a-z0-9.]/ig, '$&\u200b')} (p-value)</span>
+                  <SortButton sorted={sortCol === i + 1}
+                              sortFunc={sortFunc.bind(undefined, i + 1)}
                               ascending={ascending}/>
                 </th>;
               }
-              return <th key={i}/>;
+              return <th key={i + 1}/>;
             }).value()}
           </tr>
           </thead>
           <tbody>
           {_(_.get(enrichmentData, 'result', []))
             .orderBy(
-              _.isNull(sortCol) ?
-                (row) => row[0] :
+              (_.isNull(sortCol) ?
+                _.noop :
                 (row) => typeof row[sortCol] === 'number' ?
                   row[sortCol] :
-                  (ascending ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY),
+                  (ascending ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY)),
               ascending ? 'asc' : 'desc')
             .map((row, i) => {
               return <tr key={i}>

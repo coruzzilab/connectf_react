@@ -16,7 +16,7 @@ import {
   getMotifEnrichmentLegend,
   setError
 } from "../../../actions/motif_enrichment";
-import {getKeys, getMotifRegions} from "../../../utils/axios_instance";
+import {getMotifRegions} from "../../../utils/axios_instance";
 import {ExtraFields, InfoTootip, SVGWarningTooltip} from "../common";
 import {CancelToken} from "axios";
 import {tableToCsvUri} from "./export";
@@ -24,6 +24,7 @@ import MotifEnrichmentTable from "./motif_enrichment_table";
 import HeatmapTable from "./heatmap_table";
 import {BusyIcon, ExportClusterInfo, MotifEnrichmentInfo, MotifRegionCheckbox} from "./common";
 import AdditionalMotifs from "./additional_motifs";
+import {ResizeComponent} from "../../common";
 
 const mapStateToProps = ({busy, requestId, motifEnrichment, extraFields}) => {
   return {
@@ -49,7 +50,6 @@ class MotifEnrichmentBody extends React.Component {
       exportSrc: null,
       motifRegions: [],
       selectedMotifRegions: [],
-      heatmapKeys: [],
       heatmapKeysChecked: [],
 
       additionalMotifParams: {}
@@ -62,7 +62,6 @@ class MotifEnrichmentBody extends React.Component {
     this.getMotifEnrichment();
     this.getImgData();
     this.getMotifRegions();
-    this.getHeatmapKeys();
   }
 
   componentDidUpdate(prevProps) {
@@ -90,14 +89,6 @@ class MotifEnrichmentBody extends React.Component {
         motifRegions: data['regions'],
         selectedMotifRegions: data['default_regions'],
         colSpan: data['default_regions'].length
-      });
-    });
-  }
-
-  getHeatmapKeys() {
-    getKeys({all: true}).then(({data}) => {
-      this.setState({
-        heatmapKeys: data
       });
     });
   }
@@ -245,7 +236,7 @@ class MotifEnrichmentBody extends React.Component {
     let {motifEnrichment: {table, legend, image, error}, busy} = this.props;
     let {
       colSpan, key, lower, upper, collapse, exportSrc, motifRegions, selectedMotifRegions,
-      heatmapKeys, heatmapKeysChecked
+      heatmapKeysChecked
     } = this.state;
 
     let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
@@ -328,7 +319,7 @@ class MotifEnrichmentBody extends React.Component {
                 <div className="form-group row align-items-center">
                   <legend className="col-form-label col-2">Additional Fields in Heatmap:</legend>
                   <div className="col-10">
-                    {_.map(heatmapKeys, (k, i) => {
+                    {_.map(extraFieldNames, (k, i) => {
                       return <div className="form-check form-check-inline" key={i}>
                         <label className="form-check-label">
                           <input className="form-check-input" type="checkbox"
@@ -384,7 +375,9 @@ class MotifEnrichmentBody extends React.Component {
             </div>
             <div className="row">
               <div className="col">
-                <MotifEnrichmentTable table={table} colSpan={colSpan}/>
+                <ResizeComponent>
+                  <MotifEnrichmentTable table={table} colSpan={colSpan}/>
+                </ResizeComponent>
               </div>
             </div>
           </div>

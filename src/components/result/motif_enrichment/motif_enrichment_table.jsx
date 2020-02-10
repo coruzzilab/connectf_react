@@ -105,30 +105,10 @@ class MotifEnrichmentTable extends React.Component {
   constructor(props) {
     super(props);
 
-    this.table = React.createRef();
-
     this.state = {
-      height: 0,
       sortCol: null,
       ascending: true
     };
-
-    this.setHeight = _.debounce(this.setHeight.bind(this), 100);
-  }
-
-  componentDidMount() {
-    this.setHeight();
-    window.addEventListener('resize', this.setHeight);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.setHeight);
-  }
-
-  setHeight() {
-    this.setState({
-      height: document.documentElement.clientHeight - this.table.current.getBoundingClientRect().top
-    });
   }
 
   sortFunc(i) {
@@ -152,11 +132,11 @@ class MotifEnrichmentTable extends React.Component {
   }
 
   render() {
-    let {height, ascending, sortCol} = this.state;
-    let {table, colSpan} = this.props;
+    let {ascending, sortCol} = this.state;
+    let {table, colSpan, height} = this.props;
     let [min, max] = getLogMinMax(_.get(table, 'result', []));
 
-    return <div className="table-responsive" style={{maxHeight: height, overflowY: 'auto'}} ref={this.table}>
+    return <div className="table-responsive" style={{maxHeight: height, overflowY: 'auto'}}>
       <table className="table table-bordered table-sm text-nowrap">
         <thead>
         <tr>
@@ -222,7 +202,8 @@ class MotifEnrichmentTable extends React.Component {
 
 MotifEnrichmentTable.propTypes = {
   table: PropTypes.object.isRequired,
-  colSpan: PropTypes.number
+  colSpan: PropTypes.number,
+  height: PropTypes.number
 };
 
 MotifEnrichmentTable.defaultProps = {

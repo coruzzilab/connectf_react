@@ -29,6 +29,10 @@ export const MotifAdder = ({className, motifs, selectedMotifs, setSelectedMotifs
     }));
   };
 
+  const handleClear = () => {
+    setSelectedMotifs(_.map(selectedMotifs, () => []));
+  };
+
   let commonMotifs = _.reduce(selectedMotifs, _.ary(_.intersection, 2));
 
   return <div className={className}>
@@ -54,6 +58,12 @@ export const MotifAdder = ({className, motifs, selectedMotifs, setSelectedMotifs
                 </select>
                 <button className="btn btn-primary" style={{width: "20%"}} onClick={handleAdd}>Add</button>
               </div>
+            </div>
+          </div>
+          <hr/>
+          <div className="row">
+            <div className="col">
+              <button className="btn btn-danger" onClick={handleClear}>Clear All</button>
             </div>
           </div>
         </div>
