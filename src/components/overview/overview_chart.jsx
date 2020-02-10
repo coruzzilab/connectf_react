@@ -10,6 +10,26 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 Chart.plugins.unregister(ChartDataLabels);
 
+function* cycle(arr) {
+  while (true) {
+    for (let i of arr) {
+      yield i;
+    }
+  }
+}
+
+function* take(arr, n) {
+  let it = arr[Symbol.iterator]();
+
+  for (let i = 0; i < n; i++) {
+    let n = it.next();
+    if (n.done) {
+      return n.value;
+    }
+    yield n.value;
+  }
+}
+
 const COLORS = [
   '#a6cee3', '#1f78b4', '#b2df8a',
   '#33a02c', '#fb9a99', '#e31a1c',
@@ -86,14 +106,7 @@ class OverviewChart extends React.Component {
     let labels = _.map(_.get(summary, chartKey, []), 0);
     let data = _.map(_.get(summary, chartKey, []), 1);
 
-    let dataLength = data.length;
-    let backgroundColor = [...COLORS];
-
-    if (dataLength > COLORS.length) {
-      for (let i = 0; i < (dataLength / COLORS.length); i++) {
-        backgroundColor = backgroundColor.concat(COLORS);
-      }
-    }
+    let backgroundColor = [...take(cycle(COLORS), data.length)];
 
     this.chart.data = {
       labels,
