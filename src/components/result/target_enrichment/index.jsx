@@ -21,8 +21,8 @@ import {CancelToken} from "axios";
 import {TargetEnrichmentWarning} from "./common";
 import HeatmapTable from "./heatmap_table";
 import Table from "./table";
-import {getKeys} from "../../../utils/axios_instance";
 import {tableToCsvUri} from "./utils";
+import {ResizeComponent} from "../../common";
 
 const TargetEnrichmentInfo = () => {
   return <p className="text-secondary">
@@ -51,7 +51,9 @@ class TargetEnrichmentBody extends React.Component {
       collapse: false,
       exportSrc: null,
       heatmapKeys: [],
-      heatmapKeysChecked: []
+      heatmapKeysChecked: [],
+
+      tableKey: "p-value"
     };
 
     this.cancels = [];
@@ -60,7 +62,6 @@ class TargetEnrichmentBody extends React.Component {
   componentDidMount() {
     this.getTableData();
     this.getImgData();
-    this.getHeatmapKeys();
   }
 
   componentDidUpdate(prevProps) {
@@ -133,14 +134,6 @@ class TargetEnrichmentBody extends React.Component {
     });
   }
 
-  getHeatmapKeys() {
-    getKeys({all: true}).then(({data}) => {
-      this.setState({
-        heatmapKeys: data
-      });
-    });
-  }
-
   handleHeatmapKeySelect(r, e) {
     if (e.target.checked) {
       this.setState((state) => {
@@ -168,7 +161,7 @@ class TargetEnrichmentBody extends React.Component {
 
   render() {
     let {targetEnrichment: {table, legend, image, error}, busy} = this.props;
-    let {lower, upper, key, collapse, exportSrc, heatmapKeys, heatmapKeysChecked} = this.state;
+    let {lower, upper, key, collapse, exportSrc, heatmapKeysChecked, tableKey} = this.state;
 
     let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
 
@@ -224,7 +217,7 @@ class TargetEnrichmentBody extends React.Component {
                       <div className="form-group row align-items-center">
                         <legend className="col-form-label col-2">Additional Fields in Heatmap:</legend>
                         <div className="col-10">
-                          {_.map(heatmapKeys, (k, i) => {
+                          {_.map(extraFieldNames, (k, i) => {
                             return <div className="form-check form-check-inline" key={i}>
                               <label className="form-check-label">
                                 <input className="form-check-input" type="checkbox"
@@ -267,6 +260,33 @@ class TargetEnrichmentBody extends React.Component {
               <TabPane tabId="table">
                 <div className="row m-1">
                   <div className="col p-0">
+                    <div className="form-check form-check-inline float-left">
+                      <label className="form-check-label">
+                        <input className="form-check-input" type="radio"
+                               checked={tableKey === "p-value"}
+                               onChange={() => {
+                                 this.setState({tableKey: "p-value"});
+                               }}/>P-value
+                      </label>
+                    </div>
+                    <div className="form-check form-check-inline float-left">
+                      <label className="form-check-label">
+                        <input className="form-check-input" type="radio"
+                               checked={tableKey === "influence"}
+                               onChange={() => {
+                                 this.setState({tableKey: "influence"});
+                               }}/>Influence (Percent of Gene List)
+                      </label>
+                    </div>
+                    <div className="form-check form-check-inline float-left">
+                      <label className="form-check-label">
+                        <input className="form-check-input" type="radio"
+                               checked={tableKey === "specificity"}
+                               onChange={() => {
+                                 this.setState({tableKey: "specificity"});
+                               }}/>Specificity (Percent of Targets)
+                      </label>
+                    </div>
                     <a className="btn btn-primary float-right" href={"data:text/csv," + tableToCsvUri(table)}
                        download="target_enrichment_table.csv">
                       <FontAwesomeIcon icon="file-csv" className="mr-1"/>Export Table Data</a>

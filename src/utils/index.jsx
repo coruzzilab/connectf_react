@@ -10,14 +10,21 @@ function brightness(r, g, b) {
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 }
 
-export function colorShader(h, s, l, v, min, max) {
-  v = Math.log10(v);
+export function colorShader(h, s, l, v, min, max, log=true) {
+  if (log) {
+    v = Math.log10(v);
+  }
 
   if (v > max) {
     return {background: 'white', color: 'black'};
   } else {
     let lMax = 99 - l;
-    let vl = l + _.clamp(lMax * ((v - min) / (max - min)), 0, lMax);
+    let vl;
+    if (log) {
+      vl = l + _.clamp(lMax * ((v - min) / (max - min)), 0, lMax);
+    } else {
+      vl = 99 - _.clamp(lMax * ((v - min) / (max - min)), 0, lMax);
+    }
 
     if (_.isNaN(vl)) {
       vl = l;
@@ -33,7 +40,7 @@ export function colorShader(h, s, l, v, min, max) {
   }
 }
 
-export const blueShader = _.partial(colorShader, 228, 89, 48, _, _, Math.log10(0.5));
+export const blueShader = _.partial(colorShader, 228, 89, 48, _, _, Math.log10(0.5), true);
 
 const clampExp = _.flow(_.partial(_.clamp, _, Number.MIN_VALUE, Number.MAX_VALUE), Math.log10);
 
