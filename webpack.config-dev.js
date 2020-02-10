@@ -58,7 +58,11 @@ const config = {
       },
       {
         test: /\.(ttf|eot|gif|woff(2)?|png|txt)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
-        loader: 'file-loader?name=[name].[ext]'
+        loader: 'file-loader',
+        options: {
+          name: '[name].[ext]',
+          esModule: false
+        },
       },
       {
         test: /\.svg$/,
