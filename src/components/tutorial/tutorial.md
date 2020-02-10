@@ -24,9 +24,9 @@ The special ***oralltf*** keyword can be used in place of transcription factor I
 
 Click the **Build Query** button to populate the search query input once all the desired transcription factors have been selected and grouped.
 
-### Select Additional Edges
+### Select Additional Edge Features
 
-In the **Additional Edges** section, select additional edge properties that you would like to be displayed alongside the results. (*e.g.* whether each edge is validated by DAP, etc.)
+In the **Additional Edge Features** section, select additional edge features that you would like to be displayed alongside the results. (*e.g.* whether each edge is validated by DAP, etc.)
 
 ### Select A Target Gene List
 

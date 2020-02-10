@@ -87,10 +87,10 @@ const WarningModalContent = ({data, queryTree}) => {
         </div> :
         null}
     </div>
-    <h6>Additional Edges</h6>
+    <h6>Additional Edge Features</h6>
     <div className="mb-2">{data.has('edges') ?
       <ul>{_.map(data.getAll('edges'), (e, i) => <li key={i}>{e}</li>)}</ul> :
-      "No Additional Edges selected"}
+      "No Additional Edge Features Selected"}
     </div>
     <h6>Target Genes</h6>
     <div className="mb-2">{data.has('targetgenes') ? targetGenes : "No Target Genes Selected"}</div>

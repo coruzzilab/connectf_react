@@ -160,7 +160,7 @@ class NetworkBody extends React.Component {
               <FontAwesomeIcon icon="external-link-alt" className="mr-1"/>Open Network
             </Link>
             <button className="btn btn-outline-primary mr-1" onClick={this.toggleCollapse.bind(this)}>
-              <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edges
+              <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edge Features
             </button>
             <div className="btn-group">
               <button className="btn btn-light" type="button" onClick={this.handleDownload.bind(this)}>

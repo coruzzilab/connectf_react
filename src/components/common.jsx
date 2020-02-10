@@ -180,8 +180,8 @@ class NetworkAdditionalEdgesBody extends React.PureComponent {
       <div className={classNames("col m-1", className)}>
         <div className="row">
           <div className="col">
-            <h3>Additional Edges</h3>
-            <p>Additional edges to display on network graph.</p>
+            <h3>Additional Edge Features</h3>
+            <p>Additional edge features to display on network graph.</p>
           </div>
         </div>
         <div className="row mb-2">

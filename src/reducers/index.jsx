@@ -262,7 +262,7 @@ function edges(state = [], action) {
 }
 
 /**
- * Available additional edges
+ * Available additional edge features
  * @param state
  * @param action
  * @returns {*}

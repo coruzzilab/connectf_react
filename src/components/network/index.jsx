@@ -513,8 +513,8 @@ class NetworkBody extends React.PureComponent {
           <UncontrolledDropdown>
             <div className="btn-group mr-2">
               <button type="button" className="btn btn-outline-primary" ref={this.additionalEdge}
-                      title="Add or remove additional edges">
-                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edges
+                      title="Add or remove additional edge features">
+                <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Additional Edge Features
               </button>
               <UncontrolledPopover trigger="legacy" target={() => this.additionalEdge.current}>
                 <PopoverBody>

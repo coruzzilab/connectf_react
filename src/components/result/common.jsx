@@ -162,7 +162,7 @@ class QueryPopoverBody extends React.Component {
 
         {edges.length ?
           <div>
-            <h6>Additional Edges</h6>
+            <h6>Additional Edge Features</h6>
             <ul>
               {_.map(edges, (e, i) => {
                 return <li key={i}>{e}</li>;
