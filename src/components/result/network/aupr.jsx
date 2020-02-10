@@ -94,7 +94,7 @@ class AuprBody extends React.PureComponent {
       <div className="col">
         <div className="row">
           <div className="col">
-            <h3>AUPR</h3>
+            <h3>Precision Recall Analysis (AUPR)</h3>
           </div>
         </div>
         <div className="row">
