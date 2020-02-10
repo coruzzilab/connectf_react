@@ -4,6 +4,7 @@
  */
 import React, {useState} from "react";
 import {
+  Collapse,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
@@ -12,7 +13,7 @@ import {
   UncontrolledDropdown,
   UncontrolledPopover
 } from "reactstrap";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import _ from "lodash";
@@ -69,13 +70,13 @@ NotSelect.propTypes = {
 
 export const AddFollowing = (props) => {
   return <UncontrolledDropdown>
-    <DropdownToggle className="btn btn-light"><FontAwesomeIcon icon="plus-circle"/></DropdownToggle>
+    <DropdownToggle className="btn btn-light"><Icon icon="plus-circle"/></DropdownToggle>
     <DropdownMenu right>
       <DropdownItem onClick={props.addNode}>
-        <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{props.addNodeText}
+        <Icon icon="plus-circle" className="mr-1"/>{props.addNodeText}
       </DropdownItem>
       <DropdownItem onClick={props.addGroup}>
-        <FontAwesomeIcon icon="plus-circle" className="mr-1"/>{props.addGroupText}
+        <Icon icon="plus-circle" className="mr-1"/>{props.addGroupText}
       </DropdownItem>
     </DropdownMenu>
   </UncontrolledDropdown>;
@@ -116,7 +117,7 @@ export const UploadFile = ({className, inputRef, save, ...props}) => {
         <button type="button" className="btn btn-primary btn-block"
                 disabled={!genes}
                 onClick={setIsOpen.bind(undefined, !isOpen)}>
-          <FontAwesomeIcon icon="save" className="mr-1"/>Save
+          <Icon icon="save" className="mr-1"/>Save
         </button>
       </div> :
       null}
@@ -150,7 +151,7 @@ export const TargetGeneInfo = () => {
           </pre>
       <a href={"data:text/plain," + encodeURIComponent(TARGET_GENES_FILE)}
          className="btn btn-primary btn-sm" download>
-        <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example
+        <Icon icon="file-download" className="mr-1"/>Download Example
       </a>
     </PopoverBody>
   </InfoPopover>;
@@ -171,7 +172,7 @@ export const FilterTfInfo = () => {
           </pre>
       <a href={"data:text/plain," + encodeURIComponent(FILTER_TF_FILE)}
          className="btn btn-primary btn-sm" download>
-        <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example
+        <Icon icon="file-download" className="mr-1"/>Download Example
       </a>
     </PopoverBody>
   </InfoPopover>;
@@ -207,7 +208,7 @@ export const NetworkInfo = () => {
           </pre>
       <a href={"data:text/plain," + encodeURIComponent(TARGET_NETWORK_FILE)}
          className="btn btn-primary btn-sm" download>
-        <FontAwesomeIcon icon="file-download" className="mr-1"/>Download Example
+        <Icon icon="file-download" className="mr-1"/>Download Example
       </a>
     </PopoverBody>
   </InfoPopover>;
@@ -218,7 +219,7 @@ export const AddTFButton = ({onClick, large}) => (
           title="Add Transcription Factor"
           className={classNames("btn btn-success", large ? "btn-lg" : null)}
           onClick={onClick}>
-    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF
+    <Icon icon="plus-circle" className="mr-1"/>Add TF
   </button>);
 
 AddTFButton.propTypes = {
@@ -231,7 +232,7 @@ export const AddTFGroupButton = ({onClick, large}) => (
           title="Add Transcription Factor Group"
           className={classNames("btn btn-success", large ? "btn-lg" : null)}
           onClick={onClick}>
-    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add TF Group
+    <Icon icon="plus-circle" className="mr-1"/>Add TF Group
   </button>);
 
 AddTFGroupButton.propTypes = {
@@ -242,7 +243,7 @@ AddTFGroupButton.propTypes = {
 export const AddModButton = ({onClick}) => (
   <button type="button" className="btn btn-success"
           onClick={onClick}>
-    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Filter
+    <Icon icon="plus-circle" className="mr-1"/>Add Filter
   </button>);
 
 AddModButton.propTypes = {
@@ -252,7 +253,7 @@ AddModButton.propTypes = {
 export const AddModGroupButton = ({onClick}) => (
   <button type="button" className="btn btn-success"
           onClick={onClick}>
-    <FontAwesomeIcon icon="plus-circle" className="mr-1"/>Add Filter Group
+    <Icon icon="plus-circle" className="mr-1"/>Add Filter Group
   </button>);
 
 AddModGroupButton.propTypes = {
@@ -263,7 +264,7 @@ export const DuplicateButton = ({onClick}) => (
   <button type="button" className="btn btn-light"
           onClick={onClick}
           title="Duplicate Item">
-    <FontAwesomeIcon icon="clone"/>
+    <Icon icon="clone"/>
   </button>);
 
 DuplicateButton.propTypes = {
@@ -273,31 +274,118 @@ DuplicateButton.propTypes = {
 export const RemoveButton = ({onClick}) => (
   <button type="button" className="btn btn-danger" title="Remove"
           onClick={onClick}>
-    <FontAwesomeIcon icon="minus-circle"/>
+    <Icon icon="minus-circle"/>
   </button>);
 
 RemoveButton.propTypes = {
   onClick: PropTypes.func.isRequired
 };
 
-export const Edges = ({edgeList, edges, onChange}) => ([
-  <div key={0} className="row m-2">
-    <h4>Additional Edges</h4>
-  </div>,
-  <div key={1} className="form-row m-2">
-    <div className="col-auto">
-      {_.map(edgeList, (e, i) => {
-        return <div className="form-check form-check-inline" key={i}>
+function groupEdges(edges, n = 0) {
+  return _(edges).groupBy(_.partial(_.get, _, `[0][${n}]`)).reduce((acc, val, key) => {
+    if (_(val).map((v) => v[0].length !== n + 1).every()) {
+      acc[key] = groupEdges(val, n + 1);
+    } else {
+      acc[key] = val[0];
+    }
+    return acc;
+  }, {});
+}
+
+function checkChildren(groupedEdges, onChange) {
+  _.forEach(groupedEdges, (val) => {
+    if (_.isArray(val)) {
+      onChange(val[1]);
+    } else {
+      checkChildren(val, onChange);
+    }
+  });
+}
+
+function checkChecked(groupedEdges, edges) {
+  if (_.isArray(groupedEdges)) {
+    return _.indexOf(edges, groupedEdges[1]) !== -1;
+  }
+
+  return _(groupedEdges).map((val) => {
+    return checkChecked(val, edges);
+  }).some();
+}
+
+const EdgeTree = ({groupedEdges, edges, onChange, n}) => {
+  return <ul style={{listStyleType: 'none'}} className={classNames("list-group", n === 0 && 'list-group-horizontal')}>
+    {_.map(groupedEdges, (val, key) => {
+      if (_.isArray(val)) {
+        return <li key={key} className="list-group-item border-0">
+          <div className="form-check form-check-inline">
+            <div className="d-inline mr-1"><Icon icon="plus" className="invisible"/></div>
+            <label className="form-check-label">
+              <input type="checkbox" className="form-check-input"
+                     checked={_.indexOf(edges, val[1]) !== -1}
+                     onChange={onChange.bind(undefined, val[1])}/>{val[0][n]}
+            </label>
+          </div>
+        </li>;
+      }
+
+      let checked = checkChecked(val, edges);
+      let [isOpen, setIsOpen] = useState(checked);
+
+      return <li key={key} className="list-group-item border-0">
+        <div className="form-check form-check-inline">
+          <div className="d-inline mr-1"
+               onClick={() => {
+                 setIsOpen(!isOpen);
+               }}>{isOpen ? <Icon icon="minus"/> : <Icon icon="plus"/>}</div>
           <label className="form-check-label">
-            <input className="form-check-input" type="checkbox" value={e}
-                   checked={_.indexOf(edges, e) !== -1}
-                   onChange={onChange.bind(undefined, e)}/>{e}
-          </label>
-        </div>;
-      })}
+            <input type="checkbox" className="form-check-input"
+                   checked={checked}
+                   onChange={(e) => {
+                     setIsOpen(e.target.checked);
+                     if (e.target.checked) {  // check "first"
+                       onChange(val[Object.keys(val)[0]][1], e);
+                     }
+
+                     if (!e.target.checked) {
+                       checkChildren(val, _.partial(onChange, _, e));
+                     }
+                   }}/>{key}</label>
+        </div>
+        <Collapse isOpen={isOpen}>
+          <EdgeTree groupedEdges={val} edges={edges} onChange={onChange} n={n + 1}/>
+        </Collapse>
+      </li>;
+    })}
+  </ul>;
+};
+
+EdgeTree.propTypes = {
+  groupedEdges: PropTypes.object.isRequired,
+  edges: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired,
+  n: PropTypes.number
+};
+
+EdgeTree.defaultProps = {
+  n: 0
+};
+
+export const Edges = ({edgeList, edges, onChange}) => {
+  let groupedEdges = groupEdges(_.map(edgeList, (e) => [e.split('/'), e]));
+
+  return <div className="row">
+    <div className="col">
+      <div className="row m-2">
+        <h4>Additional Edge Features</h4>
+      </div>
+      <div className="row m-2">
+        <div className="col">
+          <EdgeTree groupedEdges={groupedEdges} edges={edges} onChange={onChange}/>
+        </div>
+      </div>
     </div>
-  </div>
-]);
+  </div>;
+};
 
 Edges.propTypes = {
   edgeList: PropTypes.array.isRequired,
@@ -306,7 +394,7 @@ Edges.propTypes = {
 };
 
 export const Copied = ({copied}) => (
-  <span><FontAwesomeIcon icon="copy" className="mr-1"/>{copied ? "Copied!" : "Copy"}</span>);
+  <span><Icon icon="copy" className="mr-1"/>{copied ? "Copied!" : "Copy"}</span>);
 
 Copied.propTypes = {
   copied: PropTypes.bool
@@ -324,7 +412,7 @@ text-decoration: underline dotted;
 export const QueryInfo = () => {
   return <div className="form-row m-2">
     <div className="col">
-      <CursorHelp className="small text-secondary" id="queryInfo"><FontAwesomeIcon icon="question-circle"/> more
+      <CursorHelp className="small text-secondary" id="queryInfo"><Icon icon="question-circle"/> more
         info</CursorHelp>
       <UncontrolledPopover trigger="hover" target="queryInfo" delay={0}>
         <PopoverHeader>Query Info</PopoverHeader>
@@ -347,7 +435,7 @@ export const QueryInfo = () => {
 
 const ClearListButtonBody = ({clearList}) => {
   return <button type="button" className="btn btn-danger" onClick={clearList}>
-    <FontAwesomeIcon icon="trash-alt"/> Clear Saved Lists
+    <Icon icon="trash-alt"/> Clear Saved Lists
   </button>;
 };
 

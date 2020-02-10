@@ -50,7 +50,9 @@ import {
   faFilter,
   faObjectGroup,
   faFileAlt,
-  faTags
+  faTags,
+  faPlus,
+  faMinus
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -98,5 +100,7 @@ library.add(
   faFilter,
   faObjectGroup,
   faFileAlt,
-  faTags
+  faTags,
+  faPlus,
+  faMinus
 );
