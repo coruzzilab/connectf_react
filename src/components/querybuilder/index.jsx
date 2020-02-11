@@ -22,7 +22,7 @@ import {
   setWarnSubmit
 } from '../../actions';
 import {getQuery} from "../../utils";
-import {AdditionalOptions, Edges, QueryInfo} from "./common";
+import {AdditionalOptions, QueryInfo} from "./common";
 import History from "./history";
 import {getTargetGeneLists, getTargetNetworks} from "../../utils/axios_instance";
 import {CancelToken} from "axios";
@@ -30,6 +30,7 @@ import {FilterTfFile, TargetGeneFile, TargetNetworkFile} from "./query_file";
 import QueryBox from "./query_box";
 import AdvancedQuery from "./advanced_query";
 import RandomButton from "./random_button";
+import Edges from "./edges";
 
 const WarningModalContent = ({data, queryTree}) => {
   let [targetGenes, setTargetGenes] = useState("");
