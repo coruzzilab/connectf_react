@@ -6,6 +6,7 @@
 
 - Root TARGET
     - Brooks, M.D., J. Cirrone, A.V. Pasquino, J.M. Alvarez, J. Swift, S. Mittal, Juang C.-L., K. Varala, R.A. Gutiérrez, G. Krouk, D. Shasha, and G.M. Coruzzi, Network Walking charts transcriptional dynamics of nitrogen signaling by integrating validated and predicted genome-wide interactions. Nature Communications, 2019. 10(1): p. 1569.
+    - Alvarez, J.M., A.L. Schinke, M.D. Brooks, A. Pasquino, L. Leonelli, K. Varala, A. Safi, G. Krouk, A. Krapp, and G.M. Coruzzi, Transient genome-wide interactions of the master transcription factor NLP7 initiate a rapid nitrogen response cascade. Nature Communications, 2020. (in press)
 - Shoot TARGET/N-responsive genesets
     - Varala, K., A. Marshall-Colón, J. Cirrone, M.D. Brooks, A.V. Pasquino, S. Léran, S. Mittal, T.M. Rock, M.B. Edwards, G.J. Kim, S. Ruffel, W.R. McCombie, D. Shasha, and G.M. Coruzzi, Temporal transcriptional logic of dynamic regulatory networks underlying nitrogen signaling and use in plants. Proceedings of the National Academy of Sciences, 2018. 115(25): p. 6494-6499.
 - DAP-seq
