@@ -301,3 +301,37 @@ TargetNetworkFile.propTypes = {
   fileRef: PropTypes.object.isRequired,
   inputRef: PropTypes.object.isRequired
 };
+
+export const BackgroundGenesFile = ({value, list, onChange, fileRef, inputRef, tempLists}) => {
+  return <div className="row">
+    <div className="col">
+      <div className="row m-2 align-items-center">
+        <h4>Background Genes</h4>
+        <NetworkInfo/>
+      </div>
+      <div className="row m-2">
+        <p className="text-secondary">
+          Provide a list of background genes to restrict analysis results.
+        </p>
+      </div>
+      <ListForm name="network"
+                fileName="Network"
+                list={list}
+                tempLists={tempLists}
+                onChange={onChange}
+                inputRef={inputRef}
+                fileRef={fileRef}
+                value={value}
+                save={true}/>
+    </div>
+  </div>;
+};
+
+BackgroundGenesFile.propTypes = {
+  value: PropTypes.string.isRequired,
+  list: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired,
+  fileRef: PropTypes.object.isRequired,
+  inputRef: PropTypes.object.isRequired,
+  tempLists: PropTypes.array
+};
