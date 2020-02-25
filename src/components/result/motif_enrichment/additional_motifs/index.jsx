@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import {getAdditionalMotifEnrichment, getAdditionalMotifs} from "../../../../utils/axios_instance";
 import {ColHeader} from "../common";
 import {blueShader, columnString, getLogMinMax} from "../../../../utils";
+import {setBusy} from "../../../../actions";
 import {SortButton} from "../../common";
 import MotifPicker from "./motif_picker";
 import MotifAdder from "./motif_adder";
@@ -16,7 +17,7 @@ const mapStateToProps = ({requestId}) => {
   };
 };
 
-const AdditionalMotifsBody = ({requestId, motifRegions}) => {
+const AdditionalMotifsBody = ({requestId, motifRegions, setBusy}) => {
   let [additionalMotifs, setAdditionalMotifs] = useState([]);
   let [selectedMotifs, setSelectedMotifs] = useState([]);
   let [enrichmentData, setEnrichmentData] = useState({});
@@ -49,12 +50,17 @@ const AdditionalMotifsBody = ({requestId, motifRegions}) => {
       data.motifs = selectedMotifs;
     }
 
-    getAdditionalMotifEnrichment(requestId, data).then(({data}) => {
-      setEnrichmentData(data);
-      if (!selectedMotifs.length) {
-        setSelectedMotifs(_.map(_.get(data, 'columns'), 'motifs'));
-      }
-    });
+    setBusy(true);
+    getAdditionalMotifEnrichment(requestId, data)
+      .then(({data}) => {
+        setEnrichmentData(data);
+        if (!selectedMotifs.length) {
+          setSelectedMotifs(_.map(_.get(data, 'columns'), 'motifs'));
+        }
+      })
+      .then(() => {
+        setBusy(false);
+      });
   }, [requestId, motifRegions, tick]);
 
   const setColumnMotifs = (i, value) => {
@@ -164,8 +170,9 @@ const AdditionalMotifsBody = ({requestId, motifRegions}) => {
 AdditionalMotifsBody.propTypes = {
   requestId: PropTypes.string,
   alpha: PropTypes.number,
-  motifRegions: PropTypes.array
+  motifRegions: PropTypes.array,
+  setBusy: PropTypes.func
 };
 
-const AdditionalMotifs = connect(mapStateToProps)(AdditionalMotifsBody);
+const AdditionalMotifs = connect(mapStateToProps, {setBusy})(AdditionalMotifsBody);
 export default AdditionalMotifs;
