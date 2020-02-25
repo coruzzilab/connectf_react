@@ -17,7 +17,7 @@ import {
   setQueryOper
 } from "../../actions";
 import React from "react";
-import uuidv4 from "uuid/v4";
+import { v4 as uuidv4 } from 'uuid';
 import {getTFs} from "../../utils/axios_instance";
 import _ from "lodash";
 import {isMod, isTF} from "./utils";

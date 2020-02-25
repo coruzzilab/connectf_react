@@ -19,7 +19,7 @@ import {
   UncontrolledPopover
 } from 'reactstrap';
 import classNames from 'classnames';
-import uuid4 from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 
 import {getNetwork, setNetwork} from '../../actions';
 import {UploadSifInfoPopover} from "./common";

@@ -4,7 +4,7 @@
 import * as motifEnrichment from "./motif_enrichment";
 import * as targetEnrichment from "./target_enrichment";
 import * as analysisEnrichment from "./analysis_enrichment";
-import uuidv4 from "uuid/v4";
+import { v4 as uuidv4 } from 'uuid';
 import * as api from "../utils/axios_instance";
 
 export const setBusy = (busy = true) => {

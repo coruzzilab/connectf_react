@@ -3,7 +3,7 @@
  * 2019-04-25
  */
 import React from "react";
-import uuid4 from "uuid/v4";
+import { v4 as uuidv4 } from 'uuid';
 import Clipboard from "clipboard";
 import {DropdownItem, DropdownMenu, DropdownToggle, UncontrolledButtonDropdown, UncontrolledDropdown} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -24,7 +24,7 @@ class ExportClipboard extends React.Component {
   constructor(props) {
     super(props);
 
-    this.uid = uuid4();
+    this.uid = uuidv4();
 
     this.state = {
       copy: false
