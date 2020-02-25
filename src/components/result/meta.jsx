@@ -46,13 +46,7 @@ export class MetaBody extends React.Component {
       readOnlyCellClassName: 'foobar',  // @todo: placeholder class until bug is fixed
       rowHeaders: true,
       manualColumnResize: true,
-      colHeaders: _.map(_.get(result, 'metadata.columns', []), 'name'),
-      columns: _.map(_.get(result, 'metadata.columns', []), (c) => {
-        return {
-          data: c.id,
-          editor: false
-        };
-      }),
+      ...this.prepareColumns(),
       columnSorting: true,
       data: _.values(_.get(result, 'metadata.data', {})),
       search: true
@@ -71,12 +65,7 @@ export class MetaBody extends React.Component {
 
     if (result !== prevProps.result) {
       this.hot.updateSettings({
-        columns: _.map(_.get(result, 'metadata.columns', []), (c) => {
-          return {
-            data: c.id,
-            editor: false
-          };
-        })
+        ...this.prepareColumns()
       });
 
       this.hot.loadData(_.values(_.get(result, 'metadata.data', {})));
@@ -85,6 +74,26 @@ export class MetaBody extends React.Component {
 
   componentWillUnmount() {
     this.hot.destroy();
+  }
+
+  prepareColumns() {
+    let {result} = this.props;
+
+    return {
+      colHeaders: _.map(_.get(result, 'metadata.columns', []), (c) => {
+        if (_.isString(c.id)) {
+          return c.id;
+        }
+
+        return `ID: ${c.id}`;
+      }),
+      columns: _.map(_.get(result, 'metadata.columns', []), (c) => {
+        return {
+          data: c.id,
+          editor: false
+        };
+      })
+    };
   }
 
   generateMetadata() {
