@@ -54,6 +54,21 @@ const EdgeTree = ({groupedEdges, edges, onChange, n}) => {
 
       let checked = checkChecked(val, edges);
       let [isOpen, setIsOpen] = useState(checked);
+      const handleClick = (e) => {
+        setIsOpen(e.target.checked);
+        if (e.target.checked) {  // check "first"
+          for (let k in val) {
+            if (val.hasOwnProperty(k) && _.isArray(val[k])) {
+              onChange(val[k][1], e);
+              break;
+            }
+          }
+        }
+
+        if (!e.target.checked) {
+          checkChildren(val, _.partial(onChange, _, e));
+        }
+      };
 
       return <li key={key} className="list-group-item border-0">
         <div className="form-check form-check-inline">
@@ -62,16 +77,7 @@ const EdgeTree = ({groupedEdges, edges, onChange, n}) => {
           <label className="form-check-label">
             <input type="checkbox" className="form-check-input"
                    checked={checked}
-                   onChange={(e) => {
-                     setIsOpen(e.target.checked);
-                     if (e.target.checked) {  // check "first"
-                       onChange(val[Object.keys(val)[0]][1], e);
-                     }
-
-                     if (!e.target.checked) {
-                       checkChildren(val, _.partial(onChange, _, e));
-                     }
-                   }}/>{key}</label>
+                   onChange={handleClick}/>{key}</label>
         </div>
         <Collapse isOpen={isOpen}>
           <EdgeTree groupedEdges={val} edges={edges} onChange={onChange} n={n + 1}/>
@@ -92,6 +98,19 @@ EdgeTree.defaultProps = {
   n: 0
 };
 
+const allRegex = /(all|unfiltered)/i;
+const sortWithAll = (a, b) => {
+  if (allRegex.test(a)) {
+    return -1;
+  }
+
+  if (allRegex.test(b)) {
+    return 1;
+  }
+
+  return 0;
+};
+
 /**
  * @author zacharyjuang
  * 2/11/20
@@ -100,10 +119,11 @@ const Edges = ({edgeList, edges, onChange}) => {
   let [groupedEdges, setGroupedEdges] = useState({});
 
   useEffect(() => {
-    setGroupedEdges(groupEdges(_.map(edgeList, (e) => [e.split('/'), e])));
-  }, [edgeList]);
+    let edgeListSorted = [...edgeList];
+    edgeListSorted.sort(sortWithAll);
 
-  console.log(groupedEdges);
+    setGroupedEdges(groupEdges(_.map(edgeListSorted, (e) => [e.split('/'), e])));
+  }, [edgeList]);
 
   return <div className="row">
     <div className="col">
