@@ -9,14 +9,11 @@ import {Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import classNames from "classnames";
 import {
   addEdge,
-  clearEdges,
-  clearQuery,
   clearQueryError,
-  clearQueryTree,
-  clearRequestId,
   getEdgeList,
   postQuery,
   removeEdge,
+  resetQuery,
   setEdges,
   setQuery,
   setWarnSubmit
@@ -287,11 +284,7 @@ class QuerybuilderBody extends React.Component {
 
     this.cancelRequests();
 
-    this.props.clearQuery();
-    this.props.clearQueryTree();
-    this.props.clearEdges();
-    this.props.clearRequestId();
-    this.props.clearQueryError();
+    this.props.resetQuery();
     this.setState({
       targetGene: "",
       filterTf: "",
@@ -429,37 +422,31 @@ QuerybuilderBody.propTypes = {
   query: PropTypes.string,
   queryTree: PropTypes.arrayOf(PropTypes.object),
   postQuery: PropTypes.func,
-  clearQuery: PropTypes.func,
-  clearQueryTree: PropTypes.func,
   setQuery: PropTypes.func,
   addEdge: PropTypes.func,
   removeEdge: PropTypes.func,
-  clearEdges: PropTypes.func,
   edges: PropTypes.arrayOf(PropTypes.string),
   edgeList: PropTypes.arrayOf(PropTypes.string),
   setEdges: PropTypes.func,
   getEdgeList: PropTypes.func,
-  clearRequestId: PropTypes.func,
   queryError: PropTypes.shape({error: PropTypes.bool, message: PropTypes.string}),
   clearQueryError: PropTypes.func,
   tempLists: PropTypes.object,
   warnSubmit: PropTypes.bool,
-  setWarnSubmit: PropTypes.func
+  setWarnSubmit: PropTypes.func,
+  resetQuery: PropTypes.func
 };
 
 const Querybuilder = connect(mapStateToProps, {
   postQuery,
   setQuery,
-  clearQuery,
-  clearQueryTree,
   addEdge,
   removeEdge,
-  clearEdges,
   setEdges,
   getEdgeList,
-  clearRequestId,
+  setWarnSubmit,
   clearQueryError,
-  setWarnSubmit
+  resetQuery
 })(QuerybuilderBody);
 
 export default Querybuilder;

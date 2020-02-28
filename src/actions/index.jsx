@@ -476,3 +476,11 @@ export const setWarnSubmit = (warn) => {
     warn
   };
 };
+
+export const resetQuery = () => (dispatch) => {
+  dispatch(clearEdges());
+  dispatch(clearQuery());
+  dispatch(clearQueryTree());
+  dispatch(clearRequestId());
+  dispatch(clearQueryError());
+};

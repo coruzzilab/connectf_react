@@ -7,7 +7,7 @@ import {connect} from 'react-redux';
 import {Redirect, Switch} from 'react-router-dom';
 import {Nav, NavItem, TabContent} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {clearEdges, clearQuery, clearQueryTree, clearRequestId} from "../../actions";
+import {resetQuery} from "../../actions";
 
 import Summary from './summary';
 import Table from './table';
@@ -17,7 +17,7 @@ import MotifEnrichment from './motif_enrichment';
 import AnalysisEnrichment from './analysis_enrichment';
 import Network from './network';
 import Sungear from './sungear';
-import {NavLink, QueryPopover, RouteTabPane} from "./common";
+import {NavLink, QueryPopoverButton, RouteTabPane, ShowHideAnalyses} from "./common";
 
 function mapStateToProps({heatmap}) {
   return {
@@ -26,35 +26,16 @@ function mapStateToProps({heatmap}) {
 }
 
 class ResultBody extends React.Component {
-  constructor(props) {
-    super(props);
-    this.query = React.createRef();
-
-    this.state = {
-      popoverOpen: false
-    };
-  }
-
-  togglePopover() {
-    this.setState({
-      popoverOpen: !this.state.popoverOpen
-    });
-  }
-
   back() {
     this.props.history.push('/query');
   }
 
   backReset() {
-    this.props.clearQuery();
-    this.props.clearQueryTree();
-    this.props.clearEdges();
-    this.props.clearRequestId();
+    this.props.resetQuery();
     this.props.history.push('/query');
   }
 
   render() {
-    let {popoverOpen} = this.state;
     let {match, location: {pathname}} = this.props;
 
     return <div id="result">
@@ -101,11 +82,7 @@ class ResultBody extends React.Component {
         </NavItem>
         <NavItem className="ml-auto">
           <div className="btn-toolbar">
-            <div className="btn-group mr-2">
-              <a className="btn btn-outline-dark" ref={this.query} onClick={this.togglePopover.bind(this)}>
-                <FontAwesomeIcon icon="info-circle" className="mr-1"/>Show Query
-              </a>
-            </div>
+            <QueryPopoverButton/>
             <div className="btn-group mr-1">
               <button type="button" className="btn btn-primary" onClick={this.back.bind(this)}>
                 <FontAwesomeIcon icon="arrow-circle-left" className="mr-1"/>Back
@@ -148,8 +125,6 @@ class ResultBody extends React.Component {
           <Redirect to="/result/summary"/>
         </Switch>
       </TabContent>
-      <QueryPopover target={() => this.query.current} placement="auto" isOpen={popoverOpen}
-                    toggle={this.togglePopover.bind(this)}/>
     </div>;
   }
 }
@@ -159,12 +134,9 @@ ResultBody.propTypes = {
   match: PropTypes.object,
   history: PropTypes.object,
   heatmap: PropTypes.object,
-  clearQuery: PropTypes.func,
-  clearQueryTree: PropTypes.func,
-  clearEdges: PropTypes.func,
-  clearRequestId: PropTypes.func
+  resetQuery: PropTypes.func
 };
 
-const Result = connect(mapStateToProps, {clearQuery, clearQueryTree, clearEdges, clearRequestId})(ResultBody);
+const Result = connect(mapStateToProps, {resetQuery})(ResultBody);
 
 export default Result;

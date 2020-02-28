@@ -1,11 +1,12 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
-import React from "react";
+import React, {useRef, useState} from "react";
 import {
   Fade,
   NavLink as BSNavLink,
   Popover,
   PopoverBody,
+  PopoverHeader,
   TabPane,
   Tooltip,
   UncontrolledAlert,
@@ -140,17 +141,24 @@ RouteTabPane.propTypes = {
   children: PropTypes.node
 };
 
-class QueryPopoverBody extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+const QueryPopoverButtonBody = ({query, edges}) => {
+  let [isOpen, setOpen] = useState(false);
+  let queryRef = useRef(null);
 
-  render() {
-    let {edges, query} = this.props;
-    return <Popover className="mw-100" {..._.omit(this.props, ['query', 'dispatch', 'edges'])} trigger="legacy">
+  let toggle = setOpen.bind(undefined, !isOpen);
+
+  return <div className="btn-group mr-1">
+    <button className="btn btn-outline-dark" ref={queryRef} onClick={toggle}>
+      <FontAwesomeIcon icon="info-circle" className="mr-1"/>Show Query
+    </button>
+    <Popover className="mw-100"
+             target={() => queryRef.current}
+             placement="auto"
+             isOpen={isOpen}
+             toggle={toggle}
+             trigger="legacy">
+      <PopoverHeader>Query</PopoverHeader>
       <PopoverBody>
-        <h6>Query</h6>
-
         <div className="input-group">
           <div className="input-group-prepend">
             <span className="input-group-text text-monospace border-right-0">{query}</span>
@@ -171,16 +179,16 @@ class QueryPopoverBody extends React.Component {
           </div> :
           null}
       </PopoverBody>
-    </Popover>;
-  }
-}
+    </Popover>
+  </div>;
+};
 
-QueryPopoverBody.propTypes = {
+QueryPopoverButtonBody.propTypes = {
   query: PropTypes.string,
   edges: PropTypes.arrayOf(PropTypes.string)
 };
 
-export const QueryPopover = connect(({query, edges}) => ({query, edges}))(QueryPopoverBody);
+export const QueryPopoverButton = connect(({query, edges}) => ({query, edges}))(QueryPopoverButtonBody);
 
 class ExtraFieldsBody extends React.PureComponent {
   handleChecked(f, e) {
