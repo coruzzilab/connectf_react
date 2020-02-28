@@ -348,12 +348,12 @@ class MotifEnrichmentBody extends React.Component {
       <Nav tabs>
         <NavItem>
           <NavLink onClick={this.onTabClick.bind(this, "table")} active={key === "table"} disabled={error}>
-            Table
+            Motif Cluster Table
           </NavLink>
         </NavItem>
         <NavItem>
           <NavLink onClick={this.onTabClick.bind(this, "heatmap")} active={key === "heatmap"} disabled={error}>
-            Heatmap
+            Motif Cluster Heatmap
           </NavLink>
         </NavItem>
         <NavItem>

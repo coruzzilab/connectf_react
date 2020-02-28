@@ -58,7 +58,7 @@ const AdditionalMotifsBody = ({requestId, motifRegions, setBusy}) => {
           setSelectedMotifs(_.map(_.get(data, 'columns'), 'motifs'));
         }
       })
-      .then(() => {
+      .finally(() => {
         setBusy(false);
       });
   }, [requestId, motifRegions, tick]);
