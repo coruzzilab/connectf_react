@@ -314,8 +314,8 @@ export const BackgroundGenesFile = ({value, list, onChange, fileRef, inputRef, t
           Provide a list of background genes to restrict analysis results.
         </p>
       </div>
-      <ListForm name="network"
-                fileName="Network"
+      <ListForm name="background"
+                fileName="Background"
                 list={list}
                 tempLists={tempLists}
                 onChange={onChange}
@@ -333,5 +333,5 @@ BackgroundGenesFile.propTypes = {
   onChange: PropTypes.func.isRequired,
   fileRef: PropTypes.object.isRequired,
   inputRef: PropTypes.object.isRequired,
-  tempLists: PropTypes.array
+  tempLists: PropTypes.object
 };
