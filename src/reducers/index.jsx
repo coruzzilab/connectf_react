@@ -335,6 +335,8 @@ function tempLists(state = {}, action) {
     return {[action.name]: action.genes, ...state};
   case 'REMOVE_LIST':
     return _.omit(state, [action.name]);
+  case 'RENAME_LIST':
+    return _.omit({...state, [action.newName]: state[action.name]}, [action.name]);
   case 'CLEAR_LIST':
     return {};
   default:

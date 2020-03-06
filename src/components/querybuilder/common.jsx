@@ -7,6 +7,10 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   PopoverBody,
   PopoverHeader,
   UncontrolledDropdown,
@@ -15,10 +19,11 @@ import {
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
 import classNames from "classnames";
-import {ExportModal, InfoPopover} from "../common";
+import _ from "lodash";
+import {EditToggleInput, ExportModal, InfoPopover} from "../common";
 import styled from "styled-components";
 import {connect} from 'react-redux';
-import {clearList} from "../../actions";
+import {clearList, removeList, renameList} from "../../actions";
 
 export class AndOrSelect extends React.Component {
   handleChange(e) {
@@ -331,6 +336,44 @@ ClearListButtonBody.propTypes = {
 
 export const ClearListButton = connect(null, {clearList})(ClearListButtonBody);
 
+const RemoveListButtonBody = ({removeList, renameList, tempLists}) => {
+  let [isOpen, setIsOpen] = useState(false);
+  let toggle = setIsOpen.bind(undefined, !isOpen);
+
+  return <div className="d-inline-block mr-1">
+    <button type="button" className="btn btn-primary" onClick={toggle}><Icon icon="trash-alt"/> Remove List</button>
+    <Modal isOpen={isOpen} toggle={toggle}>
+      <ModalHeader toggle={toggle}>Remove List</ModalHeader>
+      <ModalBody>
+        {_(tempLists)
+          .keys()
+          .map((name, i) => {
+            let onRename = (e) => {
+              renameList(name, e.target.value);
+            };
+            return <div key={i} className="form-inline">
+            <span className="text-secondary link mr-1" onClick={removeList.bind(undefined, name)}>
+              <Icon icon="times-circle"/></span>
+              <EditToggleInput value={name} onChange={onRename}/>
+            </div>;
+          })
+          .value()}
+      </ModalBody>
+      <ModalFooter>
+        <button type="button" className="btn btn-secondary" onClick={toggle}>Close</button>
+      </ModalFooter>
+    </Modal>
+  </div>;
+};
+
+RemoveListButtonBody.propTypes = {
+  removeList: PropTypes.func,
+  renameList: PropTypes.func,
+  tempLists: PropTypes.object
+};
+
+export const RemoveListButton = connect(({tempLists}) => ({tempLists}), {removeList, renameList})(RemoveListButtonBody);
+
 export const AdditionalOptions = () => {
   return <div className="row">
     <div className="col">
@@ -339,6 +382,7 @@ export const AdditionalOptions = () => {
       </div>
       <div className="row m-2">
         <div className="col">
+          <RemoveListButton/>
           <ClearListButton/>
         </div>
       </div>

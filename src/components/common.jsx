@@ -4,7 +4,7 @@
  */
 import {Link, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
-import React, {useRef} from "react";
+import React, {useRef, useState} from "react";
 import {
   Button,
   Modal,
@@ -16,7 +16,7 @@ import {
 } from "reactstrap";
 import Clipboard from "clipboard";
 import classNames from "classnames";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {FontAwesomeIcon as Icon, FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {connect} from "react-redux";
 import {addEdge, addList, getEdgeList, getNetwork, removeEdge, setEdges} from "../actions";
 import _ from "lodash";
@@ -481,4 +481,28 @@ export const withResize = (Tag) => {
   </ResizeComponent>;
 
   return Resized;
+};
+
+export const EditToggleInput = ({value, onChange}) => {
+  let [isEdit, setIsEdit] = useState(false);
+
+  let toggle = setIsEdit.bind(undefined, !isEdit);
+
+  return isEdit ?
+    <span>
+      <div className="input-group">
+        <input type="text" className="form-control" value={value} onChange={onChange} autoFocus/>
+        <div className="input-group-append">
+          <button type="button" className="btn btn-outline-secondary" onClick={toggle}>Done</button>
+        </div>
+      </div>
+    </span> :
+    <span>
+      {value} <span className="link text-secondary" onClick={toggle}><Icon icon="edit"/></span>
+    </span>;
+};
+
+EditToggleInput.propTypes = {
+  value: PropTypes.string,
+  onChange: PropTypes.func
 };

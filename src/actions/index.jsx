@@ -4,7 +4,7 @@
 import * as motifEnrichment from "./motif_enrichment";
 import * as targetEnrichment from "./target_enrichment";
 import * as analysisEnrichment from "./analysis_enrichment";
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import * as api from "../utils/axios_instance";
 
 export const setBusy = (busy = true) => {
@@ -461,6 +461,14 @@ export const removeList = (name) => {
   return {
     type: 'REMOVE_LIST',
     name
+  };
+};
+
+export const renameList = (name, newName) => {
+  return {
+    type: 'RENAME_LIST',
+    name,
+    newName
   };
 };
 
