@@ -329,14 +329,25 @@ function extraFields(state = [], action) {
   }
 }
 
+function renameKey(obj, name, newName) {
+  if (newName in obj) {
+    return obj;
+  }
+  let pairs = _.toPairs(obj);
+  let item = obj[name];
+  let i = _.findIndex(pairs, (o) => o[0] === name);
+
+  return _.fromPairs([...pairs.slice(0, i), [newName, item], ...pairs.slice(i + 1)]);
+}
+
 function tempLists(state = {}, action) {
   switch (action.type) {
   case 'ADD_LIST':
-    return {[action.name]: action.genes, ...state};
+    return {...state, [action.name]: action.genes};
   case 'REMOVE_LIST':
     return _.omit(state, [action.name]);
   case 'RENAME_LIST':
-    return _.omit({...state, [action.newName]: state[action.name]}, [action.name]);
+    return renameKey(state, action.name, action.newName);
   case 'CLEAR_LIST':
     return {};
   default:

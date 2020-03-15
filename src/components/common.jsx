@@ -387,7 +387,7 @@ class ExportModalBody extends React.Component {
 
     return <Modal isOpen={isOpen} toggle={this.toggle.bind(this)} onOpened={this.focusNameInput.bind(this)}>
       <form onSubmit={this.addList.bind(this, genes)}>
-        <ModalHeader toggle={this.toggle.bind(this)}>Name Target Gene List</ModalHeader>
+        <ModalHeader toggle={this.toggle.bind(this)}>Name Your Gene List</ModalHeader>
         <ModalBody>
           <div className="form-group form-inline">
             <label className="mr-2">Name:</label>
@@ -483,26 +483,42 @@ export const withResize = (Tag) => {
   return Resized;
 };
 
-export const EditToggleInput = ({value, onChange}) => {
+export const EditToggleInput = ({value, onChange, editable}) => {
   let [isEdit, setIsEdit] = useState(false);
 
-  let toggle = setIsEdit.bind(undefined, !isEdit);
+  let toggle = (e) => {
+    e.preventDefault();
+    setIsEdit(!isEdit);
+  };
 
-  return isEdit ?
+  return isEdit && editable ?
     <span>
       <div className="input-group">
-        <input type="text" className="form-control" value={value} onChange={onChange} autoFocus/>
+        <input type="text" className="form-control" value={value} onChange={onChange} autoFocus
+               onKeyPress={(e) => {
+                 if (e.key === "Enter") {
+                   toggle(e);
+                 }
+               }}/>
         <div className="input-group-append">
           <button type="button" className="btn btn-outline-secondary" onClick={toggle}>Done</button>
         </div>
       </div>
     </span> :
     <span>
-      {value} <span className="link text-secondary" onClick={toggle}><Icon icon="edit"/></span>
+      {value}
+      {editable ?
+        <span className="link text-secondary ml-1" title="edit" onClick={toggle}><Icon icon="edit"/></span> :
+        null}
     </span>;
 };
 
 EditToggleInput.propTypes = {
+  editable: PropTypes.bool,
   value: PropTypes.string,
   onChange: PropTypes.func
+};
+
+EditToggleInput.defaultProps = {
+  editable: true
 };

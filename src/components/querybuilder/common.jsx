@@ -351,8 +351,8 @@ const RemoveListButtonBody = ({removeList, renameList, tempLists}) => {
             let onRename = (e) => {
               renameList(name, e.target.value);
             };
-            return <div key={i} className="form-inline">
-            <span className="text-secondary link mr-1" onClick={removeList.bind(undefined, name)}>
+            return <div key={i} className="form-inline mb-2">
+            <span className="text-secondary link mr-1" title="remove" onClick={removeList.bind(undefined, name)}>
               <Icon icon="times-circle"/></span>
               <EditToggleInput value={name} onChange={onRename}/>
             </div>;
