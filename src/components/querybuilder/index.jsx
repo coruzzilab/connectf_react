@@ -27,7 +27,7 @@ import {BackgroundGenesFile, FilterTfFile, TargetGeneFile, TargetNetworkFile} fr
 import QueryBox from "./query_box";
 import AdvancedQuery from "./advanced_query";
 import RandomButton from "./random_button";
-import Edges from "./edges";
+import AdditionalEdges from "./additional_edges";
 
 const WarningModalContent = ({data, queryTree}) => {
   let [targetGenes, setTargetGenes] = useState("");
@@ -383,7 +383,7 @@ class QuerybuilderBody extends React.Component {
               <AdvancedQuery/>
 
               {edgeList.length ?
-                <Edges edgeList={edgeList} edges={edges} onChange={this.handleEdgeCheck.bind(this)}/> :
+                <AdditionalEdges edgeList={edgeList} edges={edges} onChange={this.handleEdgeCheck.bind(this)}/> :
                 null}
 
               <TargetGeneFile fileRef={this.targetGenes} list={targetGenes} tempLists={tempLists}

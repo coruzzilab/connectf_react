@@ -111,11 +111,7 @@ const sortWithAll = (a, b) => {
   return 0;
 };
 
-/**
- * @author zacharyjuang
- * 2/11/20
- */
-const Edges = ({edgeList, edges, onChange}) => {
+export const Edges = ({edgeList, edges, onChange}) => {
   let [groupedEdges, setGroupedEdges] = useState({});
 
   useEffect(() => {
@@ -125,18 +121,7 @@ const Edges = ({edgeList, edges, onChange}) => {
     setGroupedEdges(groupEdges(_.map(edgeListSorted, (e) => [e.split('/'), e])));
   }, [edgeList]);
 
-  return <div className="row">
-    <div className="col">
-      <div className="row m-2">
-        <h4>Additional Edge Features</h4>
-      </div>
-      <div className="row m-2">
-        <div className="col">
-          <EdgeTree groupedEdges={groupedEdges} edges={edges} onChange={onChange}/>
-        </div>
-      </div>
-    </div>
-  </div>;
+  return <EdgeTree groupedEdges={groupedEdges} edges={edges} onChange={onChange}/>;
 };
 
 Edges.propTypes = {
@@ -145,4 +130,27 @@ Edges.propTypes = {
   onChange: PropTypes.func.isRequired
 };
 
-export default Edges;
+const AdditionalEdges = ({edgeList, edges, onChange}) => {
+
+
+  return <div className="row">
+    <div className="col">
+      <div className="row m-2">
+        <h4>Additional Edge Features</h4>
+      </div>
+      <div className="row m-2">
+        <div className="col">
+          <Edges edgeList={edgeList} edges={edges} onChange={onChange}/>
+        </div>
+      </div>
+    </div>
+  </div>;
+};
+
+AdditionalEdges.propTypes = {
+  edgeList: PropTypes.array.isRequired,
+  edges: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired
+};
+
+export default AdditionalEdges;

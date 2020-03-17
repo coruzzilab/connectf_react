@@ -22,6 +22,7 @@ import {addEdge, addList, getEdgeList, getNetwork, removeEdge, setEdges} from ".
 import _ from "lodash";
 import {checkAupr} from "../utils/axios_instance";
 import {AuprAdjuster} from "./result/network/aupr";
+import {Edges} from "./querybuilder/additional_edges";
 
 /**
  * React-router aware NavItem
@@ -200,16 +201,7 @@ class NetworkAdditionalEdgesBody extends React.PureComponent {
         </div>
         <div className="row mb-2">
           <div className="col">
-            {edgeList.map((f, i) => {
-              return <div className="form-check form-check-inline" key={i}>
-                <label className="form-check-label">
-                  <input className="form-check-input" type="checkbox" value={f}
-                         checked={edges.indexOf(f) !== -1}
-                         onChange={this.handleChecked.bind(this, f)}/>
-                  {f}
-                </label>
-              </div>;
-            })}
+            <Edges edges={edges} onChange={this.handleChecked.bind(this)} edgeList={edgeList}/>
           </div>
         </div>
         {hasAupr ?
