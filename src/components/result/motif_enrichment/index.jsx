@@ -26,10 +26,11 @@ import {BusyIcon, ExportClusterInfo, MotifEnrichmentInfo, MotifRegionCheckbox} f
 import AdditionalMotifs from "./additional_motifs";
 import {ResizeComponent} from "../../common";
 
-const mapStateToProps = ({busy, requestId, motifEnrichment, extraFields}) => {
+const mapStateToProps = ({busy, requestId, result, motifEnrichment, extraFields}) => {
   return {
     busy,
     requestId,
+    result,
     motifEnrichment,
     extraFields
   };
@@ -65,7 +66,7 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.requestId !== this.props.requestId) {
+    if (prevProps.requestId !== this.props.requestId || prevProps.result !== this.props.result) {
       this.getMotifEnrichment();
       this.getImgData();
     }
@@ -419,6 +420,7 @@ class MotifEnrichmentBody extends React.Component {
 MotifEnrichmentBody.propTypes = {
   busy: PropTypes.number,
   requestId: PropTypes.string,
+  result: PropTypes.object,
   getMotifEnrichment: PropTypes.func,
   motifEnrichment: PropTypes.object,
   setError: PropTypes.func,

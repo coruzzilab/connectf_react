@@ -31,10 +31,11 @@ const TargetEnrichmentInfo = () => {
   </p>;
 };
 
-const mapStateToProps = ({busy, requestId, targetEnrichment}) => {
+const mapStateToProps = ({busy, requestId, result, targetEnrichment}) => {
   return {
     busy,
     requestId,
+    result,
     targetEnrichment
   };
 };
@@ -65,7 +66,7 @@ class TargetEnrichmentBody extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.requestId !== this.props.requestId) {
+    if (prevProps.requestId !== this.props.requestId || prevProps.result !== this.props.result) {
       this.getTableData();
       this.getImgData();
     }
@@ -332,6 +333,7 @@ class TargetEnrichmentBody extends React.Component {
 TargetEnrichmentBody.propTypes = {
   busy: PropTypes.number,
   requestId: PropTypes.string,
+  result: PropTypes.object,
   getTargetEnrichmentTable: PropTypes.func,
   targetEnrichment: PropTypes.object,
   setError: PropTypes.func,

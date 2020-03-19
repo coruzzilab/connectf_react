@@ -16,9 +16,10 @@ import classNames from "classnames";
 import ItemList from "./item_list";
 import {ExportModal} from "../../common";
 
-function mapStateToProps({requestId}) {
+function mapStateToProps({requestId, result}) {
   return {
-    requestId
+    requestId,
+    result
   };
 }
 
@@ -77,6 +78,10 @@ class SungearBody extends React.PureComponent {
       (this.state.labelFields !== prevState.labelFields ||
         this.state.data !== prevState.data)) {
       this.getVertexFormatter();
+    }
+
+    if (prevProps.requestId !== this.props.requestId || prevProps.result !== this.props.result) {
+      this.getSungear();
     }
   }
 
@@ -416,7 +421,8 @@ class SungearBody extends React.PureComponent {
 }
 
 SungearBody.propTypes = {
-  requestId: PropTypes.string
+  requestId: PropTypes.string,
+  result: PropTypes.object
 };
 
 const Sungear = connect(mapStateToProps)(SungearBody);

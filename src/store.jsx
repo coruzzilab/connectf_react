@@ -8,8 +8,7 @@ import _ from 'lodash';
 
 import reducers from './reducers';
 import {loadState, saveState} from "./local_storage";
-import {clearRequestId, setBusy, setResult} from "./actions";
-import {getTable} from "./utils/axios_instance";
+import {getResult} from "./actions";
 
 /*
  * Enhancer composer for development. Connects to redux browser extension.
@@ -91,21 +90,7 @@ store.dispatch(function (dispatch) {
   let state = store.getState();
 
   if (state.requestId && _.isEmpty(state.result)) {
-    dispatch(setBusy(true));
-    getTable(state.requestId)
-      .then((response) => {
-        if (state.requestId === store.getState().requestId) {
-          dispatch(setResult(response.data));
-        }
-      })
-      .catch(() => {
-        if (state.requestId === store.getState().requestId) {
-          dispatch(clearRequestId());
-        }
-      })
-      .then(() => {
-        dispatch(setBusy(false));
-      });
+    dispatch(getResult(state.requestId));
   }
 });
 

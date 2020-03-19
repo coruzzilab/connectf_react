@@ -10,9 +10,10 @@ import {getAnalysisEnrichment} from "../../../actions/analysis_enrichment";
 import EnrichmentGrid from "./enrichment_grid";
 import EnrichmentTable from "./enrichment_table";
 
-function mapStateToProps({requestId, analysisEnrichment: {data, error, hidden}}) {
+function mapStateToProps({requestId, result, analysisEnrichment: {data, error, hidden}}) {
   return {
     requestId,
+    result,
     data,
     error,
     hidden
@@ -36,12 +37,21 @@ class AnalysisEnrichmentBody extends React.PureComponent {
   componentDidMount() {
     this.setSize();
     window.addEventListener("resize", this.setSize);
+    this.updateData();
+  }
 
-    this.props.getAnalysisEnrichment(this.props.requestId);
+  componentDidUpdate(prevProps) {
+    if (prevProps.requestId !== this.props.requestId || prevProps.result !== this.props.result) {
+      this.updateData();
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.setSize);
+  }
+
+  updateData() {
+    this.props.getAnalysisEnrichment(this.props.requestId);
   }
 
   setSize() {
@@ -76,6 +86,7 @@ class AnalysisEnrichmentBody extends React.PureComponent {
 AnalysisEnrichmentBody.propTypes = {
   getAnalysisEnrichment: PropTypes.func,
   requestId: PropTypes.string,
+  result: PropTypes.object,
   data: PropTypes.object,
   error: PropTypes.bool,
   hidden: PropTypes.arrayOf(PropTypes.number)

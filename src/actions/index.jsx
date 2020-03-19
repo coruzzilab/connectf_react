@@ -6,6 +6,7 @@ import * as targetEnrichment from "./target_enrichment";
 import * as analysisEnrichment from "./analysis_enrichment";
 import {v4 as uuidv4} from 'uuid';
 import * as api from "../utils/axios_instance";
+import {getTable, updateAnalysisIds as axiosUpdateAnalysisIds} from "../utils/axios_instance";
 
 export const setBusy = (busy = true) => {
   return {
@@ -265,6 +266,22 @@ export const postQuery = (config) => {
   };
 };
 
+export const getResult = (requestId) => {
+  return (dispatch) => {
+    dispatch(setBusy(true));
+    return getTable(requestId)
+      .then((resp) => {
+        dispatch(setResult(resp.data));
+      })
+      .catch(() => {
+        dispatch(clearRequestId());
+      })
+      .finally(() => {
+        dispatch(setBusy(false));
+      });
+  };
+};
+
 export const addEdge = (name) => {
   return {
     type: 'ADD_EDGE',
@@ -482,6 +499,68 @@ export const setWarnSubmit = (warn) => {
   return {
     type: 'SET_WARN_SUBMIT',
     warn
+  };
+};
+
+// Show/hide analyses
+export const setAnalysisIds = (ids) => {
+  return {
+    type: 'SET_ANALYSIS_IDS',
+    ids
+  };
+};
+
+export const clearAnalysisIds = () => {
+  return {
+    type: 'CLEAR_ANASYSIS_IDS'
+  };
+};
+
+export const getAnalysisIds = (requestId) => {
+  return (dispatch) => {
+    return axiosUpdateAnalysisIds(requestId)
+      .then((resp) => {
+        dispatch(setAnalysisIds(resp.data));
+      });
+  };
+};
+
+export const updateAnalysisIds = (requestId, ids) => {
+  return (dispatch) => {
+    return axiosUpdateAnalysisIds(requestId, ids)
+      .then((resp) => {
+        dispatch(setAnalysisIds(resp.data));
+        dispatch(getResult(requestId));
+      })
+      .catch((e) => {
+        let {response} = e;
+
+        if (response) {
+          if (response.status === 404) {
+            dispatch(clearAnalysisIds());
+            dispatch(clearRequestId());
+            dispatch(clearResult());
+          }
+        }
+
+        throw e;
+      });
+  };
+};
+
+export const showAnalysisIds = (idx, show) => {
+  return {
+    type: 'SHOW_ANALYSIS_IDS',
+    idx,
+    show
+  };
+};
+
+export const renameAnalysisIds = (idx, name) => {
+  return {
+    type: 'RENAME_ANALYSIS_IDS',
+    idx,
+    name
   };
 };
 

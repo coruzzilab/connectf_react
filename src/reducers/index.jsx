@@ -364,6 +364,29 @@ function warnSubmit(state = true, action) {
   }
 }
 
+function analysisIds(state = [], action) {
+  switch (action.type) {
+  case 'SET_ANALYSIS_IDS':
+    return action.ids;
+  case 'CLEAR_ANALYSIS_IDS':
+    return [];
+  case 'SHOW_ANALYSIS_IDS':
+    return [
+      ...state.slice(0, action.idx),
+      [state[action.idx][0], {...state[action.idx][1], show: action.show}],
+      ...state.slice(action.idx + 1)
+    ];
+  case 'RENAME_ANALYSIS_IDS':
+    return [
+      ...state.slice(0, action.idx),
+      [state[action.idx][0], {...state[action.idx][1], name: action.name}],
+      ...state.slice(action.idx + 1)
+    ];
+  default:
+    return state;
+  }
+}
+
 const tgdbApp = {
   busy,
   query,
@@ -383,7 +406,8 @@ const tgdbApp = {
   queryError,
   extraFields,
   tempLists,
-  warnSubmit
+  warnSubmit,
+  analysisIds
 };
 
 export default combineReducers(tgdbApp);

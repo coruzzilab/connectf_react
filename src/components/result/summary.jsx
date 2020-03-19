@@ -26,10 +26,11 @@ function simplifyEdge(edge) {
 
 }
 
-function mapStateToProps({requestId, summary}) {
+function mapStateToProps({requestId, summary, result}) {
   return {
     requestId,
-    summary
+    summary,
+    result
   };
 }
 
@@ -63,6 +64,10 @@ class SummaryBody extends React.Component {
     if (this.props.summary !== prevProps.summary) {
       this.setHeight();
       this.updateChart();
+    }
+
+    if (this.props.result !== prevProps.result) {
+      this.props.getSummary(this.props.requestId);
     }
   }
 
@@ -250,7 +255,8 @@ SummaryBody.propTypes = {
   requestId: PropTypes.string,
   summary: PropTypes.object,
   getSummary: PropTypes.func,
-  clearSummary: PropTypes.func
+  clearSummary: PropTypes.func,
+  result: PropTypes.object
 };
 
 const Summary = connect(mapStateToProps, {clearSummary, getSummary})(SummaryBody);

@@ -82,6 +82,7 @@ class ResultBody extends React.Component {
         </NavItem>
         <NavItem className="ml-auto">
           <div className="btn-toolbar">
+            <ShowHideAnalyses/>
             <QueryPopoverButton/>
             <div className="btn-group mr-1">
               <button type="button" className="btn btn-primary" onClick={this.back.bind(this)}>

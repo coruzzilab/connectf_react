@@ -19,9 +19,10 @@ import {NetworkAdditionalEdges} from "../../common";
 import {BASE_URL, checkAupr} from "../../../utils/axios_instance";
 import store from "../../../store";
 
-function mapStateToProps({busy, requestId, edges, edgeList, stats, network}) {
+function mapStateToProps({busy, result, requestId, edges, edgeList, stats, network}) {
   return {
     busy,
+    result,
     requestId,
     edges,
     edgeList,
@@ -43,26 +44,26 @@ class NetworkBody extends React.Component {
   }
 
   componentDidMount() {
-    let {requestId, getStats} = this.props;
-
-    if (requestId) {
-      getStats(requestId);
-      this.getNetwork();
-      this.checkAupr();
-    }
+    this.getData();
   }
 
   componentDidUpdate(prevProps) {
-    let {requestId, getStats, busy} = this.props;
+    let {requestId, busy} = this.props;
 
-    if (prevProps.requestId !== requestId) {
-      getStats(requestId);
-      this.getNetwork();
-      this.checkAupr();
+    if (prevProps.requestId !== requestId || prevProps.result !== this.props.result) {
+      this.getData();
     }
 
     if (!busy && prevProps.busy !== busy && this.state.collapse) {
       this.toggleCollapse();
+    }
+  }
+
+  getData() {
+    if (this.props.requestId) {
+      this.props.getStats(this.props.requestId);
+      this.getNetwork();
+      this.checkAupr();
     }
   }
 
@@ -194,6 +195,7 @@ class NetworkBody extends React.Component {
 
 NetworkBody.propTypes = {
   busy: PropTypes.number,
+  result: PropTypes.object,
   requestId: PropTypes.string,
   edges: PropTypes.arrayOf(PropTypes.string),
   stats: PropTypes.object,

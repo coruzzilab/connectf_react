@@ -1,8 +1,12 @@
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
 import PropTypes from "prop-types";
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {
   Fade,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
   NavLink as BSNavLink,
   Popover,
   PopoverBody,
@@ -13,21 +17,25 @@ import {
   UncontrolledTooltip
 } from "reactstrap";
 import {Route, withRouter} from "react-router-dom";
-import styled from "styled-components";
 import _ from "lodash";
-import {CopyButton} from "../common";
-import {addExtraField, removeExtraField, removeExtraFields} from "../../actions";
+import {CopyButton, EditToggleInput} from "../common";
+import {
+  addExtraField,
+  getAnalysisIds,
+  removeExtraField,
+  removeExtraFields,
+  renameAnalysisIds,
+  showAnalysisIds,
+  updateAnalysisIds
+} from "../../actions";
 import {connect} from "react-redux";
 
-const Sort = styled.a`
-  cursor: pointer;
-`;
-
 export const SortButton = ({sortFunc, sorted, ascending, ...props}) => {
-  return <Sort onClick={sortFunc} {...props}>
+  return <span className="link" onClick={sortFunc} {...props}>
     {sorted ?
-      (ascending ? <FontAwesomeIcon icon="sort-up"/> : <FontAwesomeIcon icon="sort-down"/>) :
-      <FontAwesomeIcon icon="sort"/>}</Sort>;
+      (ascending ? <Icon icon="sort-up"/> : <Icon icon="sort-down"/>) :
+      <Icon icon="sort"/>}
+  </span>;
 };
 
 SortButton.propTypes = {
@@ -45,7 +53,7 @@ export class InfoTootip extends React.Component {
   render() {
     return <this.props.tag className={this.props.className}>
       <div className="d-inline-block" ref={this.target}>{this.props.text ||
-      <span className="link info-link"><FontAwesomeIcon icon="question-circle"/></span>}</div>
+      <span className="link info-link"><Icon icon="question-circle"/></span>}</div>
       <UncontrolledTooltip target={() => this.target.current} placement="auto">
         {this.props.children}
       </UncontrolledTooltip>
@@ -149,7 +157,7 @@ const QueryPopoverButtonBody = ({query, edges}) => {
 
   return <div className="btn-group mr-1">
     <button className="btn btn-outline-dark" ref={queryRef} onClick={toggle}>
-      <FontAwesomeIcon icon="info-circle" className="mr-1"/>Show Query
+      <Icon icon="info-circle" className="mr-1"/>Show Query
     </button>
     <Popover className="mw-100"
              target={() => queryRef.current}
@@ -214,12 +222,12 @@ class ExtraFieldsBody extends React.PureComponent {
           {_(extraFields).intersection(extraFieldNames).map((f, i) => {
             return <button key={i} className="btn btn-sm btn-secondary m-1 d-inline-block"
                            onClick={removeExtraField.bind(undefined, f)}>
-              <FontAwesomeIcon icon="times-circle" className="mr-1"/>{f}
+              <Icon icon="times-circle" className="mr-1"/>{f}
             </button>;
           }).value()}
           <button className="btn btn-sm btn-danger m-1 d-inline-block"
                   onClick={removeExtraFields.bind(undefined, _.intersection(extraFieldNames, extraFields))}>
-            <FontAwesomeIcon icon="times-circle" className="mr-1"/>Clear All
+            <Icon icon="times-circle" className="mr-1"/>Clear All
           </button>
         </div>
       </div>
@@ -287,3 +295,90 @@ QueryAlert.propTypes = {
   className: PropTypes.string,
   onExited: PropTypes.func
 };
+
+const ShowHideAnalysesBody = ({requestId, analysisIds, ...props}) => {
+  let [isOpen, setOpen] = useState(false);
+
+  let toggle = setOpen.bind(undefined, !isOpen);
+
+  let update = () => {
+    props.updateAnalysisIds(requestId, analysisIds)
+      .catch((e) => {
+        let {response} = e;
+
+        if (response) {
+          if (response.status === 400) {
+            return props.getAnalysisIds(requestId);
+          }
+
+          return props.history.push('/query');
+        }
+
+        throw e;
+      })
+      .finally(() => {
+        toggle();
+      });
+  };
+
+  let reset = () => {
+    props.getAnalysisIds(requestId);
+    toggle();
+  };
+
+  useEffect(() => {
+    props.getAnalysisIds(requestId);
+  }, [requestId]);
+
+  return <div className="btn-group mr-1">
+    <button className="btn btn-outline-primary" onClick={toggle}>Show/Hide Analyses</button>
+
+    <Modal toggle={reset} isOpen={isOpen}>
+      <ModalHeader toggle={reset}>Show/Hide Analyses</ModalHeader>
+      <ModalBody>
+        {_.map(analysisIds, ([id, data], i) => {
+          let onCheck = (e) => {
+            props.showAnalysisIds(i, e.target.checked);
+          };
+          let onRename = (e) => {
+            props.renameAnalysisIds(i, e.target.value);
+          };
+
+          return <div key={i} className="form-inline">
+            <input type="checkbox"
+                   className="form-control"
+                   id={`show-hide${i}`}
+                   title="show"
+                   checked={data.show}
+                   onChange={onCheck}/>
+            <label htmlFor={`show-hide${i}`}><EditToggleInput value={data.name} onChange={onRename}/></label>
+          </div>;
+        })}
+      </ModalBody>
+      <ModalFooter>
+        <button type="button" className="btn btn-primary" onClick={update}>Update</button>
+        <button type="button" className="btn btn-secondary" onClick={reset}>Cancel</button>
+      </ModalFooter>
+    </Modal>
+  </div>;
+};
+
+ShowHideAnalysesBody.propTypes = {
+  requestId: PropTypes.string,
+
+  analysisIds: PropTypes.array,
+  getAnalysisIds: PropTypes.func,
+  updateAnalysisIds: PropTypes.func,
+  showAnalysisIds: PropTypes.func,
+  renameAnalysisIds: PropTypes.func,
+
+  history: PropTypes.object
+};
+
+export const ShowHideAnalyses = _.flow(
+  connect(
+    ({requestId, analysisIds}) => ({requestId, analysisIds}),
+    {getAnalysisIds, updateAnalysisIds, showAnalysisIds, renameAnalysisIds}
+  ),
+  withRouter
+)(ShowHideAnalysesBody);

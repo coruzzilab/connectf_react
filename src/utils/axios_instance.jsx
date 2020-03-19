@@ -141,4 +141,12 @@ export function getAdditionalMotifEnrichment(requestId, data, config) {
   return instance.post(`/api/motif_enrichment/additional/${requestId}/`, data, config);
 }
 
+export function updateAnalysisIds(requestId, data) {
+  if (!data) {
+    return instance.get(`/api/ids/${requestId}/`);
+  }
+
+  return instance.post(`/api/ids/${requestId}/`, data);
+}
+
 export default instance;
