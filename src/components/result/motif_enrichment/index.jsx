@@ -45,6 +45,8 @@ class MotifEnrichmentBody extends React.Component {
       alpha: 0.05,
       upper: '',
       lower: '',
+      useLabel: false,
+
       colSpan: 1,
       key: "table",
       collapse: false,
@@ -151,7 +153,7 @@ class MotifEnrichmentBody extends React.Component {
         additionalMotifParams
       };
     });
-    this.props.getMotifEnrichment(this.props.requestId, this.state.alpha, this.state.selectedMotifRegions, {
+    this.props.getMotifEnrichment(this.props.requestId, this.state.alpha, this.state.selectedMotifRegions, this.state.useLabel, {
       cancelToken: new CancelToken((c) => {
         this.cancels.push(c);
       })
@@ -188,12 +190,18 @@ class MotifEnrichmentBody extends React.Component {
     });
   }
 
+  handleLabel(e) {
+    this.setState({
+      useLabel: e.target.checked
+    });
+  }
+
   onTabClick(key) {
     this.setState({key});
   }
 
   getImgData() {
-    let {alpha, lower, upper, selectedMotifRegions, heatmapKeysChecked} = this.state;
+    let {alpha, lower, upper, useLabel, selectedMotifRegions, heatmapKeysChecked} = this.state;
     let {requestId, getMotifEnrichmentImage, getMotifEnrichmentLegend} = this.props;
 
     return Promise.all([
@@ -202,13 +210,17 @@ class MotifEnrichmentBody extends React.Component {
         regions: selectedMotifRegions,
         fields: heatmapKeysChecked,
         lower,
-        upper
+        upper,
+        label: useLabel ? '1' : undefined
       }, {
         cancelToken: new CancelToken((c) => {
           this.cancels.push(c);
         })
       }),
       getMotifEnrichmentLegend(requestId, {
+        params: {
+          label: useLabel ? '1' : undefined
+        },
         cancelToken: new CancelToken((c) => {
           this.cancels.push(c);
         })
@@ -236,8 +248,8 @@ class MotifEnrichmentBody extends React.Component {
   render() {
     let {motifEnrichment: {table, legend, image, error}, busy} = this.props;
     let {
-      colSpan, key, lower, upper, collapse, exportSrc, motifRegions, selectedMotifRegions,
-      heatmapKeysChecked
+      colSpan, key, lower, upper, useLabel, collapse, exportSrc, motifRegions,
+      selectedMotifRegions, heatmapKeysChecked
     } = this.state;
 
     let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
@@ -265,6 +277,7 @@ class MotifEnrichmentBody extends React.Component {
                 <div className="row">
                   <h3 className="col">Recalculate Data:</h3>
                 </div>
+
                 <div className="form-group row align-items-center">
                   <label className="col-sm-2 col-form-label">
                     Alpha:
@@ -276,8 +289,8 @@ class MotifEnrichmentBody extends React.Component {
                     <input type="number" min={0} max={1} step="any" placeholder={0.05}
                            defaultValue={0.05} onChange={this.handleAlpha.bind(this)} className="form-control"/>
                   </div>
-
                 </div>
+
                 <div className="form-group row align-items-center">
                   <label className="col-sm-2 col-form-label">
                     Lower Bound (-log10):
@@ -290,6 +303,7 @@ class MotifEnrichmentBody extends React.Component {
                            onChange={this.handleLower.bind(this)}/>
                   </div>
                 </div>
+
                 <div className="form-group row align-items-center">
                   <label className="col-sm-2 col-form-label">
                     Upper Bound (-log10):
@@ -302,6 +316,19 @@ class MotifEnrichmentBody extends React.Component {
                            onChange={this.handleUpper.bind(this)}/>
                   </div>
                 </div>
+
+                <div className="form-group row align-items-center">
+                  <label className="col-sm-2 col-form-label">Use Custom Labels:
+                    <InfoTootip className="ml-1 d-inline">
+                      Use custom labels for heatmaps.
+                    </InfoTootip>
+                  </label>
+                  <div className="col-sm">
+                    <input type="checkbox" className="form-control" value={useLabel} step="any"
+                           onChange={this.handleLabel.bind(this)}/>
+                  </div>
+                </div>
+
                 <div className="form-group row align-items-center">
                   <legend className="col-form-label col-2">Show Enrichment of Gene Regions:</legend>
                   <div className="col-10">
@@ -402,7 +429,7 @@ class MotifEnrichmentBody extends React.Component {
                 </div>
                 <div className="row">
                   <div className="col">
-                    <HeatmapTable ref={this.legend} extraFieldNames={extraFieldNames}/>
+                    <HeatmapTable tableRef={this.legend} extraFieldNames={extraFieldNames} useLabel={useLabel}/>
                   </div>
                 </div>
               </div>

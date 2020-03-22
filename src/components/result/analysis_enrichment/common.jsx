@@ -31,12 +31,25 @@ export class RowHeader extends React.Component {
       <Modal key={1} isOpen={this.state.modal} toggle={this.toggle}>
         <ModalHeader toggle={this.toggle}>Genes</ModalHeader>
         <ModalBody>
-          <div>
-            <p>Name: {info[0][0]}</p>
-            <p>Filter: {info[0][1]}</p>
-            <p>Experiment ID: {info[0][2]}</p>
-            <p>Analysis ID: {info[0][3]}</p>
-            {_.map(info[1], (val, key) => <p key={key}>{key}: {val}</p>)}
+          <div className="table-responsive">
+            <table className="table">
+              <tbody>
+              <tr>
+                <th>Name</th>
+                <td>{info[0][0]}</td>
+              </tr>
+              <tr>
+                <th>Filter</th>
+                <td>{info[0][1]}</td>
+              </tr>
+              {_.map(info[1], (val, key) => {
+                return <tr key={key}>
+                  <th>{key}</th>
+                  <td>{val}</td>
+                </tr>;
+              })}
+              </tbody>
+            </table>
           </div>
         </ModalBody>
         <ModalFooter>

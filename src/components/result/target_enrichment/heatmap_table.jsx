@@ -19,10 +19,10 @@ const mapStateToProps = ({requestId, targetEnrichment, extraFields}) => {
 
 class HeatmapTableBody extends React.Component {
   render() {
-    let {targetEnrichment} = this.props;
+    let {targetEnrichment, useLabel} = this.props;
     let extraFields = _.intersection(this.props.extraFields, this.props.extraFieldNames);
 
-    return <div className="table-responsive">
+    return <div className="table-responsive" ref={this.props.tableRef}>
       <table className="table table-sm table-bordered">
         <thead>
         <tr>
@@ -38,7 +38,7 @@ class HeatmapTableBody extends React.Component {
         <tbody>
         {_.map(targetEnrichment.legend, (row, i) => {
           return <tr key={i}>
-            <RowHeader info={row[0]}>{row[1]}</RowHeader>
+            <RowHeader info={row[0]}>{useLabel ? row[0]['label'] : row[1]}</RowHeader>
             <td>{row[2]}</td>
             <QueryNameCell>{row[3]}</QueryNameCell>
             <td>{row[4]}</td>
@@ -54,18 +54,14 @@ class HeatmapTableBody extends React.Component {
 }
 
 HeatmapTableBody.propTypes = {
+  tableRef: PropTypes.object,
   requestId: PropTypes.string,
   targetEnrichment: PropTypes.shape({legend: PropTypes.array}),
   extraFields: PropTypes.arrayOf(PropTypes.string),
-  extraFieldNames: PropTypes.arrayOf(PropTypes.string)
+  extraFieldNames: PropTypes.arrayOf(PropTypes.string),
+  useLabel: PropTypes.bool
 };
 
-const HeatmapTable_ = connect(mapStateToProps)(HeatmapTableBody);
-
-const HeatmapTable = React.forwardRef((props, ref) => {
-  return <div ref={ref}>
-    <HeatmapTable_ {...props}/>
-  </div>;
-});
+const HeatmapTable = connect(mapStateToProps)(HeatmapTableBody);
 
 export default HeatmapTable;

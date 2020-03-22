@@ -117,3 +117,18 @@ export const ExportClusterInfo = ({className}) => {
 ExportClusterInfo.propTypes = {
   className: PropTypes.string
 };
+
+export function makeLines(data) {
+  let line1 = data.name, line2;
+  if (data['gene_name']) {
+    line1 += ` (${data['gene_name']})`;
+  }
+
+  if (data['label']) {
+    line2 = data['label'];
+  } else {
+    line2 = _(data).pick(['TECHNOLOGY', 'ANALYSIS_METHOD', 'ANALYSIS_CUTOFF']).values().join('-');
+  }
+
+  return [line1, line2];
+}

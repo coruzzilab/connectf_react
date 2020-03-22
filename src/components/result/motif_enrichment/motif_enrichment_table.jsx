@@ -10,7 +10,7 @@ import PropTypes from "prop-types";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
-import {BASE_COLORS, ColHeader} from "./common";
+import {BASE_COLORS, ColHeader, makeLines} from "./common";
 
 const FrozenTd = styled.td`
   position: sticky;
@@ -142,11 +142,8 @@ class MotifEnrichmentTable extends React.Component {
         <tr>
           <th/>
           {_(_.get(table, 'columns', [])).map((val, i) => {
-            let line1 = val.name;
-            if (val['gene_name']) {
-              line1 += ` (${val['gene_name']})`;
-            }
-            let line2 = _(val).pick(['TECHNOLOGY', 'ANALYSIS_METHOD', 'ANALYSIS_CUTOFF']).values().join('-');
+            let [line1, line2] = makeLines(val);
+
             return <ColHeader key={i}
                               data={val}
                               colSpan={colSpan}>

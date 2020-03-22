@@ -46,13 +46,17 @@ class TargetEnrichmentBody extends React.Component {
     this.legend = React.createRef();
 
     this.state = {
-      upper: '',
-      lower: '',
       key: "table",
       collapse: false,
-      exportSrc: null,
+
+      upper: '',
+      lower: '',
+      useLabel: false,
+
       heatmapKeys: [],
       heatmapKeysChecked: [],
+
+      exportSrc: null,
 
       tableKey: "p-value"
     };
@@ -83,6 +87,7 @@ class TargetEnrichmentBody extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
     this.getImgData();
+    this.getTableData();
     this.toggle();
   }
 
@@ -98,12 +103,18 @@ class TargetEnrichmentBody extends React.Component {
     });
   }
 
+  handleLabel(e) {
+    this.setState({
+      useLabel: e.target.checked
+    })
+  }
+
   onTabClick(key) {
     this.setState({key});
   }
 
   getTableData() {
-    this.props.getTargetEnrichmentTable(this.props.requestId, {
+    this.props.getTargetEnrichmentTable(this.props.requestId, this.state.useLabel, {
       cancelToken: new CancelToken((c) => {
         this.cancels.push(c);
       })
@@ -112,15 +123,15 @@ class TargetEnrichmentBody extends React.Component {
 
   getImgData() {
     let {requestId, getTargetEnrichmentImage, getTargetEnrichmentLegend} = this.props;
-    let {lower, upper, heatmapKeysChecked} = this.state;
+    let {lower, upper, useLabel, heatmapKeysChecked} = this.state;
 
     return Promise.all([
-      getTargetEnrichmentImage(requestId, {lower, upper, fields: heatmapKeysChecked}, {
+      getTargetEnrichmentImage(requestId, {lower, upper, fields: heatmapKeysChecked, useLabel}, {
         cancelToken: new CancelToken((c) => {
           this.cancels.push(c);
         })
       }),
-      getTargetEnrichmentLegend(requestId, {
+      getTargetEnrichmentLegend(requestId, useLabel, {
         cancelToken: new CancelToken((c) => {
           this.cancels.push(c);
         })
@@ -162,7 +173,7 @@ class TargetEnrichmentBody extends React.Component {
 
   render() {
     let {targetEnrichment: {table, legend, image, error}, busy} = this.props;
-    let {lower, upper, key, collapse, exportSrc, heatmapKeysChecked, tableKey} = this.state;
+    let {lower, upper, useLabel, key, collapse, exportSrc, heatmapKeysChecked, tableKey} = this.state;
 
     let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
 
@@ -213,6 +224,17 @@ class TargetEnrichmentBody extends React.Component {
                         <div className="col-sm">
                           <input type="number" className="form-control" min={0} value={upper} step="any"
                                  onChange={this.handleUpper.bind(this)}/>
+                        </div>
+                      </div>
+                      <div className="form-group row align-items-center">
+                        <label className="col-sm-2 col-form-label">Use Custom Labels:
+                          <InfoTootip className="ml-1 d-inline">
+                            Use custom labels for heatmaps.
+                          </InfoTootip>
+                        </label>
+                        <div className="col-sm">
+                          <input type="checkbox" className="form-control" value={useLabel} step="any"
+                                 onChange={this.handleLabel.bind(this)}/>
                         </div>
                       </div>
                       <div className="form-group row align-items-center">
@@ -317,7 +339,7 @@ class TargetEnrichmentBody extends React.Component {
                     </div>
                     <div className="row">
                       <div className="col">
-                        <HeatmapTable ref={this.legend} extraFieldNames={extraFieldNames}/>
+                        <HeatmapTable tableRef={this.legend} extraFieldNames={extraFieldNames} useLabel={useLabel}/>
                       </div>
                     </div>
                   </div>

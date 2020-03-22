@@ -59,15 +59,24 @@ export class RowHeader extends React.Component {
     let name = geneId + (geneName ? ` (${geneName})` : '');
 
     return <FrozenTh className="p-0">
-      <div className="w-100 h-100 bg-white border p-1">
+      <div className="w-100 h-100 bg-white border p-1 text-nowrap">
         <a className="text-primary link" onClick={this.showModal.bind(this, undefined)}>{this.props.children}</a>
       </div>
       <Modal isOpen={visible} toggle={this.showModal.bind(this, false)}>
         <ModalHeader toggle={this.showModal.bind(this, false)}>{name}</ModalHeader>
         <ModalBody>
-          {_.map(info, (val, key) => {
-            return <p key={key}>{key}: {val}</p>;
-          })}
+          <div className="table-responsive">
+            <table className="table">
+              <tbody>
+              {_.map(info, (val, key) => {
+                return <tr key={key}>
+                  <th>{key}</th>
+                  <td>{val}</td>
+                </tr>;
+              })}
+              </tbody>
+            </table>
+          </div>
         </ModalBody>
         <ModalFooter>
           <Button onClick={this.showModal.bind(this, false)}><FontAwesomeIcon icon="times"/> Close</Button>

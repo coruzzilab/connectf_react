@@ -18,11 +18,14 @@ export const clearTargetEnrichment = () => {
   };
 };
 
-export const getTargetEnrichmentTable = (requestId, config) => {
+export const getTargetEnrichmentTable = (requestId, useLabel, config) => {
   return (dispatch) => {
     dispatch(setBusy(true));
     dispatch(clearTargetEnrichment());
-    return api.getTargetEnrichmentTable(requestId, config)
+    return api.getTargetEnrichmentTable(requestId, {
+      params: {label: useLabel ? '1' : undefined},
+      ...config
+    })
       .then((response) => {
         dispatch(setTargetEnrichment(response.data));
         dispatch(setError(false));
@@ -50,10 +53,18 @@ export const clearTargetEnrichmentImage = () => {
   };
 };
 
-export const getTargetEnrichmentImage = (requestId, params, config) => {
+export const getTargetEnrichmentImage = (requestId, {lower, upper, useLabel, fields}, config) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return api.getTargetEnrichmentImage(requestId, params, config)
+    return api.getTargetEnrichmentImage(
+      requestId,
+      {
+        lower,
+        upper,
+        fields,
+        label: useLabel ? '1' : undefined
+      },
+      config)
       .then((response) => {
         dispatch(setError(false));
         dispatch(setTargetEnrichmentImage('data:image/svg+xml,' + encodeURIComponent(response.data.documentElement.outerHTML)));
@@ -85,10 +96,15 @@ export const clearTargetEnrichmentLegend = () => {
   };
 };
 
-export const getTargetEnrichmentLegend = (requestId, config) => {
+export const getTargetEnrichmentLegend = (requestId, useLabel, config) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return api.getTargetEnrichmentLegend(requestId, config)
+    return api.getTargetEnrichmentLegend(requestId, {
+      params: {
+        label: useLabel ? '1' : undefined
+      },
+      ...config
+    })
       .then(({data}) => {
         dispatch(setTargetEnrichmentLegend(data));
         dispatch(setError(false));

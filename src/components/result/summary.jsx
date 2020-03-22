@@ -180,7 +180,7 @@ class SummaryBody extends React.Component {
         .map((edge) => {
           return chartObj.values().map((val, i) => {
             return _(val).toPairs().map(([k, v], j) => {
-              let arr = Array(chartSize);
+              let arr = new Array(chartSize);
               _.fill(arr, 0);
               arr[i] = v[edge];
 

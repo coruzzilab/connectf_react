@@ -10,6 +10,7 @@ import {SortButton} from "../../common";
 import MotifPicker from "./motif_picker";
 import MotifAdder from "./motif_adder";
 import ExportData from "./export_data";
+import {makeLines} from "../common";
 
 const mapStateToProps = ({requestId}) => {
   return {
@@ -97,11 +98,8 @@ const AdditionalMotifsBody = ({requestId, motifRegions, setBusy}) => {
                           setSelectedMotifs={setSelectedMotifs}/>
             </th>
             {_.map(_.get(enrichmentData, 'columns', []), (colData, i) => {
-              let line1 = colData.name;
-              if (colData['gene_name']) {
-                line1 += ` (${colData['gene_name']})`;
-              }
-              let line2 = _(colData).pick(['TECHNOLOGY', 'ANALYSIS_METHOD', 'ANALYSIS_CUTOFF']).values().join('-');
+              let [line1, line2] = makeLines(colData);
+
               return <ColHeader key={i} colSpan={colData.motifs.length || 1} data={colData}>
                 <div className="row">
                   <div className="col">

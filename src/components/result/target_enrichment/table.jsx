@@ -90,7 +90,10 @@ class TableBody extends React.Component {
             let name = geneId + (geneName ? ` (${geneName})` : '');
 
             return <tr key={i}>
-              <RowHeader info={row['info']}>{name} {surround(row['info'].filter)} ({row['info'].targets})</RowHeader>
+              <RowHeader info={row['info']}>
+                <div>{name} {surround(row['info'].filter)} ({row['info'].targets})</div>
+                {row['info']['label'] ? <div>{row['info']['label']}</div> : null}
+              </RowHeader>
               {_(row['info']).pick(extraFields).values().map((f, i) => <td key={i} className="text-nowrap">{f}</td>).value()}
               {_(row[tableKey]).zip(row['count']).map(([first, count], j) => {
                 if (tableKey === "p-value") {
