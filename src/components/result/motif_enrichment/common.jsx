@@ -10,14 +10,14 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import {BASE_URL} from "../../../utils/axios_instance";
 
-export const ColHeader = ({colSpan, data, children}) => {
+export const ColHeader = ({colSpan, data, children, className}) => {
   let [visible, setVisible] = useState(false);
 
   const toggle = () => {
     setVisible(!visible);
   };
 
-  return <th colSpan={colSpan} onClick={toggle} className="p-0">
+  return <th colSpan={colSpan} onClick={toggle} className={classNames("p-0", className)}>
     <div className="container-fluid my-1" onClick={toggle}>
       {children}
     </div>
@@ -50,7 +50,8 @@ export const ColHeader = ({colSpan, data, children}) => {
 ColHeader.propTypes = {
   colSpan: PropTypes.number,
   data: PropTypes.object.isRequired,
-  children: PropTypes.node
+  children: PropTypes.node,
+  className: PropTypes.string
 };
 
 ColHeader.defaultProps = {

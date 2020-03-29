@@ -82,3 +82,11 @@
 .tutorial-img {
   max-height: 400px;
 }
+
+table.table-bordered > thead > tr > th.divider {
+  border-right-width: thick;
+}
+
+table.table-bordered > tbody > tr > td.divider {
+  border-right-width: thick;
+}
