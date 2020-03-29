@@ -36,12 +36,12 @@ class HeatmapTableBody extends React.Component {
         <tbody>
         {_.map(motifEnrichment.legend, (row, i) => {
           return <tr key={i}>
-            <ColHeader data={row[0]}><span className="link">{useLabel ? row[0]['label']: row[1]}</span></ColHeader>
+            <ColHeader data={row[0]}><span className="link">{useLabel ? row[0]['label'] : row[1]}</span></ColHeader>
             <td>{row[2]}</td>
             <QueryNameCell>{row[3]}</QueryNameCell>
             <QueryNameCell>{row[4]}</QueryNameCell>
             <td>{row[5]}</td>
-            {_(row[0]).pick(extraFields).values().map((r, i) => <td key={i}>{r}</td>).value()}
+            {_(extraFields).map((e) => _.get(row[0], e, '')).map((r, i) => <td key={i}>{r}</td>).value()}
           </tr>;
         })}
         </tbody>
