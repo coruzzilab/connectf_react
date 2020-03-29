@@ -9,11 +9,14 @@ import PropTypes from "prop-types";
 import {InfoPopover} from "../../common";
 
 import info from "./info.md";
+import ResetTreeButton from "./reset_tree_button";
 
 const AdvancedQueryInfo = () => {
   return <InfoPopover>
     <PopoverHeader>Advanced Query</PopoverHeader>
-    <PopoverBody><div dangerouslySetInnerHTML={{__html: info}}/></PopoverBody>
+    <PopoverBody>
+      <div dangerouslySetInnerHTML={{__html: info}}/>
+    </PopoverBody>
   </InfoPopover>;
 };
 
@@ -39,6 +42,7 @@ class AdvancedQueryBody extends React.Component {
                 </div>
                 <div className="btn-group">
                   <BuildQueryButton/>
+                  <ResetTreeButton/>
                 </div>
               </div>
             </div>
