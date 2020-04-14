@@ -328,8 +328,11 @@ class QuerybuilderBody extends React.Component {
           </div>
           <div className="form-row m-1">
             <div className="col">
-              <div className="btn-group">
+              <div className="btn-group mr-2">
                 <History/>
+              </div>
+              <div className="btn-group">
+                <RandomButton/>
               </div>
             </div>
           </div>
@@ -361,12 +364,6 @@ class QuerybuilderBody extends React.Component {
                        checked={warnSubmit}
                        onChange={(e) => setWarnSubmit(e.target.checked)}/> Confirm Query Before Submit
               </label>
-            </div>
-          </div>
-
-          <div className="form-row m-1">
-            <div className="col">
-              <RandomButton/> Give me some random Transcription Factors!
             </div>
           </div>
 

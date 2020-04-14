@@ -39,7 +39,7 @@ class RandomButtonBody extends React.Component {
     let {tfs} = this.state;
 
     return <button type="button"
-                   className={classNames("btn btn-lg", tfs.length ? "btn-primary" : "btn-outline-primary")}
+                   className={classNames("btn", tfs.length ? "btn-primary" : "btn-outline-primary")}
                    onClick={this.clickRandom.bind(this)}>
       <Icon icon="arrow-circle-right"/> Randomize
     </button>;
