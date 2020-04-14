@@ -28,7 +28,10 @@ class AnalysisIdBody extends React.Component {
   }
 
   render() {
-    return <th><button type="button" className="btn btn-link p-0" onClick={this.submitQuery.bind(this)}>{this.props.row[0]}</button></th>;
+    return <th>
+      <button type="button" className="btn btn-link p-0"
+              onClick={this.submitQuery.bind(this)}>{this.props.row[0]}</button>
+    </th>;
   }
 }
 
@@ -58,7 +61,10 @@ class GeneIdBody extends React.Component {
   }
 
   render() {
-    return <td><button type="button" className="btn btn-link p-0" onClick={this.submitQuery.bind(this)}>{this.props.row[1]}</button></td>;
+    return <td>
+      <button type="button" className="btn btn-link p-0"
+              onClick={this.submitQuery.bind(this)}>{this.props.row[1]}</button>
+    </td>;
   }
 }
 

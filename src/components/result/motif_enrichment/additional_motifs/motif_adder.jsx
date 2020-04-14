@@ -82,4 +82,4 @@ MotifAdder.propTypes = {
   setSelectedMotifs: PropTypes.func
 };
 
-export default MotifAdder
+export default MotifAdder;

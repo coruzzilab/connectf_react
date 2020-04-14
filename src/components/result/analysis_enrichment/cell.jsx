@@ -28,7 +28,7 @@ const InfoTable = ({info}) => {
 };
 
 InfoTable.propTypes = {
-  info: PropTypes.object
+  info: PropTypes.array
 };
 
 const CellTable = ({data}) => {

@@ -53,4 +53,4 @@ export default {
   image,
   legend,
   error
-}
+};

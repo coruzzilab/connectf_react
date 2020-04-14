@@ -3,7 +3,7 @@
  * 2019-04-25
  */
 import React from "react";
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import Clipboard from "clipboard";
 import {DropdownItem, DropdownMenu, DropdownToggle, UncontrolledButtonDropdown, UncontrolledDropdown} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";

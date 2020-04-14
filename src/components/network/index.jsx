@@ -19,7 +19,6 @@ import {
   UncontrolledPopover
 } from 'reactstrap';
 import classNames from 'classnames';
-import { v4 as uuidv4 } from 'uuid';
 
 import {getNetwork, setNetwork} from '../../actions';
 import {UploadSifInfoPopover} from "./common";
@@ -270,11 +269,13 @@ class NetworkBody extends React.PureComponent {
   }
 
   hideAllEdges() {
-    this.setState({hiddenEdges: _(this.cy.edges())
-      .map(_.method('data', 'name'))
-      .uniq()
-      .sortBy()
-      .value()});
+    this.setState({
+      hiddenEdges: _(this.cy.edges())
+        .map(_.method('data', 'name'))
+        .uniq()
+        .sortBy()
+        .value()
+    });
   }
 
   hideCyEdge() {

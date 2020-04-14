@@ -106,7 +106,7 @@ class TargetEnrichmentBody extends React.Component {
   handleLabel(e) {
     this.setState({
       useLabel: e.target.checked
-    })
+    });
   }
 
   onTabClick(key) {

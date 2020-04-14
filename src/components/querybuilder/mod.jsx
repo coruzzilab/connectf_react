@@ -3,7 +3,7 @@
  * 2018-11-29
  */
 import React from "react";
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import _ from "lodash";
 import {getParentTfTree} from "../../utils";
 import {getKeys, getKeyValues} from "../../utils/axios_instance";
