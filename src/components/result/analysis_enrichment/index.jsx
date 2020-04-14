@@ -71,7 +71,7 @@ class AnalysisEnrichmentBody extends React.PureComponent {
     return <div className="container-fluid">
       {error ?
         <p className="text-danger">
-          Analysis Enrichment unavailable. Please query more than 1 analysis to see results.
+          Gene Set Enrichment unavailable. Please query more than 1 analysis to see results.
         </p> :
         <div className="row">
           <EnrichmentGrid className="col-6 p-0" innerRef={this.container} data={data} hidden={hidden} width={width}
