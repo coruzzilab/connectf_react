@@ -4,7 +4,7 @@
  */
 import React, {useState} from "react";
 import _ from "lodash";
-import {blueShader, columnString, getLogMinMax} from "../../../utils";
+import {columnString, getLogMinMax, redShader} from "../../../utils";
 import {SortButton} from "../common";
 import PropTypes from "prop-types";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
@@ -170,7 +170,7 @@ class MotifEnrichmentTable extends React.Component {
                 if (typeof c === 'number') {
                   return <td key={j}
                              className={classNames({divider: (j + 1) === (divider + 1) * numRegion})}
-                             style={blueShader(c, min, max)}>{c.toExponential(5)}</td>;
+                             style={redShader(c, min, max)}>{c.toExponential(5)}</td>;
                 }
                 return <td key={j} className={classNames({divider: (j + 1) === (divider + 1) * numRegion})}/>;
               })}

@@ -5,13 +5,13 @@
 import React from "react";
 import {connect} from "react-redux";
 import _ from "lodash";
-import {blueShader, colorShader, getLogMinMax} from "../../../utils";
+import {colorShader, getLogMinMax, redShader} from "../../../utils";
 import {SortButton} from "../common";
 import {RowHeader} from "./common";
 import {surround} from "./utils";
 import PropTypes from "prop-types";
 
-const percentShader = _.partial(colorShader, 228, 89, 48, _, 0, 1, false);
+const percentShader = _.partial(colorShader('b2182b', 'fddbc7', false), _, 0, 1);
 
 const mapStateToProps = ({extraFields}) => {
   return {extraFields};
@@ -94,13 +94,14 @@ class TableBody extends React.Component {
                 <div>{name} {surround(row['info'].filter)} ({row['info'].targets})</div>
                 {row['info']['label'] ? <div>{row['info']['label']}</div> : null}
               </RowHeader>
-              {_(row['info']).pick(extraFields).values().map((f, i) => <td key={i} className="text-nowrap">{f}</td>).value()}
+              {_(row['info']).pick(extraFields).values().map((f, i) => <td key={i}
+                                                                           className="text-nowrap">{f}</td>).value()}
               {_(row[tableKey]).zip(row['count']).map(([first, count], j) => {
                 if (tableKey === "p-value") {
-                  return <td style={blueShader(first, min, max)} key={j}>{first.toExponential(2)} ({count})</td>;
+                  return <td style={redShader(first, min, max)} key={j}>{first.toExponential(2)} ({count})</td>;
                 }
                 return <td style={percentShader(first)} key={j}>
-                  {first.toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2})} ({count})
+                  {first.toLocaleString(undefined, {style: 'percent', minimumFractionDigits: 2})} ({count})
                 </td>;
               }).value()}
             </tr>;

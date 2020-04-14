@@ -11,8 +11,8 @@ import {UncontrolledTooltip} from "reactstrap";
 import classNames from "classnames";
 import {connect} from "react-redux";
 
-const orangeShader = _.partial(colorShader, 40, 89.4, 52);
-const blueShader = _.partial(colorShader, 229, 100, 25.9);
+const orangeShader = _.partial(colorShader('b2182b', 'fddbc7'));
+const blueShader = _.partial(colorShader('2166ac', 'd1e5f0'));
 
 function mapStateToProps({extraFields}) {
   return {

@@ -11,9 +11,9 @@ import Chart from "chart.js";
 import {QueryAlert} from "./common";
 
 const COLOR = {
-  'INDUCED': '#4daf4a',
-  'REPRESSED': '#e41a1c',
-  'BOUND': '#377eb8'
+  'INDUCED': '#1b9e77',
+  'REPRESSED': '#d95f02',
+  'BOUND': '#7570b3'
 };
 
 function simplifyEdge(edge) {

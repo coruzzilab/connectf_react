@@ -10,37 +10,36 @@ function brightness(r, g, b) {
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 }
 
-export function colorShader(h, s, l, v, min, max, log=true) {
-  if (log) {
-    v = Math.log10(v);
-  }
+export const colorShader = (cMin, cMax, log = true, neutral = 'f7f7f7') => {
+  let minRGB = convert.hex.rgb(cMin);
+  let maxRGB = convert.hex.rgb(cMax);
 
-  if (v > max) {
-    return {background: 'white', color: 'black'};
-  } else {
-    let lMax = 99 - l;
-    let vl;
+  return (val, min, max) => {
     if (log) {
-      vl = l + _.clamp(lMax * ((v - min) / (max - min)), 0, lMax);
+      val = Math.log10(val);
+    }
+
+    if (val > max) {
+      return {background: '#' + neutral, color: 'black'};
     } else {
-      vl = 99 - _.clamp(lMax * ((v - min) / (max - min)), 0, lMax);
+      let scale = _.clamp(((val - min) / (max - min)), 0, 1);
+
+      let scaledRGB = _(minRGB).zip(maxRGB)
+        .map(([minC, maxC]) => {
+          return minC + (maxC - minC) * scale;
+        })
+        .value();
+
+      let background = '#' + convert.rgb.hex(scaledRGB);
+      let color = brightness(...scaledRGB) < 0.5 ? 'white' : 'black';
+
+      return {background, color};
     }
 
-    if (_.isNaN(vl)) {
-      vl = l;
-    }
+  };
+};
 
-    let c = convert.hsl.rgb.raw(h, s, vl);
-
-    let background = '#' + convert.rgb.hex(c);
-
-    let color = brightness(...c) < 0.5 ? 'white' : 'black';
-
-    return {background, color};
-  }
-}
-
-export const blueShader = _.partial(colorShader, 228, 89, 48, _, _, Math.log10(0.5), true);
+export const redShader = _.partial(colorShader('b2182b', 'fddbc7'), _, _, Math.log10(0.5));
 
 const clampExp = _.flow(_.partial(_.clamp, _, Number.MIN_VALUE, Number.MAX_VALUE), Math.log10);
 

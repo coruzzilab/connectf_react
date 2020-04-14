@@ -3,14 +3,13 @@ import _ from "lodash";
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 import {getAdditionalMotifEnrichment, getAdditionalMotifs} from "../../../../utils/axios_instance";
-import {ColHeader} from "../common";
-import {blueShader, columnString, getLogMinMax} from "../../../../utils";
+import {ColHeader, makeLines} from "../common";
+import {columnString, getLogMinMax, redShader} from "../../../../utils";
 import {setBusy} from "../../../../actions";
 import {SortButton} from "../../common";
 import MotifPicker from "./motif_picker";
 import MotifAdder from "./motif_adder";
 import ExportData from "./export_data";
-import {makeLines} from "../common";
 
 const mapStateToProps = ({requestId}) => {
   return {
@@ -150,7 +149,7 @@ const AdditionalMotifsBody = ({requestId, motifRegions, setBusy}) => {
                 <td>{row[0]}</td>
                 {_.map(row.slice(1), (c, j) => {
                   if (typeof c === 'number') {
-                    return <td key={j} style={blueShader(c, min, max)}>{c.toExponential(5)}</td>;
+                    return <td key={j} style={redShader(c, min, max)}>{c.toExponential(5)}</td>;
                   }
                   return <td key={j}/>;
                 })}
