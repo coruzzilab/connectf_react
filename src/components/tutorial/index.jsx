@@ -19,6 +19,18 @@ Button.propTypes = {
 };
 
 class Tutorial extends React.Component {
+  componentDidMount() {
+    const scrollToAnchor = () => {
+      const hashParts = window.location.hash.split('#');
+      if (hashParts.length === 2) {
+        const hash = hashParts[1];
+        document.querySelector(`#${hash}`).scrollIntoView();
+      }
+    };
+    scrollToAnchor();
+    window.onhashchange = scrollToAnchor;
+  }
+
   render() {
     return <div className="container">
       <div className="row">
