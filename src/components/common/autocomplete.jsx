@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {buildSearchRegex} from "./utils";
+import {buildSearchRegex} from "../result/sungear/utils";
 import _ from "lodash";
 import classNames from "classnames";
 import {FixedSizeList as List} from "react-window";
@@ -11,7 +11,7 @@ function mod(n, m) {
   return ((n % m) + m) % m;
 }
 
-const AutoComplete = ({value, onChange, inputProps, items}) => {
+const AutoComplete = ({value, onChange, inputProps, items, className, mapItemToValue, mapItemToSearch, renderItem}) => {
   let searchRef = React.createRef();
   let listRef = React.createRef();
   let [active, setActive] = useState(-1);
@@ -32,7 +32,7 @@ const AutoComplete = ({value, onChange, inputProps, items}) => {
   useEffect(() => {
     let searchRegex = buildSearchRegex(value);
     setSearchItems(_(items)
-      .filter((o) => searchRegex.test(o))
+      .filter((o) => searchRegex.test(mapItemToSearch(o)))
       .value());
     setActive(-1);
     if (listRef.current) {
@@ -41,13 +41,13 @@ const AutoComplete = ({value, onChange, inputProps, items}) => {
   }, [value, items]);
 
   const onClick = (e) => {
-    nativeInputValueSetter.call(searchRef.current, searchItems[active]);
+    nativeInputValueSetter.call(searchRef.current, mapItemToValue(searchItems[active]));
     searchRef.current.dispatchEvent(new Event('input', {bubbles: true}));
     setOpen(false);
     setActive(-1);
   };
 
-  const renderItem = ({index, style}) => {
+  const renderItems = ({index, style}) => {
     let item = searchItems[index];
     let selected = active === index;
     return <li className={classNames("list-group-item text-nowrap text-truncate", {active: selected})}
@@ -55,7 +55,7 @@ const AutoComplete = ({value, onChange, inputProps, items}) => {
                style={style}
                onMouseDown={onClick}
                onMouseEnter={setActive.bind(undefined, index)}>
-      {item}
+      {renderItem(item)}
     </li>;
   };
 
@@ -87,7 +87,7 @@ const AutoComplete = ({value, onChange, inputProps, items}) => {
         setActive(currActive);
         listRef.current.scrollToItem(currActive, "auto");
       } else if (e.key === 'Enter') {
-        nativeInputValueSetter.call(searchRef.current, searchItems[active]);
+        nativeInputValueSetter.call(searchRef.current, mapItemToValue(searchItems[active]));
         searchRef.current.dispatchEvent(new Event('input', {bubbles: true}));
         setOpen(false);
         setActive(-1);
@@ -99,7 +99,7 @@ const AutoComplete = ({value, onChange, inputProps, items}) => {
     }
   };
 
-  return <div role="combobox">
+  return <div role="combobox" className={classNames("mw-100", className)}>
     <input ref={searchRef}
            type="search"
            role="searchbox"
@@ -126,7 +126,7 @@ const AutoComplete = ({value, onChange, inputProps, items}) => {
                     height={height}
                     style={{position: 'absolute', zIndex: 100, overflowX: 'hidden', ...listStyle}}
                     itemCount={searchItems.length}>
-        {renderItem}
+        {renderItems}
       </List> :
       null}
   </div>;
@@ -136,7 +136,17 @@ AutoComplete.propTypes = {
   value: PropTypes.string,
   onChange: PropTypes.func,
   inputProps: PropTypes.object,
-  items: PropTypes.array
+  items: PropTypes.array,
+  className: PropTypes.string,
+  mapItemToValue: PropTypes.func,
+  mapItemToSearch: PropTypes.func,
+  renderItem: PropTypes.func
+};
+
+AutoComplete.defaultProps = {
+  mapItemToValue: _.identity,
+  mapItemToSearch: _.identity,
+  renderItem: _.identity
 };
 
 export default AutoComplete;

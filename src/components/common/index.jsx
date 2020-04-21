@@ -18,11 +18,11 @@ import Clipboard from "clipboard";
 import classNames from "classnames";
 import {FontAwesomeIcon as Icon, FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {connect} from "react-redux";
-import {addEdge, addList, getEdgeList, getNetwork, removeEdge, setEdges} from "../actions";
+import {addEdge, addList, getEdgeList, getNetwork, removeEdge, setEdges} from "../../actions";
 import _ from "lodash";
-import {checkAupr} from "../utils/axios_instance";
-import {AuprAdjuster} from "./result/network/aupr";
-import {Edges} from "./querybuilder/additional_edges";
+import {checkAupr} from "../../utils/axios_instance";
+import {AuprAdjuster} from "../result/network/aupr";
+import {Edges} from "../querybuilder/additional_edges";
 
 /**
  * React-router aware NavItem

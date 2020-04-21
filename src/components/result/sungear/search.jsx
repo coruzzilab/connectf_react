@@ -3,7 +3,7 @@ import {buildSearchRegex} from "./utils";
 import PropTypes from "prop-types";
 import _ from 'lodash';
 import classNames from 'classnames';
-import AutoComplete from "./autocomplete";
+import AutoComplete from "../../common/autocomplete";
 
 export class Search extends React.Component {
   constructor(props) {
