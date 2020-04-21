@@ -345,3 +345,10 @@ export function getGeneName(data) {
 
   return data['name'];
 }
+
+export const COLOR = {
+  'INDUCED': '#1b9e77',
+  'REPRESSED': '#d95f02',
+  'BOUND': '#7570b3',
+  'EXPRESSION': '#e7298a'
+};

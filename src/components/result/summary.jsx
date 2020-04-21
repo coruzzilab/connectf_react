@@ -9,18 +9,15 @@ import PropTypes from "prop-types";
 import {clearSummary, getSummary} from "../../actions";
 import Chart from "chart.js";
 import {QueryAlert} from "./common";
-
-const COLOR = {
-  'INDUCED': '#1b9e77',
-  'REPRESSED': '#d95f02',
-  'BOUND': '#7570b3'
-};
+import {COLOR} from "../../utils";
 
 function simplifyEdge(edge) {
   if (edge.endsWith("INDUCED")) {
     return "INDUCED";
   } else if (edge.endsWith("REPRESSED")) {
     return "REPRESSED";
+  } else if (edge.endsWith("EXPRESSION")) {
+    return "EXPRESSION";
   }
   return "BOUND";
 

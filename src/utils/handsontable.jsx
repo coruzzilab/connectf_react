@@ -5,6 +5,7 @@
 import Handsontable from 'handsontable';
 import _ from "lodash";
 import classNames from 'classnames';
+import {COLOR} from ".";
 
 import 'handsontable/dist/handsontable.full.css';
 
@@ -12,9 +13,9 @@ function renderFc(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.NumericRenderer.apply(this, arguments);
   if (_.isFinite(value)) {
     if (value >= 0) {
-      td.style.background = 'lightgreen';
+      td.style.background = COLOR['INDUCED'];
     } else if (value < 0) {
-      td.style.background = 'lightcoral';
+      td.style.background = COLOR['REPRESSED'];
     }
   }
   renderExp.apply(this, arguments);
@@ -62,8 +63,10 @@ function renderExp(instance, td, row, col, prop, value, cellProperties) {
 function renderEdge(instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
 
-  if (value) {
-    td.style.background = '#89B7DC';
+  if (value === '*') {
+    td.style.background = COLOR['EXPRESSION'];
+  } else if (value) {
+    td.style.background = COLOR['BOUND'];
   }
 }
 
