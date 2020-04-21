@@ -21,7 +21,6 @@ import {
 import {getQuery} from "../../utils";
 import {AdditionalOptions, QueryInfo} from "./common";
 import History from "./history";
-import {getTargetGeneLists, getTargetNetworks} from "../../utils/axios_instance";
 import {CancelToken} from "axios";
 import {BackgroundGenesFile, FilterTfFile, TargetGeneFile, TargetNetworkFile} from "./query_file";
 import QueryBox from "./query_box";
@@ -104,7 +103,7 @@ WarningModalContent.propTypes = {
   queryTree: PropTypes.arrayOf(PropTypes.object)
 };
 
-const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, tempLists, warnSubmit}) => {
+const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, warnSubmit, uploadFiles}) => {
   return {
     busy,
     query,
@@ -112,31 +111,10 @@ const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, t
     edges,
     edgeList,
     queryError,
-    tempLists,
-    warnSubmit
+    warnSubmit,
+    uploadFiles
   };
 };
-
-function addFileFromInput(data, optionString, optionRef, optionInputRef, key, tempLists) {
-  if (optionString === "other" && optionRef.current) {
-    let files = optionRef.current.files;
-    if (files && files.length) {
-      data.set(key, files[0]);
-    }
-  } else if (optionString === "input" && optionInputRef.current) {
-    data.set(key,
-      new Blob([optionInputRef.current.value], {type: 'text/plain'}),
-      `${key}.txt`);
-  } else if (_.has(tempLists, optionString)) {
-    data.set(key,
-      new Blob([tempLists[optionString]], {type: 'text/plain'}),
-      `${key}.txt`);
-  } else if (optionString) {
-    data.set(key, optionString);
-  }
-
-  return data;
-}
 
 /**
  * Builds queries for tgdbbackend
@@ -145,29 +123,7 @@ class QuerybuilderBody extends React.Component {
   constructor(props) {
     super(props);
 
-    this.targetGenes = React.createRef();
-    this.filterTfs = React.createRef();
-    this.targetNetworks = React.createRef();
-    this.backgroundGenes = React.createRef();
-
-    this.targetGenesInput = React.createRef();
-    this.filterTfsInput = React.createRef();
-    this.targetNetworksInput = React.createRef();
-    this.backgroundGenesInput = React.createRef();
-
     this.state = {
-      targetGenes: [],
-      targetGene: '',
-
-      filterTfs: [],
-      filterTf: '',
-
-      targetNetworks: [],
-      targetNetwork: '',
-
-      backgroundGenes: [],
-      backgroundGene: '',
-
       isOpen: false,
       data: null,
       submitFunc: _.noop
@@ -183,11 +139,6 @@ class QuerybuilderBody extends React.Component {
   }
 
   componentDidMount() {
-    Promise.all([getTargetGeneLists(), getTargetNetworks()])
-      .then(([targetGenes, targetNetworks]) => {
-        this.setState({targetGenes, targetNetworks});
-      });
-
     this.props.getEdgeList()
       .then(() => {
         this.props.setEdges(_.intersection(this.props.edges, this.props.edgeList));
@@ -206,8 +157,7 @@ class QuerybuilderBody extends React.Component {
   }
 
   createSubmitData() {
-    let {query, edges, queryTree, tempLists} = this.props;
-    let {targetGene, filterTf, targetNetwork, backgroundGene} = this.state;
+    let {query, edges, queryTree, uploadFiles} = this.props;
     let data = new FormData();
 
     if (!this.props.query) {
@@ -221,10 +171,14 @@ class QuerybuilderBody extends React.Component {
     }
 
     // prep files for upload
-    addFileFromInput(data, targetGene, this.targetGenes, this.targetGenesInput, 'targetgenes', tempLists);
-    addFileFromInput(data, filterTf, this.filterTfs, this.filterTfsInput, 'filtertfs', tempLists);
-    addFileFromInput(data, targetNetwork, this.targetNetworks, this.targetGenesInput, 'targetnetworks', tempLists);
-    addFileFromInput(data, backgroundGene, this.backgroundGenes, this.backgroundGenesInput, 'backgroundgenes', tempLists);
+    _.forEach(uploadFiles, (val, key) => {
+      if (_.isNull(val.content)) {
+        data.set(key, val.name);
+      } else {
+        data.set(key,
+          new Blob([val.content], {type: 'text/plain'}), `${val.name}.txt`);
+      }
+    });
 
     return data;
   }
@@ -265,23 +219,6 @@ class QuerybuilderBody extends React.Component {
 
   reset() {
     // add additional reset code
-    let refs = [
-      this.targetGenes, this.targetGenesInput,
-      this.filterTfs, this.filterTfsInput,
-      this.targetNetworks, this.targetNetworksInput,
-      this.backgroundGenes, this.backgroundGenesInput
-    ];
-
-    for (let r of refs) {
-      try {
-        if (r.current) {
-          r.current.value = null;
-        }
-      } catch (e) {
-        // ignore
-      }
-    }
-
     this.cancelRequests();
 
     this.props.resetQuery();
@@ -290,19 +227,6 @@ class QuerybuilderBody extends React.Component {
       filterTf: "",
       targetNetwork: ""
     });
-  }
-
-  handleFileSelect(key, e) {
-    if (typeof e === 'string') {
-      this.setState({
-        [key]: e
-      });
-    } else {
-      this.setState({
-        [key]: e.target.value
-      });
-    }
-
   }
 
   handleEdgeCheck(name, e) {
@@ -314,11 +238,8 @@ class QuerybuilderBody extends React.Component {
   }
 
   render() {
-    let {
-      targetGenes, targetGene, filterTfs, filterTf, targetNetworks, targetNetwork,
-      backgroundGenes, backgroundGene, isOpen, data
-    } = this.state;
-    let {edges, edgeList, queryError, queryTree, tempLists, warnSubmit, setWarnSubmit} = this.props;
+    let {isOpen, data} = this.state;
+    let {edges, edgeList, queryError, queryTree, warnSubmit, setWarnSubmit} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
@@ -383,24 +304,10 @@ class QuerybuilderBody extends React.Component {
                 <AdditionalEdges edgeList={edgeList} edges={edges} onChange={this.handleEdgeCheck.bind(this)}/> :
                 null}
 
-              <TargetGeneFile fileRef={this.targetGenes} list={targetGenes} tempLists={tempLists}
-                              inputRef={this.targetGenesInput}
-                              onChange={this.handleFileSelect.bind(this, 'targetGene')}
-                              value={targetGene}/>
-              <FilterTfFile fileRef={this.filterTfs} list={filterTfs} tempLists={tempLists}
-                            inputRef={this.filterTfsInput}
-                            onChange={this.handleFileSelect.bind(this, 'filterTf')}
-                            value={filterTf}/>
-              <TargetNetworkFile fileRef={this.targetNetworks} list={targetNetworks}
-                                 inputRef={this.targetNetworksInput}
-                                 onChange={this.handleFileSelect.bind(this, 'targetNetwork')}
-                                 value={targetNetwork}/>
-              <BackgroundGenesFile fileRef={this.backgroundGenes}
-                                   inputRef={this.backgroundGenesInput}
-                                   list={backgroundGenes}
-                                   tempLists={tempLists}
-                                   onChange={this.handleFileSelect.bind(this, 'backgroundGene')}
-                                   value={backgroundGene}/>
+              <TargetGeneFile/>
+              <FilterTfFile/>
+              <TargetNetworkFile/>
+              <BackgroundGenesFile/>
               <AdditionalOptions/>
             </div>
           </div>
@@ -428,10 +335,10 @@ QuerybuilderBody.propTypes = {
   getEdgeList: PropTypes.func,
   queryError: PropTypes.shape({error: PropTypes.bool, message: PropTypes.string}),
   clearQueryError: PropTypes.func,
-  tempLists: PropTypes.object,
   warnSubmit: PropTypes.bool,
   setWarnSubmit: PropTypes.func,
-  resetQuery: PropTypes.func
+  resetQuery: PropTypes.func,
+  uploadFiles: PropTypes.object
 };
 
 const Querybuilder = connect(mapStateToProps, {

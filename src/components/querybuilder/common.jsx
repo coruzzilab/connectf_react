@@ -97,23 +97,26 @@ AddFollowing.defaultProps = {
   addGroupText: 'Add Following TF Group'
 };
 
-export const UploadFile = ({className, inputRef, save, ...props}) => {
+export const UploadFile = ({className, onChange, save, ...props}) => {
   let [genes, setGenes] = useState("");
   let [isOpen, setIsOpen] = useState(false);
 
   let onFileChange = (e) => {
     let file = e.target.files[0];
-    let reader = new FileReader();
-    reader.onload = (e) => {
-      setGenes(e.target.result);
-    };
-    reader.readAsText(file);
+    if (file) {
+      let reader = new FileReader();
+      reader.onload = (e) => {
+        let result = e.target.result;
+        setGenes(result);
+        onChange(file.name, result);
+      };
+      reader.readAsText(file);
+    }
   };
 
   return <div className={classNames("row", className)}>
     <div className={classNames("pr-1", save ? "col-11" : "col")}>
-      <input type="file" className="form-control-file"
-             ref={inputRef} onChange={onFileChange} {...props} />
+      <input type="file" className="form-control-file" onChange={onFileChange} {...props} />
     </div>
     {save ?
       <div className="col-1 pl-1">
@@ -131,7 +134,8 @@ export const UploadFile = ({className, inputRef, save, ...props}) => {
 UploadFile.propTypes = {
   save: PropTypes.bool,
   inputRef: PropTypes.object,
-  className: PropTypes.string
+  className: PropTypes.string,
+  onChange: PropTypes.func
 };
 
 UploadFile.defaultProps = {

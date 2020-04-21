@@ -387,6 +387,22 @@ function analysisIds(state = [], action) {
   }
 }
 
+function uploadFiles(state = {}, action) {
+  switch (action.type) {
+  case 'ADD_UPLOAD':
+    return {
+      ...state,
+      ...{
+        [action.key]: {name: action.name, content: action.content}
+      }
+    };
+  case 'REMOVE_UPLOAD':
+    return _.omit(state, [action.key]);
+  default:
+    return state;
+  }
+}
+
 const tgdbApp = {
   busy,
   query,
@@ -407,7 +423,8 @@ const tgdbApp = {
   extraFields,
   tempLists,
   warnSubmit,
-  analysisIds
+  analysisIds,
+  uploadFiles
 };
 
 export default combineReducers(tgdbApp);

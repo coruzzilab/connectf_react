@@ -571,3 +571,19 @@ export const resetQuery = () => (dispatch) => {
   dispatch(clearRequestId());
   dispatch(clearQueryError());
 };
+
+export const addUpload = (key, name, content) => {
+  return {
+    type: 'ADD_UPLOAD',
+    key,
+    name,
+    content
+  };
+};
+
+export const removeUpload = (key) => {
+  return {
+    type: 'REMOVE_UPLOAD',
+    key
+  };
+};

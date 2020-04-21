@@ -5,11 +5,13 @@
 import {FilterTfInfo, NetworkInfo, TargetGeneInfo, UploadFile} from "./common";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
 import classNames from 'classnames';
-import instance, {BASE_URL} from "../../utils/axios_instance";
+import instance, {BASE_URL, getTargetGeneLists, getTargetNetworks} from "../../utils/axios_instance";
 import {ExportModal} from "../common";
+import {connect} from "react-redux";
+import {addUpload, removeUpload} from "../../actions";
 
 const TempLists = ({tempLists}) => {
   return <optgroup label="Saved Lists">
@@ -26,7 +28,7 @@ TempLists.propTypes = {
   tempLists: PropTypes.object.isRequired
 };
 
-const ListSelection = ({list, tempLists, value, onChange, name, fileName}) => {
+const ListSelection = ({list, tempLists, value, onChange, name, fileName, enableUpload}) => {
   return <select className="form-control" value={value} name={name}
                  onChange={onChange}>
     <option value="">----</option>
@@ -40,10 +42,12 @@ const ListSelection = ({list, tempLists, value, onChange, name, fileName}) => {
 
     {_.size(tempLists) ? <TempLists tempLists={tempLists}/> : null}
 
-    <optgroup label="Upload">
-      <option value="other">Upload {fileName}</option>
-      <option value="input">Input {fileName}</option>
-    </optgroup>
+    {enableUpload ?
+      <optgroup label="Upload">
+        <option value="other">Upload {fileName}</option>
+        <option value="input">Input {fileName}</option>
+      </optgroup> :
+      null}
   </select>;
 };
 
@@ -53,10 +57,18 @@ ListSelection.propTypes = {
   tempLists: PropTypes.object,
   value: PropTypes.string,
   onChange: PropTypes.func,
-  fileName: PropTypes.string
+  fileName: PropTypes.string,
+  enableUpload: PropTypes.bool
 };
 
-const ListSelectionDownload = ({list, tempLists, value, onChange, name, inputValue, clickFill, fileName}) => {
+const ListSelectionDownload = ({list, tempLists, value, onChange, name, inputValue, clickFill, fileName, enableUpload}) => {
+  let rowRef = useRef(null);
+  let [wide, setWide] = useState(true);
+
+  useEffect(() => {
+    setWide(rowRef.current.offsetWidth > 768);
+  }, []);
+
   let list_download;
   let tempList;
   if (tempLists && (tempList = tempLists[value])) {
@@ -69,26 +81,33 @@ const ListSelectionDownload = ({list, tempLists, value, onChange, name, inputVal
 
   let disabledAutofill = !(value && _.indexOf(['input', 'other'], value) === -1);
 
-  return <div className="row">
-    <div className="col-10 pr-1">
+  return <div className="row" ref={rowRef}>
+    <div className="col pr-1">
       <ListSelection name={name} list={list} tempLists={tempLists} onChange={onChange} value={value}
-                     fileName={fileName}/>
+                     fileName={fileName} enableUpload={enableUpload}/>
     </div>
-    <div className="col-1 px-1">
-      <button type="button"
-              className={classNames("btn btn-primary btn-block text-nowrap", {disabled: disabledAutofill})}
-              onClick={clickFill.bind(undefined, list_download)}
-              disabled={disabledAutofill}>
-        <Icon icon="edit" className="mr-1"/>Autofill
-      </button>
-    </div>
-    <div className="col-1 pl-1">
-      <a className={classNames("btn btn-primary btn-block text-nowrap", {disabled: (!value || value === 'other')})}
-         href={list_download}
-         download>
-        <Icon icon="file-download" className="mr-1"/>Download
-      </a>
-    </div>
+    {enableUpload ?
+      <div className={classNames(wide ? "col-2" : "col-4")}>
+        <div className="row">
+          <div className="col px-1">
+            <button type="button"
+                    className={classNames("btn btn-primary btn-block text-nowrap", {disabled: disabledAutofill})}
+                    onClick={clickFill.bind(undefined, list_download)}
+                    disabled={disabledAutofill}>
+              <Icon icon="edit" className="mr-1"/>Autofill
+            </button>
+          </div>
+          <div className="col px-1">
+            <a
+              className={classNames("btn btn-primary btn-block text-nowrap", {disabled: (!value || value === 'other')})}
+              href={list_download}
+              download>
+              <Icon icon="file-download" className="mr-1"/>Download
+            </a>
+          </div>
+        </div>
+      </div> :
+      null}
   </div>;
 };
 
@@ -100,7 +119,8 @@ ListSelectionDownload.propTypes = {
   onChange: PropTypes.func,
   inputValue: PropTypes.string,
   clickFill: PropTypes.func,
-  fileName: PropTypes.string
+  fileName: PropTypes.string,
+  enableUpload: PropTypes.bool
 };
 
 const ListInput = ({value, onChange, inputRef, save}) => {
@@ -152,31 +172,60 @@ const clickFill = (onChange, setInputValue) => {
   };
 };
 
-const ListForm = ({value, list, tempLists, onChange, fileRef, inputRef, name, fileName, save}) => {
+const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, save, enableUpload, addUpload, removeUpload}) => {
   let [inputValue, setInputValue] = useState("");
+  let [value, setValue] = useState("");
+
+  useEffect(() => {
+    setValue(_.get(uploadFiles, [listName, 'name'], ""));
+  }, []);
+
+  useEffect(() => {
+    if (value === "input") {
+      addUpload(listName, "input", inputValue);
+    } else if (_.has(tempLists, value)) {
+      addUpload(listName, value, tempLists[value]);
+    } else if (value && value !== "other") {
+      addUpload(listName, value, null);
+    } else if (!value) {
+      removeUpload(listName);
+    }
+  }, [value, inputValue]);
+
+  let onSelect = (e) => {
+    if (typeof e === 'string') {
+      setValue(e);
+    } else {
+      setValue(e.target.value);
+    }
+  };
+
+  let onFileChange = (name, result) => {
+    addUpload(listName, name, result);
+  };
 
   return <div className="form-row m-2">
     <div className="col">
       <ListSelectionDownload name={name}
                              list={list}
                              tempLists={tempLists}
-                             onChange={onChange}
+                             onChange={onSelect}
                              value={value}
                              inputValue={inputValue}
-                             clickFill={clickFill(onChange, setInputValue)}
-                             fileName={fileName}/>
+                             clickFill={clickFill(onSelect, setInputValue)}
+                             fileName={fileName}
+                             enableUpload={enableUpload}/>
 
       {value === "other" ?
         <div className="row">
           <div className="col">
-            <UploadFile inputRef={fileRef} name={`${name}_file`} className="my-2" save={save}/>
+            <UploadFile name={`${name}_file`} className="my-2" onChange={onFileChange} save={save}/>
           </div>
         </div> :
         null}
 
       {value === "input" ?
-        <ListInput inputRef={inputRef}
-                   value={inputValue}
+        <ListInput value={inputValue}
                    onChange={(e) => {
                      setInputValue(e.target.value);
                    }}
@@ -186,23 +235,59 @@ const ListForm = ({value, list, tempLists, onChange, fileRef, inputRef, name, fi
   </div>;
 };
 
-ListForm.propTypes = {
+ListFormBody.propTypes = {
+  listName: PropTypes.string.isRequired,
   name: PropTypes.string,
   list: PropTypes.array,
   tempLists: PropTypes.object,
-  value: PropTypes.string,
-  fileRef: PropTypes.object.isRequired,
-  inputRef: PropTypes.object.isRequired,
-  onChange: PropTypes.func,
   fileName: PropTypes.string,
-  save: PropTypes.bool
+  save: PropTypes.bool,
+  enableUpload: PropTypes.bool,
+  addUpload: PropTypes.func,
+  removeUpload: PropTypes.func,
+  uploadFiles: PropTypes.object
 };
 
-ListForm.defaultProps = {
-  save: true
+ListFormBody.defaultProps = {
+  save: true,
+  enableUpload: true
 };
 
-export const TargetGeneFile = ({value, list, tempLists, onChange, fileRef, inputRef}) => {
+const ListForm = connect(({uploadFiles}) => ({uploadFiles}), {addUpload, removeUpload})(ListFormBody);
+
+export const TargetGeneSelectionBody = ({tempLists, enableUpload}) => {
+  let [targetGeneLists, setTargetGeneLists] = useState([]);
+
+  useEffect(() => {
+    getTargetGeneLists().then(setTargetGeneLists);
+  }, []);
+
+  return <ListForm name="targetgene"
+                   fileName="Target Genes"
+                   listName="targetgenes"
+                   list={targetGeneLists}
+                   tempLists={tempLists}
+                   enableUpload={enableUpload}/>;
+};
+
+TargetGeneSelectionBody.propTypes = {
+  tempLists: PropTypes.object,
+  enableUpload: PropTypes.bool
+};
+
+export const TargetGeneSelection = connect(({tempLists}) => ({tempLists}), null)(TargetGeneSelectionBody);
+
+TargetGeneSelection.propTypes = {
+  enableUpload: PropTypes.bool
+};
+
+const TargetGeneFileBody = ({tempLists}) => {
+  let [targetGeneLists, setTargetGeneLists] = useState([]);
+
+  useEffect(() => {
+    getTargetGeneLists().then(setTargetGeneLists);
+  }, []);
+
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
@@ -217,26 +302,20 @@ export const TargetGeneFile = ({value, list, tempLists, onChange, fileRef, input
       </div>
       <ListForm name="targetgene"
                 fileName="Target Genes"
-                list={list}
-                tempLists={tempLists}
-                onChange={onChange}
-                inputRef={inputRef}
-                fileRef={fileRef}
-                value={value}/>
+                listName="targetgenes"
+                list={targetGeneLists}
+                tempLists={tempLists}/>
     </div>
   </div>;
 };
 
-TargetGeneFile.propTypes = {
-  value: PropTypes.string.isRequired,
-  list: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired,
-  fileRef: PropTypes.object.isRequired,
-  inputRef: PropTypes.object.isRequired,
+TargetGeneFileBody.propTypes = {
   tempLists: PropTypes.object
 };
 
-export const FilterTfFile = ({value, list, tempLists, onChange, fileRef, inputRef}) => {
+export const TargetGeneFile = connect(({tempLists}) => ({tempLists}))(TargetGeneFileBody);
+
+const FilterTfFileBody = ({tempLists}) => {
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
@@ -251,26 +330,26 @@ export const FilterTfFile = ({value, list, tempLists, onChange, fileRef, inputRe
       </div>
       <ListForm name="filtertf"
                 fileName="Filter TFs"
-                list={list}
-                tempLists={tempLists}
-                onChange={onChange}
-                inputRef={inputRef}
-                fileRef={fileRef}
-                value={value}/>
+                listName="filtertfs"
+                list={[]}
+                tempLists={tempLists}/>
     </div>
   </div>;
 };
 
-FilterTfFile.propTypes = {
-  value: PropTypes.string.isRequired,
-  list: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired,
-  fileRef: PropTypes.object.isRequired,
-  inputRef: PropTypes.object.isRequired,
+FilterTfFileBody.propTypes = {
   tempLists: PropTypes.object
 };
 
-export const TargetNetworkFile = ({value, list, onChange, fileRef, inputRef}) => {
+export const FilterTfFile = connect(({tempLists}) => ({tempLists}))(FilterTfFileBody);
+
+export const TargetNetworkFile = () => {
+  let [targetNetworks, setTargetNetworks] = useState([]);
+
+  useEffect(() => {
+    getTargetNetworks().then(setTargetNetworks);
+  }, []);
+
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
@@ -284,25 +363,14 @@ export const TargetNetworkFile = ({value, list, onChange, fileRef, inputRef}) =>
       </div>
       <ListForm name="network"
                 fileName="Network"
-                list={list}
-                onChange={onChange}
-                inputRef={inputRef}
-                fileRef={fileRef}
-                value={value}
+                listName="targetnetworks"
+                list={targetNetworks}
                 save={false}/>
     </div>
   </div>;
 };
 
-TargetNetworkFile.propTypes = {
-  value: PropTypes.string.isRequired,
-  list: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired,
-  fileRef: PropTypes.object.isRequired,
-  inputRef: PropTypes.object.isRequired
-};
-
-export const BackgroundGenesFile = ({value, list, onChange, fileRef, inputRef, tempLists}) => {
+const BackgroundGenesFileBody = ({tempLists}) => {
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
@@ -316,22 +384,16 @@ export const BackgroundGenesFile = ({value, list, onChange, fileRef, inputRef, t
       </div>
       <ListForm name="background"
                 fileName="Background"
-                list={list}
+                listName="backgroundgenes"
+                list={[]}
                 tempLists={tempLists}
-                onChange={onChange}
-                inputRef={inputRef}
-                fileRef={fileRef}
-                value={value}
                 save={true}/>
     </div>
   </div>;
 };
 
-BackgroundGenesFile.propTypes = {
-  value: PropTypes.string.isRequired,
-  list: PropTypes.array.isRequired,
-  onChange: PropTypes.func.isRequired,
-  fileRef: PropTypes.object.isRequired,
-  inputRef: PropTypes.object.isRequired,
+BackgroundGenesFileBody.propTypes = {
   tempLists: PropTypes.object
 };
+
+export const BackgroundGenesFile = connect(({tempLists}) => ({tempLists}))(BackgroundGenesFileBody);
