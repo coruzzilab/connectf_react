@@ -162,6 +162,21 @@ const About = () => {
           <div className="row">
             <div className="col-1"/>
             <div className="col-6 d-flex flex-column justify-content-center">
+              <Link to={"/tutorial#aupr--area-under-precision-recall"}><h3>Precision—Recall Analysis</h3></Link>
+              <p>
+                Validate and prune predicted networks using query results as the gold standard.
+              </p>
+            </div>
+            <div className="col-4">
+              <img src={require('../images/about_aupr.svg')} alt="network" className="img-fluid"/>
+            </div>
+            <div className="col-1"/>
+          </div>
+          <hr/>
+
+          <div className="row">
+            <div className="col-1"/>
+            <div className="col-6 d-flex flex-column justify-content-center">
               <Link to={"/tutorial#motif-enrichment"}><h3>Motif Enrichment</h3></Link>
               <p>
                 Discover enriched transcription factor binding motifs in different gene regions.
