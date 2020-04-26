@@ -104,7 +104,7 @@ const About = () => {
             <div className="col border rounded rounded-lg m-1 p-2">
               <div className="row">
                 <div className="col">
-                  Data Overview Text Here
+                  <h5>Data Overview</h5>
                 </div>
               </div>
               <div className="row">
@@ -116,7 +116,8 @@ const About = () => {
             <div className="col border rounded rounded-lg m-1 p-2">
               <div className="row">
                 <div className="col">
-                  <p>
+                  <h5>Try it now</h5>
+                  <p className="text-secondary">
                     Quick search for Transcription Factors in the database.
                   </p>
                 </div>
@@ -130,7 +131,8 @@ const About = () => {
             <div className="col border rounded rounded-lg m-1 p-2">
               <div className="row">
                 <div className="col">
-                  <p>
+                  <h5>Limit results to target genes of interest</h5>
+                  <p className="text-secondary">
                     Choose from provided gene lists or upload your own list to limit query result.
                   </p>
                 </div>
