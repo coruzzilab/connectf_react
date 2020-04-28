@@ -2,7 +2,7 @@
  * @author zacharyjuang
  * 11/9/18
  */
-import React, {useRef, useState} from "react";
+import React, {useCallback, useRef, useState} from "react";
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader, UncontrolledTooltip} from "reactstrap";
 import _ from "lodash";
 import {FontAwesomeIcon as Icon, FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -13,9 +13,9 @@ import {BASE_URL} from "../../../utils/axios_instance";
 export const ColHeader = ({colSpan, data, children, className}) => {
   let [visible, setVisible] = useState(false);
 
-  const toggle = () => {
+  const toggle = useCallback(() => {
     setVisible(!visible);
-  };
+  }, [setVisible, visible]);
 
   return <th colSpan={colSpan} onClick={toggle} className={classNames("p-0", className)}>
     <div className="container-fluid my-1" onClick={toggle}>
