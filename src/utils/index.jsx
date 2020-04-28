@@ -23,8 +23,15 @@ export const colorShader = (cMin, cMax, log = true, neutral = 'f7f7f7') => {
       return {background: '#' + neutral, color: 'black'};
     } else {
       let scale = _.clamp(((val - min) / (max - min)), 0, 1);
+      let currMinRGB, currMaxRGB;
 
-      let scaledRGB = _(minRGB).zip(maxRGB)
+      if (!log) {
+        [currMinRGB, currMaxRGB] = [maxRGB, minRGB];
+      } else {
+        [currMinRGB, currMaxRGB] = [minRGB, maxRGB];
+      }
+
+      let scaledRGB = _(currMinRGB).zip(currMaxRGB)
         .map(([minC, maxC]) => {
           return minC + (maxC - minC) * scale;
         })
