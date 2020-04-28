@@ -15,7 +15,8 @@
   },
   "extends": [
     "eslint:recommended",
-    "plugin:react/recommended"
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended"
   ],
   "rules": {
     "indent": [0, 2],
@@ -25,6 +26,7 @@
   },
   "plugins": [
     "react",
-    "mocha"
+    "mocha",
+    "react-hooks"
   ]
 }
