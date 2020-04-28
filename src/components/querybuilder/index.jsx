@@ -222,11 +222,6 @@ class QuerybuilderBody extends React.Component {
     this.cancelRequests();
 
     this.props.resetQuery();
-    this.setState({
-      targetGene: "",
-      filterTf: "",
-      targetNetwork: ""
-    });
   }
 
   handleEdgeCheck(name, e) {

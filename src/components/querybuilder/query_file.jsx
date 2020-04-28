@@ -5,7 +5,7 @@
 import {FilterTfInfo, NetworkInfo, TargetGeneInfo, UploadFile} from "./common";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import React, {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
 import classNames from 'classnames';
 import instance, {BASE_URL, getTargetGeneLists, getTargetNetworks} from "../../utils/axios_instance";
@@ -178,9 +178,9 @@ const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, s
 
   useEffect(() => {
     setValue(_.get(uploadFiles, [listName, 'name'], ""));
-  }, []);
+  }, [uploadFiles, listName]);
 
-  useEffect(() => {
+  let updateUpload = useCallback((value, inputValue) => {
     if (value === "input") {
       addUpload(listName, "input", inputValue);
     } else if (_.has(tempLists, value)) {
@@ -190,7 +190,11 @@ const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, s
     } else if (!value) {
       removeUpload(listName);
     }
-  }, [value, inputValue]);
+  }, [addUpload, removeUpload, tempLists, listName]);
+
+  useEffect(() => {
+    updateUpload(value, inputValue);
+  }, [value, inputValue, updateUpload]);
 
   let onSelect = (e) => {
     if (typeof e === 'string') {
@@ -200,9 +204,9 @@ const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, s
     }
   };
 
-  let onFileChange = (name, result) => {
-    addUpload(listName, name, result);
-  };
+  let onFileChange = useCallback((result) => {
+    addUpload(listName, value, result);
+  }, [listName, value, addUpload]);
 
   return <div className="form-row m-2">
     <div className="col">

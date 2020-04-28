@@ -108,7 +108,7 @@ export const UploadFile = ({className, onChange, save, ...props}) => {
       reader.onload = (e) => {
         let result = e.target.result;
         setGenes(result);
-        onChange(file.name, result);
+        onChange(result);
       };
       reader.readAsText(file);
     }
