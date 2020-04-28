@@ -31,12 +31,14 @@ const TargetEnrichmentInfo = () => {
   </p>;
 };
 
-const mapStateToProps = ({busy, requestId, result, targetEnrichment}) => {
+const mapStateToProps = ({busy, requestId, result, targetEnrichment, extraFields, extraFieldNames}) => {
   return {
     busy,
     requestId,
     result,
-    targetEnrichment
+    targetEnrichment,
+    extraFields,
+    extraFieldNames
   };
 };
 
@@ -172,10 +174,8 @@ class TargetEnrichmentBody extends React.Component {
   }
 
   render() {
-    let {targetEnrichment: {table, legend, image, error}, busy} = this.props;
+    let {targetEnrichment: {table, image, error}, busy, extraFields, extraFieldNames} = this.props;
     let {lower, upper, useLabel, key, collapse, exportSrc, heatmapKeysChecked, tableKey} = this.state;
-
-    let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
 
     return <div className="container-fluid p-0">
       {error ?
@@ -233,7 +233,7 @@ class TargetEnrichmentBody extends React.Component {
                           </InfoTootip>
                         </label>
                         <div className="col-sm">
-                          <input type="checkbox" className="form-control" value={useLabel} step="any"
+                          <input type="checkbox" value={useLabel} step="any"
                                  onChange={this.handleLabel.bind(this)}/>
                         </div>
                       </div>
@@ -263,7 +263,7 @@ class TargetEnrichmentBody extends React.Component {
                 </div>
               </div>
               <div className="row border rounded m-1">
-                <ExtraFields extraFieldNames={extraFieldNames} className="col"/>
+                <ExtraFields className="col"/>
               </div>
             </Collapse>
 
@@ -310,7 +310,8 @@ class TargetEnrichmentBody extends React.Component {
                                }}/>Specificity (Percent of Targets)
                       </label>
                     </div>
-                    <a className="btn btn-primary float-right" href={"data:text/csv," + tableToCsvUri(table)}
+                    <a className="btn btn-primary float-right"
+                       href={"data:text/csv," + tableToCsvUri(table, extraFields)}
                        download="target_enrichment_table.csv">
                       <FontAwesomeIcon icon="file-csv" className="mr-1"/>Export Table Data</a>
                   </div>
@@ -361,7 +362,9 @@ TargetEnrichmentBody.propTypes = {
   setError: PropTypes.func,
   setBusy: PropTypes.func,
   getTargetEnrichmentImage: PropTypes.func,
-  getTargetEnrichmentLegend: PropTypes.func
+  getTargetEnrichmentLegend: PropTypes.func,
+  extraFields: PropTypes.arrayOf(PropTypes.string),
+  extraFieldNames: PropTypes.arrayOf(PropTypes.string)
 };
 
 const TargetEnrichment = connect(mapStateToProps, {

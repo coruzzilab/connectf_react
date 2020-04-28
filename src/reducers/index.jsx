@@ -398,6 +398,19 @@ function uploadFiles(state = {}, action) {
     };
   case 'REMOVE_UPLOAD':
     return _.omit(state, [action.key]);
+  case 'CLEAR_UPLOAD':
+    return {};
+  default:
+    return state;
+  }
+}
+
+function extraFieldNames(state = [], action) {
+  switch (action.type) {
+  case 'SET_EXTRA_FIELD_NAMES':
+    return action.fields;
+  case 'CLEAR_EXTRA_FIELD_NAMES':
+    return [];
   default:
     return state;
   }
@@ -424,7 +437,8 @@ const tgdbApp = {
   tempLists,
   warnSubmit,
   analysisIds,
-  uploadFiles
+  uploadFiles,
+  extraFieldNames
 };
 
 export default combineReducers(tgdbApp);

@@ -26,13 +26,14 @@ import {BusyIcon, ExportClusterInfo, MotifEnrichmentInfo, MotifRegionCheckbox} f
 import AdditionalMotifs from "./additional_motifs";
 import {ResizeComponent} from "../../common";
 
-const mapStateToProps = ({busy, requestId, result, motifEnrichment, extraFields}) => {
+const mapStateToProps = ({busy, requestId, result, motifEnrichment, extraFields, extraFieldNames}) => {
   return {
     busy,
     requestId,
     result,
     motifEnrichment,
-    extraFields
+    extraFields,
+    extraFieldNames
   };
 };
 
@@ -246,13 +247,11 @@ class MotifEnrichmentBody extends React.Component {
   }
 
   render() {
-    let {motifEnrichment: {table, legend, image, error}, busy} = this.props;
+    let {motifEnrichment: {table, image, error}, busy, extraFields, extraFieldNames} = this.props;
     let {
       colSpan, key, lower, upper, useLabel, collapse, exportSrc, motifRegions,
       selectedMotifRegions, heatmapKeysChecked
     } = this.state;
-
-    let extraFieldNames = _(legend).map(0).map(_.keys).flatten().uniq().sortBy().value();
 
     return <div className="container-fluid p-0">
       <div className="row m-1">
@@ -324,7 +323,7 @@ class MotifEnrichmentBody extends React.Component {
                     </InfoTootip>
                   </label>
                   <div className="col-sm">
-                    <input type="checkbox" className="form-control" value={useLabel} step="any"
+                    <input type="checkbox" value={useLabel} step="any"
                            onChange={this.handleLabel.bind(this)}/>
                   </div>
                 </div>
@@ -368,7 +367,7 @@ class MotifEnrichmentBody extends React.Component {
               </div>
             </form>
             <div className="row border rounded">
-              <ExtraFields extraFieldNames={extraFieldNames} className="col"/>
+              <ExtraFields className="col"/>
             </div>
           </div>
         </div>
@@ -395,7 +394,7 @@ class MotifEnrichmentBody extends React.Component {
           <div className="container-fluid">
             <div className="row m-1">
               <div className="col p-0">
-                <a className="btn btn-primary float-right" href={"data:text/csv," + tableToCsvUri(table)}
+                <a className="btn btn-primary float-right" href={"data:text/csv," + tableToCsvUri(table, extraFields)}
                    download="motif_enrichment_table.csv">
                   <Icon icon="file-csv" className="mr-1"/>Export Table Data</a>
                 <ExportClusterInfo className="float-right mx-1"/>
@@ -453,7 +452,9 @@ MotifEnrichmentBody.propTypes = {
   setError: PropTypes.func,
   setBusy: PropTypes.func,
   getMotifEnrichmentImage: PropTypes.func,
-  getMotifEnrichmentLegend: PropTypes.func
+  getMotifEnrichmentLegend: PropTypes.func,
+  extraFields: PropTypes.arrayOf(PropTypes.string),
+  extraFieldNames: PropTypes.arrayOf(PropTypes.string)
 };
 
 const MotifEnrichment = connect(mapStateToProps, {

@@ -21,11 +21,12 @@ const EnrichmentInfo = () => {
   </p>;
 };
 
-function mapStateToProps({busy, extraFields, requestId, analysisEnrichment: {data, hidden}}) {
+function mapStateToProps({busy, extraFields, extraFieldNames, requestId, analysisEnrichment: {data, hidden}}) {
   return {
     requestId,
     busy,
     extraFields,
+    extraFieldNames,
     data,
     hidden
   };
@@ -60,10 +61,9 @@ class EnrichmentTableBody extends React.Component {
   }
 
   render() {
-    let {busy, className, data, requestId, hidden} = this.props;
+    let {busy, className, data, requestId, hidden, extraFieldNames} = this.props;
     let {collapse} = this.state;
 
-    let extraFieldNames = _(data.info).map(1).map(_.keys).flatten().uniq().sortBy().value();
     let extraFields = _.intersection(this.props.extraFields, extraFieldNames);
 
     return <div className={className}>
@@ -85,7 +85,7 @@ class EnrichmentTableBody extends React.Component {
       </div>
       <Collapse isOpen={collapse}>
         <div className="row">
-          <ExtraFields extraFieldNames={extraFieldNames} className="col border rounded m-2"/>
+          <ExtraFields className="col border rounded m-2"/>
         </div>
       </Collapse>
       <div className="row">
@@ -112,7 +112,10 @@ class EnrichmentTableBody extends React.Component {
                   <RowHeader info={info}>{columnString(i + 1)}</RowHeader>
                   <td className="text-center"><input type="checkbox" checked={hidden.indexOf(i) === -1}
                                                      onChange={this.toggleShow.bind(this, i)}/></td>
-                  {_(info[1]).pick(extraFields).values().map((e, j) => <td key={j}>{e}</td>).value()}
+                  {_(extraFields)
+                    .map((e) => _.get(info, [1, e], ""))
+                    .map((e, j) => <td key={j}>{e}</td>)
+                    .value()}
                   <td>{info[0][0]}</td>
                   <td>{info[1]['gene_name']}</td>
                   <td>{info[0][1]}</td>
@@ -134,6 +137,7 @@ EnrichmentTableBody.propTypes = {
   data: PropTypes.object,
   className: PropTypes.string,
   extraFields: PropTypes.arrayOf(PropTypes.string),
+  extraFieldNames: PropTypes.arrayOf(PropTypes.string),
   hidden: PropTypes.arrayOf(PropTypes.number),
   addHidden: PropTypes.func,
   removeHidden: PropTypes.func,

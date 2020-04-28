@@ -258,14 +258,15 @@ ExtraFieldsBody.propTypes = {
   className: PropTypes.string
 };
 
-export const ExtraFields = connect(({extraFields}) => ({extraFields}), {
-  addExtraField,
-  removeExtraField,
-  removeExtraFields
-})(ExtraFieldsBody);
+export const ExtraFields = connect(
+  ({extraFields, extraFieldNames}) => ({extraFields, extraFieldNames}),
+  {
+    addExtraField,
+    removeExtraField,
+    removeExtraFields
+  })(ExtraFieldsBody);
 
 ExtraFields.propTypes = {
-  extraFieldNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   className: PropTypes.string
 };
 

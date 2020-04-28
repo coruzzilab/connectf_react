@@ -8,7 +8,7 @@ import _ from 'lodash';
 
 import reducers from './reducers';
 import {loadState, saveState} from "./local_storage";
-import {getResult} from "./actions";
+import {getExtraFieldNames, getResult} from "./actions";
 
 /*
  * Enhancer composer for development. Connects to redux browser extension.
@@ -92,6 +92,10 @@ store.dispatch(function (dispatch) {
   if (state.requestId && _.isEmpty(state.result)) {
     dispatch(getResult(state.requestId));
   }
+});
+
+store.dispatch(function (dispatch) {
+  dispatch(getExtraFieldNames());
 });
 
 export default store;

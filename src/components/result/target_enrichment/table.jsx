@@ -94,8 +94,10 @@ class TableBody extends React.Component {
                 <div>{name} {surround(row['info'].filter)} ({row['info'].targets})</div>
                 {row['info']['label'] ? <div>{row['info']['label']}</div> : null}
               </RowHeader>
-              {_(row['info']).pick(extraFields).values().map((f, i) => <td key={i}
-                                                                           className="text-nowrap">{f}</td>).value()}
+              {_(extraFields)
+                .map((e) => _.get(row, ['info', e], ""))
+                .map((f, i) => <td key={i} className="text-nowrap">{f}</td>)
+                .value()}
               {_(row[tableKey]).zip(row['count']).map(([first, count], j) => {
                 if (tableKey === "p-value") {
                   return <td style={redShader(first, min, max)} key={j}>{first.toExponential(2)} ({count})</td>;

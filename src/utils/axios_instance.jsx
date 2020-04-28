@@ -149,4 +149,8 @@ export function updateAnalysisIds(requestId, data) {
   return instance.post(`/api/ids/${requestId}/`, data);
 }
 
+export function getExtraFieldNames() {
+  return instance.get('/api/extra_field_names/');
+}
+
 export default instance;

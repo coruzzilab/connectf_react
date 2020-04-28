@@ -6,7 +6,6 @@ import * as targetEnrichment from "./target_enrichment";
 import * as analysisEnrichment from "./analysis_enrichment";
 import {v4 as uuidv4} from 'uuid';
 import * as api from "../utils/axios_instance";
-import {getTable, updateAnalysisIds as axiosUpdateAnalysisIds} from "../utils/axios_instance";
 
 export const setBusy = (busy = true) => {
   return {
@@ -269,7 +268,7 @@ export const postQuery = (config) => {
 export const getResult = (requestId) => {
   return (dispatch) => {
     dispatch(setBusy(true));
-    return getTable(requestId)
+    return api.getTable(requestId)
       .then((resp) => {
         dispatch(setResult(resp.data));
       })
@@ -518,7 +517,7 @@ export const clearAnalysisIds = () => {
 
 export const getAnalysisIds = (requestId) => {
   return (dispatch) => {
-    return axiosUpdateAnalysisIds(requestId)
+    return api.updateAnalysisIds(requestId)
       .then((resp) => {
         dispatch(setAnalysisIds(resp.data));
       });
@@ -527,7 +526,7 @@ export const getAnalysisIds = (requestId) => {
 
 export const updateAnalysisIds = (requestId, ids) => {
   return (dispatch) => {
-    return axiosUpdateAnalysisIds(requestId, ids)
+    return api.updateAnalysisIds(requestId, ids)
       .then((resp) => {
         dispatch(setAnalysisIds(resp.data));
         dispatch(getResult(requestId));
@@ -564,14 +563,6 @@ export const renameAnalysisIds = (idx, name) => {
   };
 };
 
-export const resetQuery = () => (dispatch) => {
-  dispatch(clearEdges());
-  dispatch(clearQuery());
-  dispatch(clearQueryTree());
-  dispatch(clearRequestId());
-  dispatch(clearQueryError());
-};
-
 export const addUpload = (key, name, content) => {
   return {
     type: 'ADD_UPLOAD',
@@ -586,4 +577,44 @@ export const removeUpload = (key) => {
     type: 'REMOVE_UPLOAD',
     key
   };
+};
+
+export const clearUpload = () => {
+  return {
+    type: 'CLEAR_UPLOAD'
+  };
+};
+
+export const setExtraFieldNames = (fields) => {
+  return {
+    type: 'SET_EXTRA_FIELD_NAMES',
+    fields
+  };
+};
+
+export const clearExtraFieldNames = () => {
+  return {
+    type: 'CLEAR_EXTRA_FIELD_NAMES'
+  };
+};
+
+export const getExtraFieldNames = () => {
+  return (dispatch) => {
+    return api.getExtraFieldNames()
+      .then(({data}) => {
+        dispatch(setExtraFieldNames(data));
+      })
+      .catch(() => {
+        dispatch(clearExtraFieldNames());
+      });
+  };
+};
+
+export const resetQuery = () => (dispatch) => {
+  dispatch(clearEdges());
+  dispatch(clearQuery());
+  dispatch(clearUpload());
+  dispatch(clearQueryTree());
+  dispatch(clearRequestId());
+  dispatch(clearQueryError());
 };
