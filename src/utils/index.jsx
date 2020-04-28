@@ -324,18 +324,9 @@ export const networkJSONStringify = _.flow(
 );
 
 export function getColName(c, i = null) {
-  let colStr;
-  if (_.isNull(i)) {
-    colStr = "";
-  } else {
-    colStr = columnString(i + 1) + '_';
-  }
+  let colStr = _.isNull(i) ? "" : columnString(i + 1) + '_';
 
-  return colStr + _.get(c, 'EXPERIMENTER', '') +
-    _.get(c, 'DATE', '').replace('-', '') + '_' +
-    _.get(c, 'TECHNOLOGY', '') + '_' + _.get(c, 'ANALYSIS_METHOD', '') + '_' +
-    _.get(c, 'ANALYSIS_CUTOFF', '').replace(' ', '') + '_' +
-    getGeneName(c);
+  return colStr + getGeneName(c) + "_" + c['analysis_id'];
 }
 
 export function getGeneName(data) {

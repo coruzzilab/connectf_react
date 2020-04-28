@@ -3,17 +3,34 @@
  * 11/9/18
  */
 import _ from "lodash";
-import {getColName} from "../../../utils";
 
 export function surround(s, p = '"', pre = ' ', default_ = '') {
   return s ? pre + p + s + p : default_;
 }
 
-function tableToCsv(table) {
-  let csv = "," + _(table.columns).map((c) => `"${c}"`).join(',') + "\n";
+function tableToCsv(table, keys) {
+  let keyString = _(keys).map((k) => `"${k}"`).join(",");
 
-  csv += _(table.result).map((r, i) => {
-    return `"${getColName(r['info'], i)}",` + r['p-value'].join(",");
+  let csv = ('"analysis_id","targets",'
+    + (keyString ? keyString + "," : "")
+    + _(table.columns)
+      .zip(new Array(_.get(table, 'columns.length', 0)).fill('count'))
+      .flatten()
+      .map((c) => `"${c}"`)
+      .join(',')
+    + "\n");
+
+  csv += _(table.result).map((r) => {
+    let keyVals = _(keys)
+      .map((k) => `"${_.get(r, ['info', k], "")}"`)
+      .join(",");
+
+    return (`"${r['info']['analysis_id']}","${r['info'].targets}",`
+      + (keyVals ? keyVals + "," : "")
+      + _(r['p-value'])
+        .zip(r['count'])
+        .flatten()
+        .join(","));
   }).join("\n") + "\n";
 
   return csv;

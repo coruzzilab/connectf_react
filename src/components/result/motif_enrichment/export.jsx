@@ -13,17 +13,22 @@ function getRowName(r) {
   return r['name'] + '_' + r['Family'];
 }
 
-function tableToCsv(table) {
+function tableToCsv(table, keys) {
   let columns = _(table.columns)
     .map(getColName)
-    .map((c) => _.map(table.regions, (r) => c + '_' + r))
-    .flatten();
+    .map((c) => _.map(table.regions, (r) => c + '_' + r));
 
   let csv = "," + columns.map((c) => `"${c}"`).join(',') + '\n';
 
   csv += _(table.result).map((row) => {
     return '"' + getRowName(row[0]) + '",' + row.slice(1).join(',');
   }).join("\n") + "\n";
+
+  csv += _(keys)
+    .map((k) => {
+      return `"${k}",` + _(table.columns).map((c) => `"${_.get(c, [k], "")}"`).join(",");
+    })
+    .join("\n") + "\n";
 
   return csv;
 }
