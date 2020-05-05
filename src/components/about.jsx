@@ -168,7 +168,7 @@ const About = () => {
           <div className="row">
             <div className="col-1"/>
             <div className="col-6 d-flex flex-column justify-content-center">
-              <Link to={"/tutorial#aupr--area-under-precision-recall"}><h3>Precision—Recall Analysis (AUPR)</h3></Link>
+              <Link to={"/tutorial#aupr--area-under-precision-recall"}><h3>Precisionâ€”Recall Analysis (AUPR)</h3></Link>
               <p>
                 Prune predicted networks using validated TF-target interactions returned by your query.
               </p>
