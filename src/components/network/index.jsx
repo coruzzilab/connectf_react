@@ -8,6 +8,7 @@ import cytoscape from 'cytoscape';
 import {connect} from 'react-redux';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import _ from 'lodash';
+import {v4 as uuid4} from "uuid";
 import DropZone from 'react-dropzone';
 import {
   Alert,
@@ -354,7 +355,7 @@ class NetworkBody extends React.PureComponent {
         return;
       }
 
-      let edges = res
+      let userEdges = res
         .map(([s, e, ...ts]) => {
           return _.map(ts, (t) => {
             return {
@@ -364,7 +365,8 @@ class NetworkBody extends React.PureComponent {
                 target: t,
                 name: e,
                 color,
-                user: true
+                user: true,
+                shape: 'none'
               }
             };
           });
@@ -375,7 +377,31 @@ class NetworkBody extends React.PureComponent {
         .invokeMap('data', 'id')
         .value();
 
-      let uniqExistEdges = edges
+      let userNodes = res
+        .map(([s, e, ...ts]) => {
+          return [s, ...ts];
+        })
+        .flatten()
+        .filter((n) => _.indexOf(nodes, n) === -1)
+        .map((n) => {
+          return {
+            data: {
+              id: n,
+              name: '',
+              type: 'user',
+              size: 20,
+              showLabel: false,
+              user: true,
+              color,
+              shape: 'roundrectangle'
+            }
+          };
+        })
+        .value();
+
+      nodes = nodes.concat(_.map(userNodes, 'data.id'));
+
+      let uniqExistEdges = userEdges
         .filter((e) => {
           return _.indexOf(nodes, e.data.source) !== -1 && _.indexOf(nodes, e.data.target) !== -1;
         })
@@ -387,7 +413,13 @@ class NetworkBody extends React.PureComponent {
         setTimeout(this.setAlertMessage.bind(this, "", false), 10000);
       } else {
         this.cy.batch(() => {
+          this.cy.add(userNodes);
           this.cy.add(uniqExistEdges);
+
+          let layout = this.cy.nodes('[?user]').layout({name: 'grid'});
+          layout.run();
+
+          this.cy.fit();
           this.cy.forceRender();
         });
       }
@@ -396,9 +428,9 @@ class NetworkBody extends React.PureComponent {
     }
   }
 
-  deleteEdges() {
+  deleteUserObjects() {
     this.cy.batch(() => {
-      this.cy.remove(this.cy.edges('[?user]'));
+      this.cy.remove('[?user]');
       this.cy.forceRender();
     });
   }
@@ -514,8 +546,8 @@ class NetworkBody extends React.PureComponent {
           <div className="btn-group mr-2">
             <button type="button" className="btn btn-danger"
                     title="remove user uploaded edges"
-                    onClick={this.deleteEdges.bind(this)}>
-              <FontAwesomeIcon icon="trash-alt" className="mr-1"/>Remove Edges
+                    onClick={this.deleteUserObjects.bind(this)}>
+              <FontAwesomeIcon icon="trash-alt" className="mr-1"/>Remove Upload
             </button>
           </div>
           <UncontrolledDropdown>
@@ -538,11 +570,11 @@ class NetworkBody extends React.PureComponent {
               setMaxHeight: {
                 enabled: true,
                 order: 890,
-                fn: (data) => {
+                fn: ({styles, ...data}) => {
                   return {
                     ...data,
                     styles: {
-                      ...data.styles,
+                      ...styles,
                       overflow: 'auto',
                       maxHeight: '70vh'
                     }
