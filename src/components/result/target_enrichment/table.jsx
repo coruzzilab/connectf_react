@@ -8,10 +8,16 @@ import _ from "lodash";
 import {colorShader, getLogMinMax, redShader} from "../../../utils";
 import {SortButton} from "../common";
 import {RowHeader} from "./common";
-import {surround} from "./utils";
 import PropTypes from "prop-types";
+import styled from "styled-components";
 
 const percentShader = _.partial(colorShader('b2182b', 'fddbc7', false), _, 0, 1);
+
+const Ellipsize = styled.div`
+white-space: nowrap;
+text-overflow: ellipsis;
+overflow: hidden;
+`;
 
 const mapStateToProps = ({extraFields}) => {
   return {extraFields};
@@ -89,10 +95,13 @@ class TableBody extends React.Component {
             let geneName = _.get(row, 'info.gene_name');
             let name = geneId + (geneName ? ` (${geneName})` : '');
 
+            let row1 = `${name} (${row['info'].targets})`;
+
             return <tr key={i}>
               <RowHeader info={row['info']}>
-                <div>{name} {surround(row['info'].filter)} ({row['info'].targets})</div>
-                {row['info']['label'] ? <div>{row['info']['label']}</div> : null}
+                <Ellipsize className="w-100" title={row1}>{row1}</Ellipsize>
+                {row['info']['label'] ?
+                  <Ellipsize className="w-100" title={row['info']['label']}>{row['info']['label']}</Ellipsize> : null}
               </RowHeader>
               {_(extraFields)
                 .map((e) => _.get(row, ['info', e], ""))

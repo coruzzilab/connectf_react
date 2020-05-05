@@ -34,6 +34,7 @@ Export.propTypes = {
 const FrozenTh = styled.th`
   position: sticky;
   left: 0px;
+  max-width: 20em;
 `;
 
 export class RowHeader extends React.Component {
@@ -59,7 +60,7 @@ export class RowHeader extends React.Component {
     let name = geneId + (geneName ? ` (${geneName})` : '');
 
     return <FrozenTh className="p-0">
-      <div className="w-100 h-100 bg-white border p-1 text-nowrap">
+      <div className="w-100 h-100 bg-white border p-1">
         <a className="text-primary link" onClick={this.showModal.bind(this, undefined)}>{this.props.children}</a>
       </div>
       <Modal isOpen={visible} toggle={this.showModal.bind(this, false)}>
