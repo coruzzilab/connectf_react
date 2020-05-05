@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {buildSearchRegex} from "../result/sungear/utils";
 import _ from "lodash";
 import classNames from "classnames";
@@ -12,8 +12,8 @@ function mod(n, m) {
 }
 
 const AutoComplete = ({value, onChange, inputProps, items, className, mapItemToValue, mapItemToSearch, renderItem}) => {
-  let searchRef = React.createRef();
-  let listRef = React.createRef();
+  let searchRef = useRef(null);
+  let listRef = useRef(null);
   let [active, setActive] = useState(-1);
   let [isOpen, setOpen] = useState(false);
   let [listStyle, setListStyle] = useState({width: 200, top: 0, left: 0});
@@ -27,7 +27,7 @@ const AutoComplete = ({value, onChange, inputProps, items, className, mapItemToV
       left: searchRef.current.offsetLeft
     });
     setHeight((document.documentElement.clientHeight - searchRef.current.getBoundingClientRect().bottom) * 0.8);
-  }, [searchRef.current]);
+  }, [searchRef]);
 
   useEffect(() => {
     let searchRegex = buildSearchRegex(value);
@@ -38,7 +38,7 @@ const AutoComplete = ({value, onChange, inputProps, items, className, mapItemToV
     if (listRef.current) {
       listRef.current.scrollToItem(0, "auto");
     }
-  }, [value, items]);
+  }, [value, items, listRef, mapItemToSearch]);
 
   const onClick = (e) => {
     nativeInputValueSetter.call(searchRef.current, mapItemToValue(searchItems[active]));
@@ -87,10 +87,13 @@ const AutoComplete = ({value, onChange, inputProps, items, className, mapItemToV
         setActive(currActive);
         listRef.current.scrollToItem(currActive, "auto");
       } else if (e.key === 'Enter') {
-        nativeInputValueSetter.call(searchRef.current, mapItemToValue(searchItems[active]));
-        searchRef.current.dispatchEvent(new Event('input', {bubbles: true}));
-        setOpen(false);
-        setActive(-1);
+        if (active !== -1) {
+          e.preventDefault();
+          nativeInputValueSetter.call(searchRef.current, mapItemToValue(searchItems[active]));
+          searchRef.current.dispatchEvent(new Event('input', {bubbles: true}));
+          setOpen(false);
+          setActive(-1);
+        }
       }
     } else {
       if (value.length >= 1 && searchItems.length) {

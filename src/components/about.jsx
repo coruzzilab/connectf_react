@@ -11,7 +11,7 @@ import {TwitterFollow} from "./common";
 import AutoComplete from "./common/autocomplete";
 import {getTFs} from "../utils/axios_instance";
 import _ from "lodash";
-import {setQuery} from "../actions";
+import {setQuery, setWarnSubmit} from "../actions";
 import {TargetGeneSelection} from "./querybuilder/query_file";
 
 const DataOverViewLink = () => (<Link to="/overview" className="btn btn-primary">
@@ -24,7 +24,7 @@ const renderItem = (item) => {
   return item.value;
 };
 
-const SearchBody = ({setQuery, history}) => {
+const SearchBody = ({setQuery, setWarnSubmit, history}) => {
   let [genes, setGenes] = useState([]);
   let [value, setValue] = useState("");
 
@@ -37,38 +37,44 @@ const SearchBody = ({setQuery, history}) => {
     });
   }, []);
 
-  const onSearch = () => {
+  const onSearch = (e) => {
+    e.preventDefault();
     setQuery(value);
-    history.push('/query');
+    setWarnSubmit(true);
+    history.push('/query', {submit: true});
   };
 
-  return <div className="input-group">
-    <AutoComplete value={value}
-                  items={genes}
-                  onChange={(e) => {
-                    setValue(e.target.value);
-                  }}
-                  mapItemToValue={(o) => o.value}
-                  mapItemToSearch={(o) => o.name + o.value}
-                  renderItem={renderItem}
-                  inputProps={{
-                    placeholder: 'Search',
-                    className: 'w-100 h-100 border-0 rounded',
-                    type: "text"
-                  }}
-                  className="form-control p-0"/>
-    <div className="input-group-append">
-      <button className="btn btn-primary" type="button" onClick={onSearch}>Search</button>
+  return <form onSubmit={onSearch}>
+    <div className="input-group">
+      <AutoComplete value={value}
+                    items={genes}
+                    onChange={(e) => {
+                      setValue(e.target.value);
+                    }}
+                    mapItemToValue={(o) => o.value}
+                    mapItemToSearch={(o) => o.name + o.value}
+                    renderItem={renderItem}
+                    inputProps={{
+                      placeholder: 'e.g. AT4G24020, NLP7',
+                      className: 'w-100 h-100 border-0 rounded-left',
+                      type: "text",
+                      required: true
+                    }}
+                    className="form-control p-0"/>
+      <div className="input-group-append">
+        <button className="btn btn-primary" type="submit">Search</button>
+      </div>
     </div>
-  </div>;
+  </form>;
 };
 
 SearchBody.propTypes = {
   setQuery: PropTypes.func,
+  setWarnSubmit: PropTypes.func,
   history: PropTypes.object
 };
 
-const Search = _.flow(connect(null, {setQuery}), withRouter)(SearchBody);
+const Search = _.flow(connect(null, {setQuery, setWarnSubmit}), withRouter)(SearchBody);
 
 const About = () => {
   return <div className="container-fluid">
@@ -118,7 +124,7 @@ const About = () => {
                 <div className="col">
                   <h5>Try it now</h5>
                   <p className="text-secondary">
-                    Quick search for Transcription Factors in the database.
+                    Quick search for Transcription Factors in the database, e.g. AT4G24020 (NLP7).
                   </p>
                 </div>
               </div>
@@ -164,7 +170,7 @@ const About = () => {
           <div className="row">
             <div className="col-1"/>
             <div className="col-6 d-flex flex-column justify-content-center">
-              <Link to={"/tutorial#aupr--area-under-precision-recall"}><h3>Precision—Recall Analysis</h3></Link>
+              <Link to={"/tutorial#aupr--area-under-precision-recall"}><h3>Precision—Recall Analysis (AUPR)</h3></Link>
               <p>
                 Validate and prune predicted networks using query results as the gold standard.
               </p>

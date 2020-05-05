@@ -174,7 +174,7 @@ const clickFill = (onChange, setInputValue) => {
 
 const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, save, enableUpload, addUpload, removeUpload}) => {
   let [inputValue, setInputValue] = useState("");
-  let [value, setValue] = useState("");
+  let [value, setValue] = useState(_.get(uploadFiles, [listName, 'name'], ""));
 
   useEffect(() => {
     setValue(_.get(uploadFiles, [listName, 'name'], ""));
@@ -196,13 +196,13 @@ const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, s
     updateUpload(value, inputValue);
   }, [value, inputValue, updateUpload]);
 
-  let onSelect = (e) => {
+  let onSelect = useCallback((e) => {
     if (typeof e === 'string') {
       setValue(e);
     } else {
       setValue(e.target.value);
     }
-  };
+  }, [setValue]);
 
   let onFileChange = useCallback((result) => {
     addUpload(listName, value, result);
