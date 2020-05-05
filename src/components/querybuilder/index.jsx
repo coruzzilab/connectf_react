@@ -1,12 +1,10 @@
 /**
  * Created by zacharyjuang on 11/24/16.
  */
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {connect} from "react-redux";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import {Modal, ModalBody, ModalFooter, ModalHeader} from "reactstrap";
-import classNames from "classnames";
 import {
   addEdge,
   clearQueryError,
@@ -27,81 +25,7 @@ import QueryBox from "./query_box";
 import AdvancedQuery from "./advanced_query";
 import RandomButton from "./random_button";
 import AdditionalEdges from "./additional_edges";
-
-const WarningModalContent = ({data, queryTree}) => {
-  let [targetGenes, setTargetGenes] = useState("");
-  let [filterTfs, setFilterTfs] = useState("");
-  let [targetNetworks, setTargetNetworks] = useState("");
-  let [warnBuild, setWarnBuild] = useState(false);
-  useEffect(() => {
-    let targetGenesFile, filterTfsFile, targetNetworksFile;
-
-    targetGenesFile = data.get('targetgenes');
-    if (targetGenesFile) {
-      if (targetGenesFile instanceof Blob) {
-        targetGenesFile.slice(0, 100).text().then((text) => {
-          setTargetGenes(text.length < 100 ? text : text + '...');
-        });
-      } else {
-        setTargetGenes(targetGenesFile);
-      }
-    }
-
-    filterTfsFile = data.get('filtertfs');
-    if (filterTfsFile) {
-      if (filterTfsFile instanceof Blob) {
-        filterTfsFile.slice(0, 100).text().then((text) => {
-          setFilterTfs(text.length < 100 ? text : text + '...');
-        });
-      } else {
-        setFilterTfs(filterTfsFile);
-      }
-    }
-
-    targetNetworksFile = data.get('targetnetworks');
-    if (targetNetworksFile) {
-      if (targetNetworksFile instanceof Blob) {
-        targetNetworksFile.slice(0, 100).text().then((text) => {
-          setTargetNetworks(text.length < 100 ? text : text + '...');
-        });
-      } else {
-        setTargetNetworks(targetNetworksFile);
-      }
-    }
-
-    let query = data.get('query');
-    let builtQuery = getQuery(queryTree);
-    setWarnBuild(query && builtQuery && query !== builtQuery);
-  });
-
-  return <div>
-    <h6>Query</h6>
-    <div className={classNames(warnBuild ? "text-warning" : null)}>{data.get('query')}</div>
-    <div className="mb-2">
-      {warnBuild ?
-        <div><small>Current query is different from the one in Query Builder. Click on
-          <span className="text-nowrap">&quot;Build Query&quot;</span> if necessary</small>
-        </div> :
-        null}
-    </div>
-    <h6>Additional Edge Features</h6>
-    <div className="mb-2">{data.has('edges') ?
-      <ul>{_.map(data.getAll('edges'), (e, i) => <li key={i}>{e}</li>)}</ul> :
-      "No Additional Edge Features Selected"}
-    </div>
-    <h6>Target Genes</h6>
-    <div className="mb-2">{data.has('targetgenes') ? targetGenes : "No Target Genes Selected"}</div>
-    <h6>Filter TFs</h6>
-    <div className="mb-2">{data.has('filtertfs') ? filterTfs : "No Filter TFs Selected"}</div>
-    <h6>Target Networks</h6>
-    <div className="mb-2">{data.has('targetnetworks') ? targetNetworks : "No Target Networks Selected"}</div>
-  </div>;
-};
-
-WarningModalContent.propTypes = {
-  data: PropTypes.object,
-  queryTree: PropTypes.arrayOf(PropTypes.object)
-};
+import WarningModal from "./warning_modal";
 
 const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, warnSubmit, uploadFiles}) => {
   return {
@@ -124,9 +48,7 @@ class QuerybuilderBody extends React.Component {
     super(props);
 
     this.state = {
-      isOpen: false,
-      data: null,
-      submitFunc: _.noop
+      isOpen: false
     };
 
     this.cancels = [];
@@ -145,6 +67,11 @@ class QuerybuilderBody extends React.Component {
       });
 
     this.props.clearQueryError();
+
+    if (_.get(this.props.location, 'state.submit', false)) {
+      this.props.history.replace();
+      this.submit();
+    }
   }
 
   cancelRequests() {
@@ -183,7 +110,17 @@ class QuerybuilderBody extends React.Component {
     return data;
   }
 
-  submitData(data) {
+  submit() {
+    let {query, setQuery} = this.props;
+
+    this.cancelRequests();
+
+    let data = this.createSubmitData();
+
+    if (!this.props.query) {
+      setQuery(query);
+    }
+
     return this.props.postQuery({
       data,
       cancelToken: new CancelToken((c) => {
@@ -196,25 +133,17 @@ class QuerybuilderBody extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    let {query, setQuery, warnSubmit} = this.props;
 
-    this.cancelRequests();
-
-    let data = this.createSubmitData();
-
-    if (!this.props.query) {
-      setQuery(query);
-    }
-
-    if (warnSubmit) {
-      this.setState({
-        data,
-        submitFunc: this.submitData.bind(this, data)
-      });
+    if (this.props.warnSubmit) {
       this.toggleWarnSubmit();
     } else {
-      this.submitData(data);
+      this.submit();
     }
+  }
+
+  toggleAndSubmit() {
+    this.toggleWarnSubmit();
+    this.submit();
   }
 
   reset() {
@@ -233,8 +162,8 @@ class QuerybuilderBody extends React.Component {
   }
 
   render() {
-    let {isOpen, data} = this.state;
-    let {edges, edgeList, queryError, queryTree, warnSubmit, setWarnSubmit} = this.props;
+    let {isOpen} = this.state;
+    let {edges, edgeList, queryError, warnSubmit, setWarnSubmit} = this.props;
 
     return <div>
       <form onSubmit={this.handleSubmit.bind(this)}>
@@ -254,24 +183,9 @@ class QuerybuilderBody extends React.Component {
           </div>
 
           <QueryBox reset={this.reset.bind(this)}/>
-
-          <Modal isOpen={isOpen} toggle={this.toggleWarnSubmit.bind(this)} backdrop={false}>
-            <ModalHeader toggle={this.toggleWarnSubmit.bind(this)}>Submit</ModalHeader>
-            <ModalBody>
-              {data ?
-                <WarningModalContent data={data} queryTree={queryTree}/> :
-                null}
-            </ModalBody>
-            <ModalFooter>
-              <button className="btn btn-danger" type="button" onClick={this.toggleWarnSubmit.bind(this)}>Cancel
-              </button>
-              <button className="btn btn-primary" type="button" onClick={() => {
-                this.toggleWarnSubmit();
-                this.state.submitFunc();
-              }}>Submit
-              </button>
-            </ModalFooter>
-          </Modal>
+          <WarningModal isOpen={isOpen}
+                        toggle={this.toggleWarnSubmit.bind(this)}
+                        submit={this.toggleAndSubmit.bind(this)}/>
 
           <div className="form-row m-1">
             <div className="col">
@@ -316,7 +230,8 @@ class QuerybuilderBody extends React.Component {
  * @memberOf QuerybuilderBody
  */
 QuerybuilderBody.propTypes = {
-  history: PropTypes.object.isRequired,
+  history: PropTypes.object,
+  location: PropTypes.object,
   busy: PropTypes.number,
   query: PropTypes.string,
   queryTree: PropTypes.arrayOf(PropTypes.object),
