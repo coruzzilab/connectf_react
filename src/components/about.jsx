@@ -170,9 +170,9 @@ const About = () => {
           <div className="row">
             <div className="col-1"/>
             <div className="col-6 d-flex flex-column justify-content-center">
-              <Link to={"/tutorial#aupr--area-under-precision-recall"}><h3>Precisionâ€”Recall Analysis (AUPR)</h3></Link>
+              <Link to={"/tutorial#aupr--area-under-precision-recall"}><h3>Precision—Recall Analysis (AUPR)</h3></Link>
               <p>
-                Validate and prune predicted networks using query results as the gold standard.
+                Prune predicted networks using validated TF-target interactions returned by your query.
               </p>
             </div>
             <div className="col-4">
@@ -202,7 +202,7 @@ const About = () => {
             <div className="col-6 d-flex flex-column justify-content-center">
               <Link to={"/tutorial#gene-set-enrichment"}><h3>Gene Set Enrichment</h3></Link>
               <p>
-                Visualize pairwise significance of overlap between queried analyses.
+                Visualize pairwise significance of overlap between queried TF-target analyses.
               </p>
             </div>
             <div className="col-4">
@@ -217,7 +217,7 @@ const About = () => {
             <div className="col-6 d-flex flex-column justify-content-center">
               <Link to={"/tutorial#sungear"}><h3>Sungear</h3></Link>
               <p>
-                Visualize common genes between different queried analyses.
+                Visualize how target genes are distributed between queried TF-target analyses.
               </p>
             </div>
             <div className="col-4">
