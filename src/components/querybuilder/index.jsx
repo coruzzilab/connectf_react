@@ -70,7 +70,8 @@ class QuerybuilderBody extends React.Component {
 
     if (_.get(this.props.location, 'state.submit', false)) {
       this.props.history.replace();
-      this.submit();
+      console.assert(this.props.warnSubmit, "warnSubmit should be true");
+      this.toggleWarnSubmit();
     }
   }
 
