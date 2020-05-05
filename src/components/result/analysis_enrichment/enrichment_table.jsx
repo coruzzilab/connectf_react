@@ -5,6 +5,7 @@
 import React from "react";
 import {connect} from "react-redux";
 import _ from "lodash";
+import qs from "querystring";
 import {Collapse} from "reactstrap";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {ExtraFields} from "../common";
@@ -66,6 +67,11 @@ class EnrichmentTableBody extends React.Component {
 
     let extraFields = _.intersection(this.props.extraFields, extraFieldNames);
 
+    let url = `${BASE_URL}/api/analysis_enrichment/${requestId}.csv`;
+    if (_.size(extraFields)) {
+      url += '?' + qs.stringify({fields: extraFields});
+    }
+
     return <div className={className}>
       <div className="row my-2">
         <div className="col">
@@ -74,7 +80,7 @@ class EnrichmentTableBody extends React.Component {
       </div>
       <div className="row my-2">
         <div className="col d-flex flex-row-reverse align-items-center">
-          <a className="btn btn-primary ml-1" href={`${BASE_URL}/api/analysis_enrichment/${requestId}.csv`}>
+          <a className="btn btn-primary ml-1" href={url}>
             <FontAwesomeIcon icon="file-download" className="mr-1"/>Export CSV (*.csv)
           </a>
           <button type="button" className="btn btn-primary ml-1" onClick={this.toggle.bind(this)}>

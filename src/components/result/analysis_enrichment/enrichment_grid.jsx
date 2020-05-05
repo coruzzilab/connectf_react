@@ -117,9 +117,14 @@ class EnrichmentGridBody extends React.PureComponent {
     }
   }
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   return this.props.data !== nextProps.data || this.state !== nextState || !(this.props.height && this.props.width);
-  // }
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.extraFields !== nextProps.extraFields) {
+      if (_.head(this.props.extraFields) === _.head(nextProps.extraFields)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   componentWillUnmount() {
     this.clearTimeOuts();
