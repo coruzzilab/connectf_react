@@ -11,7 +11,7 @@ import {TwitterFollow} from "./common";
 import AutoComplete from "./common/autocomplete";
 import {getTFs} from "../utils/axios_instance";
 import _ from "lodash";
-import {setQuery, setWarnSubmit} from "../actions";
+import {setQuery} from "../actions";
 import {TargetGeneSelection} from "./querybuilder/query_file";
 
 const DataOverViewLink = () => (<Link to="/overview" className="btn btn-primary">
@@ -24,7 +24,7 @@ const renderItem = (item) => {
   return item.value;
 };
 
-const SearchBody = ({setQuery, setWarnSubmit, history}) => {
+const SearchBody = ({setQuery, history}) => {
   let [genes, setGenes] = useState([]);
   let [value, setValue] = useState("");
 
@@ -40,7 +40,6 @@ const SearchBody = ({setQuery, setWarnSubmit, history}) => {
   const onSearch = (e) => {
     e.preventDefault();
     setQuery(value);
-    setWarnSubmit(true);
     history.push('/query', {submit: true});
   };
 
@@ -70,11 +69,10 @@ const SearchBody = ({setQuery, setWarnSubmit, history}) => {
 
 SearchBody.propTypes = {
   setQuery: PropTypes.func,
-  setWarnSubmit: PropTypes.func,
   history: PropTypes.object
 };
 
-const Search = _.flow(connect(null, {setQuery, setWarnSubmit}), withRouter)(SearchBody);
+const Search = _.flow(connect(null, {setQuery}), withRouter)(SearchBody);
 
 const About = () => {
   return <div className="container-fluid">
