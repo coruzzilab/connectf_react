@@ -36,6 +36,13 @@ export const style = [
     }
   },
   {
+    selector: "node[predicted][?predicted]",
+    style: {
+      'border-width': '2px',
+      'border-color': '#ff7f00'
+    }
+  },
+  {
     selector: 'edge',
     style: {
       'width': 1,

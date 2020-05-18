@@ -219,6 +219,7 @@ class NetworkBody extends React.PureComponent {
       this.cy.json({elements: _.cloneDeep(data)});
       this.cy.nodes(':selected').unselect();
       this.runCyLayout();
+      this.fitCytoscape();
     });
   }
 
@@ -314,7 +315,7 @@ class NetworkBody extends React.PureComponent {
 
   setUserEdgeColor(color) {
     this.cy.batch(() => {
-      this.cy.edges('[?user]').data('color', color);
+      this.cy.elements('[?user]').data('color', color);
     });
   }
 
