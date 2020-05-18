@@ -185,12 +185,10 @@ export const FilterTfInfo = () => {
   </InfoPopover>;
 };
 
-const TARGET_NETWORK_FILE = "source edge target score\n" +
-  "AT1G00100 edge_name AT1G00200 17.3\n" +
+const TARGET_NETWORK_FILE = "AT1G00100 edge_name AT1G00200 17.3\n" +
   "AT1G00100 edge_name AT1G00300 16.2\n";
 
-const TARGET_NETWORK_NS_FILE = "source edge target\n" +
-  "AT1G00100 edge_name AT1G00200\n" +
+const TARGET_NETWORK_NS_FILE = "AT1G00100 edge_name AT1G00200\n" +
   "AT1G00100 edge_name AT1G00300\n";
 
 export const NetworkInfo = () => {

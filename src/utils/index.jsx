@@ -6,6 +6,18 @@ import _ from 'lodash';
 import {v4 as uuidv4} from 'uuid';
 import convert from "color-convert";
 
+let _SITE;
+
+if (location.hostname.startsWith('connectf.')) {
+  _SITE = 'arabidopsis';
+} else if (location.hostname.startsWith('maize.connectf.')) {
+  _SITE = 'maize';
+} else {
+  _SITE = 'development';
+}
+
+export const SITE = _SITE;
+
 function brightness(r, g, b) {
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 }

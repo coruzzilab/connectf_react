@@ -145,7 +145,7 @@ class SummaryBody extends React.Component {
           xAxes: [{
             scaleLabel: {
               display: true,
-              labelString: 'Number of Edges'
+              labelString: 'Number of Targets'
             },
             stacked: true,
             position: 'top'

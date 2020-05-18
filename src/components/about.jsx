@@ -7,15 +7,28 @@ import PropTypes from "prop-types";
 import {Link, withRouter} from 'react-router-dom';
 import {FontAwesomeIcon as Icon} from '@fortawesome/react-fontawesome';
 import {connect} from "react-redux";
+import classNames from "classnames";
 import {TwitterFollow} from "./common";
 import AutoComplete from "./common/autocomplete";
 import {getTFs} from "../utils/axios_instance";
 import _ from "lodash";
 import {setQuery} from "../actions";
 import {TargetGeneSelection} from "./querybuilder/query_file";
+import {SITE} from "../utils";
 
 const DataOverViewLink = () => (<Link to="/overview" className="btn btn-primary">
   <Icon icon="search" className="mr-2"/>Data Overview</Link>);
+
+function searchExample() {
+  switch (SITE) {
+  case "arabidopsis":
+    return 'AT4G24020, NLP7';
+  case "maize":
+    return 'Zm00001d020430, ra1';
+  default:
+    return 'N/A';
+  }
+}
 
 const renderItem = (item) => {
   if (item.name) {
@@ -31,8 +44,11 @@ const SearchBody = ({setQuery, history}) => {
   useEffect(() => {
     getTFs({all: 0}).then(({data}) => {
       setGenes(data);
-      if (_(data).map('value').indexOf("AT4G24020") !== -1) {
+      let _value = _(data).map('value');
+      if (SITE === 'arabidopsis' && _value.indexOf("AT4G24020") !== -1) {
         setValue("AT4G24020");
+      } else if (SITE === 'maize' && _value.indexOf('Zm00001d020430') !== -1) {
+        setValue('Zm00001d020430');
       }
     });
   }, []);
@@ -54,7 +70,7 @@ const SearchBody = ({setQuery, history}) => {
                     mapItemToSearch={(o) => o.name + o.value}
                     renderItem={renderItem}
                     inputProps={{
-                      placeholder: 'e.g. AT4G24020, NLP7',
+                      placeholder: 'e.g. ' + searchExample(),
                       className: 'w-100 h-100 border-0 rounded-left',
                       type: "text",
                       required: true
@@ -74,6 +90,17 @@ SearchBody.propTypes = {
 
 const Search = _.flow(connect(null, {setQuery}), withRouter)(SearchBody);
 
+const QueryExample = () => {
+  switch (SITE) {
+  case "arabidopsis":
+    return 'AT4G24020 (NLP7)';
+  case "maize":
+    return 'Zm00001d020430 (ra1)';
+  default:
+    return 'N/A';
+  }
+};
+
 const About = () => {
   return <div className="container-fluid">
     <div className="row">
@@ -92,8 +119,16 @@ const About = () => {
               <div className="col">
                 <Link to="/tutorial" className="btn btn-primary btn-lg mr-2">
                   <Icon icon="book-open" className="mr-2"/>Learn More</Link>
-                <Link to="/query" className="btn btn-primary btn-lg">Get Started
+                <Link to="/query" className="btn btn-primary btn-lg mr-4">Get Started
                   <Icon icon="chevron-circle-right" className="ml-2"/></Link>
+                <a className={classNames(
+                  "btn btn-lg mr-2",
+                  SITE === 'arabidopsis' ? "btn-success" : "btn-primary")}
+                   href="https://connectf.org">Arabidopsis</a>
+                <a className={classNames(
+                  "btn btn-lg mr-2",
+                  SITE === 'maize' ? "btn-success" : "btn-primary")}
+                   href="https://maize.connectf.org">Maize</a>
               </div>
             </div>
 
@@ -122,7 +157,7 @@ const About = () => {
                 <div className="col">
                   <h5>Try it now</h5>
                   <p className="text-secondary">
-                    Quick search for Transcription Factors in the database, e.g. AT4G24020 (NLP7).
+                    Quick search for Transcription Factors in the database, e.g. <QueryExample/>.
                   </p>
                 </div>
               </div>
