@@ -219,6 +219,27 @@ export const NetworkInfo = () => {
   </InfoPopover>;
 };
 
+const BACKGROUND_GENES_FILE = "AT1G00100\nAT1G00200\n...\n";
+
+export const BackgroundGenesInfo = () => {
+  return <InfoPopover>
+    <PopoverHeader>Background Genes</PopoverHeader>
+    <PopoverBody>
+      <p>Choose from predefined gene lists or upload your own.</p>
+      <p>Background Gene List file format:</p>
+      <pre className="code">
+            <code>
+              {BACKGROUND_GENES_FILE}
+            </code>
+          </pre>
+      <a href={"data:text/plain," + encodeURIComponent(BACKGROUND_GENES_FILE)}
+         className="btn btn-primary btn-sm" download>
+        <Icon icon="file-download" className="mr-1"/>Download Example
+      </a>
+    </PopoverBody>
+  </InfoPopover>;
+};
+
 export const AddTFButton = ({onClick, large}) => (
   <button type="button"
           title="Add Transcription Factor"

@@ -2,7 +2,7 @@
  * @author zacharyjuang
  * 2019-02-15
  */
-import {FilterTfInfo, NetworkInfo, TargetGeneInfo, UploadFile} from "./common";
+import {BackgroundGenesInfo, FilterTfInfo, NetworkInfo, TargetGeneInfo, UploadFile} from "./common";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import React, {useCallback, useEffect, useRef, useState} from "react";
@@ -379,7 +379,7 @@ const BackgroundGenesFileBody = ({tempLists}) => {
     <div className="col">
       <div className="row m-2 align-items-center">
         <h4>Background Genes</h4>
-        <NetworkInfo/>
+        <BackgroundGenesInfo/>
       </div>
       <div className="row m-2">
         <p className="text-secondary">
