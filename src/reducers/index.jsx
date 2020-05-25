@@ -392,9 +392,7 @@ function uploadFiles(state = {}, action) {
   case 'ADD_UPLOAD':
     return {
       ...state,
-      ...{
-        [action.key]: {name: action.name, content: action.content}
-      }
+      [action.key]: {..._.omit(action, ['type', 'key'])}
     };
   case 'REMOVE_UPLOAD':
     return _.omit(state, [action.key]);

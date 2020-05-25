@@ -563,12 +563,13 @@ export const renameAnalysisIds = (idx, name) => {
   };
 };
 
-export const addUpload = (key, name, content) => {
+export const addUpload = (key, name, content, fileName = '') => {
   return {
     type: 'ADD_UPLOAD',
     key,
     name,
-    content
+    content,
+    fileName
   };
 };
 

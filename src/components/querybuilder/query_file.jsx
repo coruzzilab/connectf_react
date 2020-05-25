@@ -204,8 +204,8 @@ const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, s
     }
   }, [setValue]);
 
-  let onFileChange = useCallback((result) => {
-    addUpload(listName, value, result);
+  let onFileChange = useCallback((name, result) => {
+    addUpload(listName, value, result, name);
   }, [listName, value, addUpload]);
 
   return <div className="form-row m-2">

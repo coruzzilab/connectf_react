@@ -103,7 +103,7 @@ class QuerybuilderBody extends React.Component {
         data.set(key, val.name);
       } else {
         data.set(key,
-          new Blob([val.content], {type: 'text/plain'}), `${val.name}.txt`);
+          new Blob([val.content], {type: 'text/plain'}), val.fileName || `${val.name}.txt`);
       }
     });
 
