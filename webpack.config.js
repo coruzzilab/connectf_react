@@ -109,6 +109,7 @@ const config = {
     }
   },
   plugins: [
+    new webpack.ProgressPlugin(),
     new CleanWebpackPlugin(),
     new Dotenv(),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
