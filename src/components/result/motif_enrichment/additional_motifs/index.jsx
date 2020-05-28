@@ -19,6 +19,7 @@ const mapStateToProps = ({requestId}) => {
 
 const AdditionalMotifsBody = ({requestId, motifRegions, setBusy}) => {
   let [additionalMotifs, setAdditionalMotifs] = useState([]);
+  let [noAdditionalMotifs, setNoAdditionalMotifs] = useState(false);
   let [selectedMotifs, setSelectedMotifs] = useState([]);
   let [enrichmentData, setEnrichmentData] = useState({});
   let [sortCol, setSortCol] = useState(null);
@@ -39,9 +40,13 @@ const AdditionalMotifsBody = ({requestId, motifRegions, setBusy}) => {
   }, [selectedMotifs]);
 
   useEffect(() => {
-    getAdditionalMotifs().then(({data}) => {
-      setAdditionalMotifs(data['motifs']);
-    });
+    getAdditionalMotifs()
+      .then(({data}) => {
+        setAdditionalMotifs(data['motifs']);
+      })
+      .catch(() => {
+        setNoAdditionalMotifs(true);
+      });
   }, []);
 
   useEffect(() => {
@@ -78,6 +83,12 @@ const AdditionalMotifsBody = ({requestId, motifRegions, setBusy}) => {
       setAscending(true);
     }
   };
+
+  if (noAdditionalMotifs) {
+    return <div>
+      <span className="text-danger">No additional motifs in the database. Enrichment calculation not possible.</span>
+    </div>;
+  }
 
   return <div className="container-fluid">
     <div className="row my-1">
