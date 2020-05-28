@@ -226,6 +226,7 @@ export const BackgroundGenesInfo = () => {
     <PopoverHeader>Background Genes</PopoverHeader>
     <PopoverBody>
       <p>Choose from predefined gene lists or upload your own.</p>
+      <p>If no background genes are chosen, all genes in the database will be used as the background.</p>
       <p>Background Gene List file format:</p>
       <pre className="code">
             <code>
@@ -333,7 +334,7 @@ export const QueryInfo = () => {
         <PopoverBody>
           <h6>Info on additional keywords:</h6>
           <ul>
-            <li><span className="font-weight-bold">all_tf</span> — Query the union of all Transcription Factors in the
+            <li><span className="font-weight-bold">all_tfs</span> — Query the union of all Transcription Factors in the
               database, a filter is recommended to decrease the amount of returned data.
             </li>
             <li><span className="font-weight-bold">multitype</span> — Query Transcription Factors that have multiple

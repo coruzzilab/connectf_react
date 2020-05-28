@@ -329,7 +329,7 @@ const FilterTfFileBody = ({tempLists}) => {
       <div className="row m-2">
         <p className="text-secondary">
           Provide a gene list to limit the TFs in your query. Typically used
-          with &quot;oralltfs&quot; or &quot;multitype&quot; to limit the size of the output.
+          with &quot;all_tfs&quot; or &quot;multitype&quot; to limit the size of the output.
         </p>
       </div>
       <ListForm name="filtertf"

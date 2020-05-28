@@ -16,7 +16,7 @@ For more complex queries, click **Add TF** to add multiple transcription factors
 
 #### Pseudo transcription factor keywords
 
-The special ***oralltf*** keyword can be used in place of transcription factor IDs to query *all* transcription factors at once. While the ***multitype*** keyword can be used to query transcription factors that have multiple experiment types, as defined in the metadata of each experiment.
+The special ***all_tfs*** keyword can be used in place of transcription factor IDs to query *all* transcription factors at once. While the ***multitype*** keyword can be used to query transcription factors that have multiple experiment types, as defined in the metadata of each experiment.
 
 *Caution!* The more transcription factors queried will result in a longer wait time.
 
