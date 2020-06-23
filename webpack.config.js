@@ -123,9 +123,11 @@ const config = {
         RECAPTCHA: process.env.RECAPTCHA
       }
     }),
-    new CopyWebpackPlugin([
-      'src/robots.txt'
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        {from: 'src/robots.txt'}
+      ]
+    }),
     new BundleAnalyzerPlugin()
   ]
 };
