@@ -254,7 +254,9 @@ ListFormBody.propTypes = {
 
 ListFormBody.defaultProps = {
   save: true,
-  enableUpload: true
+  enableUpload: true,
+  list: [],
+  tempLists: []
 };
 
 const ListForm = connect(({uploadFiles}) => ({uploadFiles}), {addUpload, removeUpload})(ListFormBody);
