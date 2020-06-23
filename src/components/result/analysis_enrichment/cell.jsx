@@ -15,14 +15,12 @@ import {ExportModal} from "../../common";
 const InfoTable = ({info}) => {
   return <table className="table">
     <tbody>
-    <tr>
-      <th>Filter</th>
-      <td>{info[0][1]}</td>
-    </tr>
-    {_.map(info[1], (val, key) => (<tr key={key}>
-      <th>{key}</th>
-      <td>{val}</td>
-    </tr>))}
+    {_(info[1])
+      .map((val, key) => (<tr key={key}>
+        <th>{key}</th>
+        <td>{val}</td>
+      </tr>))
+      .value()}
     </tbody>
   </table>;
 };
