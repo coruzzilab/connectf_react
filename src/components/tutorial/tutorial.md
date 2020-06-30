@@ -102,6 +102,6 @@ Gene set enrichment is the pairwise significance of overlap between all the anal
 
 ## Sungear
 
-*insert sungear image*
+![sungear](../../images/Sungear.png)
 
 Sungear is a list overlap visualization tool conceptualized by [Poultney *et al*](/citations#tools).
