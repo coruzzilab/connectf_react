@@ -65,7 +65,7 @@ class TableBody extends React.Component {
       <table className="table table-sm table-bordered">
         <thead>
         <tr>
-          <th/>
+          <th>Gene ID (TF Name) (# Targets)</th>
           {_.map(extraFields, (f, i) => <th key={i}>{f}</th>)}
           {_(_.get(table, 'columns', {}))
             .map((val, key) => [val, key])
