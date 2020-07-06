@@ -1,28 +1,34 @@
-# Making A Query
+# Making a Query
 
-## Searching For A Transcription Factor
+## Searching for a Transcription Factor
 
 ![query box](../../images/query1.png)
 
-Typing the name or ID of a Transcription Factor brings up a list of available Transcription Factors.
+Typing the name or ID of a transcription factor (TF) in the search bar brings up a list of available TFs in the ConnecTF database.
 
-## Build Query
+## Query Builder
 
-### Adding Transcription Factors To Query
+### Adding Transcription Factors to a Query
 
 ![query box](../../images/query2.png)
 
-For more complex queries, click **Add TF** to add multiple transcription factors to the query. Use **Add TF Group** plus drag-and-drop to arrange transcription factors into groups. Selecting **and** or **or** will query either intersection or union of the group.
+For more complex queries, click **Add TF** to add one or more TFs to the query. Use **Add TF Group** plus drag-and-drop to arrange TFs into groups. Selecting **and** or **or** will query the target genes that form the intersection or union, respectively, of the TFs/TF Groups in the query.
 
-#### Pseudo transcription factor keywords
+#### Built-in Keywords for Common Queries
 
-The special ***all_tfs*** keyword can be used in place of transcription factor IDs to query *all* transcription factors at once. While the ***multitype*** keyword can be used to query transcription factors that have multiple experiment types, as defined in the metadata of each experiment.
+Special keywords have been added that allow users to easily query commonly used sets TFs. These include:
 
-*Caution!* The more transcription factors queried will result in a longer wait time.
+***all_tfs***  - query *all* TFs in the ConnecTF database
+***multitype*** -  query TFs that have more than one "Experiment_Type" in the metadata
+***all_expression*** - short hand query for "all_tfs[EXPERIMENT_TYPE = Expression]", returns all RNA-seq/microaray experiments
+***in_planta_bound*** - short hand query for "all_tfs[EDGE_TYPE = in planta:Bound]", returns all binding experiments done in planta
+***all_dap*** - short hand query for "all_tfs[EDGE_TYPE = in vitro:Bound:DAP or EDGE_TYPE = in vitro:Bound:ampDAP]", returns all DAP-seq binding experiments
+
+*Caution!* The more transcription factors queried will result in a long wait time.
 
 #### Build Query
 
-Click the **Build Query** button to populate the search query input once all the desired transcription factors have been selected and grouped.
+Click the **Build Query** button to populate the search query input once all the desired TFs have been selected and grouped.
 
 ### Select Additional Edge Features
 
