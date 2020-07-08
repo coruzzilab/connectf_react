@@ -4,7 +4,7 @@
 
 ![query box](../../images/query1.png)
 
-Typing the name or ID of a transcription factor (TF) in the search bar brings up a list of available TFs in the ConnecTF database.
+Typing the name or ID of a transcription factor (TF) in the query search bar brings up a list of available TFs in the ConnecTF database.
 
 ## Query Builder
 
@@ -12,43 +12,74 @@ Typing the name or ID of a transcription factor (TF) in the search bar brings up
 
 ![query box](../../images/query2.png)
 
-For more complex queries, click **Add TF** to add one or more TFs to the query. Use **Add TF Group** plus drag-and-drop to arrange TFs into groups. Selecting **and** or **or** will query the target genes that form the intersection or union, respectively, of the TFs/TF Groups in the query.
+For more complex queries, click **Add TF** to add one or more TFs to the query. Use **Add TF Group** plus drag-and-drop to arrange TFs into groups. Selecting **and** or **or** will query the target genes that form the intersection or union, respectively, of the TFs or TF Groups in the query.
 
-#### Built-in Keywords for Common Queries
+### Adding Metadata Filters to a Query
 
-Special keywords have been added that allow users to easily query commonly used sets TFs. These include:
+Constraits can be added to restrict the target genes returned by the query based on the metadata associated with an experiment. This is done by clicking on the **Add Filter** button and then selecting the desired metadata field from the dropdown menu and a value in the adjacent text box. Available values can be seen by clicking on the empty text box. Combinations of filters can be created with the **Add Filter Group** enabling complex filtering of TF-target gene datasets. Users familiar with the query syntax can add metadata filters to queries they type into the query search bar.  
 
-***all_tfs***  - query *all* TFs in the ConnecTF database
-***multitype*** -  query TFs that have more than one "Experiment_Type" in the metadata
-***all_expression*** - short hand query for "all_tfs[EXPERIMENT_TYPE = Expression]", returns all RNA-seq/microaray experiments
-***in_planta_bound*** - short hand query for "all_tfs[EDGE_TYPE = in planta:Bound]", returns all binding experiments done in planta
-***all_dap*** - short hand query for "all_tfs[EDGE_TYPE = in vitro:Bound:DAP or EDGE_TYPE = in vitro:Bound:ampDAP]", returns all DAP-seq binding experiments
+#### Generate Query Created in Query Builder
 
-*Caution!* The more transcription factors queried will result in a long wait time.
-
-#### Build Query
-
-Click the **Build Query** button to populate the search query input once all the desired TFs have been selected and grouped.
+Click the **Build Query** button to populate the query search bar once all the desired TFs have been selected and grouped.
 
 ### Select Additional Edge Features
 
-In the **Additional Edge Features** section, select additional edge features that you would like to be displayed alongside the results. (*e.g.* whether each edge is validated by DAP, etc.)
+Additional directed and undirected TF-target interactions, including TF-TF protein-protein interactions and in vitro TF-binding (DAP-seq) filtered for open chomatin regions are included in ConnecTF. These interactions can be displayed as additional columns in the results table by selecting the desired edge type in the **Additional Edge Features** section. 
 
-### Select A Target Gene List
+### Select a Target Gene List
 
-The **Target Genes** allows user to limit the output of transcription factor targets to a user defined set of genes. Rather than returning all available targeted genes, only the selected subset of genes that are being targeted in the query will be returned. This can be used to limit the output of the query to genes you are interested in. Users can upload a file containing a list of gene IDs.
+The **Target Genes** allows users to limit the output of the TF targets to a user defined set of genes. Rather than returning all available TF-targeted genes, only the subset of the TF-targeted genes that are in the selected target gene list will be returned. This can be used to limit the output of the query to genes you are interested in, e.g. a pathway of interest. Users can upload a file containing a list of gene IDs.
 
-A predefined list of target genes from separate experiments are also available for selection. (See [citation](/citations))
+Predefined target gene lists for the nitrogen by time response and hormone respones are available for selection. (See [Citations](/citations))
 
 ### Select Filter TFs
 
-The **Filter TFs** limits the *transcription factors queried* to a predetermined list. This only affects queried transcriptions factors, and not its targets.
+The **Filter TFs** limits the *TFs queried* to a user-selected list. This only affects queried TFs, and not its targets. Often used with the built-in keywords (see below) such as ***all_tfs*** to return the results for many TFs without having to enter each of them into the query search bar one by one.
 
 ### Select Target Network
 
 The **Target Network** option uses the selected network to limit both queried transcription factors and their targets. Effectively limiting the output to the subset of the network provided.
 
-A predefined list of gene networks from separate experiments are also available for selection. (See [citation](/citations))
+A predefined list of gene networks from separate experiments are also available for selection. (See [Citations](/citations))
+
+### Background
+
+Several of the analysis tools in ConnecTF report enrichment of the queried TF-target gene list(s) (see below). By default, all protein coding genes are used the background for these calculations. Users can input there own list of genes (e.g. all genes expressed under their experimental condition) for these calcuations using the **Background** option. 
+
+## Built-in Keywords for Common Queries
+
+Special keywords have been added that allow users to easily query commonly used sets TFs. These include:
+
+***all_tfs***  - query *all* TFs in the ConnecTF database\
+***multitype*** -  query TFs that have more than one "Experiment_Type" in the metadata\
+***all_expression*** - short hand query for "all_tfs[EXPERIMENT_TYPE = Expression]", returns all RNA-seq/microaray experiments\
+***in_planta_bound*** - short hand query for "all_tfs[EDGE_TYPE = in planta:Bound]", returns all binding experiments done in planta\
+***all_dap*** - short hand query for "all_tfs[EDGE_TYPE = in vitro:Bound:DAP or EDGE_TYPE = in vitro:Bound:ampDAP]", returns all DAP-seq binding experiments
+
+*Caution!* Queries generated using these shortcuts can easily return a large number of TF experiments which could result in long wait times.
+
+## Advanced Queries
+
+### Query Expansion
+
+A special ***expand()*** function has been added that allows more complex queries to be applied to a set of TFs which are specified in the **Filter TFs** (or **Target Network**) box. 
+
+The basic syntax is:
+
+*expand(query, operator)*
+
+To demonstrate, for the following query and list of TFs:
+
+*expand("$filter_tf[log2fc < 0] and $filter_tf[EDGE_TYPE='in planta:Bound]", or)*
+
+*Filter TFs:\
+AT5G65210\
+AT4G24020*
+
+A query is built by replacing each occurence of **$filter_tf** with the TFs in the list one by one, and combining them using the chosen operator (**and** or **or**). The above example would be equivilent to:
+
+*(AT5G65210[log2fc < 0] and AT5G65210[EDGE_TYPE='in planta:Bound]) or (AT4G24020[log2fc < 0] and AT4G24020[EDGE_TYPE='in planta:Bound])*
+
 
 ---
 
@@ -58,31 +89,25 @@ A predefined list of gene networks from separate experiments are also available 
 
 ![summary](../../images/summary.png)
 
-A horizontal bar chart detailing the number of targets per analysis per transcription factor. If there are greater than 50 transcription factors queried, only top 50 by target count will be displayed.
+A horizontal bar chart detailing the number of targets per experimental analysis for each TF. If there are greater than 50 TFs queried, only top 50 by total target count will be displayed.
 
 ## Table
 
 ![table](../../images/table.png)
 
-Displays all of the target genes of each analysis. If P-values and Log<sub>2</sub> fold change are available they will be displayed. A "**+**" sign will be displayed if only binding data is available.
+Displays all of the target genes of each analysis. If *P*-values and Log<sub>2</sub> fold change are available they will be displayed. A "**+**" sign will be displayed if no *P*-value and Log<sub>2</sub> fold change is available for that analysis. The table can be exported as an Excel or CSV file. The combined list of target genes from the query can be exported as a text file, copied to the clipboard, or saved as a temporary list within ConnecTF that the user can then use to filter TFs or targets in subsequent queries.
 
 ## Metadata
 
-Metadata for each analysis is displayed here.
+Metadata for each analysis returned by the query is displayed here and can be exported as a CSV file.
 
 ## Network
 
 ![network summary](../../images/network_summary.png)
 
-### Summary, Export, and Link to Graph  View
+### Summary, Export, and Link to Graph View
 
 A summary of the network is included along with a link to the [Network Graph](#network-graph). An overview of how many edges, transcription factors, and targets are presented. There are also options to export the network as a [SIF](https://manual.cytoscape.org/en/stable/Supported_Network_File_Formats.html#sif-format) or JSON file, which you can open with [Cytoscape](https://cytoscape.org).
-
-### AUPR — Area Under Precision Recall
-
-*Disclaimer: Only Available if a [Target Network](#select-target-network) is selected during query.*
-
-If a [Target Network](#select-target-network) is selected during the query.
 
 ### Network Graph
 
@@ -90,24 +115,48 @@ If a [Target Network](#select-target-network) is selected during the query.
 
 *Network Graph will be slow and will impact overall browser performance if the network has too many edges.*
 
-Queried transcription factors are displayed as a group on the left side, with target genes on the right side, grouped by the number of targeting transcription factors.
+Queried TFs are displayed as a group on the left side, with target genes on the right side, grouped by the number of targeting TFs.
 
 Additionally, you can upload a list of edges to be displayed along with the current network with the "**Upload Edges**" button. Note that user uploaded edges will only connect existing genes in the network. No new genes will be placed in the network.
+
+### AUPR — (Area Under Precision Recall)
+
+If a [Target Network](#select-target-network) is selected/uploaded during the query, an auotmated precision/recall analysis is performed and AUPR for the predicted/inferred network is reported using the validated edges from the query results. A precision cutoff can be selected using the slide bar or text box to refine/prune the network and the table will auotmatically be updated to display the results.   
+
+*This feature only appears if a [Target Network](#select-target-network) is selected during query. **A ranked network is required**, otherwise the results will be meaningless*
 
 ## Target List Enrichment
 
 All the queried analyses will be checked against [uploaded gene list](#select-a-target-gene-list) or [uploaded network](#select-target-network) for enrichment.
 
-Enrichment is calculated using a Fisher's exact test to check for significant overlap of an analysis' target genes and the gene list. P-values represents the probability of having an overlap greater than the one observed. All p-values are FDR corrected using the Bonferroni correction.
+Enrichment is calculated using a Fisher's exact test to check for significant overlap between the validated TF-targets returned by the query and the selected target gene list(s). The user can toggle between *P*-value, specificity (percent of TF-target genes in the selected target list) or influence (percent of genes in the selected target list regulated by the TF). All *P*-values are FDR corrected using the Bonferroni correction.
 
 ## Motif Enrichment
 
+### Motif Cluster Table
+
+For each TF analysis returned by the query, the 500 bp promoter region of the TF-target genes will be checked for enrichment of any of 80 cis-motif clusters from Brooks et al 2019 (See [Citations](/citations)). By default, a *P*-value cutoff (alpha) of 0.05 is used and only clusters that are enriched in at least one TF-analysis are displayed. All *P*-values are FDR corrected using the Bonferroni correction.
+
+Enrichment is also shown for any selected target gene list or network. FDR correction on these is done independently of the validated TF-target analyses returned by the query. 
+
+### Individual Motifs
+
+ConnecTF also contains 1310 cis-motifs for 730 Arabidopsis TFs collected from Cis-BP (See [Citations](/citations)). Enrichement of each of these experimentally validated TF cis-motifs in the queried TF-target analyses can calculated in this tab. By default, only the cis-motif(s) for the TF itself will be calculated, but users can use the *Select Motifs* button to calculate enrichment of any of the other motifs in the targets of a specifc TF analysis, or use the *Add/Remove Motifs* button to select a cis-motif for all queried analyses
+
+### Changing the Cutoff and Geneic Region 
+
+The *Options* button at the top of each of the motif enrichment tabs can be used to adjust the *P*-value cutoff (alpha) or select other geneic regions (e.g. 1000bp promoter, 5'UTR, CDS etc.). 
+
 ## Gene Set Enrichment
 
-Gene set enrichment is the pairwise significance of overlap between all the analyses queried using the Fisher's exact test. The coordinates on the grid, with each row and column representing a different analysis, indicate which 2 analyses the cell represents, and the shading color indicates the significance off overlap. A darker color indicates an increased significance of overlap.
+Gene set enrichment is the pairwise significance of overlap between all the analyses queried using the Fisher's exact test. The coordinates on the grid, with each row and column representing a different analysis, indicate which analyses the cell represents, and the shading color indicates the significance off overlap. A darker color indicates an increased significance of overlap.
 
 ## Sungear
 
 ![sungear](../../images/Sungear.png)
 
-Sungear is a list overlap visualization tool conceptualized by [Poultney *et al*](/citations#tools).
+Sungear, orginally published by [Poultney *et al*](/citations#tools), is an interactive tool to display/visual overlaps between gene lists resulting from different queries, similar to a Venn diagram.  
+
+Vertices on the outer polygon are anchor points, one for each TF-target analysis queried. Circular nodes represents non-overlapping gene sets that are in common between combinations of analyses. Each node has one or more arrows pointing to the vertices corresponding to the analyses which contains the genes. 
+
+The *P*-values indicate whether a node contains greater or fewer genes than expected given the total number of targets regulated by each of the queried analyses.
