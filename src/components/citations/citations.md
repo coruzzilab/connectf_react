@@ -1,6 +1,6 @@
 ### If You Use ConnecTF In Your Own Work, Please Cite Us:
 
-- Brooks, M.D., C.-L. Juang, M. Katari, R. Tuteja, and G.M. Coruzzi, ConnecTF: A repository and tool for analyzing and integrating transcription factor regulation data. (In preparation)
+- Brooks, M.D., C.-L. Juang, M.S. Katari, J.M. Alvarez, A. Pasquino, H.-J. Shih, J. Huang, C. Shanks, J. Cirrone, and G.M. Coruzzi, ConnecTF: A platform to build gene networks by integrating transcription factor-target gene interactions. boRxiv, 2020.07.07.191627; https://doi.org/10.1101/2020.07.07.191627
 
 ### Data Sources
 
