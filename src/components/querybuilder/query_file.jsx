@@ -396,12 +396,12 @@ const BackgroundGenesFileBody = ({tempLists}) => {
   return <div className="row">
     <div className="col">
       <div className="row m-2 align-items-center">
-        <h4>Background Genes</h4>
+        <h4>Background</h4>
         <BackgroundGenesInfo/>
       </div>
       <div className="row m-2">
         <p className="text-secondary">
-          Provide a list of background genes to restrict analysis results.
+          Provide a list of genes to use as the background for enrichment analyses.
         </p>
       </div>
       <ListForm name="background"
