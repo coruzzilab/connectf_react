@@ -246,12 +246,19 @@ export const postQuery = (config) => {
         let {response} = err;
 
         if (response) {
-          if (response.status === 400) {
+          switch (response.status) {
+          case 400:
             dispatch(setQueryError(true, response.data || 'Problem with query.'));
-          } else if (response.status === 404) {
+            break;
+          case 404:
             dispatch(setQueryError(true, response.data));
-          } else {
+            break;
+          case 502:
+            dispatch(setQueryError(true, 'Query Failed (Timeout)'));
+            break;
+          default:
             dispatch(setQueryError(true, response.statusText));
+            break;
           }
         }
 
