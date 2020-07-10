@@ -97,7 +97,7 @@ AddFollowing.defaultProps = {
   addGroupText: 'Add Following TF Group'
 };
 
-export const UploadFile = ({className, onChange, save, ...props}) => {
+export const UploadFile = ({className, onChange, save, wide, ...props}) => {
   let [genes, setGenes] = useState("");
   let [isOpen, setIsOpen] = useState(false);
 
@@ -115,11 +115,11 @@ export const UploadFile = ({className, onChange, save, ...props}) => {
   };
 
   return <div className={classNames("row", className)}>
-    <div className={classNames("pr-1", save ? "col-11" : "col")}>
+    <div className="pr-1 col">
       <input type="file" className="form-control-file" onChange={onFileChange} {...props} />
     </div>
     {save ?
-      <div className="col-1 pl-1">
+      <div className={classNames("pl-1", wide ? "col-1" : "col-4")}>
         <button type="button" className="btn btn-primary btn-block"
                 disabled={!genes}
                 onClick={setIsOpen.bind(undefined, !isOpen)}>
@@ -133,6 +133,7 @@ export const UploadFile = ({className, onChange, save, ...props}) => {
 
 UploadFile.propTypes = {
   save: PropTypes.bool,
+  wide: PropTypes.bool,
   inputRef: PropTypes.object,
   className: PropTypes.string,
   onChange: PropTypes.func

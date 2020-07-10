@@ -61,14 +61,7 @@ ListSelection.propTypes = {
   enableUpload: PropTypes.bool
 };
 
-const ListSelectionDownload = ({list, tempLists, value, onChange, name, inputValue, clickFill, fileName, enableUpload}) => {
-  let rowRef = useRef(null);
-  let [wide, setWide] = useState(true);
-
-  useEffect(() => {
-    setWide(rowRef.current.offsetWidth > 768);
-  }, []);
-
+const ListSelectionDownload = ({list, tempLists, value, onChange, name, inputValue, clickFill, fileName, enableUpload, enableAutofill, enableDownload, wide}) => {
   let list_download;
   let tempList;
   if (tempLists && (tempList = tempLists[value])) {
@@ -81,30 +74,34 @@ const ListSelectionDownload = ({list, tempLists, value, onChange, name, inputVal
 
   let disabledAutofill = !(value && _.indexOf(['input', 'other'], value) === -1);
 
-  return <div className="row" ref={rowRef}>
-    <div className="col pr-1">
+  return <div className="row">
+    <div className="col">
       <ListSelection name={name} list={list} tempLists={tempLists} onChange={onChange} value={value}
                      fileName={fileName} enableUpload={enableUpload}/>
     </div>
-    {enableUpload ?
-      <div className={classNames(wide ? "col-2" : "col-4")}>
+    {enableDownload || enableAutofill ?
+      <div className={classNames(wide ? "col-2" : "col-4", "pl-1")}>
         <div className="row">
-          <div className="col px-1">
-            <button type="button"
-                    className={classNames("btn btn-primary btn-block text-nowrap", {disabled: disabledAutofill})}
-                    onClick={clickFill.bind(undefined, list_download)}
-                    disabled={disabledAutofill}>
-              <Icon icon="edit" className="mr-1"/>Autofill
-            </button>
-          </div>
-          <div className="col px-1">
-            <a
-              className={classNames("btn btn-primary btn-block text-nowrap", {disabled: (!value || value === 'other')})}
-              href={list_download}
-              download>
-              <Icon icon="file-download" className="mr-1"/>Download
-            </a>
-          </div>
+          {enableAutofill ?
+            <div className="col px-1">
+              <button type="button"
+                      className={classNames("btn btn-primary btn-block text-nowrap", {disabled: disabledAutofill})}
+                      onClick={clickFill.bind(undefined, list_download)}
+                      disabled={disabledAutofill}>
+                <Icon icon="edit" className="mr-1"/>Autofill
+              </button>
+            </div> :
+            null}
+          {enableDownload ?
+            <div className="col px-1">
+              <a
+                className={classNames("btn btn-primary btn-block text-nowrap", {disabled: (!value || value === 'other')})}
+                href={list_download}
+                download>
+                <Icon icon="file-download" className="mr-1"/>Download
+              </a>
+            </div>
+            : null}
         </div>
       </div> :
       null}
@@ -120,7 +117,10 @@ ListSelectionDownload.propTypes = {
   inputValue: PropTypes.string,
   clickFill: PropTypes.func,
   fileName: PropTypes.string,
-  enableUpload: PropTypes.bool
+  enableUpload: PropTypes.bool,
+  enableAutofill: PropTypes.bool,
+  enableDownload: PropTypes.bool,
+  wide: PropTypes.bool
 };
 
 const ListInput = ({value, onChange, inputRef, save}) => {
@@ -172,9 +172,15 @@ const clickFill = (onChange, setInputValue) => {
   };
 };
 
-const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, save, enableUpload, addUpload, removeUpload}) => {
+const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, save, enableUpload, addUpload, removeUpload, enableAutofill, enableDownload}) => {
   let [inputValue, setInputValue] = useState("");
   let [value, setValue] = useState(_.get(uploadFiles, [listName, 'name'], ""));
+  let rowRef = useRef(null);
+  let [wide, setWide] = useState(true);
+
+  useEffect(() => {
+    setWide(rowRef.current.offsetWidth > 768);
+  }, []);
 
   useEffect(() => {
     setValue(_.get(uploadFiles, [listName, 'name'], ""));
@@ -208,7 +214,7 @@ const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, s
     addUpload(listName, value, result, name);
   }, [listName, value, addUpload]);
 
-  return <div className="form-row m-2">
+  return <div className="form-row m-2" ref={rowRef}>
     <div className="col">
       <ListSelectionDownload name={name}
                              list={list}
@@ -217,13 +223,16 @@ const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, s
                              value={value}
                              inputValue={inputValue}
                              clickFill={clickFill(onSelect, setInputValue)}
+                             enableAutofill={enableAutofill}
+                             enableDownload={enableDownload}
                              fileName={fileName}
-                             enableUpload={enableUpload}/>
+                             enableUpload={enableUpload}
+                             wide={wide}/>
 
       {value === "other" ?
         <div className="row">
           <div className="col">
-            <UploadFile name={`${name}_file`} className="my-2" onChange={onFileChange} save={save}/>
+            <UploadFile name={`${name}_file`} className="my-2" onChange={onFileChange} save={save} wide={wide}/>
           </div>
         </div> :
         null}
@@ -247,6 +256,8 @@ ListFormBody.propTypes = {
   fileName: PropTypes.string,
   save: PropTypes.bool,
   enableUpload: PropTypes.bool,
+  enableAutofill: PropTypes.bool,
+  enableDownload: PropTypes.bool,
   addUpload: PropTypes.func,
   removeUpload: PropTypes.func,
   uploadFiles: PropTypes.object
@@ -255,6 +266,8 @@ ListFormBody.propTypes = {
 ListFormBody.defaultProps = {
   save: true,
   enableUpload: true,
+  enableAutofill: true,
+  enableDownload: true,
   list: [],
   tempLists: []
 };
@@ -273,7 +286,9 @@ export const TargetGeneSelectionBody = ({tempLists, enableUpload}) => {
                    listName="targetgenes"
                    list={targetGeneLists}
                    tempLists={tempLists}
-                   enableUpload={enableUpload}/>;
+                   enableUpload={enableUpload}
+                   enableDownload={false}
+                   enableAutofill={false}/>;
 };
 
 TargetGeneSelectionBody.propTypes = {
@@ -371,7 +386,8 @@ export const TargetNetworkFile = () => {
                 fileName="Network"
                 listName="targetnetworks"
                 list={targetNetworks}
-                save={false}/>
+                save={false}
+                enableAutofill={false}/>
     </div>
   </div>;
 };
