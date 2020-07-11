@@ -168,7 +168,22 @@ If a [Target Network](#select-target-network) is selected/uploaded during the qu
 
 All the queried analyses will be checked against [uploaded gene list](#select-a-target-gene-list) or [uploaded network](#select-target-network) for enrichment.
 
+![listenrichment](../../images/target_list_enrichment.jpg)
+
 Enrichment is calculated using a Fisher's exact test to check for significant overlap between the validated TF-targets returned by the query and the selected target gene list(s). The user can toggle between *P*-value, specificity (percent of TF-target genes in the selected target list) or influence (percent of genes in the selected target list regulated by the TF). All *P*-values are FDR corrected using the Bonferroni correction.
+
+![listenrichment](../../images/list_enrichment.svg)
+
+The heatmap presents similar information as the table but provides a graphical representation.
+
+![listenrichment](../../images/list_enrichment_options.jpg)
+
+The options tab above the results can be used to :
+- Adjust the color range for the heatmap
+- Add additional fields to the table
+- Add extra fields to the heatmap
+
+
 
 ## Motif Enrichment
 
@@ -178,17 +193,26 @@ For each TF analysis returned by the query, the 500 bp promoter region of the TF
 
 Enrichment is also shown for any selected target gene list or network. FDR correction on these is done independently of the validated TF-target analyses returned by the query. 
 
+![motifenrichment](../../images/motif_enrichment.jpg)
+
 ### Individual Motifs
 
 ConnecTF also contains 1310 cis-motifs for 730 Arabidopsis TFs collected from Cis-BP (See [Citations](/citations)). Enrichement of each of these experimentally validated TF cis-motifs in the queried TF-target analyses can calculated in this tab. By default, only the cis-motif(s) for the TF itself will be calculated, but users can use the *Select Motifs* button to calculate enrichment of any of the other motifs in the targets of a specifc TF analysis, or use the *Add/Remove Motifs* button to select a cis-motif for all queried analyses
 
+![motifindividual](../../images/motif_enrichment_individual.jpg)
+
+![motifindividualselect](../../images/motif_enrichment_select_individual.jpg)
 ### Changing the Cutoff and Geneic Region 
 
 The *Options* button at the top of each of the motif enrichment tabs can be used to adjust the *P*-value cutoff (alpha) or select other geneic regions (e.g. 1000bp promoter, 5'UTR, CDS etc.). 
 
+![motifgenomic](../../images/motif_enrichment_location.jpg)
+
 ## Gene Set Enrichment
 
 Gene set enrichment is the pairwise significance of overlap between all the analyses queried using the Fisher's exact test. The coordinates on the grid, with each row and column representing a different analysis, indicate which analyses the cell represents, and the shading color indicates the significance off overlap. A darker color indicates an increased significance of overlap.
+
+![genesetenichment](../../images/geneset_enrichment.jpg)
 
 ## Sungear
 
