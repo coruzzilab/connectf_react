@@ -57,7 +57,7 @@ const config = {
         ]
       },
       {
-        test: /\.(ttf|eot|gif|woff(2)?|png|txt|svg)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        test: /\.(ttf|eot|gif|woff(2)?|png|txt|svg|jpe?g)(\?[a-z0-9]+)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: 'file-loader',
         options: {
           name: '[name].[ext]',
@@ -80,6 +80,7 @@ const config = {
   },
   devtool: 'inline-source-map',
   plugins: [
+    new webpack.ProgressPlugin(),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new Dotenv({path: path.resolve(process.cwd(), '.env.dev')}),
     new HtmlWebpackPlugin({
