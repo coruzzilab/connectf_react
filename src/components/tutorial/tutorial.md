@@ -1,10 +1,18 @@
 # Making a Query
 
+There are two main ways to query the ConnecTF database:
+- Write the query in the text box provided. We imagine this will be the preferred method for researchers as they become comfortable with the syntax.
+- Use the query builder to create the query. This is a great way to start if you are not familiar with the syntax.
+
 ## Searching for a Transcription Factor
 
 ![query box](../../images/query1.png)
 
 Typing the name or ID of a transcription factor (TF) in the query search bar brings up a list of available TFs in the ConnecTF database.
+
+![query box](../../images/tf_search_textbox.jpg)
+
+Select the TF you are interested in and select "Submit". 
 
 ## Query Builder
 
@@ -14,9 +22,20 @@ Typing the name or ID of a transcription factor (TF) in the query search bar bri
 
 For more complex queries, click **Add TF** to add one or more TFs to the query. Use **Add TF Group** plus drag-and-drop to arrange TFs into groups. Selecting **and** or **or** will query the target genes that form the intersection or union, respectively, of the TFs or TF Groups in the query.
 
+![query box](../../images/tf_search_query_builder.jpg)
+
+The "Build Query" button will turn orange when it needs to be updated. Click on it to see the query in the textbox. Click on the the submit button to execute the query. You may choose to unselect the checkbox "Confirm Query Before Submit" so you don't get a popup to confirm the submission.
+
+![query box](../../images/tf_search_query_builder_built.jpg)
+
+
+
 ### Adding Metadata Filters to a Query
 
 Constraits can be added to restrict the target genes returned by the query based on the metadata associated with an experiment. This is done by clicking on the **Add Filter** button and then selecting the desired metadata field from the dropdown menu and a value in the adjacent text box. Available values can be seen by clicking on the empty text box. Combinations of filters can be created with the **Add Filter Group** enabling complex filtering of TF-target gene datasets. Users familiar with the query syntax can add metadata filters to queries they type into the query search bar.  
+
+![query box](../../images/meta_filter_query_builder.jpg)
+
 
 #### Generate Query Created in Query Builder
 
@@ -26,9 +45,13 @@ Click the **Build Query** button to populate the query search bar once all the d
 
 Additional directed and undirected TF-target interactions, including TF-TF protein-protein interactions and in vitro TF-binding (DAP-seq) filtered for open chomatin regions are included in ConnecTF. These interactions can be displayed as additional columns in the results table by selecting the desired edge type in the **Additional Edge Features** section. 
 
+![edgefeatures](../../images/additional_edge_features.jpg)
+
 ### Select a Target Gene List
 
 The **Target Genes** allows users to limit the output of the TF targets to a user defined set of genes. Rather than returning all available TF-targeted genes, only the subset of the TF-targeted genes that are in the selected target gene list will be returned. This can be used to limit the output of the query to genes you are interested in, e.g. a pathway of interest. Users can upload a file containing a list of gene IDs.
+
+![targetgenes](../../images/target_genes.jpg)
 
 Predefined target gene lists for the nitrogen by time response and hormone respones are available for selection. (See [Citations](/citations))
 
@@ -36,15 +59,22 @@ Predefined target gene lists for the nitrogen by time response and hormone respo
 
 The **Filter TFs** limits the *TFs queried* to a user-selected list. This only affects queried TFs, and not its targets. Often used with the built-in keywords (see below) such as ***all_tfs*** to return the results for many TFs without having to enter each of them into the query search bar one by one.
 
+![targetgenes](../../images/filter_tfs.jpg)
+
+
 ### Select Target Network
 
 The **Target Network** option uses the selected network to limit both queried transcription factors and their targets. Effectively limiting the output to the subset of the network provided.
+
+![targetnetwork](../../images/target_network.jpg)
 
 A predefined list of gene networks from separate experiments are also available for selection. (See [Citations](/citations))
 
 ### Background
 
 Several of the analysis tools in ConnecTF report enrichment of the queried TF-target gene list(s) (see below). By default, all protein coding genes are used the background for these calculations. Users can input there own list of genes (e.g. all genes expressed under their experimental condition) for these calcuations using the **Background** option. 
+
+![background](../../images/background.jpg)
 
 ## Built-in Keywords for Common Queries
 
@@ -85,11 +115,20 @@ A query is built by replacing each occurence of **$filter_tf** with the TFs in t
 
 # Results
 
+Once the query is submitted, the first screen that is presented is the **Summary** of the results. The different tabs in the results is based on the original query and filters that were applied. 
+
+
 ## Summary
 
-![summary](../../images/summary.png)
+One the top right of the results there are 4 different buttons:
+- Show/Hide Analysis - Select analysis to include
+- Show Query - The query that was submitted in the textbox
+- Back - back to the query page with form already selected
+- New Query - Start a new query from scratch. 
 
-A horizontal bar chart detailing the number of targets per experimental analysis for each TF. If there are greater than 50 TFs queried, only top 50 by total target count will be displayed.
+![summary](../../images/summary2.jpg)
+
+Summary includes a horizontal bar chart detailing the number of targets per experimental analysis for each TF. If there are greater than 50 TFs queried, only top 50 by total target count will be displayed.
 
 ## Table
 
@@ -129,7 +168,22 @@ If a [Target Network](#select-target-network) is selected/uploaded during the qu
 
 All the queried analyses will be checked against [uploaded gene list](#select-a-target-gene-list) or [uploaded network](#select-target-network) for enrichment.
 
+![listenrichment](../../images/target_list_enrichment.jpg)
+
 Enrichment is calculated using a Fisher's exact test to check for significant overlap between the validated TF-targets returned by the query and the selected target gene list(s). The user can toggle between *P*-value, specificity (percent of TF-target genes in the selected target list) or influence (percent of genes in the selected target list regulated by the TF). All *P*-values are FDR corrected using the Bonferroni correction.
+
+![listenrichment](../../images/list_enrichment.svg)
+
+The heatmap presents similar information as the table but provides a graphical representation.
+
+![listenrichment](../../images/list_enrichment_options.jpg)
+
+The options tab above the results can be used to :
+- Adjust the color range for the heatmap
+- Add additional fields to the table
+- Add extra fields to the heatmap
+
+
 
 ## Motif Enrichment
 
@@ -139,17 +193,26 @@ For each TF analysis returned by the query, the 500 bp promoter region of the TF
 
 Enrichment is also shown for any selected target gene list or network. FDR correction on these is done independently of the validated TF-target analyses returned by the query. 
 
+![motifenrichment](../../images/motif_enrichment.jpg)
+
 ### Individual Motifs
 
 ConnecTF also contains 1310 cis-motifs for 730 Arabidopsis TFs collected from Cis-BP (See [Citations](/citations)). Enrichement of each of these experimentally validated TF cis-motifs in the queried TF-target analyses can calculated in this tab. By default, only the cis-motif(s) for the TF itself will be calculated, but users can use the *Select Motifs* button to calculate enrichment of any of the other motifs in the targets of a specifc TF analysis, or use the *Add/Remove Motifs* button to select a cis-motif for all queried analyses
 
+![motifindividual](../../images/motif_enrichment_individual.jpg)
+
+![motifindividualselect](../../images/motif_enrichment_select_individual.jpg)
 ### Changing the Cutoff and Geneic Region 
 
 The *Options* button at the top of each of the motif enrichment tabs can be used to adjust the *P*-value cutoff (alpha) or select other geneic regions (e.g. 1000bp promoter, 5'UTR, CDS etc.). 
 
+![motifgenomic](../../images/motif_enrichment_location.jpg)
+
 ## Gene Set Enrichment
 
 Gene set enrichment is the pairwise significance of overlap between all the analyses queried using the Fisher's exact test. The coordinates on the grid, with each row and column representing a different analysis, indicate which analyses the cell represents, and the shading color indicates the significance off overlap. A darker color indicates an increased significance of overlap.
+
+![genesetenichment](../../images/geneset_enrichment.jpg)
 
 ## Sungear
 
