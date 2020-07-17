@@ -129,7 +129,7 @@ const ArabidopsisOverview = () => (<table className="table small">
   </tbody>
 </table>);
 
-const MaizeOverview = () => (<table className="table">
+const MaizeOverview = () => (<table className="table small">
   <thead>
   <tr>
     <th/>
