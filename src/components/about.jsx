@@ -213,7 +213,7 @@ const About = () => {
                 </div>
               </div>
               <div className="row">
-                <div className="col">
+                <div className="col overflow-auto">
                   <DataOverview/>
                 </div>
               </div>
