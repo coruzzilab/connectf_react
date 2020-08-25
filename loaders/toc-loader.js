@@ -25,5 +25,6 @@ module.exports = function (source) {
     toc += `- [${name}](#${link})\n`;
   }
 
-  return toc + '\n----\n' + source;
+  return `<div class="row"><div class="col-3">\n\n${toc}</div>` +
+    `<div class="col-9">\n\n${source}</div></div>`;
 };

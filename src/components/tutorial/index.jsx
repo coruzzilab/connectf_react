@@ -32,11 +32,9 @@ class Tutorial extends React.Component {
   }
 
   render() {
-    return <div className="container">
+    return <div className="container-fluid">
       <div className="row">
-        <div className="col">
-          <div dangerouslySetInnerHTML={{__html: tutoriadMd}}/>
-        </div>
+        <div  className="col" dangerouslySetInnerHTML={{__html: tutoriadMd}}/>
       </div>
     </div>;
   }
