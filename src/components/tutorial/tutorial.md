@@ -221,9 +221,9 @@ The *Options* button at the top of each of the motif enrichment tabs can be used
 
 ## Gene Set Enrichment
 
-Gene set enrichment is the pairwise significance of overlap between all the analyses queried using the one-sided Fisher's exact test. The coordinates on the grid, with each row and column representing a different analysis, indicate which analyses the cell represents. Cells above the diagonal report the *P*-value for the upper tail (greater or equal to the observed overlap between TF-target sets) and cells below the diagonal report the *P*-value for the lower tail (lesser or equal to the observed overlap between TF-target sets). The shading color indicates the significance of overlap, with a darker color indicating lower *P*-values.
+Gene set enrichment is the pairwise significance of overlap between all the analyses queried using the one-sided Fisher's exact test. The position on the grid indicates which overlap  the cell represents, with each row and column representing a different queried analysis. Cells above the diagonal report the *P*-value for the upper tail (greater or equal to the observed overlap between TF-target sets) and cells below the diagonal report the *P*-value for the lower tail (lesser or equal to the observed overlap between TF-target sets). The shading color indicates the significance of overlap, with a darker color indicating lower *P*-values.
 
-Adapted from the previously Genesect tool, see [Krouk *et al* and Katari *et al*](/citations#tools).
+Adapted from the Genesect tool described in [Krouk *et al* and Katari *et al*](/citations#tools).
 
 ![genesetenichment](../../images/geneset_enrichment.jpg)
 
