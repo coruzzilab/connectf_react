@@ -44,7 +44,7 @@ class TableBody extends React.Component {
     let hot = this.hot = new Handsontable(this.grid.current, {
       licenseKey: 'non-commercial-and-evaluation',
       readOnly: true,
-      readOnlyCellClassName: 'foobar',  // @todo: placeholder class until bug is fixed
+      readOnlyCellClassName: '',
       rowHeaders: function (idx) {
         if (idx < 6) {
           return '';
@@ -83,19 +83,20 @@ class TableBody extends React.Component {
           cellProperties.type = 'text';
         }
 
-        if (col < 3) {
-          cellProperties.colWidths = 200;
-        }
-
-        if (col === 3) {
-          cellProperties.colWidths = 100;
-        }
-
-        if (col > 7) {
-          cellProperties.colWidths = 120;
-        }
-
         return cellProperties;
+      },
+      colWidths: function (index) {
+        if (index < 3) {
+          return 200;
+        }
+
+        if (index === 3) {
+          return 100;
+        }
+
+        if (index > 6) {
+          return 120;
+        }
       },
       search: true
     });
