@@ -20,19 +20,29 @@ Select the TF you are interested in and select "Submit".
 
 ![query box](../../images/query2.png)
 
-For more complex queries, click **Add TF** to add one or more TFs to the query. Use **Add TF Group** plus drag-and-drop to arrange TFs into groups. Selecting **and** or **or** will query the target genes that form the intersection or union, respectively, of the TFs or TF Groups in the query.
+For more complex queries, click **Add TF** to add one or more TFs to the query. Selecting **and** or **or** will query the target genes that form the intersection or union, respectively, of the TFs in the query. For example, the query in the following two images will return only targets that have an interaction with *both* AT5G65210 and AT5G10030.
 
 ![query box](../../images/tf_search_query_builder.jpg)
 
-The "Build Query" button will turn orange when it needs to be updated. Click on it to see the query in the textbox. Click on the the submit button to execute the query. You may choose to unselect the checkbox "Confirm Query Before Submit" so you don't get a popup to confirm the submission.
+The "Build Query" button will turn orange when it needs to be updated. Click on it to see the query in the textbox. Click on the the "Submit" button to execute the query. You may choose to unselect the checkbox "Confirm Query Before Submit" if you would like to bypass the popup to confirm the query submission.
 
 ![query box](../../images/tf_search_query_builder_built.jpg)
 
+TFs can further be arranged by drag-and-drop into groups created using the **Add TF Group** button. TF groups and filter groups (see following section) are containted within a set of parentheses in the query search bar when the query is built and allow more complex queries to be created. For example, the following query uses a TF group containing AT4G01500 and AT3G10800 to return targets that have in interaction with AT3G26790 and *either* AT4G01500 or AT3G10800
 
+*AT3G26790 and (AT4G01500 or AT3G10800)*
+
+Compare that to the following query without a TF group. This query will return targets with an edge from *both* AT3G26790 and AT4G01500 as well any targets with a AT3G10800 interaction. 
+
+*AT3G26790 and AT4G01500 or AT3G10800*
 
 ### Adding Metadata Filters to a Query
 
-Constraits can be added to restrict the target genes returned by the query based on the metadata associated with an experiment. This is done by clicking on the **Add Filter** button and then selecting the desired metadata field from the dropdown menu and a value in the adjacent text box. Available values can be seen by clicking on the empty text box. Combinations of filters can be created with the **Add Filter Group** enabling complex filtering of TF-target gene datasets. Users familiar with the query syntax can add metadata filters to queries they type into the query search bar.  
+Constraits can be added to restrict the target genes returned by the query based on the metadata associated with an experiment. This is done by clicking on the **Add Filter** button and then selecting the desired metadata field from the dropdown menu and a value in the adjacent text box. Available values can be seen by clicking on the empty text box. Metadata filters will appear within a set of square brackets in the query search bar when the query is built. 
+
+Combinations of filters can be created with the **Add Filter Group** enabling complex filtering of TF-target gene datasets. Users familiar with the query syntax can add metadata filters to queries they type into the query search bar.  
+
+The following example returns targets of AT5G65210 and AT5G10030 that are induced and have a *P*-value less than 0.05.
 
 ![query box](../../images/meta_filter_query_builder.jpg)
 
@@ -49,7 +59,8 @@ Additional directed and undirected TF-target interactions, including TF-TF prote
 
 ### Select a Target Gene List
 
-The **Target Genes** allows users to limit the output of the TF targets to a user defined set of genes. Rather than returning all available TF-targeted genes, only the subset of the TF-targeted genes that are in the selected target gene list will be returned. This can be used to limit the output of the query to genes you are interested in, e.g. a pathway of interest. Users can upload a file containing a list of gene IDs.
+The **Target Genes** allows users to limit the output of the TF targets to a user defined set of genes. Rather than returning all available TF-targeted genes, only the subset of the TF-targeted genes that are in the selected target gene list will be returned. This can be used to limit the output of the query to genes you are interested in, e.g. a pathway of interest. Users can upload a file containing a one or more list of gene IDs. For example, a single user-uploaded file can contain genes that are induced by a treatment as well as a separate list of genes that are repressed by the treatment. 
+
 
 ![targetgenes](../../images/target_genes.jpg)
 
@@ -64,15 +75,15 @@ The **Filter TFs** limits the *TFs queried* to a user-selected list. This only a
 
 ### Select Target Network
 
-The **Target Network** option uses the selected network to limit both queried transcription factors and their targets. Effectively limiting the output to the subset of the network provided.
+Users further have the option of uploading their own network, formatted as tab- or space-delimited file with *source, edge_type, target* columns using the **Target Network** field. An optional fourth *edge score* column can also be included. The selected network is used to limit both queried TFs (first column in network) and targets (third column in network). If a set of TFs or targets are also selected using the **Target Genes** or **Filter TFs** inputs, the network can be further limited to thsoe genes. When a **Target Network** is included in a query, an interactive precision-recall (AUPR) tool appears in the **Network** tab.
 
 ![targetnetwork](../../images/target_network.jpg)
 
-A predefined list of gene networks from separate experiments are also available for selection. (See [Citations](/citations))
+A predefined list of gene networks are available for selection. (See [Citations](/citations))
 
-### Background
+### Select Background
 
-Several of the analysis tools in ConnecTF report enrichment of the queried TF-target gene list(s) (see below). By default, all protein coding genes are used the background for these calculations. Users can input there own list of genes (e.g. all genes expressed under their experimental condition) for these calcuations using the **Background** option. 
+Several of the analysis tools in ConnecTF report enrichment of the queried TF-target gene list(s) (see below). By default, all protein coding genes are used the background for these calculations. Users can input there own list of genes (e.g. all genes expressed under their experimental condition) for these calcuations using the **Select Background** option. 
 
 ![background](../../images/background.jpg)
 
@@ -100,15 +111,15 @@ The basic syntax is:
 
 To demonstrate, for the following query and list of TFs:
 
-*expand("$filter_tf[log2fc < 0] and $filter_tf[EDGE_TYPE='in planta:Bound]", or)*
+*expand("$filter_tf[log2fc < 0] and $filter_tf[EDGE_TYPE='in planta:Bound']", or)*
 
 *Filter TFs:\
-AT5G65210\
-AT4G24020*
+AT5G04340\
+AT2G46680*
 
 A query is built by replacing each occurence of **$filter_tf** with the TFs in the list one by one, and combining them using the chosen operator (**and** or **or**). The above example would be equivilent to:
 
-*(AT5G65210[log2fc < 0] and AT5G65210[EDGE_TYPE='in planta:Bound]) or (AT4G24020[log2fc < 0] and AT4G24020[EDGE_TYPE='in planta:Bound])*
+*(AT5G04340[log2fc < 0] and AT5G04340[EDGE_TYPE='in planta:Bound']) or (AT2G46680[log2fc < 0] and AT2G46680[EDGE_TYPE='in planta:Bound'])*
 
 
 ---
@@ -154,7 +165,7 @@ A summary of the network is included along with a link to the [Network Graph](#n
 
 *Network Graph will be slow and will impact overall browser performance if the network has too many edges.*
 
-Queried TFs are displayed as a group on the left side, with target genes on the right side, grouped by the number of targeting TFs.
+Queried TFs are displayed as a group on the left side, with target genes on the right side, grouped by the number of targeting TFs. Green triangles represent TFs, while all other genes are blue squares. 
 
 Additionally, you can upload a list of edges to be displayed along with the current network with the "**Upload Edges**" button. Note that user uploaded edges will only connect existing genes in the network. No new genes will be placed in the network.
 
@@ -210,7 +221,9 @@ The *Options* button at the top of each of the motif enrichment tabs can be used
 
 ## Gene Set Enrichment
 
-Gene set enrichment is the pairwise significance of overlap between all the analyses queried using the Fisher's exact test. The coordinates on the grid, with each row and column representing a different analysis, indicate which analyses the cell represents, and the shading color indicates the significance off overlap. A darker color indicates an increased significance of overlap.
+Gene set enrichment is the pairwise significance of overlap between all the analyses queried using the one-sided Fisher's exact test. The position on the grid indicates which overlap  the cell represents, with each row and column representing a different queried analysis. Cells above the diagonal report the *P*-value for the upper tail (greater or equal to the observed overlap between TF-target sets) and cells below the diagonal report the *P*-value for the lower tail (lesser or equal to the observed overlap between TF-target sets). The shading color indicates the significance of overlap, with a darker color indicating lower *P*-values.
+
+Adapted from the Genesect tool described in [Krouk *et al* and Katari *et al*](/citations#tools).
 
 ![genesetenichment](../../images/geneset_enrichment.jpg)
 
