@@ -25,6 +25,6 @@ module.exports = function (source) {
     toc += `- [${name}](#${link})\n`;
   }
 
-  return `<div class="row"><div class="col-3">\n\n${toc}</div>` +
-    `<div class="col-9">\n\n${source}</div></div>`;
+  return `<div class="row"><div class="col-3 overflow-auto" style="height: 95vh">\n\n${toc}</div>` +
+    `<div class="col-9 overflow-auto" style="height: 95vh">\n\n${source}</div></div>`;
 };
