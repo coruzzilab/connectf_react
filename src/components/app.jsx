@@ -56,7 +56,7 @@ class App extends React.Component {
             <NavItem to={"/overview"}>Data Overview</NavItem>
             <BSNavItem>
               <a className="nav-link"
-                 href="https://github.com/coruzzilab/connectf_react/issues/new/choose">Feedback</a>
+                 href="https://github.com/coruzzilab/connectf_server/issues/new/choose">Feedback</a>
             </BSNavItem>
           </Nav>
         </Collapse>
