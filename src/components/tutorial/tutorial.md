@@ -24,7 +24,7 @@ For more complex queries, click **Add TF** to add one or more TFs to the query. 
 
 ![query box](../../images/tf_search_query_builder.jpg)
 
-The "Build Query" button will turn orange when it needs to be updated. Click on it to see the query in the textbox. Click on the the "Submit" button to execute the query. You may choose to unselect the checkbox "Confirm Query Before Submit" if you would like to bypass the popup to confirm the query submission.
+The **Build Query** button will turn orange when it needs to be updated. Click on it to see the query in the textbox. Click on the the **Submit** button to execute the query. You may choose to unselect the checkbox **Confirm Query Before Submit** if you would like to bypass the popup to confirm the query submission.
 
 ![query box](../../images/tf_search_query_builder_built.jpg)
 
@@ -128,18 +128,18 @@ A query is built by replacing each occurence of **$filter_tf** with the TFs in t
 
 Once the query is submitted, the first screen that is presented is the **Summary** of the results. The different tabs in the results is based on the original query and filters that were applied. 
 
+One the top right of the results there are 4 different buttons:
+- **Show/Hide Analysis** - Select analyses to include/exclude. Only the selected analyses will be used for multiple testing correction. This can be useful when **and** is used to compare the overlap of two analyses, as the query will return both analyses with the same set of targets. Users can also assign custom labels to an analysis that can be displayed in the various tools.
+- **Show Query** - The query that was submitted in the textbox
+- **Back** - Return to the query page keeping the same inputs
+- **New Query** - Start a new query from scratch. 
 
 ## Summary
 
-One the top right of the results there are 4 different buttons:
-- Show/Hide Analysis - Select analysis to include
-- Show Query - The query that was submitted in the textbox
-- Back - back to the query page with form already selected
-- New Query - Start a new query from scratch. 
+Summary includes a horizontal bar chart detailing the number of targets per experimental analysis for each TF. If there are greater than 50 TFs queried, only top 50 by total target count will be displayed. The TFs are ordered (top to bottom) by the total number of edges across all analyses returned by the query.
 
 ![summary](../../images/summary2.jpg)
 
-Summary includes a horizontal bar chart detailing the number of targets per experimental analysis for each TF. If there are greater than 50 TFs queried, only top 50 by total target count will be displayed.
 
 ## Table
 
