@@ -17,7 +17,7 @@ module.exports = function (source) {
   for (let m of source.match(/^ *#+.+$/gm)) {
     let level = m.split('').reduce(count('#'), 0) - 1;
     let name = m.replace(/^ *#+/, '');
-    let link = name.trim().toLowerCase().replace(/[^a-z ]+/g, '').replace(/ /g, '-');
+    let link = name.trim().toLowerCase().replace(/[^a-z -]+/g, '').replace(/ /g, '-');
 
     for (let i = 0; i < level; i++) {
       toc += '  ';
