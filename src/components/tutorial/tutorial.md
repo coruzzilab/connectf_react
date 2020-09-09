@@ -91,10 +91,10 @@ Several of the analysis tools in ConnecTF report enrichment of the queried TF-ta
 
 Special keywords have been added that allow users to easily query commonly used sets TFs. These include:
 
-***all_tfs***  - query *all* TFs in the ConnecTF database\
-***multitype*** -  query TFs that have more than one "Experiment_Type" in the metadata\
-***all_expression*** - short hand query for "all_tfs[EXPERIMENT_TYPE = Expression]", returns all RNA-seq/microaray experiments\
-***in_planta_bound*** - short hand query for "all_tfs[EDGE_TYPE = in planta:Bound]", returns all binding experiments done in planta\
+***all_tfs***  - query *all* TFs in the ConnecTF database<br>
+***multitype*** -  query TFs that have more than one "Experiment_Type" in the metadata<br>
+***all_expression*** - short hand query for "all_tfs[EXPERIMENT_TYPE = Expression]", returns all RNA-seq/microaray experiments<br>
+***in_planta_bound*** - short hand query for "all_tfs[EDGE_TYPE = in planta:Bound]", returns all binding experiments done in planta<br>
 ***all_dap*** - short hand query for "all_tfs[EDGE_TYPE = in vitro:Bound:DAP or EDGE_TYPE = in vitro:Bound:ampDAP]", returns all DAP-seq binding experiments
 
 *Caution!* Queries generated using these shortcuts can easily return a large number of TF experiments which could result in long wait times.
@@ -113,8 +113,8 @@ To demonstrate, for the following query and list of TFs:
 
 *expand("$filter_tf[log2fc < 0] and $filter_tf[EDGE_TYPE='in planta:Bound']", or)*
 
-*Filter TFs:\
-AT5G04340\
+*Filter TFs:<br>
+AT5G04340<br>
 AT2G46680*
 
 A query is built by replacing each occurence of **$filter_tf** with the TFs in the list one by one, and combining them using the chosen operator (**and** or **or**). The above example would be equivilent to:
