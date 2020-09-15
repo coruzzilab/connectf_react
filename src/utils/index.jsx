@@ -12,6 +12,8 @@ if (location.hostname.startsWith('connectf.')) {
   _SITE = 'arabidopsis';
 } else if (location.hostname.startsWith('maize.connectf.')) {
   _SITE = 'maize';
+} else if (location.hostname.startsWith('rice.connectf.')) {
+  _SITE = 'rice';
 } else {
   _SITE = 'development';
 }

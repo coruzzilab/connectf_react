@@ -49,6 +49,8 @@ const SearchBody = ({setQuery, history}) => {
         setValue("AT4G24020");
       } else if (SITE === 'maize' && _value.indexOf('Zm00001d020430') !== -1) {
         setValue('Zm00001d020430');
+      } else {
+        setValue(_value.head());
       }
     });
   }, []);
@@ -195,6 +197,10 @@ const About = () => {
                   "btn btn-lg mr-2",
                   SITE === 'maize' ? "btn-success" : "btn-primary")}
                    href="https://maize.connectf.org">Maize</a>
+                <a className={classNames(
+                  "btn btn-lg mr-2",
+                  SITE === 'rice' ? "btn-success" : "btn-primary")}
+                   href="https://rice.connectf.org">Rice</a>
               </div>
             </div>
 
