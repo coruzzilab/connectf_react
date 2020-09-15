@@ -27,7 +27,7 @@ import RandomButton from "./random_button";
 import AdditionalEdges from "./additional_edges";
 import WarningModal from "./warning_modal";
 
-const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, warnSubmit, uploadFiles}) => {
+const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, warnSubmit, uploadFiles, networkHeaders}) => {
   return {
     busy,
     query,
@@ -36,7 +36,8 @@ const mapStateToProps = ({busy, query, queryTree, edges, edgeList, queryError, w
     edgeList,
     queryError,
     warnSubmit,
-    uploadFiles
+    uploadFiles,
+    networkHeaders
   };
 };
 
@@ -84,7 +85,7 @@ class QuerybuilderBody extends React.Component {
   }
 
   createSubmitData() {
-    let {query, edges, queryTree, uploadFiles} = this.props;
+    let {query, edges, queryTree, uploadFiles, networkHeaders} = this.props;
     let data = new FormData();
 
     if (!this.props.query) {
@@ -96,6 +97,8 @@ class QuerybuilderBody extends React.Component {
     for (let edge of edges) {
       data.append('edges', edge);
     }
+
+    data.set('networkHeaders', networkHeaders);
 
     // prep files for upload
     _.forEach(uploadFiles, (val, key) => {
@@ -248,7 +251,8 @@ QuerybuilderBody.propTypes = {
   warnSubmit: PropTypes.bool,
   setWarnSubmit: PropTypes.func,
   resetQuery: PropTypes.func,
-  uploadFiles: PropTypes.object
+  uploadFiles: PropTypes.object,
+  networkHeaders: PropTypes.bool
 };
 
 const Querybuilder = connect(mapStateToProps, {

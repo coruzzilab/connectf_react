@@ -570,7 +570,7 @@ export const renameAnalysisIds = (idx, name) => {
   };
 };
 
-export const addUpload = (key, name, content, fileName = '') => {
+export const addUpload = (key, name, content = null, fileName = '') => {
   return {
     type: 'ADD_UPLOAD',
     key,
@@ -618,6 +618,13 @@ export const getExtraFieldNames = () => {
   };
 };
 
+export const setNetworkHeaders = (hasHeaders = false) => {
+  return {
+    type: 'SET_NETWORK_HEADERS',
+    hasHeaders
+  };
+};
+
 export const resetQuery = () => (dispatch) => {
   dispatch(clearEdges());
   dispatch(clearQuery());
@@ -625,4 +632,5 @@ export const resetQuery = () => (dispatch) => {
   dispatch(clearQueryTree());
   dispatch(clearRequestId());
   dispatch(clearQueryError());
+  dispatch(setNetworkHeaders(false));
 };

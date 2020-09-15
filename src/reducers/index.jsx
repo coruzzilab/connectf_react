@@ -414,6 +414,15 @@ function extraFieldNames(state = [], action) {
   }
 }
 
+function networkHeaders(state = false, action) {
+  switch (action.type) {
+  case 'SET_NETWORK_HEADERS':
+    return action.hasHeaders;
+  default:
+    return state;
+  }
+}
+
 const tgdbApp = {
   busy,
   query,
@@ -436,7 +445,8 @@ const tgdbApp = {
   warnSubmit,
   analysisIds,
   uploadFiles,
-  extraFieldNames
+  extraFieldNames,
+  networkHeaders
 };
 
 export default combineReducers(tgdbApp);

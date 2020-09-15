@@ -5,13 +5,13 @@
 import {BackgroundGenesInfo, FilterTfInfo, NetworkInfo, TargetGeneInfo, UploadFile} from "./common";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {cloneElement, useCallback, useEffect, useRef, useState} from "react";
 import {FontAwesomeIcon as Icon} from "@fortawesome/react-fontawesome";
 import classNames from 'classnames';
 import instance, {BASE_URL, getTargetGeneLists, getTargetNetworks} from "../../utils/axios_instance";
 import {ExportModal} from "../common";
 import {connect} from "react-redux";
-import {addUpload, removeUpload} from "../../actions";
+import {addUpload, removeUpload, setNetworkHeaders} from "../../actions";
 
 const TempLists = ({tempLists}) => {
   return <optgroup label="Saved Lists">
@@ -172,7 +172,10 @@ const clickFill = (onChange, setInputValue) => {
   };
 };
 
-const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, save, enableUpload, addUpload, removeUpload, enableAutofill, enableDownload}) => {
+const ListFormBody = ({
+                        uploadFiles, listName, list, tempLists, name, fileName, save,
+                        enableUpload, addUpload, removeUpload, enableAutofill, enableDownload, extraOpts
+                      }) => {
   let [inputValue, setInputValue] = useState("");
   let [value, setValue] = useState(_.get(uploadFiles, [listName, 'name'], ""));
   let rowRef = useRef(null);
@@ -192,7 +195,7 @@ const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, s
     } else if (_.has(tempLists, value)) {
       addUpload(listName, value, tempLists[value]);
     } else if (value && value !== "other") {
-      addUpload(listName, value, null);
+      addUpload(listName, value);
     } else if (!value) {
       removeUpload(listName);
     }
@@ -244,6 +247,8 @@ const ListFormBody = ({uploadFiles, listName, list, tempLists, name, fileName, s
                    }}
                    save={save}/> :
         null}
+
+      {extraOpts ? cloneElement(extraOpts, {value}) : null}
     </div>
   </div>;
 };
@@ -260,7 +265,8 @@ ListFormBody.propTypes = {
   enableDownload: PropTypes.bool,
   addUpload: PropTypes.func,
   removeUpload: PropTypes.func,
-  uploadFiles: PropTypes.object
+  uploadFiles: PropTypes.object,
+  extraOpts: PropTypes.node
 };
 
 ListFormBody.defaultProps = {
@@ -364,6 +370,33 @@ FilterTfFileBody.propTypes = {
 
 export const FilterTfFile = connect(({tempLists}) => ({tempLists}))(FilterTfFileBody);
 
+const TargetNetworkOptsBody = ({value, networkHeaders, setNetworkHeaders}) => {
+  return (value === 'other' || value === 'input') ?
+    <div className="row">
+      <div className="col">
+        <div className="form-check">
+          <label className="form-check-label">
+            <input type="checkbox" className="form-check-input"
+                   value={networkHeaders}
+                   onChange={(e) => {
+                     setNetworkHeaders(e.target.checked);
+                   }}/>
+            File Contains Header
+          </label>
+        </div>
+      </div>
+    </div> :
+    null;
+};
+
+TargetNetworkOptsBody.propTypes = {
+  value: PropTypes.string,
+  networkHeaders: PropTypes.bool,
+  setNetworkHeaders: PropTypes.func
+};
+
+export const TargetNetworkOpts = connect(({networkHeaders}) => ({networkHeaders}), {setNetworkHeaders})(TargetNetworkOptsBody);
+
 export const TargetNetworkFile = () => {
   let [targetNetworks, setTargetNetworks] = useState([]);
 
@@ -387,7 +420,8 @@ export const TargetNetworkFile = () => {
                 listName="targetnetworks"
                 list={targetNetworks}
                 save={false}
-                enableAutofill={false}/>
+                enableAutofill={false}
+                extraOpts={<TargetNetworkOpts/>}/>
     </div>
   </div>;
 };
