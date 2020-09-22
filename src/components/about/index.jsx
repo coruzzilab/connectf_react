@@ -8,13 +8,14 @@ import {Link, withRouter} from 'react-router-dom';
 import {FontAwesomeIcon as Icon} from '@fortawesome/react-fontawesome';
 import {connect} from "react-redux";
 import classNames from "classnames";
-import {TwitterFollow} from "./common";
-import AutoComplete from "./common/autocomplete";
-import {getTFs} from "../utils/axios_instance";
+import {TwitterFollow} from "../common";
+import AutoComplete from "../common/autocomplete";
+import {getTFs} from "../../utils/axios_instance";
 import _ from "lodash";
-import {setQuery} from "../actions";
-import {TargetGeneSelection} from "./querybuilder/query_file";
-import {SITE} from "../utils";
+import {setQuery} from "../../actions";
+import {TargetGeneSelection} from "../querybuilder/query_file";
+import {SITE} from "../../utils";
+import {ArabidopsisOverview, MaizeOverview, RiceOverview} from "./overview";
 
 const DataOverviewLink = () => (<Link to="/overview" className="btn btn-primary">
   <Icon icon="search" className="mr-2"/>Data Overview</Link>);
@@ -25,6 +26,8 @@ function searchExample() {
     return 'AT4G24020, NLP7';
   case "maize":
     return 'Zm00001d020430, ra1';
+  case "rice":
+    return 'LOC_Os01g15640';
   default:
     return 'N/A';
   }
@@ -103,67 +106,14 @@ const QueryExample = () => {
   }
 };
 
-
-const ArabidopsisOverview = () => (<table className="table small">
-  <thead>
-  <tr>
-    <th/>
-    <th>No. of TFs</th>
-    <th>TF-target interactions</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <th>in planta TF-binding (ChIP-seq)</th>
-    <td>26</td>
-    <td>257,400</td>
-  </tr>
-  <tr>
-    <th>in vitro TF-binding (DAP-seq)</th>
-    <td>382</td>
-    <td>3,335,595</td>
-  </tr>
-  <tr>
-    <th>TF-regulation</th>
-    <td>62</td>
-    <td>145,283</td>
-  </tr>
-  </tbody>
-</table>);
-
-const MaizeOverview = () => (<table className="table small">
-  <thead>
-  <tr>
-    <th/>
-    <th>No. of TFs</th>
-    <th>TF-target interactions</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <th>in planta TF-binding (ChIP-seq)</th>
-    <td>107</td>
-    <td>301,388</td>
-  </tr>
-  <tr>
-    <th>in vitro TF-binding (DAP-seq)</th>
-    <td>32</td>
-    <td>492,814</td>
-  </tr>
-  <tr>
-    <th>TF-regulation</th>
-    <td>5</td>
-    <td>45,008</td>
-  </tr>
-  </tbody>
-</table>);
-
 const DataOverview = () => {
   switch (SITE) {
   case "arabidopsis":
     return <ArabidopsisOverview/>;
   case "maize":
     return <MaizeOverview/>;
+  case "rice":
+    return <RiceOverview/>;
   default:
     return null;
   }
@@ -271,7 +221,7 @@ const About = () => {
               </p>
             </div>
             <div className="col-4">
-              <img src={require('../images/about_network.svg')} alt="network" className="img-fluid"/>
+              <img src={require('../../images/about_network.svg')} alt="network" className="img-fluid"/>
             </div>
             <div className="col-1"/>
           </div>
@@ -286,7 +236,7 @@ const About = () => {
               </p>
             </div>
             <div className="col-4">
-              <img src={require('../images/about_aupr.svg')} alt="network" className="img-fluid"/>
+              <img src={require('../../images/about_aupr.svg')} alt="network" className="img-fluid"/>
             </div>
             <div className="col-1"/>
           </div>
@@ -301,7 +251,7 @@ const About = () => {
               </p>
             </div>
             <div className="col-4">
-              <img src={require('../images/about_motif.svg')} alt="motif enrichment" className="img-fluid"/>
+              <img src={require('../../images/about_motif.svg')} alt="motif enrichment" className="img-fluid"/>
             </div>
             <div className="col-1"/>
           </div>
@@ -316,7 +266,7 @@ const About = () => {
               </p>
             </div>
             <div className="col-4">
-              <img src={require('../images/about_geneset.svg')} alt="gene set enrichment" className="img-fluid"/>
+              <img src={require('../../images/about_geneset.svg')} alt="gene set enrichment" className="img-fluid"/>
             </div>
             <div className="col-1"/>
           </div>
@@ -331,7 +281,7 @@ const About = () => {
               </p>
             </div>
             <div className="col-4">
-              <img src={require('../images/about_sungear.svg')} alt="sungear" className="img-fluid"/>
+              <img src={require('../../images/about_sungear.svg')} alt="sungear" className="img-fluid"/>
             </div>
             <div className="col-1"/>
           </div>
