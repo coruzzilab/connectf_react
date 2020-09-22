@@ -66,7 +66,7 @@ class App extends React.Component {
             <NavItem to={"/overview"}>Data Overview</NavItem>
             <UncontrolledDropdown nav inNavbar>
               <DropdownToggle nav caret>
-                Sites
+                Species
               </DropdownToggle>
               <DropdownMenu right>
                 <DropdownItem tag="a" href="https://connectf.org">
