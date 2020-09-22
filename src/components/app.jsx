@@ -3,7 +3,17 @@
  */
 import React from 'react';
 import {Link, Redirect, Route, Switch} from 'react-router-dom';
-import {Collapse, Nav, Navbar, NavbarToggler, NavItem as BSNavItem} from 'reactstrap';
+import {
+  Collapse,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  Nav,
+  Navbar,
+  NavbarToggler,
+  NavItem as BSNavItem,
+  UncontrolledDropdown
+} from 'reactstrap';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import styled from 'styled-components';
 import classNames from 'classnames';
@@ -54,6 +64,22 @@ class App extends React.Component {
             <NavItem to={"/citations"}>Citations</NavItem>
             <NavItem to={"/query"}>Query</NavItem>
             <NavItem to={"/overview"}>Data Overview</NavItem>
+            <UncontrolledDropdown nav inNavbar>
+              <DropdownToggle nav caret>
+                Sites
+              </DropdownToggle>
+              <DropdownMenu right>
+                <DropdownItem tag="a" href="https://connectf.org">
+                  Arabidopsis
+                </DropdownItem>
+                <DropdownItem tag="a" href="https://maize.connectf.org">
+                  Maize
+                </DropdownItem>
+                <DropdownItem tag="a" href="https://rice.connectf.org">
+                  Rice
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
             <BSNavItem>
               <a className="nav-link"
                  href="https://github.com/coruzzilab/connectf_server/issues/new/choose">Feedback</a>
