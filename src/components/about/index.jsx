@@ -15,7 +15,7 @@ import _ from "lodash";
 import {setQuery} from "../../actions";
 import {TargetGeneSelection} from "../querybuilder/query_file";
 import {SITE} from "../../utils";
-import {ArabidopsisOverview, MaizeOverview, RiceOverview} from "./overview";
+import {ArabidopsisOverview, MaizeOverview, NaOverview, RiceOverview} from "./overview";
 
 const DataOverviewLink = () => (<Link to="/overview" className="btn btn-primary">
   <Icon icon="search" className="mr-2"/>Data Overview</Link>);
@@ -115,7 +115,7 @@ const DataOverview = () => {
   case "rice":
     return <RiceOverview/>;
   default:
-    return null;
+    return <NaOverview/>;
   }
 };
 
