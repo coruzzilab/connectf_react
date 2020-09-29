@@ -117,6 +117,7 @@ const config = {
       filename: '[name].[contenthash].css'
     }),
     new HtmlWebpackPlugin({
+      favicon: 'src/favicon.svg',
       template: 'src/index.ejs',
       templateParameters: {
         RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,

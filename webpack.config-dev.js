@@ -84,6 +84,7 @@ const config = {
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
     new Dotenv({path: path.resolve(process.cwd(), '.env.dev')}),
     new HtmlWebpackPlugin({
+      favicon: 'src/favicon.svg',
       template: 'src/index.ejs',
       templateParameters: {
         RECAPTCHA_SITE_KEY: process.env.RECAPTCHA_SITE_KEY,
