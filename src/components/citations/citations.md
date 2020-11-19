@@ -1,6 +1,6 @@
 ### If You Use ConnecTF In Your Own Work, Please Cite Us:
 
-- Brooks, M.D., C.-L. Juang, M.S. Katari, J.M. Alvarez, A. Pasquino, H.-J. Shih, J. Huang, C. Shanks, J. Cirrone, and G.M. Coruzzi, ConnecTF: A platform to build gene networks by integrating transcription factor-target gene interactions. boRxiv, 2020.07.07.191627; https://doi.org/10.1101/2020.07.07.191627
+- Matthew D Brooks, Che-Lun Juang, Manpreet Singh Katari, José M Alvarez, Angelo Pasquino, Hung-Jui Shih, Ji Huang, Carly Shanks, Jacopo Cirrone, Gloria M Coruzzi, ConnecTF: A platform to integrate transcription factor-gene interactions and validate regulatory networks, Plant Physiology, , kiaa012, https://doi.org/10.1093/plphys/kiaa012
 
 ### Data Sources
 

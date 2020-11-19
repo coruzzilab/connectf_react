@@ -131,29 +131,39 @@ const About = () => {
                 <p className="lead">
                   Query transcription factor and target gene interactions.
                 </p>
-              </div>
-            </div>
-            <div className="row justify-content-sm-center">
-              <div className="col">
-                <Link to="/tutorial" className="btn btn-primary btn-lg mr-2">
-                  <Icon icon="book-open" className="mr-2"/>Learn More</Link>
-                <Link to="/query" className="btn btn-primary btn-lg mr-4">Get Started
-                  <Icon icon="chevron-circle-right" className="ml-2"/></Link>
-                <a className={classNames(
-                  "btn btn-lg mr-2",
-                  SITE === 'arabidopsis' ? "btn-success" : "btn-primary")}
-                   href="https://connectf.org">Arabidopsis</a>
-                <a className={classNames(
-                  "btn btn-lg mr-2",
-                  SITE === 'maize' ? "btn-success" : "btn-primary")}
-                   href="https://maize.connectf.org">Maize</a>
-                <a className={classNames(
-                  "btn btn-lg mr-2",
-                  SITE === 'rice' ? "btn-success" : "btn-primary")}
-                   href="https://rice.connectf.org">Rice</a>
-              </div>
-            </div>
 
+                <p className="lead">
+                  <Link to="/tutorial" className="btn btn-primary btn-lg mr-2">
+                    <Icon icon="book-open" className="mr-2"/>Learn More</Link>
+                  <Link to="/query" className="btn btn-primary btn-lg mr-4">Get Started
+                    <Icon icon="chevron-circle-right" className="ml-2"/></Link>
+                  <a className={classNames(
+                    "btn btn-lg mr-2",
+                    SITE === 'arabidopsis' ? "btn-success" : "btn-primary")}
+                     href="https://connectf.org">Arabidopsis</a>
+                  <a className={classNames(
+                    "btn btn-lg mr-2",
+                    SITE === 'maize' ? "btn-success" : "btn-primary")}
+                     href="https://maize.connectf.org">Maize</a>
+                  <a className={classNames(
+                    "btn btn-lg mr-2",
+                    SITE === 'rice' ? "btn-success" : "btn-primary")}
+                     href="https://rice.connectf.org">Rice</a>
+                </p>
+
+                <hr className="my-4"/>
+
+                <p>
+                  Read more at <span className="font-italic">Plant Physiology</span>:&nbsp;
+                  <a href="https://academic.oup.com/plphys/advance-article/doi/10.1093/plphys/kiaa012/5988590"
+                     target="_blank"
+                     rel="noreferrer">
+                    ConnecTF: A platform to integrate transcription factor-gene interactions and validate regulatory
+                    networks
+                  </a>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
