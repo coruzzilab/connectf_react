@@ -28,6 +28,7 @@ The **Build Query** button will turn orange when it needs to be updated. Click o
 
 ![query box](../../images/tf_search_query_builder_built.jpg)
 
+<a name="tfgroups"></a>
 TFs can further be arranged by drag-and-drop into groups created using the **Add TF Group** button. TF groups and filter groups (see following section) are containted within a set of parentheses in the query search bar when the query is built and allow more complex queries to be created. For example, the following query uses a TF group containing AT4G01500 and AT3G10800 to return targets that have in interaction with AT3G26790 and *either* AT4G01500 or AT3G10800
 
 *AT3G26790 and (AT4G01500 or AT3G10800)*
@@ -35,6 +36,10 @@ TFs can further be arranged by drag-and-drop into groups created using the **Add
 Compare that to the following query without a TF group. This query will return targets with an edge from *both* AT3G26790 and AT4G01500 as well any targets with a AT3G10800 interaction. 
 
 *AT3G26790 and AT4G01500 or AT3G10800*
+
+The following GIF demonstrates how to drag-and-drop TFs into a TF group. Note the behavior of the **and**/**or** operators that depends on the order of the TFs within the group.  
+
+![query box](../../images/ConnecTF_TFGroup.gif)
 
 ### Adding Metadata Filters to a Query
 
