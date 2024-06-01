@@ -5,10 +5,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 import {BrowserRouter as Router} from 'react-router-dom';
-import "core-js/stable";
-import "regenerator-runtime";
+import 'core-js/stable';
+import 'regenerator-runtime';
 
-import 'bootstrap/scss/bootstrap.scss';
+import 'bootstrap/dist/css/bootstrap.css';
 import './styles/style.scss';
 
 import './fontawesome';
@@ -19,8 +19,8 @@ import App from './components/app';
 ReactDOM.render(
   <Provider store={store}>
     <Router>
-      <App/>
+      <App />
     </Router>
   </Provider>,
-  document.getElementById('app')
+  document.getElementById('app'),
 );
