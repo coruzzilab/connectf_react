@@ -104,6 +104,7 @@ const AutoComplete = ({value, onChange, inputProps, items, className, mapItemToV
 
   return <div role="combobox" className={classNames("mw-100", className)}>
     <input ref={searchRef}
+           className="form-control form-control-lg rounded-0"
            type="search"
            role="searchbox"
            aria-controls="autocomplete_list"
