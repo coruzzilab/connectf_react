@@ -8,7 +8,7 @@ import {BrowserRouter as Router} from 'react-router-dom';
 import "core-js/stable";
 import "regenerator-runtime";
 
-import 'bootstrap/scss/bootstrap.scss';
+import 'bootstrap/dist/css/bootstrap.css';
 import './styles/style.scss';
 
 import './fontawesome';
@@ -22,5 +22,5 @@ ReactDOM.render(
       <App/>
     </Router>
   </Provider>,
-  document.getElementById('app')
+  document.getElementById('app'),
 );
