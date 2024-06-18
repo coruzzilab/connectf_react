@@ -7,7 +7,7 @@ import {CopyButton} from "../common";
 import {Copied} from "./common";
 import classNames from "classnames";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import QueryAutocomplete from "./query_autocomplete";
+import AutoComplete from "../common/autocomplete";
 import {connect} from "react-redux";
 import {setQuery} from "../../actions";
 import PropTypes from "prop-types";
@@ -22,7 +22,7 @@ function mapStateToProps({busy, query, queryError}) {
 
 class QueryBoxBody extends React.Component {
   render() {
-    let {query, busy, queryError, setQuery, reset, className} = this.props;
+    let {query, busy, queryError, reset, className} = this.props; //setQuery
 
     return <div className={classNames("form-row mx-1 my-2", className)}>
       <div className="col">
@@ -30,7 +30,7 @@ class QueryBoxBody extends React.Component {
           <div className="input-group-prepend">
             <CopyButton text={query} className="btn-lg" content={Copied}/>
           </div>
-          <QueryAutocomplete value={query} setQuery={setQuery}/>
+          <AutoComplete value={query} onChange={setQuery}/>
           <div className="input-group-append">
             {busy ?
               <button type="submit" className="btn btn-warning btn-lg" id="submit">
