@@ -104,8 +104,9 @@ const config = {
     port: 8080,
     historyApiFallback: true,
     hot: true,
+    host: "0.0.0.0", 
     proxy: {
-      '/api': 'http://localhost:8001'
+      '/api': 'http://host.docker.internal:8001'// 'http://localhost:8001'
     }
   }
 };

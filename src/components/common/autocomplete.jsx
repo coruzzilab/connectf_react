@@ -40,7 +40,7 @@ const AutoComplete = ({value, onChange, inputProps, items, className, mapItemToV
     }
   }, [value, items, listRef, mapItemToSearch]);
 
-  const onClick = (e) => {
+  const onClick = () => {
     nativeInputValueSetter.call(searchRef.current, mapItemToValue(searchItems[active]));
     searchRef.current.dispatchEvent(new Event('input', {bubbles: true}));
     setOpen(false);
@@ -104,6 +104,7 @@ const AutoComplete = ({value, onChange, inputProps, items, className, mapItemToV
 
   return <div role="combobox" className={classNames("mw-100", className)}>
     <input ref={searchRef}
+           className="form-control form-control-lg rounded-0"
            type="search"
            role="searchbox"
            aria-controls="autocomplete_list"
@@ -113,10 +114,10 @@ const AutoComplete = ({value, onChange, inputProps, items, className, mapItemToV
            value={value}
            onChange={onChange}
            onKeyDown={onKeyDown}
-           onDoubleClick={(e) => {
+           onDoubleClick={() => {
              setOpen(true);
            }}
-           onBlur={(e) => {
+           onBlur={() => {
              setOpen(false);
              setActive(-1);
            }}/>
